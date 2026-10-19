@@ -1,0 +1,13 @@
+* { box-sizing: border-box; }
+html, body, #game { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #9ed7f2; }
+#application { display: block; width: 100%; height: 100%; touch-action: none; }
+.hud { position: absolute; top: max(14px, env(safe-area-inset-top)); left: 14px; right: 14px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; pointer-events: none; }
+.brand { color: white; font-weight: 800; font-size: clamp(18px, 4vw, 28px); text-shadow: 0 2px 8px #17324c; }
+.hint { color: #fff; font-size: 12px; background: #17324caa; padding: 8px 10px; border-radius: 12px; text-align: right; }
+.touch-pad { position: absolute; left: 18px; bottom: max(18px, env(safe-area-inset-bottom)); width: 156px; height: 156px; }
+.move { position: absolute; width: 48px; height: 48px; border: 1px solid #ffffffa8; border-radius: 15px; color: white; background: #17324cbb; font-size: 20px; font-weight: 800; touch-action: none; user-select: none; -webkit-user-select: none; }
+.move:active { background: #e47748ee; }
+.up { left: 54px; top: 0; } .down { left: 54px; bottom: 0; } .left { left: 0; top: 54px; } .right { right: 0; top: 54px; }
+#status { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); max-width: 70vw; padding: 7px 12px; border-radius: 10px; background: #17324caa; color: white; font-size: 12px; text-align: center; pointer-events: none; }
+@media (max-width: 480px) { .hint { max-width: 155px; } #status { left: auto; right: 12px; bottom: 18px; transform: none; } }
