@@ -18,11 +18,7 @@
     <aside id="character-references" hidden aria-label="مراجع شخصيات WonderWorld">
       <div class="references-heading"><strong>مراجع الشخصيات</strong><button id="references-close" type="button" aria-label="إغلاق">✕</button></div>
       <p>الصور دي مراجع بصرية للتصميم، وليست نماذج شخصيات ثلاثية الأبعاد.</p>
-      <div class="reference-grid">
-        <figure><img src="https://kkfmrvgpendfziejscsz.supabase.co/storage/v1/object/public/Wonder%20World%20Game/characters/IMG-20261018-WA0015.jpg" alt="مرجع الشخصية الأول" loading="lazy"><figcaption>المرجع ١</figcaption></figure>
-        <figure><img src="https://kkfmrvgpendfziejscsz.supabase.co/storage/v1/object/public/Wonder%20World%20Game/characters/IMG_d1d9c8b3-b7c7-4700-87b4-a4099590ab92.jpg" alt="مرجع الشخصية الثاني" loading="lazy"><figcaption>المرجع ٢</figcaption></figure>
-        <figure><img src="https://kkfmrvgpendfziejscsz.supabase.co/storage/v1/object/public/Wonder%20World%20Game/characters/IMG_eec0ba1a-c1d6-4a45-8698-02aeb0ad9f08.jpg" alt="مرجع الشخصية الثالث" loading="lazy"><figcaption>المرجع ٣</figcaption></figure>
-      </div>
+      <div class="reference-grid" id="reference-grid"><p id="references-status">جاري تحميل صور الشخصيات…</p></div>
     </aside>
     <div class="touch-pad" aria-label="أزرار الحركة">
       <button class="move up" data-dir="up" aria-label="تحركي للأمام">▲</button><button class="move left" data-dir="left" aria-label="تحركي لليسار">◀</button><button class="move down" data-dir="down" aria-label="تحركي للخلف">▼</button><button class="move right" data-dir="right" aria-label="تحركي لليمين">▶</button>
@@ -36,6 +32,72 @@
     function setReferencesOpen(open) { panel.hidden = !open; toggle.setAttribute('aria-expanded', String(open)); }
     toggle.addEventListener('click', () => setReferencesOpen(panel.hidden));
     close.addEventListener('click', () => setReferencesOpen(false));
+
+    // Public client key only. Never put a Supabase service-role or secret key in browser code.
+    const SUPABASE_URL = 'https://kkfmrvgpendfziejscsz.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_aOosJXpV_6B_ErSwVFJ1zQ_ZAq_nksS';
+    const BUCKET = 'Wonder World Game';
+    const grid = document.getElementById('reference-grid');
+    const referenceStatus = document.getElementById('references-status');
+
+    async function loadCharacterReferences() {
+      try {
+        const allFiles = [];
+        let offset = 0;
+        const limit = 100;
+        while (true) {
+          const response = await fetch(
+            SUPABASE_URL + '/storage/v1/object/list/' + encodeURIComponent(BUCKET),
+            {
+              method: 'POST',
+              headers: {
+                apikey: SUPABASE_PUBLISHABLE_KEY,
+                Authorization: 'Bearer ' + SUPABASE_PUBLISHABLE_KEY,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                prefix: 'characters',
+                limit,
+                offset,
+                sortBy: { column: 'name', order: 'asc' }
+              })
+            }
+          );
+          if (!response.ok) throw new Error('Supabase Storage list failed: ' + response.status);
+          const files = await response.json();
+          allFiles.push(...files.filter(file => /\.(avif|gif|jpe?g|png|webp|bmp)$/i.test(file.name || '')));
+          if (files.length < limit) break;
+          offset += limit;
+        }
+
+        grid.replaceChildren();
+        if (!allFiles.length) {
+          const message = document.createElement('p');
+          message.textContent = 'لسه مفيش صور داخل مجلد characters في Supabase.';
+          grid.appendChild(message);
+          return;
+        }
+
+        for (const file of allFiles) {
+          const figure = document.createElement('figure');
+          const image = document.createElement('img');
+          const caption = document.createElement('figcaption');
+          const objectPath = 'characters/' + file.name.split('/').map(encodeURIComponent).join('/');
+          image.src = SUPABASE_URL + '/storage/v1/object/public/' + encodeURIComponent(BUCKET) + '/' + objectPath;
+          image.alt = file.name;
+          image.loading = 'lazy';
+          caption.textContent = file.name;
+          figure.append(image, caption);
+          grid.appendChild(figure);
+        }
+      } catch (error) {
+        console.error(error);
+        if (referenceStatus) {
+          referenceStatus.textContent = 'تعذّر تحميل الصور من Supabase. راجعي اتصال Storage وسياسة عرض قائمة الصور.';
+        }
+      }
+    }
+    loadCharacterReferences();
   </script>
   <script type="module" src="./main.js"></script>
 </body>
