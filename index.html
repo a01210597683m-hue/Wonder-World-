@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="ar">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -7,28 +7,36 @@
   <title>WonderWorld — 3D Prototype</title>
   <link rel="stylesheet" href="./style.css">
   <script type="importmap">
-    {
-      "imports": {
-        "playcanvas": "https://cdn.jsdelivr.net/npm/playcanvas@2.7.3/build/playcanvas.mjs"
-      }
-    }
+    {"imports":{"playcanvas":"https://cdn.jsdelivr.net/npm/playcanvas@2.7.3/build/playcanvas.mjs"}}
   </script>
 </head>
 <body>
   <main id="game">
     <canvas id="application" aria-label="WonderWorld 3D game"></canvas>
-    <header class="hud">
-      <div class="brand">WonderWorld</div>
-      <div class="hint">Move with the arrows or WASD</div>
-    </header>
-    <div class="touch-pad" aria-label="Touch movement controls">
-      <button class="move up" data-dir="up" aria-label="Move forward">▲</button>
-      <button class="move left" data-dir="left" aria-label="Move left">◀</button>
-      <button class="move down" data-dir="down" aria-label="Move backward">▼</button>
-      <button class="move right" data-dir="right" aria-label="Move right">▶</button>
+    <header class="hud"><div class="brand">WonderWorld</div><div class="hint">حرّكي بالأسهم أو أزرار الشاشة</div></header>
+    <button id="references-toggle" type="button" aria-expanded="false" aria-controls="character-references">مراجع الشخصيات</button>
+    <aside id="character-references" hidden aria-label="مراجع شخصيات WonderWorld">
+      <div class="references-heading"><strong>مراجع الشخصيات</strong><button id="references-close" type="button" aria-label="إغلاق">✕</button></div>
+      <p>الصور دي مراجع بصرية للتصميم، وليست نماذج شخصيات ثلاثية الأبعاد.</p>
+      <div class="reference-grid">
+        <figure><img src="https://raw.githubusercontent.com/a01210597683m-hue/Wonder-World-/main/assets/characters/IMG-20261018-WA0015.jpg" alt="مرجع الشخصية الأول" loading="lazy"><figcaption>المرجع ١</figcaption></figure>
+        <figure><img src="https://raw.githubusercontent.com/a01210597683m-hue/Wonder-World-/main/assets/characters/IMG_d1d9c8b3-b7c7-4700-87b4-a4099590ab92.jpg" alt="مرجع الشخصية الثاني" loading="lazy"><figcaption>المرجع ٢</figcaption></figure>
+        <figure><img src="https://raw.githubusercontent.com/a01210597683m-hue/Wonder-World-/main/assets/characters/IMG_eec0ba1a-c1d6-4a45-8698-02aeb0ad9f08.jpg" alt="مرجع الشخصية الثالث" loading="lazy"><figcaption>المرجع ٣</figcaption></figure>
+      </div>
+    </aside>
+    <div class="touch-pad" aria-label="أزرار الحركة">
+      <button class="move up" data-dir="up" aria-label="تحركي للأمام">▲</button><button class="move left" data-dir="left" aria-label="تحركي لليسار">◀</button><button class="move down" data-dir="down" aria-label="تحركي للخلف">▼</button><button class="move right" data-dir="right" aria-label="تحركي لليمين">▶</button>
     </div>
-    <div id="status" role="status">Loading 3D world…</div>
+    <div id="status" role="status">تحميل عالم 3D…</div>
   </main>
+  <script>
+    const toggle = document.getElementById('references-toggle');
+    const panel = document.getElementById('character-references');
+    const close = document.getElementById('references-close');
+    function setReferencesOpen(open) { panel.hidden = !open; toggle.setAttribute('aria-expanded', String(open)); }
+    toggle.addEventListener('click', () => setReferencesOpen(panel.hidden));
+    close.addEventListener('click', () => setReferencesOpen(false));
+  </script>
   <script type="module" src="./main.js"></script>
 </body>
 </html>
