@@ -1,26 +1,23 @@
 # WonderWorld
 
-WonderWorld is a mobile-first 3D virtual-life simulation game, being built in small, testable milestones.
+WonderWorld is a mobile-first 3D life-simulation game prototype built with the PlayCanvas Engine for browsers.
+
+## Run the prototype
+Open `index.html` through a web server or a static-hosting service. The page loads the PlayCanvas Engine from a pinned CDN version. Opening an ES module page directly as a `file://` URL may not work in every browser.
 
 ## Current prototype
-- A simple 3D test ground and lighting.
-- A placeholder player character.
-- Keyboard and on-screen directional controls.
-- A roadmap for the next development milestones.
-
-## Open in Godot
-1. Import the folder containing `project.godot`.
-2. The project files are kept directly in the repository root to make them easier to find on mobile.
-3. Open `Main.tscn` and run the project.
-
-This is an initial scaffold, not a finished game. The scene still needs to be tested in Godot on the target phone.
+- Basic 3D environment with ground and directional lighting.
+- Placeholder character and follow camera.
+- Keyboard controls (WASD / arrow keys).
+- On-screen touch buttons for mobile.
 
 ## Main files
-- `project.godot` — project settings and startup scene.
-- `Main.tscn` — starter 3D scene.
-- `player.gd` — basic player movement.
-- `touch_controls.gd` — on-screen directional controls.
+- `index.html` — web page and PlayCanvas import map.
+- `main.js` — 3D scene and player controls.
+- `style.css` — responsive HUD and mobile controls.
 - `ROADMAP.md` — development plan.
 
-## Safety and backend
-Supabase integration will be added after the local prototype is verified. Never commit service-role keys, passwords, access tokens, or other secrets. Keep database Row Level Security enabled and review policies before connecting the game.
+## Important
+This repository is the source code for a browser-based PlayCanvas Engine prototype. It is not a PlayCanvas Editor project export and is no longer intended to be opened as a Godot project. The PlayCanvas Editor account/project is separate from this GitHub repository.
+
+Supabase integration should come only after the browser prototype is tested. Never commit service-role keys, passwords, or other secrets. Keep Row Level Security enabled.
