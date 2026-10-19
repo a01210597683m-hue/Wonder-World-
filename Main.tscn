@@ -1,0 +1,114 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://player.gd" id="1_player"]
+[ext_resource type="Script" path="res://touch_controls.gd" id="2_touch"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
+size = Vector2(20, 20)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(20, 0.2, 20)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ground"]
+albedo_color = Color(0.27, 0.58, 0.32, 1)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
+radius = 0.5
+height = 2.0
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_player"]
+radius = 0.5
+height = 2.0
+
+[sub_resource type="Environment" id="Environment_world"]
+background_mode = 1
+background_color = Color(0.55, 0.76, 0.95, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.78, 0.82, 0.9, 1)
+ambient_light_energy = 0.7
+
+[node name="Main" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_world")
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_ground")
+surface_material_override/0 = SubResource("StandardMaterial3D_ground")
+
+[node name="GroundBody" type="StaticBody3D" parent="."]
+
+[node name="GroundCollision" type="CollisionShape3D" parent="GroundBody"]
+position = Vector3(0, -0.1, 0)
+shape = SubResource("BoxShape3D_ground")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+rotation = Vector3(-0.8, -0.5, 0)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(0, 10, 15)
+rotation_degrees = Vector3(-30, 0, 0)
+current = true
+
+[node name="Player" type="CharacterBody3D" parent="."]
+position = Vector3(0, 1, 0)
+script = ExtResource("1_player")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
+shape = SubResource("CapsuleShape3D_player")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player"]
+mesh = SubResource("CapsuleMesh_player")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="TouchControls" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_touch")
+
+[node name="UpButton" type="Button" parent="CanvasLayer/TouchControls"]
+layout_mode = 0
+offset_left = 100.0
+offset_top = -190.0
+offset_right = 180.0
+offset_bottom = -130.0
+anchor_top = 1.0
+anchor_bottom = 1.0
+text = "↑"
+
+[node name="DownButton" type="Button" parent="CanvasLayer/TouchControls"]
+layout_mode = 0
+offset_left = 100.0
+offset_top = -70.0
+offset_right = 180.0
+offset_bottom = -10.0
+anchor_top = 1.0
+anchor_bottom = 1.0
+text = "↓"
+
+[node name="LeftButton" type="Button" parent="CanvasLayer/TouchControls"]
+layout_mode = 0
+offset_left = 15.0
+offset_top = -130.0
+offset_right = 95.0
+offset_bottom = -70.0
+anchor_top = 1.0
+anchor_bottom = 1.0
+text = "←"
+
+[node name="RightButton" type="Button" parent="CanvasLayer/TouchControls"]
+layout_mode = 0
+offset_left = 185.0
+offset_top = -130.0
+offset_right = 265.0
+offset_bottom = -70.0
+anchor_top = 1.0
+anchor_bottom = 1.0
+text = "→"
