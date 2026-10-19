@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#172b4d">
+  <title>WonderWorld — 3D Prototype</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "playcanvas": "https://cdn.jsdelivr.net/npm/playcanvas@2.7.3/build/playcanvas.mjs"
+      }
+    }
+  </script>
+</head>
+<body>
+  <main id="game">
+    <canvas id="application" aria-label="WonderWorld 3D game"></canvas>
+    <header class="hud">
+      <div class="brand">WonderWorld</div>
+      <div class="hint">Move with the arrows or WASD</div>
+    </header>
+    <div class="touch-pad" aria-label="Touch movement controls">
+      <button class="move up" data-dir="up" aria-label="Move forward">▲</button>
+      <button class="move left" data-dir="left" aria-label="Move left">◀</button>
+      <button class="move down" data-dir="down" aria-label="Move backward">▼</button>
+      <button class="move right" data-dir="right" aria-label="Move right">▶</button>
+    </div>
+    <div id="status" role="status">Loading 3D world…</div>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
