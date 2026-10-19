@@ -1,22 +1,21 @@
-# WonderWorld — Development Roadmap
+# WonderWorld — PlayCanvas Roadmap
 
-## Current milestone: playable foundation
-- [x] Create the initial Godot project structure in GitHub.
-- [x] Add a simple 3D ground, lighting, camera, and placeholder player.
-- [x] Add keyboard and on-screen directional controls.
-- [ ] Open the project in Godot and verify the scene runs on the user's phone.
-- [ ] Replace the placeholder capsule with the first stylized character.
-- [ ] Add a follow camera and a small test environment.
+## Current milestone: browser-based 3D prototype
+- [x] Replace the Godot starter files with a browser-based PlayCanvas Engine setup.
+- [x] Add a 3D test ground, lighting, camera, placeholder character, and touch controls.
+- [ ] Verify the prototype on the target Android phone.
+- [ ] Add character models and animations.
+- [ ] Build a small neighborhood with a house and interactive objects.
 
 ## Later milestones
-1. Character customization and basic interactions.
-2. Houses, furniture, clothing, and a small item catalog.
-3. Authentication and player profiles through Supabase.
-4. Secure server-side handling for coins, inventory, and progression.
-5. Additional activities and social-world features, designed with privacy and safety in mind.
+1. Character customization and avatar animation.
+2. Houses, furniture, clothing, and item catalogs.
+3. Football, gym, chess, ludo, trivia, fashion, travel, and other activities.
+4. Supabase authentication and player profiles.
+5. Privacy-conscious multiplayer and server-side progression.
 
-## Important implementation notes
-- This repository is the source of truth for project files.
-- Do not put Supabase service-role keys or other secrets in the Godot client or GitHub.
-- Keep Row Level Security enabled and review policies before connecting the game.
-- Build and test one small milestone at a time; do not assume later features are implemented yet.
+## Notes
+- This repository contains a browser-based PlayCanvas Engine starter, not a native Godot project.
+- The source uses the PlayCanvas Engine from a pinned CDN version.
+- GitHub stores these source files; a PlayCanvas visual Editor project is separate unless explicitly imported or connected.
+- Never commit Supabase service-role keys, passwords, or other secrets.
