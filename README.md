@@ -14,10 +14,10 @@ The page loads the PlayCanvas Engine from a pinned CDN version. Opening `index.h
 - Placeholder character and follow camera.
 - Keyboard controls (WASD / arrow keys).
 - On-screen touch buttons for mobile.
-- An in-game "مراجع الشخصيات" panel that loads three character reference images from the public Supabase Storage bucket.
+- An in-game "مراجع الشخصيات" panel that automatically lists image files in the public Supabase Storage bucket under the `characters/` folder.
 
 ## Character reference images
-The panel currently reads these known public objects from Supabase Storage:
+The panel lists supported image files currently present in this Supabase Storage folder:
 - `Wonder World Game/characters/IMG-20261018-WA0015.jpg`
 - `Wonder World Game/characters/IMG_d1d9c8b3-b7c7-4700-87b4-a4099590ab92.jpg`
 - `Wonder World Game/characters/IMG_eec0ba1a-c1d6-4a45-8698-02aeb0ad9f08.jpg`
@@ -32,6 +32,6 @@ These are visual references only. They are not 3D character models and do not au
 - `ROADMAP.md` — development plan.
 
 ## Important integration note
-This repository is the source code for a browser-based PlayCanvas Engine prototype. It is not a PlayCanvas Editor project export and is not automatically synced to a separate PlayCanvas Editor scene. The web prototype and its hosting are connected through GitHub; its three reference images are loaded directly from Supabase Storage. Adding a new image to Supabase does not automatically add it to the reference panel yet; the panel currently lists the three known image URLs.
+This repository is the source code for a browser-based PlayCanvas Engine prototype. It is not a PlayCanvas Editor project export and is not automatically synced to a separate PlayCanvas Editor scene. The web prototype and its hosting are connected through GitHub; its three reference images are loaded directly from Supabase Storage. Adding a new image to `Wonder World Game/characters/` in Supabase Storage should make it appear in the reference panel automatically. A narrowly scoped Storage policy allows anonymous clients to list image filenames only in that folder; the bucket objects themselves are public as configured.
 
 Do not commit service-role keys, passwords, or other secrets. Keep Row Level Security enabled.
