@@ -1,6 +1,5 @@
 import {
   Application,
-  Asset,
   Color,
   Entity,
   FILLMODE_FILL_WINDOW,
@@ -54,7 +53,10 @@ function makeBox(name, scale, position, color) {
 
 // A colorful placeholder character until custom 3D models are added.
 const player = makeBox('WonderWorld Player', new Vec3(0.8, 1.7, 0.7), new Vec3(0, 0.9, 0), new Color(0.94, 0.38, 0.28));
-makeBox('Head', new Vec3(0.65, 0.65, 0.65), new Vec3(0, 2.05, 0), new Color(1, 0.76, 0.58));
+const head = makeBox('Head', new Vec3(0.65, 0.65, 0.65), new Vec3(0, 2.05, 0), new Color(1, 0.76, 0.58));
+app.root.removeChild(head);
+player.addChild(head);
+head.setLocalPosition(0, 1.15, 0);
 makeBox('Welcome sign', new Vec3(3.5, 1.1, 0.25), new Vec3(0, 1.1, -6), new Color(0.98, 0.76, 0.25));
 
 const camera = new Entity('Follow Camera');
