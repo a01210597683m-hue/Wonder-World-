@@ -300,3 +300,60 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 #blockblast-feedback { min-height:34px; margin:8px 0; font-size:12px; line-height:1.5; font-weight:750; }
 #blockblast-restart { border:0; border-radius:10px; padding:9px 12px; color:#fff; background:#6b4ca5; font:inherit; font-size:12px; font-weight:800; }
 @media (max-width:480px) { #blockblast-panel { max-height:72vh; } .blockblast-piece { min-width:58px; } }
+
+
+/* Mobile-first game modal: keep Block Blast usable without scrolling the whole world. */
+#blockblast-panel {
+  position: fixed;
+  z-index: 30;
+  top: max(10px, env(safe-area-inset-top));
+  bottom: max(10px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(520px, calc(100vw - 20px));
+  max-height: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+}
+#blockblast-panel[hidden] { display: none !important; }
+#blockblast-panel .shop-heading { position: sticky; top: -12px; z-index: 2; padding: 5px 0 8px; background: #fffaf0; }
+#blockblast-board { max-width: 100%; margin-inline: auto; touch-action: manipulation; }
+#blockblast-pieces { flex-shrink: 0; }
+#blockblast-panel button { touch-action: manipulation; }
+@media (max-width: 600px) {
+  #blockblast-panel {
+    top: max(8px, env(safe-area-inset-top));
+    bottom: max(8px, env(safe-area-inset-bottom));
+    left: 8px;
+    right: 8px;
+    transform: none;
+    width: auto;
+    padding: 10px;
+    border-radius: 14px;
+    gap: 4px;
+  }
+  #blockblast-panel .shop-heading { top: -10px; }
+  .blockblast-help { margin: 4px 0; font-size: 12px; line-height: 1.35; }
+  .blockblast-score { margin: 4px 0; }
+  #blockblast-board {
+    width: min(100%, calc(100dvh - 365px));
+    min-width: min(100%, 230px);
+    gap: 2px;
+    padding: 4px;
+  }
+  #blockblast-pieces { min-height: 64px; margin-top: 5px; gap: 5px; }
+  .blockblast-piece { min-width: 0; min-height: 58px; flex: 1 1 0; padding: 5px; }
+  .blockblast-mini i { width: clamp(8px, 2.8vw, 12px); height: clamp(8px, 2.8vw, 12px); }
+  #blockblast-feedback { min-height: 28px; margin: 4px 0; font-size: 11px; }
+  #blockblast-restart { min-height: 42px; flex-shrink: 0; }
+}
+@media (max-height: 700px) and (max-width: 600px) {
+  #blockblast-panel { padding: 8px; }
+  .blockblast-help { font-size: 11px; }
+  #blockblast-board { width: min(100%, calc(100dvh - 330px)); }
+  #blockblast-pieces { min-height: 54px; }
+  .blockblast-piece { min-height: 50px; }
+  #blockblast-feedback { min-height: 22px; }
+}
