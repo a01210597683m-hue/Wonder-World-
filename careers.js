@@ -77,7 +77,6 @@
     const businessProgress = el('div', { class: 'career-progress-wrap' });
     businessProgress.append(el('div', { class: 'career-progress-label' }, '⭐ سمعة المحل'), el('div', { class: 'career-progress-track', role: 'progressbar', 'aria-label': 'سمعة المحل', 'aria-valuemin': '0', 'aria-valuemax': '10', id: 'career-reputation-track' }));
     const reputationFill = el('span', { id: 'career-reputation-fill' });
-    document.getElementById;
     businessProgress.querySelector('#career-reputation-track').appendChild(reputationFill);
     const actions = el('div', { class: 'career-actions' });
     const buy = el('button', { type: 'button', id: 'career-buy-premises' }, '🏪 شراء محل (50)');
@@ -132,7 +131,7 @@
       decorate.disabled = !state.hasPremises || state.decorated || !canAfford(15);
       stock.disabled = !state.hasPremises || !canAfford(8);
       order.disabled = !state.hasPremises || !state.decorated || state.stock < 1;
-      upgrade.disabled = !state.hasPremises || state.businessLevel >= 5 || !canAfford(30);
+      upgrade.disabled = !state.hasPremises || state.businessLevel >= 5 || !canAfford(30 * state.businessLevel);
       upgrade.textContent = state.businessLevel >= 5 ? '🏆 وصل المحل لأعلى مستوى' : '✨ ترقية المحل (' + (30 * state.businessLevel) + ')';
       shelves.disabled = !state.hasPremises || state.upgradedShelves || !canAfford(20);
       shelves.textContent = state.upgradedShelves ? '✅ الرفوف الإضافية مملوكة' : '🗄️ رفوف إضافية (20)';
@@ -144,8 +143,8 @@
         : 'الطلبات المكتملة اليوم: ' + count + '/3';
       contractFill.style.width = (count / 3 * 100) + '%';
       contractTrack.setAttribute('aria-valuenow', String(count));
-      reputationFill.style.width = (Math.min(10, state.reputation % 11) / 10 * 100) + '%';
-      document.getElementById('career-reputation-track').setAttribute('aria-valuenow', String(Math.min(10, state.reputation % 11)));
+      reputationFill.style.width = (Math.min(10, state.reputation) / 10 * 100) + '%';
+      document.getElementById('career-reputation-track').setAttribute('aria-valuenow', String(Math.min(10, state.reputation)));
       achievementList.replaceChildren();
       const badges = [
         ['first-shift', '💼 أول وردية', state.shifts >= 1],
