@@ -267,7 +267,8 @@ function exitHome() {
 const ui = document.createElement('section');
 ui.id = 'life-ui';
 ui.innerHTML = `
-  <div class="life-stats"><span>💛 السعادة: <b id="happiness">60</b></span><span>⚡ الطاقة: <b id="energy">80</b></span><span>🪙 العملات: <b id="coins">20</b></span><span>🌷 الزهور: <b id="flowers">0</b></span></div>
+  <div class="life-stats"><span>💛 السعادة: <b id="happiness">60</b></span><span>⚡ الطاقة: <b id="energy">80</b></span><span>🪙 العملات: <b id="coins">20</b></span><span>🌷 الزهور: <b id="flowers">0</b></span><span>⭐ المستوى: <b id="player-level">1</b></span></div>
+  <div id="xp-panel" aria-label="تقدم الخبرة"><div class="xp-label"><span>خبرة اللاعب</span><span id="xp-count">0 / 100 XP</span></div><div id="xp-track" role="progressbar" aria-label="التقدم للمستوى التالي" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="xp-fill"></span></div></div>
   <div class="avatar-tools"><button id="change-outfit" type="button">👕 تغيير الملابس</button><button id="change-hair" type="button">💇 تغيير لون الشعر</button></div>
   <button id="open-shop" type="button">🛍️ افتحي متجر Wonder</button>
   <div class="avatar-tools"><button id="open-puzzle" type="button">🧩 ألغاز سريعة</button></div>
@@ -317,6 +318,31 @@ const message = document.getElementById('life-message');
 let happiness = 60;
 let energy = 80;
 let coins = 20;
+let playerLevel = 1;
+let playerXP = 0;
+function xpNeededForNextLevel() { return 100 + (playerLevel - 1) * 25; }
+function updateXPUI() {
+  const needed = xpNeededForNextLevel();
+  document.getElementById('player-level').textContent = playerLevel;
+  document.getElementById('xp-count').textContent = playerXP + ' / ' + needed + ' XP';
+  document.getElementById('xp-fill').style.width = Math.min(100, playerXP / needed * 100) + '%';
+  document.getElementById('xp-track').setAttribute('aria-valuenow', String(Math.min(100, Math.round(playerXP / needed * 100))));
+}
+function awardXP(amount) {
+  if (!Number.isFinite(amount) || amount <= 0) return;
+  playerXP += amount;
+  let leveledUp = false;
+  while (playerXP >= xpNeededForNextLevel()) {
+    playerXP -= xpNeededForNextLevel();
+    playerLevel += 1;
+    coins += 10;
+    happiness = Math.min(100, happiness + 2);
+    leveledUp = true;
+  }
+  updateStats();
+  updateXPUI();
+  if (leveledUp) say('🎉 مبروك! وصلتي للمستوى ' + playerLevel + '، وخدتي 10 عملات و+2 سعادة كمكافأة مستوى.');
+}
 let lastWorkAt = 0;
 let lastWorkoutAt = 0;
 let gardenFlowers = 0;
@@ -342,6 +368,7 @@ function updateStats() {
   document.getElementById('energy').textContent = energy;
   document.getElementById('coins').textContent = coins;
   document.getElementById('flowers').textContent = gardenFlowers;
+  updateXPUI();
   saveProgress();
 }
 function updateQuestUI() {
@@ -372,7 +399,7 @@ const shopProducts = [
 const saveProgress = () => {
   try {
     localStorage.setItem('wonderworld-save-v1', JSON.stringify({
-      coins, happiness, energy, gardenFlowers, lastFlowerDay, questDate, ownedItems: [...ownedItems], dailyQuests,
+      coins, happiness, energy, playerLevel, playerXP, gardenFlowers, lastFlowerDay, questDate, ownedItems: [...ownedItems],
       relationships: Object.fromEntries(npcs.map(npc => [npc.name, npc.relation])),
       npcInteractionDates,
       equippedItems
@@ -385,6 +412,8 @@ try {
     if (Number.isFinite(loadedProgress.coins)) coins = Math.max(0, loadedProgress.coins);
     if (Number.isFinite(loadedProgress.happiness)) happiness = Math.max(0, Math.min(100, loadedProgress.happiness));
     if (Number.isFinite(loadedProgress.energy)) energy = Math.max(0, Math.min(100, loadedProgress.energy));
+    if (Number.isFinite(loadedProgress.playerLevel)) playerLevel = Math.max(1, Math.floor(loadedProgress.playerLevel));
+    if (Number.isFinite(loadedProgress.playerXP)) playerXP = Math.max(0, loadedProgress.playerXP);
     if (Number.isFinite(loadedProgress.gardenFlowers)) gardenFlowers = Math.max(0, loadedProgress.gardenFlowers);
     if (typeof loadedProgress.lastFlowerDay === 'string') lastFlowerDay = loadedProgress.lastFlowerDay;
     if (Array.isArray(loadedProgress.ownedItems)) loadedProgress.ownedItems.forEach(id => ownedItems.add(id));
@@ -486,6 +515,7 @@ document.getElementById('shop-products').addEventListener('click', event => {
   equipItem(item);
   happiness = Math.min(100, happiness + 3);
   updateStats();
+  awardXP(12);
   saveProgress();
   completeQuest('shop');
   document.getElementById('shop-feedback').textContent = 'اشتريتي ' + item.name + ' واتضافت لمقتنياتك 🎉 الرصيد: ' + coins + ' عملة.';
@@ -500,7 +530,7 @@ const places = [
   { name: 'مكتب الحي', x: 0, z: -18.3, radius: 4.0, action: doQuickWork },
   { name: 'Wonder Fitness', x: 15, z: -18, radius: 4.5, action: doWorkout },
   { name: 'حديقة الأصدقاء', x: -11, z: 6.5, radius: 4.2, action: () => {
-    happiness = Math.min(100, happiness + 12); updateStats(); completeQuest('park'); saveProgress(); say('قضيتي وقتًا لطيفًا في الحديقة! السعادة +12 🌷');
+    happiness = Math.min(100, happiness + 12); updateStats(); awardXP(8); completeQuest('park'); saveProgress(); say('قضيتي وقتًا لطيفًا في الحديقة! السعادة +12 🌷');
   }}
 ];
 let activeDialogueNpc = null;
@@ -535,6 +565,7 @@ function openPuzzle() {
         coins += 5;
         happiness = Math.min(100, happiness + 4);
         updateStats();
+        awardXP(8);
         document.getElementById('puzzle-feedback').textContent = 'إجابة صحيحة! +5 عملات و+4 سعادة 🎉 ' + currentPuzzle.hint;
       } else {
         document.getElementById('puzzle-feedback').textContent = 'مش الإجابة دي، جربي لغز تاني. 💡 ' + currentPuzzle.hint;
@@ -553,6 +584,7 @@ function orderCafe() {
   happiness = Math.min(100, happiness + 10);
   energy = Math.min(100, energy + 8);
   updateStats();
+  awardXP(6);
   say('☕ طلبك وصل! دفعتِ 5 عملات، والسعادة +10 والطاقة +8. أهلًا بيكي في Wonder Cafe!');
 }
 function doQuickWork() {
@@ -564,6 +596,7 @@ function doQuickWork() {
   happiness = Math.max(0, happiness - 2);
   coins += 12;
   updateStats();
+  awardXP(15);
   say('💼 خلصتي وردية قصيرة في مكتب الحي! كسبتي 12 عملة وخسرتِ 15 طاقة. الشغل التالي بعد 30 ثانية.');
 }
 function doWorkout() {
@@ -575,6 +608,7 @@ function doWorkout() {
   happiness = Math.min(100, happiness + 8);
   coins += 3;
   updateStats();
+  awardXP(12);
   say('💪 خلصتي تمرين Wonder Fitness! السعادة +8، وكسبتي 3 عملات، والطاقة -12.');
 }
 function collectGardenFlowers() {
@@ -587,6 +621,7 @@ function collectGardenFlowers() {
   happiness = Math.min(100, happiness + 5);
   completeQuest('flowers');
   updateStats();
+  awardXP(8);
   say('🌷 جمعتي 3 زهور من الحديقة! إجمالي الزهور معاكِ: ' + gardenFlowers + '. السعادة +5.');
 }
 document.getElementById('quick-gym').addEventListener('click', () => {
@@ -599,6 +634,7 @@ function takeRest() {
   energy = Math.min(100, energy + 25);
   happiness = Math.min(100, happiness + 3);
   updateStats();
+  awardXP(4);
   say('🛋️ استراحة لطيفة! الطاقة +25 والسعادة +3. (الاستراحة هنا نموذج أولي وليست دخولًا فعليًا للبيت).');
 }
 document.getElementById('quick-work').addEventListener('click', () => {
@@ -666,6 +702,7 @@ function showDialogue(npc) {
         happiness = Math.min(100, happiness + choice.joy);
         npcInteractionDates[npc.name] = localDateKey();
         updateStats();
+        awardXP(10 + choice.relation * 2);
         updateRelationshipPanel(npc);
         completeQuest('friend');
         document.getElementById('dialogue-feedback').textContent = choice.reply + ' 🎁 مكافأة اليوم: +' + (npc.relation - previousRelation) + ' صداقة و+' + choice.joy + ' سعادة.';
@@ -692,6 +729,7 @@ const indoorTargets = [
     action: () => {
       happiness = Math.min(100, happiness + 5);
       updateStats();
+      awardXP(3);
       say('🛋️ قعدتي على الكنبة شوية! السعادة +5. خدي وقتك في بيتك.');
     }
   },
@@ -708,6 +746,7 @@ const indoorTargets = [
       energy = Math.min(100, energy + 20);
       happiness = Math.min(100, happiness + 2);
       updateStats();
+      awardXP(5);
       say('🛏️ ارتحتي في سريرك! الطاقة +20 والسعادة +2.');
     }
   },
@@ -723,6 +762,7 @@ const indoorTargets = [
       energy = Math.min(100, energy + 10);
       happiness = Math.min(100, happiness + 4);
       updateStats();
+      awardXP(6);
       say('🍲 جهزتي وجبة في مطبخ البيت! اتخصم 3 عملات، والطاقة +10 والسعادة +4.');
     }
   },
@@ -738,6 +778,7 @@ const indoorTargets = [
       lastReadingAt = now;
       happiness = Math.min(100, happiness + 4);
       updateStats();
+      awardXP(4);
       say('📚 قضيتي وقت لطيف مع كتابك! السعادة +4.');
     }
   }
@@ -849,6 +890,13 @@ try {
   const rewardKey = 'wonderworld-last-daily-reward';
   if (localStorage.getItem(rewardKey) !== today) {
     coins += 5;
+    playerXP += 5;
+    while (playerXP >= xpNeededForNextLevel()) {
+      playerXP -= xpNeededForNextLevel();
+      playerLevel += 1;
+      coins += 10;
+      happiness = Math.min(100, happiness + 2);
+    }
     localStorage.setItem(rewardKey, today);
     say('🎁 هدية دخول اليوم: 5 عملات جديدة! استكشفي الحي وجربي الكافيه والشغل.');
   }
