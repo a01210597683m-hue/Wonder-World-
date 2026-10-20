@@ -5,6 +5,7 @@ const read = path => readFileSync(new URL(path, import.meta.url), 'utf8');
 const html = read('../index.html');
 const game = read('../main.js');
 const careers = read('../careers.js');
+const boardGames = read('../board-games.js');
 const css = read('../style.css');
 const careerCss = read('../career.css');
 
