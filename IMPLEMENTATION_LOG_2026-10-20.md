@@ -30,3 +30,17 @@
 - Bumped the browser asset versions for `main.js` and `careers.js` to reduce stale-cache issues.
 - The shop state is still local to the current browser/device and is not server-authoritative or shared with other players.
 
+## 2026-10-21 — Expanded careers and player-owned business loop
+
+**Status: source changes committed; deployment and real-browser gameplay verification still required.**
+
+- Added three selectable jobs (café, store, delivery coordination) with different prototype wages, shift rewards, and job experience.
+- Expanded the business panel with reputation, business levels, higher payouts after upgrades, and a one-time additional-shelves upgrade that increases each stock delivery from three to five units.
+- Added a once-per-local-day marketing action and a daily customer-service contract: fulfil three orders to claim a 25-credit bonus once per local day.
+- Added progress badges for shifts, shop ownership, orders, upgrades, and the daily contract.
+- Expanded the 3D storefront to five visible stock crates and made the sign reflect business level; the scene still uses placeholder geometry/materials.
+- Improved mobile layout, focus visibility, reduced-motion support, and initialization timing so the career panel waits for the dynamically created game HUD.
+- Added a GitHub Actions syntax check for `careers.js`, updated asset cache versions, and documented the new prototype systems.
+- **Known boundary:** all career/business values remain localStorage-only, device-local prototype state. No Supabase sync, secure wallet, real customer AI, or real-money transaction was added.
+- **Next validation:** confirm the Pages workflow passes, then test buying the shop, decoration, stock display, upgrades, daily contract, reload persistence, and small-screen layout on desktop and Android.
+
