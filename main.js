@@ -44,7 +44,9 @@ const mats = {
   skin: mat(new Color(0.88, 0.63, 0.46)),
   npcBlue: mat(new Color(0.18, 0.53, 0.82)),
   npcPink: mat(new Color(0.89, 0.34, 0.56)),
-  npcGold: mat(new Color(0.96, 0.68, 0.19))
+  npcGold: mat(new Color(0.96, 0.68, 0.19)),
+  tvFrame: mat(new Color(0.07, 0.09, 0.13)),
+  tvScreen: mat(new Color(0.16, 0.28, 0.40))
 };
 
 function box(name, sx, sy, sz, x, y, z, material, parent = app.root) {
@@ -219,6 +221,9 @@ box('Kitchen lower cabinets', 3.2, 0.8, 0.9, -3.8, 0.4, -5.4, mats.outfitMint, i
 box('Kitchen window', 2.0, 1.2, 0.12, -3.8, 2.65, -6.76, mats.window, interiorRoot);
 box('Wall picture frame', 1.6, 1.2, 0.12, 0.0, 2.65, -6.78, mats.outfitGold, interiorRoot);
 box('Wall picture art', 1.25, 0.85, 0.06, 0.0, 2.65, -6.68, mats.flower, interiorRoot);
+box('Living room TV frame', 2.15, 1.3, 0.16, 2.35, 1.9, -6.38, mats.tvFrame, interiorRoot);
+box('Living room TV screen', 1.9, 1.05, 0.035, 2.35, 1.92, -6.275, mats.tvScreen, interiorRoot);
+box('TV stand', 2.35, 0.35, 0.55, 2.35, 0.28, -5.95, mats.bench, interiorRoot);
 interiorRoot.enabled = false;
 let indoors = false;
 let indoorReturnPosition = null;
@@ -1379,6 +1384,7 @@ function showDialogue(npc) {
 
 let lastBedRestAt = 0;
 let lastReadingAt = 0;
+let lastTvTimeAt = 0;
 const indoorTargets = [
   {
     name: 'الكنبة',
@@ -1388,6 +1394,23 @@ const indoorTargets = [
       updateStats();
       awardXP(3);
       say('🛋️ قعدتي على الكنبة شوية! السعادة +5. خدي وقتك في بيتك.');
+    }
+  },
+  {
+    name: 'التلفزيون',
+    x: 2.35, z: -4.8, radius: 2.0,
+    action: () => {
+      const now = Date.now();
+      if (now - lastTvTimeAt < 15000) {
+        say('📺 لسه خلصتي فقرة مشاهدة قصيرة؛ استني شوية قبل ما تختاري برنامج تاني.');
+        return;
+      }
+      lastTvTimeAt = now;
+      happiness = Math.min(100, happiness + 8);
+      updateStats();
+      awardXP(2);
+      logAdventure('قضيت وقتًا هادئًا أمام تلفزيون البيت');
+      say('📺 اتفرجتي على برنامج ترفيهي في بيتك! السعادة +8 و+2 خبرة. دي مشاهدة تفاعلية مبسطة داخل النموذج؛ تشغيل فيديوهات فعلية أو المشاهدة المتزامنة مع صديق لسه ضمن التطوير.');
     }
   },
   {
