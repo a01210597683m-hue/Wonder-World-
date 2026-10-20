@@ -460,7 +460,7 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
   }
   #watersort-tubes {
     grid-column: 1 / -1;
-    grid-row: 3 / 5;
+    grid-row: 4;
     display: flex;
     justify-content: center;
     align-items: center;
