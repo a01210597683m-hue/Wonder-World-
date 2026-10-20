@@ -384,8 +384,10 @@ function updateQuestUI() {
   }
 }
 function completeQuest(key) {
+  if (!Object.prototype.hasOwnProperty.call(dailyQuests, key) || key === 'rewarded') return;
   dailyQuests[key] = true;
   updateQuestUI();
+  saveProgress();
 }
 const shopProducts = [
   { id: 'mint-outfit', name: 'طقم نعناعي', category: 'outfit', price: 8, material: mats.outfitMint, emoji: '👕' },
@@ -399,7 +401,7 @@ const shopProducts = [
 const saveProgress = () => {
   try {
     localStorage.setItem('wonderworld-save-v1', JSON.stringify({
-      coins, happiness, energy, playerLevel, playerXP, gardenFlowers, lastFlowerDay, questDate, ownedItems: [...ownedItems],
+      coins, happiness, energy, playerLevel, playerXP, gardenFlowers, lastFlowerDay, questDate, dailyQuests: { ...dailyQuests }, ownedItems: [...ownedItems],
       relationships: Object.fromEntries(npcs.map(npc => [npc.name, npc.relation])),
       npcInteractionDates,
       equippedItems
