@@ -274,6 +274,7 @@ ui.innerHTML = `
   <button id="open-pets" type="button">🐾 حيواناتي الأليفة</button>
   <button id="open-achievements" type="button">🏅 إنجازاتي وتقدمي</button>
   <button id="open-map" type="button">🗺️ خريطة الحي والتنقّل</button>
+  <button id="open-walks" type="button">🚶 تمشية مع صديق</button>
   <button id="open-journal" type="button">📔 سجل مغامراتي</button>
   <div class="avatar-tools"><button id="open-puzzle" type="button">🧩 ألغاز سريعة</button></div>
   <div class="avatar-tools"><button id="open-blockblast" type="button">🟦 Block Blast</button></div>
@@ -310,6 +311,13 @@ ui.innerHTML = `
   <section id="map-panel" hidden aria-label="خريطة الحي">
     <div class="shop-heading"><strong>🗺️ خريطة WonderWorld</strong><button id="close-map" type="button" aria-label="إغلاق الخريطة">✕</button></div>
     <p class="shop-intro">اختاري مكانًا للانتقال السريع. التنقّل متاح خارج البيوت فقط.</p><div id="map-destinations"></div><p id="map-feedback" role="status"></p>
+  </section>
+    <section id="social-walk-panel" hidden aria-label="التمشية مع صديق">
+    <div class="shop-heading"><strong>🚶 تمشية مع صديق</strong><button id="close-walks" type="button" aria-label="إغلاق">✕</button></div>
+    <p class="shop-intro">اختاري شخصية وابعتي طلب تمشية. المشوار يبدأ فقط بعد تأكيد الموافقة؛ تقدري ترفضي الطلب أو تنهي المشوار في أي وقت.</p>
+    <p id="walk-consent-status" role="status">مفيش تمشية نشطة. اختاري صديقًا لإرسال طلب.</p><div id="walk-friends"></div>
+    <div id="walk-active-tools" hidden><p id="walk-active-text"></p><button id="end-shared-walk" type="button">👋 إنهاء التمشية</button></div>
+    <p class="walk-prototype-note">الشخصيات المتاحة هنا شخصيات NPC داخل النموذج. الموافقة الحقيقية بين لاعبين مختلفين تحتاج حسابات وخادمًا مشتركًا، وده مش متفعّل في النسخة دي.</p>
   </section>
   <section id="journal-panel" hidden aria-label="سجل مغامراتي">
     <div class="shop-heading"><strong>📔 سجل مغامراتي</strong><button id="close-journal" type="button" aria-label="إغلاق السجل">✕</button></div><p id="journal-summary" class="shop-intro"></p><div id="journal-list"></div>
@@ -365,7 +373,7 @@ document.getElementById('game').appendChild(ui);
 
 
 // Keep menus independent from the HUD's scroll area so they can never be clipped by it.
-for (const panelId of ['shop-panel', 'pet-panel', 'achievement-panel', 'map-panel', 'journal-panel', 'puzzle-panel', 'blockblast-panel', 'watersort-panel', 'dialogue-panel']) {
+for (const panelId of ['shop-panel', 'pet-panel', 'achievement-panel', 'map-panel', 'journal-panel', 'social-walk-panel', 'puzzle-panel', 'blockblast-panel', 'watersort-panel', 'dialogue-panel']) {
   const panel = document.getElementById(panelId);
   if (panel) {
     panel.classList.add('wonder-overlay');
@@ -433,6 +441,9 @@ let lastFlowerDay = "";
 let photoMemories = 0;
 let lastPhotoDay = "";
 let adventureLog = [];
+let activeWalkNpc = null;
+let walkVisitedDestinations = new Set();
+let walkRewardDate = '';
 let puzzleCooldownUntil = 0;
 let currentPuzzle = null;
 const ownedItems = new Set(['default-outfit', 'default-hair']);
@@ -471,10 +482,38 @@ function renderJournal() {
  if(!adventureLog.length){const p=document.createElement('p');p.className='journal-empty';p.textContent='لسه مفيش مغامرات مسجلة. اختاري مكانًا من الخريطة أو سجّلي ذكرى عند النافورة.';list.appendChild(p);return;}
  for(const item of adventureLog){const card=document.createElement('article');card.className='journal-entry';const title=document.createElement('strong');title.textContent=item.text;const time=document.createElement('time');time.textContent=item.date;card.append(title,time);list.appendChild(card);}
 }
+function renderWalkPanel() {
+ const list=document.getElementById('walk-friends');if(!list)return;list.replaceChildren();
+ const status=document.getElementById('walk-consent-status'),activeTools=document.getElementById('walk-active-tools'),activeText=document.getElementById('walk-active-text');
+ if(activeWalkNpc){status.textContent='الموافقة اتأكدت من الطرفين داخل النموذج ✅';activeTools.hidden=false;activeText.textContent='بتتمشّي دلوقتي مع '+activeWalkNpc.name+'. تقدري تتحركي بحرية وتزوروا أماكن الحي سوا.';}
+ else{status.textContent='اختاري صديقًا لإرسال طلب تمشية. مفيش حركة مشتركة قبل الموافقة.';activeTools.hidden=true;}
+ for(const npc of npcs){
+  const card=document.createElement('article');card.className='walk-friend-card';
+  const title=document.createElement('strong');title.textContent=npc.name+' — '+npc.role;
+  const detail=document.createElement('p');detail.textContent='مستوى الصداقة: '+npc.relation+'/10 • '+npc.favorite;
+  const invite=document.createElement('button');invite.type='button';invite.textContent=activeWalkNpc===npc?'التمشية نشطة':'🚶 طلب تمشية';invite.disabled=Boolean(activeWalkNpc);
+  invite.addEventListener('click',()=>{
+   if(activeWalkNpc||indoors){status.textContent=indoors?'اخرجي من البيت الأول قبل بدء التمشية.':'في تمشية نشطة بالفعل؛ انهيها الأول.';return;}
+   const consent=document.createElement('div');consent.className='walk-consent-card';
+   const question=document.createElement('p');question.textContent='طلبتي من '+npc.name+' تتمشوا سوا. هل توافق '+npc.name+' على الدعوة؟ اختاري رد الشخصية بوضوح.';
+   const accept=document.createElement('button');accept.type='button';accept.textContent='💚 موافقة — نتمشى سوا';
+   const decline=document.createElement('button');decline.type='button';decline.textContent='🙅 اعتذار عن التمشية';
+   accept.addEventListener('click',()=>{if(activeWalkNpc||indoors)return;activeWalkNpc=npc;walkVisitedDestinations=new Set();npc.entity.enabled=true;const p=player.getPosition();npc.entity.setPosition(p.x-1.5,0,p.z-1.5);logAdventure('بدأت تمشية بموافقة متبادلة مع '+npc.name);say('🚶 '+npc.name+' وافقت! اتحركي، وهتتمشى معاكي في الحي.');renderWalkPanel();});
+   decline.addEventListener('click',()=>{status.textContent=npc.name+' اعتذرت عن التمشية. مفيش حركة مشتركة، وتقدري تختاري نشاطًا تانيًا.';consent.remove();say('💬 '+npc.name+' اعتذرت بلطف؛ مفيش تمشية من غير موافقة.');});
+   consent.append(question,accept,decline);card.appendChild(consent);invite.disabled=true;status.textContent='تم إرسال الدعوة. المشوار مش هيبدأ إلا بعد اختيار الموافقة.';
+  });
+  card.append(title,detail,invite);list.appendChild(card);
+ }
+}
+function endSharedWalk(reason='انتهت التمشية بناءً على طلبك.'){
+ if(!activeWalkNpc)return;const name=activeWalkNpc.name;activeWalkNpc=null;walkVisitedDestinations.clear();
+ document.getElementById('walk-consent-status').textContent=reason;document.getElementById('walk-active-tools').hidden=true;
+ logAdventure('انتهت التمشية مع '+name);say('👋 انتهت التمشية مع '+name+'. تقدري تبعتي دعوة جديدة في أي وقت.');renderWalkPanel();
+}
 function renderNeighborhoodMap() {
  const list=document.getElementById('map-destinations');if(!list)return;list.replaceChildren();
  const destinations=[{name:'نافورة الساحة',emoji:'⛲',x:0,z:3},{name:'حديقة الأصدقاء',emoji:'🌳',x:-11,z:5.5},{name:'متجر Wonder',emoji:'🛍️',x:10,z:4.5},{name:'كافيه Wonder',emoji:'☕',x:15,z:-4},{name:'مكتب الحي',emoji:'💼',x:0,z:-20},{name:'Wonder Fitness',emoji:'🏋️',x:15,z:-19},{name:'البيت الأول',emoji:'🏡',x:-10,z:-6.2},{name:'البيت العائلي',emoji:'🏠',x:10,z:-6.2}];
- for(const d of destinations){const b=document.createElement('button');b.type='button';b.className='map-destination';b.textContent=d.emoji+' '+d.name;b.addEventListener('click',()=>{if(indoors){document.getElementById('map-feedback').textContent='اخرجي للحي الأول قبل التنقّل السريع.';return;}player.setPosition(d.x,0,d.z);cameraX=d.x;cameraZ=d.z+cameraOffsetZ;camera.setPosition(cameraX,cameraHeight,cameraZ);camera.lookAt(d.x,1,d.z);document.getElementById('map-panel').hidden=true;logAdventure('وصلت إلى '+d.name);say('🗺️ وصلتي إلى '+d.name+'!');});list.appendChild(b);}
+ for(const d of destinations){const b=document.createElement('button');b.type='button';b.className='map-destination';b.textContent=d.emoji+' '+d.name;b.addEventListener('click',()=>{if(indoors){document.getElementById('map-feedback').textContent='اخرجي للحي الأول قبل التنقّل السريع.';return;}player.setPosition(d.x,0,d.z);cameraX=d.x;cameraZ=d.z+cameraOffsetZ;camera.setPosition(cameraX,cameraHeight,cameraZ);camera.lookAt(d.x,1,d.z);document.getElementById('map-panel').hidden=true;logAdventure('وصلت إلى '+d.name);if(activeWalkNpc){walkVisitedDestinations.add(d.name);if(walkVisitedDestinations.size>=3&&walkRewardDate!==localDateKey()){walkRewardDate=localDateKey();happiness=Math.min(100,happiness+8);coins+=5;updateStats();awardXP(12);logAdventure('مغامرة تمشية مكتملة مع '+activeWalkNpc.name+' — زرت 3 أماكن مختلفة');say('🌟 مغامرة مشتركة رائعة! زرتوا 3 أماكن مع '+activeWalkNpc.name+'؛ +8 سعادة و+5 عملات و+12 XP. المكافأة مرة واحدة يوميًا.');}else{say('🗺️ وصلتي إلى '+d.name+' مع '+activeWalkNpc.name+'! زارتم '+walkVisitedDestinations.size+' من 3 أماكن للمغامرة المشتركة.');}}else{say('🗺️ وصلتي إلى '+d.name+'!');}});list.appendChild(b);}
 }
 
 function renderAchievementPanel() {
@@ -666,6 +705,9 @@ document.getElementById('save-pet-name').addEventListener('click',()=>{
 });
 document.getElementById('open-achievements').addEventListener('click',()=>{renderAchievementPanel();document.getElementById('achievement-panel').hidden=false});
 document.getElementById('open-map').addEventListener('click',()=>{renderNeighborhoodMap();document.getElementById('map-feedback').textContent='اختاري وجهتك من القائمة.';document.getElementById('map-panel').hidden=false});
+document.getElementById('open-walks').addEventListener('click',()=>{renderWalkPanel();document.getElementById('social-walk-panel').hidden=false});
+document.getElementById('close-walks').addEventListener('click',()=>{document.getElementById('social-walk-panel').hidden=true});
+document.getElementById('end-shared-walk').addEventListener('click',()=>endSharedWalk());
 document.getElementById('close-map').addEventListener('click',()=>{document.getElementById('map-panel').hidden=true});
 document.getElementById('open-journal').addEventListener('click',()=>{renderJournal();document.getElementById('journal-panel').hidden=false});
 document.getElementById('close-journal').addEventListener('click',()=>{document.getElementById('journal-panel').hidden=true});
@@ -1467,6 +1509,7 @@ app.on('update', dt => {
   }
 
   const p = player.getPosition();
+  if(activeWalkNpc && !indoors){const friendPos=activeWalkNpc.entity.getPosition();const dx=p.x-friendPos.x,dz=p.z-friendPos.z,dist=Math.hypot(dx,dz);if(dist>1.65){const step=Math.min(dist-1.1,moveSpeed*dt*0.92);activeWalkNpc.entity.setPosition(friendPos.x+dx/dist*step,0,friendPos.z+dz/dist*step);activeWalkNpc.entity.setEulerAngles(0,Math.atan2(dx,dz)*180/Math.PI,0);}}
   p.x = Math.max(-21, Math.min(21, p.x));
   p.z = Math.max(-21, Math.min(21, p.z));
   player.setPosition(p);
