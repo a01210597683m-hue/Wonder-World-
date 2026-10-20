@@ -273,6 +273,8 @@ ui.innerHTML = `
   <button id="open-shop" type="button">🛍️ افتحي متجر Wonder</button>
   <button id="open-pets" type="button">🐾 حيواناتي الأليفة</button>
   <button id="open-achievements" type="button">🏅 إنجازاتي وتقدمي</button>
+  <button id="open-map" type="button">🗺️ خريطة الحي والتنقّل</button>
+  <button id="open-journal" type="button">📔 سجل مغامراتي</button>
   <div class="avatar-tools"><button id="open-puzzle" type="button">🧩 ألغاز سريعة</button></div>
   <div class="avatar-tools"><button id="open-blockblast" type="button">🟦 Block Blast</button></div>
   <div class="avatar-tools"><button id="open-watersort" type="button">🧪 Water Sort</button></div>
@@ -303,6 +305,13 @@ ui.innerHTML = `
   <section id="achievement-panel" hidden aria-label="إنجازاتي في WonderWorld">
     <div class="shop-heading"><strong>🏅 إنجازاتي وتقدمي</strong><button id="close-achievements" type="button" aria-label="إغلاق الإنجازات">✕</button></div>
     <p id="achievement-summary" role="status"></p><div id="achievement-list"></div>
+  </section>
+  <section id="map-panel" hidden aria-label="خريطة الحي">
+    <div class="shop-heading"><strong>🗺️ خريطة WonderWorld</strong><button id="close-map" type="button" aria-label="إغلاق الخريطة">✕</button></div>
+    <p class="shop-intro">اختاري مكانًا للانتقال السريع. التنقّل متاح خارج البيوت فقط.</p><div id="map-destinations"></div><p id="map-feedback" role="status"></p>
+  </section>
+  <section id="journal-panel" hidden aria-label="سجل مغامراتي">
+    <div class="shop-heading"><strong>📔 سجل مغامراتي</strong><button id="close-journal" type="button" aria-label="إغلاق السجل">✕</button></div><p id="journal-summary" class="shop-intro"></p><div id="journal-list"></div>
   </section>
   <section id="puzzle-panel" hidden aria-label="لعبة ألغاز">
     <div class="shop-heading"><strong>🧩 تحدّي الألغاز</strong><button id="close-puzzle" type="button" aria-label="إغلاق الألغاز">✕</button></div>
@@ -345,7 +354,7 @@ ui.innerHTML = `
 document.getElementById('game').appendChild(ui);
 
 // Keep menus independent from the HUD's scroll area so they can never be clipped by it.
-for (const panelId of ['shop-panel', 'pet-panel', 'achievement-panel', 'puzzle-panel', 'blockblast-panel', 'watersort-panel', 'dialogue-panel']) {
+for (const panelId of ['shop-panel', 'pet-panel', 'achievement-panel', 'map-panel', 'journal-panel', 'puzzle-panel', 'blockblast-panel', 'watersort-panel', 'dialogue-panel']) {
   const panel = document.getElementById(panelId);
   if (panel) {
     panel.classList.add('wonder-overlay');
@@ -412,6 +421,7 @@ let gardenFlowers = 0;
 let lastFlowerDay = "";
 let photoMemories = 0;
 let lastPhotoDay = "";
+let adventureLog = [];
 let puzzleCooldownUntil = 0;
 let currentPuzzle = null;
 const ownedItems = new Set(['default-outfit', 'default-hair']);
@@ -441,6 +451,21 @@ let questDate = todayQuestKey;
 const equippedItems = { outfit: 'default-outfit', hair: 'default-hair' };
 let loadedProgress = null;
 function say(text) { message.textContent = text; status.textContent = text; }
+function logAdventure(text) {
+ adventureLog.unshift({text:String(text).slice(0,120),date:new Date().toLocaleString('ar-EG',{dateStyle:'short',timeStyle:'short'})}); adventureLog=adventureLog.slice(0,30); saveProgress(); renderJournal();
+}
+function renderJournal() {
+ const list=document.getElementById('journal-list'),summary=document.getElementById('journal-summary'); if(!list||!summary)return;
+ summary.textContent='سجلّك فيه '+adventureLog.length+' نشاطًا. آخر 30 نشاطًا محفوظة على الجهاز ده.';list.replaceChildren();
+ if(!adventureLog.length){const p=document.createElement('p');p.className='journal-empty';p.textContent='لسه مفيش مغامرات مسجلة. اختاري مكانًا من الخريطة أو سجّلي ذكرى عند النافورة.';list.appendChild(p);return;}
+ for(const item of adventureLog){const card=document.createElement('article');card.className='journal-entry';const title=document.createElement('strong');title.textContent=item.text;const time=document.createElement('time');time.textContent=item.date;card.append(title,time);list.appendChild(card);}
+}
+function renderNeighborhoodMap() {
+ const list=document.getElementById('map-destinations');if(!list)return;list.replaceChildren();
+ const destinations=[{name:'نافورة الساحة',emoji:'⛲',x:0,z:3},{name:'حديقة الأصدقاء',emoji:'🌳',x:-11,z:5.5},{name:'متجر Wonder',emoji:'🛍️',x:10,z:4.5},{name:'كافيه Wonder',emoji:'☕',x:15,z:-4},{name:'مكتب الحي',emoji:'💼',x:0,z:-20},{name:'Wonder Fitness',emoji:'🏋️',x:15,z:-19},{name:'البيت الأول',emoji:'🏡',x:-10,z:-6.2},{name:'البيت العائلي',emoji:'🏠',x:10,z:-6.2}];
+ for(const d of destinations){const b=document.createElement('button');b.type='button';b.className='map-destination';b.textContent=d.emoji+' '+d.name;b.addEventListener('click',()=>{if(indoors){document.getElementById('map-feedback').textContent='اخرجي للحي الأول قبل التنقّل السريع.';return;}player.setPosition(d.x,0,d.z);cameraX=d.x;cameraZ=d.z+cameraOffsetZ;camera.setPosition(cameraX,cameraHeight,cameraZ);camera.lookAt(d.x,1,d.z);document.getElementById('map-panel').hidden=true;logAdventure('وصلت إلى '+d.name);say('🗺️ وصلتي إلى '+d.name+'!');});list.appendChild(b);}
+}
+
 function renderAchievementPanel() {
   const list = document.getElementById('achievement-list');
   const summary = document.getElementById('achievement-summary');
@@ -505,7 +530,7 @@ const shopProducts = [
 const saveProgress = () => {
   try {
     localStorage.setItem('wonderworld-save-v1', JSON.stringify({
-      coins, happiness, energy, playerLevel, playerXP, gardenFlowers, lastFlowerDay, photoMemories, lastPhotoDay, questDate, dailyQuests: { ...dailyQuests }, ownedItems: [...ownedItems],
+      coins, happiness, energy, playerLevel, playerXP, gardenFlowers, lastFlowerDay, photoMemories, lastPhotoDay, adventureLog: adventureLog.slice(-30), questDate, dailyQuests: { ...dailyQuests }, ownedItems: [...ownedItems],
       relationships: Object.fromEntries(npcs.map(npc => [npc.name, npc.relation])),
       npcInteractionDates,
       equippedItems, ownedPets:[...ownedPets], activePetId, petCareState, petSupplies, petNames
@@ -524,6 +549,7 @@ try {
     if (typeof loadedProgress.lastFlowerDay === 'string') lastFlowerDay = loadedProgress.lastFlowerDay;
     if (Number.isFinite(loadedProgress.photoMemories)) photoMemories = Math.max(0, Math.floor(loadedProgress.photoMemories));
     if (typeof loadedProgress.lastPhotoDay === 'string') lastPhotoDay = loadedProgress.lastPhotoDay;
+    if (Array.isArray(loadedProgress.adventureLog)) adventureLog = loadedProgress.adventureLog.filter(item => item && typeof item.text === 'string' && typeof item.date === 'string').slice(-30);
     if (Array.isArray(loadedProgress.ownedItems)) loadedProgress.ownedItems.forEach(id => ownedItems.add(id));
     if (loadedProgress.dailyQuests && typeof loadedProgress.dailyQuests === 'object') {
       for (const key of Object.keys(dailyQuests)) {
@@ -628,6 +654,10 @@ document.getElementById('save-pet-name').addEventListener('click',()=>{
  petNames[activePetId]=chosen;saveProgress();renderPetPanel();document.getElementById('pet-feedback').textContent='🐾 من النهارده اسم رفيقك '+chosen+'!';
 });
 document.getElementById('open-achievements').addEventListener('click',()=>{renderAchievementPanel();document.getElementById('achievement-panel').hidden=false});
+document.getElementById('open-map').addEventListener('click',()=>{renderNeighborhoodMap();document.getElementById('map-feedback').textContent='اختاري وجهتك من القائمة.';document.getElementById('map-panel').hidden=false});
+document.getElementById('close-map').addEventListener('click',()=>{document.getElementById('map-panel').hidden=true});
+document.getElementById('open-journal').addEventListener('click',()=>{renderJournal();document.getElementById('journal-panel').hidden=false});
+document.getElementById('close-journal').addEventListener('click',()=>{document.getElementById('journal-panel').hidden=true});
 document.getElementById('close-achievements').addEventListener('click',()=>{document.getElementById('achievement-panel').hidden=true});
 document.getElementById('close-pets').addEventListener('click',()=>{document.getElementById('pet-panel').hidden=true});
 document.getElementById('pet-feed').addEventListener('click',()=>careForActivePet('feed'));
@@ -1287,6 +1317,7 @@ function takePhotoMemory() {
   }
   lastPhotoDay = today; photoMemories += 1; happiness = Math.min(100, happiness + 6);
   updateStats(); awardXP(5); saveProgress();
+  logAdventure('سجّلت ذكرى عند نافورة WonderWorld');
   say('📸 اتسجلت ذكرى جديدة عند نافورة WonderWorld! +6 سعادة و+5 خبرة. الصور الفعلية لسه مش محفوظة؛ دي ذكرى داخل اللعبة.');
 }
 function cycleWeather() {
