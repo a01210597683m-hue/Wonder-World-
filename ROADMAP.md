@@ -101,3 +101,8 @@
 - [ ] Enforce AI content safeguards: block/redirect sexual or explicit content; harmful violence including killing, hitting/assault, threats or glorification of harm; and blasphemy/mockery/insults targeting any religion. Apply rules consistently across religions, preserve respectful neutral conversation, protect children and privacy.
 - [ ] Keep AI as the only free-form chat area; continue prohibiting player-to-player free-text/voice chat, private messages and side channels.
 - [ ] Run gameplay and safety tests before describing any of these future systems as complete. These checklist items are requirements, not claims that the features are already playable.
+
+
+## Non-negotiable continuity rule
+
+Every feature and constraint from the original WonderWorld concept through all later additions remains in scope cumulatively. Never remove or replace an earlier requirement to make room for a new one. If a real conflict appears, document it and ask the user before changing either requirement. Keep this roadmap aligned with the canonical `WONDERWORLD_DESIGN_BRIEF.md` and preserve existing Supabase master-record fields when appending additions. Documentation is not implementation: GitHub Pages must receive actual code and successful gameplay tests before a feature is described as playable.
