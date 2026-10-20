@@ -525,10 +525,14 @@ function renderAchievementPanel() {
     { emoji:'🐾', name:'رفيق وفيّ', detail:'تبنّي أول حيوان أليف', done:ownedPets.length>=1 },
     { emoji:'🌷', name:'محبة الطبيعة', detail:'اجمعي 3 زهور أو أكثر', done:gardenFlowers>=3 },
     { emoji:'📸', name:'صانعة الذكريات', detail:'سجّلي أول ذكرى عند النافورة', done:photoMemories>=1 },
-    { emoji:'⭐', name:'نجمة صاعدة', detail:'وصلي للمستوى 3', done:playerLevel>=3 }
+    { emoji:'⭐', name:'نجمة صاعدة', detail:'وصلي للمستوى 3', done:playerLevel>=3 },
+    { emoji:'🎮', name:'عاشقة الألعاب', detail:'سجّلي نتيجة في لعبة الذاكرة أو Block Blast', done:(()=>{try{return Number(localStorage.getItem('wonderworld-memory-best'))>0||Number(localStorage.getItem('wonderworld-blockblast-best'))>0;}catch{return false;}})() },
+    { emoji:'📅', name:'ملتزمة بعالمها', detail:'كمّلي كل مهام اليوم', done:dailyQuests.friend&&dailyQuests.park&&dailyQuests.shop&&dailyQuests.flowers },
+    { emoji:'🔥', name:'سلسلة الاستمرار', detail:'ادخلي WonderWorld في 3 أيام متتالية', done:(()=>{try{return Number(localStorage.getItem('wonderworld-login-streak'))>=3;}catch{return false;}})() },
+    { emoji:'🗺️', name:'مستكشفة الحي', detail:'كمّلي مغامرة تمشية بزيارة 3 أماكن', done:(()=>{try{return localStorage.getItem('wonderworld-shared-walk-reward-day')===localDateKey();}catch{return false;}})() }
   ];
   const unlocked=definitions.filter(item=>item.done).length;
-  summary.textContent='فتحتي '+unlocked+' من '+definitions.length+' إنجازات. كمّلي استكشاف العالم لفتح الباقي!';
+  summary.textContent='فتحتي '+unlocked+' من '+definitions.length+' إنجازات. سلسلة دخولك الحالية: '+(Number((()=>{try{return localStorage.getItem('wonderworld-login-streak')||0;}catch{return 0;}})())||0)+' يوم. كمّلي استكشاف العالم لفتح الباقي!';
   list.replaceChildren();
   for(const item of definitions){
     const card=document.createElement('div');card.className='achievement-card'+(item.done?' is-unlocked':'');
@@ -1527,11 +1531,19 @@ syncPetCompanion();
 renderPetPanel();
 updateQuestUI();
 updateStats();
+let loginStreak = 0;
 try {
   const today = localDateKey();
   const rewardKey = 'wonderworld-last-daily-reward';
-  if (localStorage.getItem(rewardKey) !== today) {
-    coins += 5;
+  const streakKey = 'wonderworld-login-streak';
+  const lastReward = localStorage.getItem(rewardKey);
+  loginStreak = Math.max(0, Number(localStorage.getItem(streakKey)) || 0);
+  if (lastReward !== today) {
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+    const wasYesterday = lastReward === localDateKey(yesterday);
+    loginStreak = wasYesterday ? Math.min(365,loginStreak+1) : 1;
+    const streakBonus = Math.min(6,Math.max(0,loginStreak-1));
+    coins += 5 + streakBonus;
     playerXP += 5;
     while (playerXP >= xpNeededForNextLevel()) {
       playerXP -= xpNeededForNextLevel();
@@ -1540,7 +1552,10 @@ try {
       happiness = Math.min(100, happiness + 2);
     }
     localStorage.setItem(rewardKey, today);
-    say('🎁 هدية دخول اليوم: 5 عملات جديدة! استكشفي الحي وجربي الكافيه والشغل.');
+    localStorage.setItem(streakKey, String(loginStreak));
+    say('🎁 هدية دخول اليوم: '+(5+streakBonus)+' عملات و+5 XP! سلسلة دخولك '+loginStreak+' يوم. '+(loginStreak>=3?'استمري، مكافأة الاستمرار بتكبر لحد 6 عملات إضافية!':'ارجعي بكرة عشان تكملي سلسلة الدخول.'));
+  } else {
+    localStorage.setItem(streakKey, String(loginStreak));
   }
 } catch (_) {}
 updateStats();
