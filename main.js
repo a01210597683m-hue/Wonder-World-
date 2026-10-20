@@ -278,6 +278,7 @@ ui.innerHTML = `
   <div class="avatar-tools"><button id="open-puzzle" type="button">🧩 ألغاز سريعة</button></div>
   <div class="avatar-tools"><button id="open-blockblast" type="button">🟦 Block Blast</button></div>
   <div class="avatar-tools"><button id="open-watersort" type="button">🧪 Water Sort</button></div>
+  <div class="avatar-tools"><button id="open-memory-match" type="button">🃏 لعبة ذاكرة الصور</button></div>
   <div class="avatar-tools"><button id="quick-work" type="button">💼 شغل سريع</button><button id="quick-rest" type="button">🛋️ استراحة</button><button id="quick-cafe" type="button">☕ طلب كافيه</button></div>
   <div class="avatar-tools"><button id="quick-gym" type="button">🏋️ تمرين</button><button id="quick-garden" type="button">🌷 جمع زهور</button></div>
   <div class="avatar-tools"><button id="quick-photo" type="button">📸 تصوير ذكرى</button><button id="quick-weather" type="button">🌤️ تغيير الطقس</button></div>
@@ -352,6 +353,16 @@ ui.innerHTML = `
   <div id="life-goal">مهمتك: تعرّفي على شخص، ثم زوري المتجر والحديقة.</div>
 `;
 document.getElementById('game').appendChild(ui);
+
+ // Playable memory-match activity: eight pairs, tap-to-flip, move counter and restart.
+ const memoryPanel = document.createElement('section');
+ memoryPanel.id = 'memory-match-panel';
+ memoryPanel.className = 'wonder-overlay';
+ memoryPanel.hidden = true;
+ memoryPanel.setAttribute('aria-label', 'لعبة ذاكرة الصور');
+ memoryPanel.innerHTML = '<div class="shop-heading"><strong>🃏 لعبة ذاكرة الصور</strong><button id="close-memory-match" type="button" aria-label="إغلاق اللعبة">✕</button></div><p class="shop-intro">اقلبي كارتين في كل مرة، وافتكري أماكن الرموز لحد ما تلاقي كل الأزواج.</p><div class="memory-match-status"><span>الحركات: <b id="memory-moves">0</b></span><span>الأزواج: <b id="memory-pairs">0 / 8</b></span></div><div id="memory-board" aria-label="لوحة كروت الذاكرة"></div><p id="memory-feedback" role="status">جاهزة؟ ابدئي وركزي في أماكن الصور ✨</p><button id="memory-restart" type="button">🔄 لعبة جديدة</button>';
+ document.getElementById('game').appendChild(memoryPanel);
+
 
 // Keep menus independent from the HUD's scroll area so they can never be clipped by it.
 for (const panelId of ['shop-panel', 'pet-panel', 'achievement-panel', 'map-panel', 'journal-panel', 'puzzle-panel', 'blockblast-panel', 'watersort-panel', 'dialogue-panel']) {
@@ -1007,6 +1018,51 @@ function openWaterSort(){openLandscapeGame('watersort-panel');waterSortReset();}
 document.getElementById('open-watersort').addEventListener('click',openWaterSort);
 document.getElementById('close-watersort').addEventListener('click',()=>closeLandscapeGame('watersort-panel'));
 document.getElementById('watersort-restart').addEventListener('click',waterSortReset);
+
+let memoryCards=[], memoryFirst=null, memoryLocked=false, memoryMoves=0, memoryPairs=0;
+const memorySymbols=['🌷','🐱','⭐','🍓','🎈','🦋','🌈','🐰'];
+function memoryMatchStart(){
+ memoryCards=[...memorySymbols,...memorySymbols].map((symbol,index)=>({symbol,id:index,matched:false,revealed:false}));
+ for(let i=memoryCards.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[memoryCards[i],memoryCards[j]]=[memoryCards[j],memoryCards[i]];}
+ memoryFirst=null;memoryLocked=false;memoryMoves=0;memoryPairs=0;
+ document.getElementById('memory-moves').textContent='0';document.getElementById('memory-pairs').textContent='0 / 8';
+ document.getElementById('memory-feedback').textContent='اقلبي كارتين وحاولي تلاقي الرمزين المتشابهين.';
+ memoryMatchRender();
+}
+function memoryMatchRender(){
+ const board=document.getElementById('memory-board');board.replaceChildren();
+ memoryCards.forEach((card,index)=>{
+  const b=document.createElement('button');b.type='button';b.className='memory-card'+(card.matched?' matched':'');
+  b.textContent=(card.matched||card.revealed)?card.symbol:'?';b.setAttribute('aria-label',card.matched||card.revealed?'كارت '+card.symbol:'كارت مخفي رقم '+(index+1));
+  b.disabled=card.matched||memoryLocked||card.revealed;
+  b.addEventListener('click',()=>memoryMatchFlip(index));board.appendChild(b);
+ });
+}
+function memoryMatchFlip(index){
+ const card=memoryCards[index];if(!card||card.matched||card.revealed||memoryLocked)return;
+ card.revealed=true;
+ if(memoryFirst===null){memoryFirst=index;memoryMatchRender();return;}
+ memoryMoves++;document.getElementById('memory-moves').textContent=String(memoryMoves);
+ const first=memoryCards[memoryFirst];
+ if(first.symbol===card.symbol){
+  first.matched=true;card.matched=true;first.revealed=false;card.revealed=false;memoryFirst=null;memoryPairs++;
+  document.getElementById('memory-pairs').textContent=memoryPairs+' / 8';
+  document.getElementById('memory-feedback').textContent='🎉 زوج صحيح! كمّلي، فاضل '+(8-memoryPairs)+' أزواج.';
+  memoryMatchRender();
+  if(memoryPairs===8){
+   document.getElementById('memory-feedback').textContent='🏆 ممتاز! لقيتي كل الأزواج في '+memoryMoves+' حركة. مكافأة الجولة: 5 عملات و10 XP.';
+   coins+=5;updateStats();awardXP(10);logAdventure('🏆 فزت بلعبة ذاكرة الصور في '+memoryMoves+' حركة');saveProgress();
+  }
+ }else{
+  memoryLocked=true;memoryMatchRender();
+  document.getElementById('memory-feedback').textContent='قريبين! حاولي تفتكري الرمزين.';
+  setTimeout(()=>{first.revealed=false;card.revealed=false;memoryFirst=null;memoryLocked=false;memoryMatchRender();},750);
+ }
+}
+document.getElementById('open-memory-match').addEventListener('click',()=>{document.getElementById('memory-match-panel').hidden=false;memoryMatchStart();});
+document.getElementById('close-memory-match').addEventListener('click',()=>{document.getElementById('memory-match-panel').hidden=true;memoryLocked=false;});
+document.getElementById('memory-restart').addEventListener('click',memoryMatchStart);
+
 
 
 function orderCafe() {
