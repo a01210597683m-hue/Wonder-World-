@@ -272,6 +272,7 @@ ui.innerHTML = `
   <div class="avatar-tools"><button id="change-outfit" type="button">👕 تغيير الملابس</button><button id="change-hair" type="button">💇 تغيير لون الشعر</button></div>
   <button id="open-shop" type="button">🛍️ افتحي متجر Wonder</button>
   <div class="avatar-tools"><button id="open-puzzle" type="button">🧩 ألغاز سريعة</button></div>
+  <div class="avatar-tools"><button id="open-blockblast" type="button">🟦 Block Blast</button></div>
   <div class="avatar-tools"><button id="quick-work" type="button">💼 شغل سريع</button><button id="quick-rest" type="button">🛋️ استراحة</button><button id="quick-cafe" type="button">☕ طلب كافيه</button></div>
   <div class="avatar-tools"><button id="quick-gym" type="button">🏋️ تمرين</button><button id="quick-garden" type="button">🌷 جمع زهور</button></div>
   <button id="interact" type="button">تفاعل / استكشاف</button>
@@ -288,6 +289,15 @@ ui.innerHTML = `
     <div id="puzzle-choices"></div>
     <div id="puzzle-feedback" role="status"></div>
     <button id="next-puzzle" type="button" hidden>لغز جديد</button>
+  </section>
+  <section id="blockblast-panel" hidden aria-label="لعبة بلوك بلاست">
+    <div class="shop-heading"><strong>🧩 Block Blast</strong><button id="close-blockblast" type="button" aria-label="إغلاق اللعبة">✕</button></div>
+    <p class="blockblast-help">اختاري قطعة من الأسفل، ثم اضغطي على الخانة التي تريدين وضعها فيها. اكملي صفًا أو عمودًا لمسحه.</p>
+    <div class="blockblast-score"><span>النقاط: <b id="blockblast-score">0</b></span><span>أفضل نتيجة: <b id="blockblast-best">0</b></span></div>
+    <div id="blockblast-board" role="group" aria-label="لوحة اللعب 8 في 8"></div>
+    <div id="blockblast-pieces" aria-label="القطع المتاحة"></div>
+    <p id="blockblast-feedback" role="status">اختاري قطعة للبدء.</p>
+    <button id="blockblast-restart" type="button">🔄 لعبة جديدة</button>
   </section>
   <section id="dialogue-panel" hidden aria-label="اختيارات الحوار">
     <div class="shop-heading"><strong id="dialogue-title">حوار</strong><button id="close-dialogue" type="button" aria-label="إغلاق الحوار">✕</button></div>
@@ -580,6 +590,145 @@ function openPuzzle() {
 document.getElementById('open-puzzle').addEventListener('click', openPuzzle);
 document.getElementById('close-puzzle').addEventListener('click', () => { document.getElementById('puzzle-panel').hidden = true; });
 document.getElementById('next-puzzle').addEventListener('click', openPuzzle);
+
+// Block Blast mini-game: tap a piece, then tap a valid board cell.
+const blockBlastSize = 8;
+const blockBlastShapes = [
+  [[0,0]], [[0,0],[0,1]], [[0,0],[1,0]], [[0,0],[0,1],[0,2]],
+  [[0,0],[1,0],[2,0]], [[0,0],[0,1],[1,0],[1,1]],
+  [[0,0],[1,0],[2,0],[2,1]], [[0,0],[0,1],[0,2],[1,1]],
+  [[0,0],[0,1],[1,1],[1,2]], [[0,0],[1,0],[2,0],[3,0]],
+  [[0,0],[0,1],[0,2],[0,3]], [[0,0],[1,0],[2,0],[0,1],[0,2]]
+];
+let blockBlastBoard = Array.from({length:blockBlastSize},()=>Array(blockBlastSize).fill(false));
+let blockBlastPieces = [];
+let blockBlastSelected = -1;
+let blockBlastScore = 0;
+let blockBlastBest = 0;
+let blockBlastOver = false;
+try { blockBlastBest = Math.max(0, Number(localStorage.getItem('wonderworld-blockblast-best')) || 0); } catch (_) {}
+function blockBlastRandomShape() {
+  const shape = blockBlastShapes[Math.floor(Math.random() * blockBlastShapes.length)];
+  return shape.map(([r,c])=>[r,c]);
+}
+function blockBlastNewPieces() {
+  blockBlastPieces = [blockBlastRandomShape(),blockBlastRandomShape(),blockBlastRandomShape()];
+  blockBlastSelected = -1;
+}
+function blockBlastCanPlace(shape,row,col) {
+  return shape.every(([dr,dc])=>{
+    const r=row+dr,c=col+dc;
+    return r>=0 && r<blockBlastSize && c>=0 && c<blockBlastSize && !blockBlastBoard[r][c];
+  });
+}
+function blockBlastAnyMove() {
+  return blockBlastPieces.some(shape=>shape && blockBlastBoard.some((line,r)=>line.some((_,c)=>blockBlastCanPlace(shape,r,c))));
+}
+function blockBlastRender() {
+  const board=document.getElementById('blockblast-board');
+  board.replaceChildren();
+  for(let r=0;r<blockBlastSize;r++) for(let c=0;c<blockBlastSize;c++) {
+    const cell=document.createElement('button');
+    cell.type='button'; cell.className='blockblast-cell'+(blockBlastBoard[r][c]?' filled':'');
+    cell.dataset.row=String(r); cell.dataset.col=String(c);
+    cell.setAttribute('aria-label','صف '+(r+1)+' عمود '+(c+1)+(blockBlastBoard[r][c]?' مشغول':'فارغ'));
+    cell.disabled=blockBlastOver;
+    board.appendChild(cell);
+  }
+  const pieces=document.getElementById('blockblast-pieces');
+  pieces.replaceChildren();
+  blockBlastPieces.forEach((shape,index)=>{
+    const button=document.createElement('button');
+    button.type='button'; button.className='blockblast-piece'+(index===blockBlastSelected?' selected':'');
+    button.disabled=!shape || blockBlastOver;
+    button.dataset.piece=String(index);
+    if(shape) {
+      const maxR=Math.max(...shape.map(p=>p[0])),maxC=Math.max(...shape.map(p=>p[1]));
+      const mini=document.createElement('span'); mini.className='blockblast-mini';
+      mini.style.gridTemplateColumns='repeat('+(maxC+1)+', 12px)';
+      for(let r=0;r<=maxR;r++) for(let c=0;c<=maxC;c++) {
+        const dot=document.createElement('i');
+        if(shape.some(([sr,sc])=>sr===r&&sc===c)) dot.className='on';
+        mini.appendChild(dot);
+      }
+      button.appendChild(mini);
+    } else button.textContent='تم استخدامها';
+    pieces.appendChild(button);
+  });
+  document.getElementById('blockblast-score').textContent=String(blockBlastScore);
+  document.getElementById('blockblast-best').textContent=String(blockBlastBest);
+}
+function openBlockBlast() {
+  document.getElementById('blockblast-panel').hidden=false;
+  if(!blockBlastPieces.length || blockBlastOver) blockBlastReset();
+  else blockBlastRender();
+}
+function blockBlastReset() {
+  blockBlastBoard=Array.from({length:blockBlastSize},()=>Array(blockBlastSize).fill(false));
+  blockBlastScore=0; blockBlastOver=false;
+  blockBlastNewPieces();
+  document.getElementById('blockblast-feedback').textContent='اختاري قطعة، وبعدها مكانها على اللوحة.';
+  blockBlastRender();
+}
+function blockBlastFinishIfNeeded() {
+  if(blockBlastPieces.every(shape=>!shape)) blockBlastNewPieces();
+  if(!blockBlastAnyMove()) {
+    blockBlastOver=true;
+    document.getElementById('blockblast-feedback').textContent='انتهت الجولة! نتيجتك '+blockBlastScore+'. اضغطي «لعبة جديدة» للمحاولة مرة تانية.';
+  }
+  blockBlastRender();
+}
+document.getElementById('blockblast-board').addEventListener('click',event=>{
+  const cell=event.target.closest('button[data-row]');
+  if(!cell || blockBlastOver) return;
+  if(blockBlastSelected<0 || !blockBlastPieces[blockBlastSelected]) {
+    document.getElementById('blockblast-feedback').textContent='اختاري واحدة من القطع الثلاث الأول.';
+    return;
+  }
+  const row=Number(cell.dataset.row),col=Number(cell.dataset.col),shape=blockBlastPieces[blockBlastSelected];
+  if(!blockBlastCanPlace(shape,row,col)) {
+    document.getElementById('blockblast-feedback').textContent='المكان ده مش مناسب للقطعة. اختاري خانة فاضية تناسب شكلها.';
+    return;
+  }
+  for(const [dr,dc] of shape) blockBlastBoard[row+dr][col+dc]=true;
+  blockBlastScore+=shape.length;
+  blockBlastPieces[blockBlastSelected]=null;
+  blockBlastSelected=-1;
+  let fullRows=[];
+  for(let r=0;r<blockBlastSize;r++) if(blockBlastBoard[r].every(Boolean)) fullRows.push(r);
+  let fullCols=[];
+  for(let c=0;c<blockBlastSize;c++) if(blockBlastBoard.every(line=>line[c])) fullCols.push(c);
+  for(const r of fullRows) for(let c=0;c<blockBlastSize;c++) blockBlastBoard[r][c]=false;
+  for(const c of fullCols) for(let r=0;r<blockBlastSize;r++) blockBlastBoard[r][c]=false;
+  const cleared=fullRows.length+fullCols.length;
+  if(cleared) {
+    blockBlastScore+=cleared*10;
+    coins+=cleared*2;
+    happiness=Math.min(100,happiness+cleared);
+    updateStats();
+    awardXP(cleared*8);
+    document.getElementById('blockblast-feedback').textContent='برافو! مسحتي '+cleared+' صف/عمود 🎉 +'+(cleared*2)+' عملة و+'+(cleared*8)+' XP.';
+  } else {
+    awardXP(2);
+    document.getElementById('blockblast-feedback').textContent='حلو! حطيتي قطعة وكسبتي '+shape.length+' نقطة.';
+  }
+  if(blockBlastScore>blockBlastBest) {
+    blockBlastBest=blockBlastScore;
+    try { localStorage.setItem('wonderworld-blockblast-best',String(blockBlastBest)); } catch (_) {}
+  }
+  blockBlastFinishIfNeeded();
+});
+document.getElementById('blockblast-pieces').addEventListener('click',event=>{
+  const button=event.target.closest('button[data-piece]');
+  if(!button || button.disabled || blockBlastOver) return;
+  blockBlastSelected=Number(button.dataset.piece);
+  document.getElementById('blockblast-feedback').textContent='دلوقتي اضغطي على خانة فاضية تناسب شكل القطعة.';
+  blockBlastRender();
+});
+document.getElementById('close-blockblast').addEventListener('click',()=>{document.getElementById('blockblast-panel').hidden=true;});
+document.getElementById('blockblast-restart').addEventListener('click',blockBlastReset);
+document.getElementById('open-blockblast').addEventListener('click',openBlockBlast);
+
 function orderCafe() {
   if (coins < 5) { say('طلب الكافيه محتاج 5 عملات. زوري مكتب الحي للشغل أو كمّلي المهام.'); return; }
   coins -= 5;
