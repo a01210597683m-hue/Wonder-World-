@@ -287,7 +287,7 @@ ui.innerHTML = `
   <button id="exit-home" type="button" hidden>🚪 الخروج للحي</button>
   <section id="shop-panel" hidden aria-label="متجر Wonder">
     <div class="shop-heading"><strong>🛍️ متجر Wonder</strong><button id="close-shop" type="button" aria-label="إغلاق المتجر">✕</button></div>
-    <p class="shop-intro">اختاري قطعة، واشتريها بعملاتك، وبعدها تقدري تلبسيها في أي وقت.</p>
+    <p class="shop-intro">اختاري قطعة، واشتريها بعملاتك، وبعدها تقدري تلبسيها في أي وقت. كل فئة مستقلة، وتقدري تغيّري إطلالتك من غير ما تخسري القطع القديمة.</p>
     <div id="shop-products"></div>
     <div id="shop-feedback" role="status"></div>
   </section>
@@ -704,22 +704,44 @@ function restoreEquippedItems() {
 function renderShop() {
   const list = document.getElementById('shop-products');
   list.replaceChildren();
-  for (const item of shopProducts) {
-    const card = document.createElement('div');
-    card.className = 'shop-product';
-    const info = document.createElement('div');
-    info.className = 'shop-product-info';
-    const name = document.createElement('strong');
-    name.textContent = item.emoji + ' ' + item.name;
-    const price = document.createElement('span');
-    price.textContent = '🪙 ' + item.price;
-    info.append(name, price);
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.dataset.shopItem = item.id;
-    button.textContent = ownedItems.has(item.id) ? 'ارتديها' : 'شراء';
-    card.append(info, button);
-    list.appendChild(card);
+  const wardrobe = document.createElement('div');
+  wardrobe.className = 'wardrobe-summary';
+  const outfit = shopProducts.find(item => item.id === equippedItems.outfit);
+  const hair = shopProducts.find(item => item.id === equippedItems.hair);
+  const summaryTitle = document.createElement('strong');
+  summaryTitle.textContent = '✨ إطلالتك الحالية';
+  const summaryText = document.createElement('span');
+  summaryText.textContent = (outfit ? outfit.name : 'الملابس الأساسية') + ' · ' + (hair ? hair.name : 'الشعر الأساسي');
+  const collectionText = document.createElement('span');
+  collectionText.textContent = 'مقتنياتك: ' + ownedItems.size + ' / ' + (shopProducts.length + 2) + ' قطعة';
+  wardrobe.append(summaryTitle, summaryText, collectionText);
+  list.appendChild(wardrobe);
+  const categories = [{id:'outfit',label:'👗 الملابس'},{id:'hair',label:'💇 الشعر'}];
+  for (const category of categories) {
+    const heading = document.createElement('h3');
+    heading.className = 'wardrobe-category';
+    heading.textContent = category.label;
+    list.appendChild(heading);
+    for (const item of shopProducts.filter(product => product.category === category.id)) {
+      const card = document.createElement('div');
+      card.className = 'shop-product';
+      const info = document.createElement('div');
+      info.className = 'shop-product-info';
+      const name = document.createElement('strong');
+      name.textContent = item.emoji + ' ' + item.name;
+      const price = document.createElement('span');
+      const isOwned = ownedItems.has(item.id);
+      const isEquipped = equippedItems[category.id] === item.id;
+      price.textContent = isEquipped ? '✨ مرتداة الآن' : isOwned ? 'موجودة في مقتنياتك' : '🪙 ' + item.price;
+      info.append(name, price);
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.dataset.shopItem = item.id;
+      button.textContent = isEquipped ? 'مرتداة' : isOwned ? 'ارتديها' : 'شراء';
+      button.disabled = isEquipped;
+      card.append(info, button);
+      list.appendChild(card);
+    }
   }
 }
 function openShop() {
@@ -736,7 +758,8 @@ document.getElementById('shop-products').addEventListener('click', event => {
   if (!item) return;
   if (ownedItems.has(item.id)) {
     equipItem(item);
-    document.getElementById('shop-feedback').textContent = 'لبستي ' + item.name + ' بالفعل ✨';
+    renderShop();
+    document.getElementById('shop-feedback').textContent = 'تم تحديث إطلالتك إلى ' + item.name + ' ✨';
     say('تم ارتداء ' + item.name + '!');
     return;
   }
@@ -1026,7 +1049,8 @@ function memoryMatchStart(){
  for(let i=memoryCards.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[memoryCards[i],memoryCards[j]]=[memoryCards[j],memoryCards[i]];}
  memoryFirst=null;memoryLocked=false;memoryMoves=0;memoryPairs=0;
  document.getElementById('memory-moves').textContent='0';document.getElementById('memory-pairs').textContent='0 / 8';
- document.getElementById('memory-feedback').textContent='اقلبي كارتين وحاولي تلاقي الرمزين المتشابهين.';
+ let best=Number(localStorage.getItem('wonderworld-memory-best-moves'));
+ document.getElementById('memory-feedback').textContent='اقلبي كارتين وحاولي تلاقي الرمزين المتشابهين.'+(Number.isFinite(best)&&best>0?' أفضل نتيجة: '+best+' حركة.':'');
  memoryMatchRender();
 }
 function memoryMatchRender(){
@@ -1050,8 +1074,17 @@ function memoryMatchFlip(index){
   document.getElementById('memory-feedback').textContent='🎉 زوج صحيح! كمّلي، فاضل '+(8-memoryPairs)+' أزواج.';
   memoryMatchRender();
   if(memoryPairs===8){
-   document.getElementById('memory-feedback').textContent='🏆 ممتاز! لقيتي كل الأزواج في '+memoryMoves+' حركة. مكافأة الجولة: 5 عملات و10 XP.';
-   coins+=5;updateStats();awardXP(10);logAdventure('🏆 فزت بلعبة ذاكرة الصور في '+memoryMoves+' حركة');saveProgress();
+   const bestKey='wonderworld-memory-best-moves';
+   let bestMoves=Number(localStorage.getItem(bestKey));
+   if(!Number.isFinite(bestMoves)||bestMoves<1||memoryMoves<bestMoves){bestMoves=memoryMoves;localStorage.setItem(bestKey,String(bestMoves));}
+   const rewardKey='wonderworld-memory-reward-day',today=localDateKey(),alreadyRewarded=localStorage.getItem(rewardKey)===today;
+   if(alreadyRewarded){
+    document.getElementById('memory-feedback').textContent='🏆 ممتاز! خلصتي كل الأزواج في '+memoryMoves+' حركة. أفضل نتيجة: '+bestMoves+' حركة. مكافأة الفوز اليومية اتاخدت بالفعل.';
+   }else{
+    document.getElementById('memory-feedback').textContent='🏆 ممتاز! خلصتي كل الأزواج في '+memoryMoves+' حركة. أفضل نتيجة: '+bestMoves+' حركة. مكافأة اليوم: 5 عملات و10 XP.';
+    coins+=5;updateStats();awardXP(10);localStorage.setItem(rewardKey,today);
+   }
+   logAdventure('🏆 فزت بلعبة ذاكرة الصور في '+memoryMoves+' حركة');saveProgress();
   }
  }else{
   memoryLocked=true;memoryMatchRender();
