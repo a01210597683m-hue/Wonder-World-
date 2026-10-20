@@ -237,3 +237,13 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
   font-weight: 800;
 }
 #next-puzzle[hidden] { display: none; }
+
+
+/* Fitness and garden activity controls */
+#quick-gym { background: #276b88; }
+#quick-garden { background: #4c7d43; }
+#life-ui .avatar-tools { row-gap: 6px; }
+@media (max-width: 480px) {
+  #life-ui .avatar-tools { max-width: 100%; }
+  #life-ui .avatar-tools button { min-height: 34px; }
+}
