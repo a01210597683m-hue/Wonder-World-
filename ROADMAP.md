@@ -8,6 +8,8 @@
 - [x] Browser-based PlayCanvas Engine setup and GitHub Pages workflow.
 - [x] 3D test ground, lighting, camera, placeholder character, and touch controls.
 - [x] Supabase-backed character-reference panel (reference images are not 3D models).
+- [x] Prototype curated NPC dialogue with three response choices and relationship/happiness effects.
+- [ ] Test NPC dialogue, mobile layout, and deployment on the target Android phone.
 - [ ] Verify the prototype on the target Android phone.
 - [ ] Replace placeholder character with production-quality 3D character assets based on the user's original references.
 
@@ -18,7 +20,7 @@
 4. **Economy and inventory:** server-validated virtual wallets, item catalog, purchases, owned items, free/virtual/real-money item tiers, and transaction integrity.
 5. **Vehicles and travel:** responsive car and aircraft controls and suitable world areas.
 6. **Playable activity modules:** football/sports, gym, action/combat, puzzles, billiards, arcade space shooter, Ludo/party games, and fashion competitions.
-7. **Interactive stories:** branching scenarios with multiple response choices and persistent outcomes as appropriate.
+7. **Interactive stories:** branching scenarios with multiple response choices and persistent outcomes as appropriate. (NPC dialogue is currently an early prototype; full story branches and durable outcomes remain future work.)
 8. **Safe interaction:** no player-to-player chat or free-text contact; curated response choices and emoji reactions with optional sound.
 9. **AI companion:** separate respectful, age-appropriate AI conversation area with privacy and safety protections.
 10. **Owner monetization:** approved real-money purchases, optional subscriptions, rewarded ads, and paid content packs where permitted; no guaranteed-revenue assumptions.
