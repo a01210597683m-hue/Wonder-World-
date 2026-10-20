@@ -272,3 +272,12 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [ ] Weather, memories, and pet interaction rewards remain client-side prototype behavior; no server-authoritative multiplayer persistence has been added.
 
 **Scope note:** atmosphere uses lightweight prototype geometry and color changes. It is not a finished weather simulation, screenshot/photo capture feature, or final art pass.
+
+
+## 2026-10-20 — Pet naming and achievement collection
+- [x] Allow players to give each owned pet a custom name (up to 18 characters) and save names with local progress.
+- [x] Show the chosen companion name in the pet summary and preserve a safe text-only display.
+- [x] Add an achievements panel with five progress-based badges: first friendship, first pet, flower collector, first photo memory, and level 3.
+- [x] Refresh achievement status as player progress changes; the panel is informational and does not grant paid or random rewards.
+- [ ] Test pet naming, switching between named pets, persistence, achievement unlocks, and small-screen panel layout on Android.
+- [ ] Names, achievements and progression remain local prototype data until server-authoritative save support is implemented.
