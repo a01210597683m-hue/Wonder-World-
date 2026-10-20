@@ -136,3 +136,16 @@ This section is additive. It reaffirms requirements already present elsewhere in
 - New requests must be appended or reconciled as additional requirements. If two requirements genuinely conflict, document the conflict and ask the user before changing either; never silently choose one and discard the other.
 - Keep this brief as the canonical product-vision record and keep the roadmap aligned with it. Supabase's master vision record must preserve prior JSON fields while adding new fields. GitHub Pages is the deployed playable application, not a substitute for implementation: each requirement must be built and tested in the app before being called playable or complete.
 - Any summary must explicitly preserve the full breadth of the vision; a short summary is not permission to drop details.
+
+
+## 2026-10-20 — Pet companions, adoption and pet-care economy (additive requirement)
+
+- Add a dedicated pet-care system to WonderWorld without removing or replacing any existing feature.
+- Provide a meaningful free adoption path, pets purchasable with earned virtual currency, and optional premium pets purchasable with real money where legally and platform permitted. Free players must still be able to enjoy pet ownership; premium pets must not be required for basic care or progression.
+- Planned pet categories may include dogs, cats, rabbits, birds, hamsters and other suitable companion animals. Final species, breeds, art, animation and availability are design choices to be built and tested; assistant image examples are illustrative only, not approved final assets.
+- Pet ownership should include naming, following/companionship, age-appropriate interactions, feeding, water, play, grooming, rest, affection/bond progression, and clear wellbeing feedback. Care should be forgiving and enjoyable, never punish players with cruelty, graphic suffering, or manipulative pressure to log in or spend.
+- Add a pet shop/adoption centre and optional pet supplies such as food, toys, beds, grooming items, collars, outfits and carriers, with clearly labelled free, virtual-currency and real-money tiers.
+- Support safe integration with homes and the wider world: pets can accompany the player in suitable areas and interact with appropriate furniture/objects; add pet-friendly places and activities as the world expands. Multiplayer pet interactions must not create free-text or voice chat between players.
+- Protect children and household privacy. Real-money purchases require clear real-currency prices, platform-approved payment flows, purchase confirmation, parental controls where applicable, refund/compliance handling, anti-fraud measures and server-side purchase verification. Never trust client-side balances or expose service-role/secret keys in browser code. No loot-box/gambling mechanics for pets; disclose exactly what is purchased.
+- Persist owned pets, pet needs/state, inventory and transactions through secure server-authoritative systems when implemented. The current browser prototype/localStorage must not be represented as secure, multiplayer-persistent or production-ready.
+- Status: product requirement only; pet systems, models, animations, adoption, care loops, shop and purchase flows are not implemented until code and tests verify them.
