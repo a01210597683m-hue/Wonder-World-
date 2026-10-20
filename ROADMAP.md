@@ -90,3 +90,14 @@
 - [x] Expanded monetization planning across eligible transport, travel, business plots, upgrades, homes, decor, cosmetics, subscriptions, ads, and content packs, with server-side validation and clear pricing.
 - [x] Added healthy-engagement requirements: immersive variety and meaningful progression without manipulative or exploitative loops.
 - [ ] These are vision/documentation additions only; each feature still needs implementation, age-appropriate design, security review, and playable testing.
+
+
+## 2026-10-20 — Reaffirmed action, puzzle/group-game catalogue, and AI safety
+
+- [ ] Build a dedicated PUBG-inspired battle-royale/action mode with responsive shooting/aiming and boxing/melee mechanics; age-appropriate and safety-bounded.
+- [ ] Expand beyond the existing quick-puzzle prototype into playable block puzzles, water-sort, billiards, rope untangling, arrow/logic puzzles, match-3, space/rocket arcade games, and more brain/strategy activities.
+- [ ] Implement and test group/party games such as Ludo-like board games and other casual social mini-games, with real rules, controls and outcomes.
+- [ ] Build a warm, friendly, humorous AI companion for everyday conversation, jokes, rational real-life advice and practical help.
+- [ ] Enforce AI content safeguards: block/redirect sexual or explicit content; harmful violence including killing, hitting/assault, threats or glorification of harm; and blasphemy/mockery/insults targeting any religion. Apply rules consistently across religions, preserve respectful neutral conversation, protect children and privacy.
+- [ ] Keep AI as the only free-form chat area; continue prohibiting player-to-player free-text/voice chat, private messages and side channels.
+- [ ] Run gameplay and safety tests before describing any of these future systems as complete. These checklist items are requirements, not claims that the features are already playable.
