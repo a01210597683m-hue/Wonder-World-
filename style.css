@@ -686,3 +686,9 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 .achievement-info{min-width:0;display:flex;flex-direction:column;gap:3px}
 .achievement-info span{line-height:1.45}
 #achievement-summary{line-height:1.6}
+
+
+.walk-activity-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:8px 0}
+.walk-activity-actions button{border:0;border-radius:9px;padding:9px 8px;background:#e7e0f8;color:#49386f;font:inherit;font-size:12px;font-weight:800}
+#walk-activity-feedback{font-size:12px;line-height:1.5;margin:6px 0;color:var(--text-color,#29435b)}
+@media(max-width:420px){.walk-activity-actions{grid-template-columns:1fr}}
