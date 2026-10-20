@@ -36,6 +36,8 @@
       stats.replaceChildren(el('span', {}, '🪙 رصيد العمل: ' + state.workCredits), el('span', {}, '📋 الورديات: ' + state.shifts), el('span', {}, '📦 الطلبات المنجزة: ' + state.orders), el('span', {}, '💵 إيراد المشروع: ' + state.businessRevenue));
       businessState.textContent = !state.hasPremises ? 'لم تشتري محلًا بعد. يمكنك بدء العمل الوظيفي أو توفير الرصيد للمحل.' : 'المحل: مفتوح' + (state.decorated ? ' ومجهز' : ' ويحتاج إلى تجهيز') + ' · المخزون: ' + state.stock + ' · الطلبات: ' + state.orders;
       buy.disabled = state.hasPremises || state.workCredits < 50; decorate.disabled = !state.hasPremises || state.decorated || state.workCredits < 15; stock.disabled = !state.hasPremises || state.workCredits < 8; order.disabled = !state.hasPremises || !state.decorated || state.stock < 1; save();
+      // Keep the 3D neighborhood in sync with this device's local prototype business state.
+      window.dispatchEvent(new CustomEvent('wonderworld:career-state', { detail: { hasPremises: state.hasPremises, decorated: state.decorated, stock: state.stock, orders: state.orders } }));
     }
     shift.addEventListener('click', () => { state.shifts += 1; state.workCredits += 10; tell('أحسنتِ! خلصتِ وردية تجريبية وحصلتِ على 10 رصيد افتراضي.'); });
     buy.addEventListener('click', () => { if (state.hasPremises || state.workCredits < 50) return tell('تحتاجين إلى 50 رصيدًا افتراضيًا لشراء المحل.'); state.workCredits -= 50; state.hasPremises = true; tell('مبروك! أصبح عندك محل تجريبي. جهزيه قبل استقبال الطلبات.'); });
