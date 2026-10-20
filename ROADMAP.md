@@ -33,3 +33,11 @@
 - Keep GitHub Pages, source files, and Supabase aligned with the master brief.
 - Never commit passwords, service-role keys, or secret keys. Keep RLS enabled and validate purchases/currency changes on the server.
 - The project is currently a browser-based PlayCanvas Engine prototype, not a native Godot project or automatically synchronized PlayCanvas Editor scene.
+
+
+## 2026-10-20 — Movement polish (prototype)
+- Added a simple arm-swing and body-bounce walk cycle to the temporary geometric player avatar.
+- Player now turns toward the current movement direction.
+- Follow camera eases toward the player rather than snapping instantly.
+- Bumped the browser asset version to `20261020-9`.
+- Validation note: repository files were updated; the browser runtime and published GitHub Pages build still need an on-device smoke test. These are placeholder-avatar animations, not final reference-matched character art.
