@@ -105,3 +105,26 @@ These requirements extend the existing WonderWorld vision. They do not cancel, n
 
 ### Delivery rule
 - These are product requirements, not claims of implementation. Build and test each system in stages; the current browser prototype is not yet a finished 3D/4K world, and documentation updates do not mean that travel, business ownership, group gatherings, production-quality characters, or real-money monetization are already playable.
+
+
+## Explicit reaffirmation — action, puzzles, group games, and safe AI (2026-10-20)
+
+This section is additive. It reaffirms requirements already present elsewhere in the brief and makes the user's requested boundaries explicit; it does not claim that the systems are implemented.
+
+### Action / battle-royale-inspired mode
+- Preserve a dedicated action mode inspired by PUBG-style battle royale, including responsive movement, aiming/shooting mechanics, combat encounters and boxing/melee gameplay.
+- Treat this as a distinct playable mode inside WonderWorld, not the whole game. Keep the implementation age-appropriate and apply the user's safety/content boundaries; do not portray this as finished until it is implemented and tested.
+
+### Puzzles, thinking, arcade, and group games
+- Preserve a broad selection of genuinely playable activities: Block Blast-style block puzzles, Water Sort, billiards/pool, rope untangling, arrow and logic puzzles, Candy Crush-style match-3, space/rocket arcade shooting, and additional brain/strategy games.
+- Preserve group and party play such as Ludo-like board games and other casual social mini-games, plus sports and fashion/runway competitions. These are intended as actual interactive games with controls, rules, win/loss states and tested outcomes—not merely decorative panels or buttons.
+- Keep the existing interactive-story/Decision-like branching choices as a separate activity type.
+
+### Friendly AI companion and content boundaries
+- Provide a dedicated, friendly, warm, humorous AI companion that people can talk with naturally about everyday topics, jokes and laughter, real-life questions, reasonable advice, and practical help across a wide range of subjects.
+- The AI should be kind, respectful, sensible, and clear about uncertainty; it should not pretend to be a human or replace qualified emergency/professional help when that matters.
+- Apply robust age-appropriate safeguards and block or redirect sexual/explicit content; graphic or harmful violence involving killing, hitting/assault, threats, or glorification of harm; and religiously abusive content such as blasphemy, mockery, or insults targeting any religion or faith. Apply the religious-respect rule consistently across religions, not selectively.
+- Do not turn this into a blanket ban on a person's harmless everyday conversation: keep responses neutral and respectful, and safely redirect requests that cross the boundaries. Protect children and user privacy.
+- The AI chat is the only free-form chat area. No free-text or voice chat, private messages, or side-channel communication between players. Social play outside AI chat uses curated, context-sensitive response choices and suitable emotes.
+
+**Implementation status:** these are design requirements. The existing quick-puzzle panel is only an early prototype; the PUBG-inspired mode, full puzzle catalogue, polished group games, and production-safe AI companion still require implementation, safety testing, and gameplay testing.
