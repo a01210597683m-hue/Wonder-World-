@@ -350,3 +350,13 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [x] Clearly state that this records an in-game memory, not a real camera photo or uploaded image.
 - [x] Bump browser asset version to `20261020-39`.
 - [ ] Browser-test fountain proximity, once-per-day guard, journal entry, and mobile layout. This local-device guard is not server-authoritative.
+
+
+## 2026-10-20 — Cooperative companion challenge
+
+- [x] Add a short, accessible cooperative question challenge while an NPC walk is active and the player is outdoors.
+- [x] Use three rotating preset questions with retry feedback; no free-text or voice chat is introduced.
+- [x] Reward a correct answer with +1 friendship, +4 happiness, and +8 XP, limited to once per local day per NPC on this device.
+- [x] Automatically end the NPC walk when entering a home, preventing a stale outdoor companion state indoors.
+- [x] Bump browser asset version to `20261020-40`.
+- [ ] Browser-test challenge retries, daily guard, and entering a home during a walk. Daily guard remains local prototype logic, not server-authoritative.
