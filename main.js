@@ -34,6 +34,13 @@ const mats = {
   flower: mat(new Color(0.96, 0.42, 0.64)),
   bench: mat(new Color(0.48, 0.29, 0.15)),
   player: mat(new Color(0.53, 0.31, 0.82)),
+  outfitMint: mat(new Color(0.18, 0.65, 0.53)),
+  outfitCoral: mat(new Color(0.93, 0.38, 0.34)),
+  outfitBlue: mat(new Color(0.18, 0.42, 0.78)),
+  outfitGold: mat(new Color(0.95, 0.68, 0.16)),
+  hairBrown: mat(new Color(0.24, 0.13, 0.09)),
+  hairBlack: mat(new Color(0.055, 0.045, 0.07)),
+  hairRose: mat(new Color(0.55, 0.19, 0.35)),
   skin: mat(new Color(0.88, 0.63, 0.46)),
   npcBlue: mat(new Color(0.18, 0.53, 0.82)),
   npcPink: mat(new Color(0.89, 0.34, 0.56)),
@@ -121,11 +128,13 @@ function makePerson(name, x, z, shirtMaterial, isPlayer = false) {
   const person = new Entity(name);
   person.setPosition(x, 0, z);
   app.root.addChild(person);
-  box(name + ' body', 0.82, 1.35, 0.58, 0, 0.95, 0, shirtMaterial, person);
+  const body = box(name + ' body', 0.82, 1.35, 0.58, 0, 0.95, 0, shirtMaterial, person);
   sphere(name + ' head', 0.78, 0, 1.95, 0, mats.skin, person);
-  sphere(name + ' hair', 0.8, 0, 2.28, -0.04, isPlayer ? mats.player : mats.trunk, person);
-  box(name + ' left arm', 0.22, 0.95, 0.24, -0.54, 1.0, 0, shirtMaterial, person);
-  box(name + ' right arm', 0.22, 0.95, 0.24, 0.54, 1.0, 0, shirtMaterial, person);
+  const hair = sphere(name + ' hair', 0.8, 0, 2.28, -0.04, isPlayer ? mats.player : mats.trunk, person);
+  const leftArm = box(name + ' left arm', 0.22, 0.95, 0.24, -0.54, 1.0, 0, shirtMaterial, person);
+  const rightArm = box(name + ' right arm', 0.22, 0.95, 0.24, 0.54, 1.0, 0, shirtMaterial, person);
+  person.outfitParts = [body, leftArm, rightArm];
+  person.hairPart = hair;
   return person;
 }
 const player = makePerson('Player', 0, 1.5, mats.player, true);
@@ -145,12 +154,27 @@ const ui = document.createElement('section');
 ui.id = 'life-ui';
 ui.innerHTML = `
   <div class="life-stats"><span>💛 السعادة: <b id="happiness">60</b></span><span>🪙 العملات: <b id="coins">20</b></span></div>
+  <div class="avatar-tools"><button id="change-outfit" type="button">👕 تغيير الملابس</button><button id="change-hair" type="button">💇 تغيير لون الشعر</button></div>
   <button id="interact" type="button">تفاعل / استكشاف</button>
   <div id="life-message" role="status">أهلًا بكِ في WonderWorld! تحرّكي واستكشفي الحي.</div>
   <div id="life-goal">مهمتك: تعرّفي على شخص، ثم زوري المتجر والحديقة.</div>
 `;
 document.getElementById('game').appendChild(ui);
 const interactButton = document.getElementById('interact');
+const outfitOptions = [mats.player, mats.outfitMint, mats.outfitCoral, mats.outfitBlue, mats.outfitGold];
+const hairOptions = [mats.player, mats.hairBrown, mats.hairBlack, mats.hairRose];
+let outfitIndex = 0;
+let hairIndex = 0;
+document.getElementById('change-outfit').addEventListener('click', () => {
+  outfitIndex = (outfitIndex + 1) % outfitOptions.length;
+  player.outfitParts.forEach(part => { part.render.material = outfitOptions[outfitIndex]; });
+  say('غيّرنا لبسك! اختاري اللون اللي يعجبك 👕');
+});
+document.getElementById('change-hair').addEventListener('click', () => {
+  hairIndex = (hairIndex + 1) % hairOptions.length;
+  player.hairPart.render.material = hairOptions[hairIndex];
+  say('غيّرنا لون شعرك ✨');
+});
 const message = document.getElementById('life-message');
 let happiness = 60;
 let coins = 20;
