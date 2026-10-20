@@ -635,7 +635,23 @@ function showDialogue(npc) {
   document.getElementById('dialogue-text').textContent += alreadyRewardedToday
     ? ' أخدتي مكافأة التعارف مع ' + npc.name + ' النهارده؛ تقدري تكملي الحوار للمتعة، والمكافأة تتجدد بكرة.'
     : ' أول اختيار النهارده يطوّر الصداقة ويمنح مكافأة.';
-  const choices = npc.topics;
+  const choices = [...npc.topics];
+  if (npc.relation >= 4) {
+    choices.push({
+      label: '🎲 نلعب نشاط تعاوني سوا',
+      reply: 'اتفقنا! التعاون وتقسيم الأدوار بيخلّي النشاط ألطف، وكل واحدة فينا تقدر تضيف فكرة.',
+      relation: 1,
+      joy: 4
+    });
+  }
+  if (npc.relation >= 8) {
+    choices.push({
+      label: '🌟 نخطط لمغامرة لطيفة في الحي',
+      reply: 'يا سلام! نختار مكانًا جديدًا ونخلي المغامرة مناسبة وآمنة للجميع.',
+      relation: 1,
+      joy: 5
+    });
+  }
   const list = document.getElementById('dialogue-choices');
   list.replaceChildren();
   for (const choice of choices) {
