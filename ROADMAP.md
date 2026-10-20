@@ -186,3 +186,14 @@ Every feature and constraint from the original WonderWorld concept through all l
 - Daily login reward also grants a small XP bonus.
 - This is prototype progression stored in browser local storage, not a server-authoritative or anti-cheat-safe economy.
 - Build/cache version: 20261020-21. Testing pending.
+
+
+## 2026-10-20 — Daily quest save reliability fix
+
+- [x] Persist the four daily quest completion flags in the existing local save alongside the quest date.
+- [x] Save quest progress immediately after a quest is completed, so the completion state survives a reload even when no later action updates the stats.
+- [x] Guard quest completion against unknown keys and direct attempts to set the reward flag; the full-set reward remains controlled by the existing all-quests-complete check.
+- [ ] Smoke-test completing one quest, reloading on the same local calendar day, and confirming the completed quest remains marked without duplicate rewards.
+- [ ] Verify that changing to a new local calendar date resets daily quests and permits the daily reward again.
+
+**Scope note:** progress remains local to this browser/device and is not a server-authoritative multiplayer save.
