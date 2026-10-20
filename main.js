@@ -177,6 +177,7 @@ ui.innerHTML = `
   <div class="life-stats"><span>💛 السعادة: <b id="happiness">60</b></span><span>⚡ الطاقة: <b id="energy">80</b></span><span>🪙 العملات: <b id="coins">20</b></span></div>
   <div class="avatar-tools"><button id="change-outfit" type="button">👕 تغيير الملابس</button><button id="change-hair" type="button">💇 تغيير لون الشعر</button></div>
   <button id="open-shop" type="button">🛍️ افتحي متجر Wonder</button>
+  <div class="avatar-tools"><button id="open-puzzle" type="button">🧩 ألغاز سريعة</button></div>
   <div class="avatar-tools"><button id="quick-work" type="button">💼 شغل سريع</button><button id="quick-rest" type="button">🛋️ استراحة</button><button id="quick-cafe" type="button">☕ طلب كافيه</button></div>
   <button id="interact" type="button">تفاعل / استكشاف</button>
   <section id="shop-panel" hidden aria-label="متجر Wonder">
@@ -184,6 +185,13 @@ ui.innerHTML = `
     <p class="shop-intro">اختاري قطعة، واشتريها بعملاتك، وبعدها تقدري تلبسيها في أي وقت.</p>
     <div id="shop-products"></div>
     <div id="shop-feedback" role="status"></div>
+  </section>
+  <section id="puzzle-panel" hidden aria-label="لعبة ألغاز">
+    <div class="shop-heading"><strong>🧩 تحدّي الألغاز</strong><button id="close-puzzle" type="button" aria-label="إغلاق الألغاز">✕</button></div>
+    <p id="puzzle-question">اختاري إجابة اللغز.</p>
+    <div id="puzzle-choices"></div>
+    <div id="puzzle-feedback" role="status"></div>
+    <button id="next-puzzle" type="button" hidden>لغز جديد</button>
   </section>
   <section id="dialogue-panel" hidden aria-label="اختيارات الحوار">
     <div class="shop-heading"><strong id="dialogue-title">حوار</strong><button id="close-dialogue" type="button" aria-label="إغلاق الحوار">✕</button></div>
@@ -210,6 +218,8 @@ let happiness = 60;
 let energy = 80;
 let coins = 20;
 let lastWorkAt = 0;
+let puzzleCooldownUntil = 0;
+let currentPuzzle = null;
 const ownedItems = new Set(['default-outfit', 'default-hair']);
 const dailyQuests = { friend: false, park: false, shop: false, rewarded: false };
 const equippedItems = { outfit: 'default-outfit', hair: 'default-hair' };
@@ -365,6 +375,49 @@ const places = [
   }}
 ];
 let activeDialogueNpc = null;
+const puzzles = [
+  { q: 'إيه الرقم اللي يكمل السلسلة؟ 2، 4، 6، ؟', choices: ['7', '8', '10'], answer: 1, hint: 'بنزوّد 2 كل مرة.' },
+  { q: 'معاكي 3 تفاحات وخدتي 2 كمان. بقي معاكي كام؟', choices: ['5', '6', '4'], answer: 0, hint: '3 + 2 = 5.' },
+  { q: 'مين المختلف؟ 🍎 🍎 🍌 🍎', choices: ['التفاحة الأولى', 'الموزة', 'التفاحة الأخيرة'], answer: 1, hint: 'فاكهة مختلفة عن باقي المجموعة.' },
+  { q: 'لو الساعة 3 وزوّدنا ساعتين، تبقى كام؟', choices: ['4', '6', '5'], answer: 2, hint: '3 + 2 = 5.' },
+  { q: 'إيه اللي بنستخدمه عشان نعرف الاتجاهات؟', choices: ['بوصلة', 'ملعقة', 'وسادة'], answer: 0, hint: 'أداة بتساعدنا نعرف الشمال والجنوب.' }
+];
+function openPuzzle() {
+  document.getElementById('puzzle-panel').hidden = false;
+  document.getElementById('puzzle-feedback').textContent = '';
+  document.getElementById('next-puzzle').hidden = true;
+  currentPuzzle = puzzles[Math.floor(Math.random() * puzzles.length)];
+  document.getElementById('puzzle-question').textContent = currentPuzzle.q;
+  const choices = document.getElementById('puzzle-choices');
+  choices.replaceChildren();
+  currentPuzzle.choices.forEach((label, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'dialogue-choice';
+    button.textContent = label;
+    button.addEventListener('click', () => {
+      if (Date.now() < puzzleCooldownUntil) {
+        document.getElementById('puzzle-feedback').textContent = 'استني لحظة قبل المحاولة التالية.';
+        return;
+      }
+      puzzleCooldownUntil = Date.now() + 5000;
+      for (const option of choices.querySelectorAll('button')) option.disabled = true;
+      if (index === currentPuzzle.answer) {
+        coins += 5;
+        happiness = Math.min(100, happiness + 4);
+        updateStats();
+        document.getElementById('puzzle-feedback').textContent = 'إجابة صحيحة! +5 عملات و+4 سعادة 🎉 ' + currentPuzzle.hint;
+      } else {
+        document.getElementById('puzzle-feedback').textContent = 'مش الإجابة دي، جربي لغز تاني. 💡 ' + currentPuzzle.hint;
+      }
+      document.getElementById('next-puzzle').hidden = false;
+    });
+    choices.appendChild(button);
+  });
+}
+document.getElementById('open-puzzle').addEventListener('click', openPuzzle);
+document.getElementById('close-puzzle').addEventListener('click', () => { document.getElementById('puzzle-panel').hidden = true; });
+document.getElementById('next-puzzle').addEventListener('click', openPuzzle);
 function orderCafe() {
   if (coins < 5) { say('طلب الكافيه محتاج 5 عملات. زوري مكتب الحي للشغل أو كمّلي المهام.'); return; }
   coins -= 5;
