@@ -679,3 +679,10 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 .walk-friend-card button,.walk-consent-card button,#end-shared-walk{border:0;border-radius:9px;padding:9px 11px;background:#dcefe5;color:#20533b;font:inherit;font-size:12px;font-weight:800}
 .walk-consent-card{background:#fff8eb;border-color:#f0d8a9}.walk-consent-card button+button{background:#f3e6e6;color:#793c3c}
 .walk-friend-card button:disabled{opacity:.6}.walk-prototype-note{font-size:11px;line-height:1.55;color:#647386;border-top:1px solid #e1e8ef;padding-top:9px}
+
+
+/* Progression streak and expanded achievement cards. */
+.achievement-card{align-items:center;gap:10px}
+.achievement-info{min-width:0;display:flex;flex-direction:column;gap:3px}
+.achievement-info span{line-height:1.45}
+#achievement-summary{line-height:1.6}
