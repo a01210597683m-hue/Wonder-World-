@@ -35,3 +35,9 @@ These are visual references only. They are not 3D character models and do not au
 This repository is the source code for a browser-based PlayCanvas Engine prototype. It is not a PlayCanvas Editor project export and is not automatically synced to a separate PlayCanvas Editor scene. The web prototype and its hosting are connected through GitHub; its three reference images are loaded directly from Supabase Storage. Adding a new image to `Wonder World Game/characters/` in Supabase Storage should make it appear in the reference panel automatically. A narrowly scoped Storage policy allows anonymous clients to list image filenames only in that folder; the bucket objects themselves are public as configured.
 
 Do not commit service-role keys, passwords, or other secrets. Keep Row Level Security enabled.
+
+## Careers and player-owned shop prototype
+The careers panel includes three selectable job tracks (café, store, and delivery coordination), repeatable paid shifts, job experience, a player-owned storefront, shop decoration, stock deliveries, customer orders, business reputation and level upgrades, additional shelves, a daily marketing action, a once-per-local-day three-order contract, and progress badges. The storefront is linked to the 3D neighborhood and its sign/visible stock react to local business state.
+
+All balances, ownership, reputation, daily limits, and progress are stored in the current browser's local storage. They are prototype-only and can be reset or edited by the player; they are not synchronized to Supabase, secure multiplayer state, or real money. GitHub Actions checks JavaScript syntax during Pages builds. Browser and Android gameplay verification is still required.
+
