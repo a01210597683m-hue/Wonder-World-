@@ -163,3 +163,15 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [ ] Smoke-test first conversation, repeated same-day conversation, next-day reset, saved progress, and daily neighbor quest on Android.
 
 **Scope note:** this is a client-side prototype anti-farming guard, not a tamper-proof or server-authoritative reward system.
+
+
+## 2026-10-20 — Relationship-based dialogue unlocks (prototype)
+
+- [x] NPCs with relationship level 4 or higher offer an additional cooperative activity conversation.
+- [x] NPCs with relationship level 8 or higher offer an additional neighborhood-adventure planning conversation.
+- [x] Unlocks are additive: each NPC's original personality-specific dialogue choices remain available.
+- [x] All added choices use the existing preset dialogue safety model and existing once-per-day reward guard; no player free-text or voice chat.
+- [x] Bumped browser asset version to `20261020-20`.
+- [ ] Test unlock thresholds at relationship levels 4 and 8, dialogue on mobile, daily reward guard, and deployment on Android.
+
+**Scope note:** these are branching dialogue choices, not yet fully simulated co-op mini-games or an implemented adventure mission.
