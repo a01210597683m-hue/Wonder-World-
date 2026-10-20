@@ -663,3 +663,9 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 .memory-match-status{display:flex;justify-content:space-between;gap:12px;padding:8px 10px;border-radius:10px;background:#f3f7fb;color:#2c4863;font-size:12px;font-weight:750}
 #memory-feedback{min-height:36px;font-size:12px;line-height:1.5;color:#294760}
 #memory-restart{width:100%;padding:10px;border:0;border-radius:10px;background:#26775d;color:white;font:inherit;font-weight:800}
+
+/* Wardrobe inventory clarity */
+.wardrobe-summary{display:grid;gap:4px;padding:10px;margin:2px 0 10px;border-radius:12px;background:#eef6f1;border:1px solid #cde4d6;color:#214d3a;font-size:12px}
+.wardrobe-summary strong{font-size:13px}
+.wardrobe-category{margin:12px 0 5px;font-size:13px;color:#36546d}
+.shop-product button:disabled{opacity:.65;cursor:default}
