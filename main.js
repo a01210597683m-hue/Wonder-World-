@@ -113,6 +113,32 @@ box('Shop window', 2.1, 1.35, 0.12, 8.1, 1.85, 7.68, mats.window);
 box('Shop window 2', 2.1, 1.35, 0.12, 11.9, 1.85, 7.68, mats.window);
 box('Shop sign', 4.2, 0.75, 0.18, 10, 3.05, 7.55, mats.npcPink);
 
+// Player-owned shop appears in the neighborhood only after purchase in the careers panel.
+const playerBusiness = new Entity('Player-Owned Shop');
+app.root.addChild(playerBusiness);
+box('Player shop walls', 4.8, 2.9, 3.8, 0, 1.45, 0, mats.white, playerBusiness);
+box('Player shop roof', 5.2, 0.32, 4.2, 0, 3.05, 0, mats.npcBlue, playerBusiness);
+box('Player shop door', 0.9, 1.8, 0.14, 0, 0.9, -1.96, mats.door, playerBusiness);
+box('Player shop window left', 1.25, 1.1, 0.12, -1.35, 1.65, -1.97, mats.window, playerBusiness);
+box('Player shop window right', 1.25, 1.1, 0.12, 1.35, 1.65, -1.97, mats.window, playerBusiness);
+const playerBusinessAwning = box('Player shop awning', 5.0, 0.28, 0.65, 0, 2.35, -2.12, mats.npcPink, playerBusiness);
+const playerBusinessSign = box('Player shop sign', 3.3, 0.55, 0.16, 0, 2.85, -2.08, mats.npcBlue, playerBusiness);
+const playerBusinessStock = [
+  box('Player shop stock crate 1', 0.55, 0.55, 0.55, -1.5, 0.3, -2.55, mats.outfitGold, playerBusiness),
+  box('Player shop stock crate 2', 0.55, 0.55, 0.55, -0.8, 0.3, -2.55, mats.outfitMint, playerBusiness),
+  box('Player shop stock crate 3', 0.55, 0.55, 0.55, 1.5, 0.3, -2.55, mats.outfitCoral, playerBusiness)
+];
+playerBusiness.setPosition(-18, 0, -10);
+playerBusiness.enabled = false;
+playerBusinessStock.forEach(crate => { crate.enabled = false; });
+window.addEventListener('wonderworld:career-state', event => {
+  const business = event.detail || {};
+  playerBusiness.enabled = Boolean(business.hasPremises);
+  playerBusinessAwning.render.material = business.decorated ? mats.outfitGold : mats.npcPink;
+  playerBusinessSign.render.material = business.decorated ? mats.npcGold : mats.npcBlue;
+  playerBusinessStock.forEach((crate, index) => { crate.enabled = Boolean(business.hasPremises && Number(business.stock) > index); });
+});
+
 // Added destinations: Wonder Cafe, community office and a town-plaza fountain.
 box('Wonder Cafe building', 5.5, 3.1, 4.5, 15, 1.55, 0, mats.wallPink);
 box('Wonder Cafe roof', 6, 0.32, 4.9, 15, 3.18, 0, mats.roof);
