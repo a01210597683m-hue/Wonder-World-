@@ -357,3 +357,34 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
   .blockblast-piece { min-height: 50px; }
   #blockblast-feedback { min-height: 22px; }
 }
+
+ 
+/* Water Sort: responsive modal and large, thumb-friendly tubes. */
+#watersort-panel{position:fixed;z-index:31;top:max(10px,env(safe-area-inset-top));bottom:max(10px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(520px,calc(100vw - 20px));max-height:none;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:12px;border:1px solid #ffffffb8;border-radius:16px;color:#17324c;background:#fffaf0f7;box-shadow:0 12px 35px #10263c55}
+#watersort-panel[hidden]{display:none!important}
+#watersort-panel .shop-heading{position:sticky;top:-12px;z-index:2;padding:5px 0 8px;background:#fffaf0}
+.watersort-help{margin:8px 0;font-size:13px;line-height:1.5}
+.watersort-score{display:flex;justify-content:space-between;gap:8px;margin:8px 0;font-size:12px;font-weight:800}
+.watersort-score b{color:#8b61c2}
+#watersort-tubes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 10px;justify-items:center;padding:14px 4px}
+.watersort-tube{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0;border:2px solid transparent;border-radius:12px;background:transparent;padding:4px 8px;color:#17324c}
+.watersort-tube.selected{border-color:#8b61c2;background:#f1e8ff;transform:translateY(-4px)}
+.watersort-tube:disabled{opacity:1}
+.watersort-glass{display:flex;flex-direction:column-reverse;justify-content:flex-start;gap:2px;width:46px;height:142px;padding:5px 4px 4px;border:3px solid #8092a8;border-top:0;border-radius:0 0 15px 15px;background:#e8eef588;overflow:hidden}
+.watersort-layer{display:block;flex:1 1 0;min-height:0;border-radius:3px;background:transparent}
+.watersort-tube small{font-size:11px;font-weight:800}
+#watersort-feedback{min-height:38px;margin:8px 0;font-size:12px;line-height:1.5;font-weight:750}
+#watersort-restart{width:100%;min-height:44px;border:0;border-radius:10px;padding:10px 12px;color:#fff;background:#6b4ca5;font:inherit;font-size:13px;font-weight:800}
+@media(max-width:600px){
+ #watersort-panel{top:max(8px,env(safe-area-inset-top));bottom:max(8px,env(safe-area-inset-bottom));left:8px;right:8px;transform:none;width:auto;padding:10px;border-radius:14px}
+ #watersort-panel .shop-heading{top:-10px}
+ .watersort-help{margin:4px 0;font-size:12px}
+ #watersort-tubes{gap:12px 6px;padding:10px 2px}
+ .watersort-glass{width:clamp(38px,11vw,46px);height:min(19vh,132px);min-height:82px}
+ .watersort-tube{padding:4px 5px}
+}
+@media(max-height:650px) and (max-width:600px){
+ #watersort-tubes{gap:6px;padding:6px 2px}
+ .watersort-glass{height:88px}
+ #watersort-feedback{min-height:28px;margin:4px 0}
+}
