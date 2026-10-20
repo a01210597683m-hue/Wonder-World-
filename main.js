@@ -267,7 +267,7 @@ function exitHome() {
 const ui = document.createElement('section');
 ui.id = 'life-ui';
 ui.innerHTML = `
-  <div class="life-stats"><span>💛 السعادة: <b id="happiness">60</b></span><span>⚡ الطاقة: <b id="energy">80</b></span><span>🪙 العملات: <b id="coins">20</b></span><span>🌷 الزهور: <b id="flowers">0</b></span><span>⭐ المستوى: <b id="player-level">1</b></span></div>
+  <div class="life-stats"><span>💛 السعادة: <b id="happiness">60</b></span><span>⚡ الطاقة: <b id="energy">80</b></span><span>🪙 العملات: <b id="coins">20</b></span><span>🌷 الزهور: <b id="flowers">0</b></span><span>📸 الذكريات: <b id="photo-memories">0</b></span><span>⭐ المستوى: <b id="player-level">1</b></span></div>
   <div id="xp-panel" aria-label="تقدم الخبرة"><div class="xp-label"><span>خبرة اللاعب</span><span id="xp-count">0 / 100 XP</span></div><div id="xp-track" role="progressbar" aria-label="التقدم للمستوى التالي" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="xp-fill"></span></div></div>
   <div class="avatar-tools"><button id="change-outfit" type="button">👕 تغيير الملابس</button><button id="change-hair" type="button">💇 تغيير لون الشعر</button></div>
   <button id="open-shop" type="button">🛍️ افتحي متجر Wonder</button>
@@ -277,6 +277,8 @@ ui.innerHTML = `
   <div class="avatar-tools"><button id="open-watersort" type="button">🧪 Water Sort</button></div>
   <div class="avatar-tools"><button id="quick-work" type="button">💼 شغل سريع</button><button id="quick-rest" type="button">🛋️ استراحة</button><button id="quick-cafe" type="button">☕ طلب كافيه</button></div>
   <div class="avatar-tools"><button id="quick-gym" type="button">🏋️ تمرين</button><button id="quick-garden" type="button">🌷 جمع زهور</button></div>
+  <div class="avatar-tools"><button id="quick-photo" type="button">📸 تصوير ذكرى</button><button id="quick-weather" type="button">🌤️ تغيير الطقس</button></div>
+  <div id="world-clock" role="status">🕒 نهار هادئ</div>
   <button id="interact" type="button">تفاعل / استكشاف</button>
   <button id="exit-home" type="button" hidden>🚪 الخروج للحي</button>
   <section id="shop-panel" hidden aria-label="متجر Wonder">
@@ -402,6 +404,8 @@ let lastWorkAt = 0;
 let lastWorkoutAt = 0;
 let gardenFlowers = 0;
 let lastFlowerDay = "";
+let photoMemories = 0;
+let lastPhotoDay = "";
 let puzzleCooldownUntil = 0;
 let currentPuzzle = null;
 const ownedItems = new Set(['default-outfit', 'default-hair']);
@@ -436,6 +440,7 @@ function updateStats() {
   document.getElementById('energy').textContent = energy;
   document.getElementById('coins').textContent = coins;
   document.getElementById('flowers').textContent = gardenFlowers;
+  document.getElementById('photo-memories').textContent = photoMemories;
   updateXPUI();
   saveProgress();
 }
@@ -469,7 +474,7 @@ const shopProducts = [
 const saveProgress = () => {
   try {
     localStorage.setItem('wonderworld-save-v1', JSON.stringify({
-      coins, happiness, energy, playerLevel, playerXP, gardenFlowers, lastFlowerDay, questDate, dailyQuests: { ...dailyQuests }, ownedItems: [...ownedItems],
+      coins, happiness, energy, playerLevel, playerXP, gardenFlowers, lastFlowerDay, photoMemories, lastPhotoDay, questDate, dailyQuests: { ...dailyQuests }, ownedItems: [...ownedItems],
       relationships: Object.fromEntries(npcs.map(npc => [npc.name, npc.relation])),
       npcInteractionDates,
       equippedItems, ownedPets:[...ownedPets], activePetId, petCareState, petSupplies
@@ -486,6 +491,8 @@ try {
     if (Number.isFinite(loadedProgress.playerXP)) playerXP = Math.max(0, loadedProgress.playerXP);
     if (Number.isFinite(loadedProgress.gardenFlowers)) gardenFlowers = Math.max(0, loadedProgress.gardenFlowers);
     if (typeof loadedProgress.lastFlowerDay === 'string') lastFlowerDay = loadedProgress.lastFlowerDay;
+    if (Number.isFinite(loadedProgress.photoMemories)) photoMemories = Math.max(0, Math.floor(loadedProgress.photoMemories));
+    if (typeof loadedProgress.lastPhotoDay === 'string') lastPhotoDay = loadedProgress.lastPhotoDay;
     if (Array.isArray(loadedProgress.ownedItems)) loadedProgress.ownedItems.forEach(id => ownedItems.add(id));
     if (loadedProgress.dailyQuests && typeof loadedProgress.dailyQuests === 'object') {
       for (const key of Object.keys(dailyQuests)) {
@@ -675,7 +682,8 @@ const places = [
   { name: 'Wonder Fitness', x: 15, z: -18, radius: 4.5, action: doWorkout },
   { name: 'حديقة الأصدقاء', x: -11, z: 6.5, radius: 4.2, action: () => {
     happiness = Math.min(100, happiness + 12); updateStats(); awardXP(8); completeQuest('park'); saveProgress(); say('قضيتي وقتًا لطيفًا في الحديقة! السعادة +12 🌷');
-  }}
+  }},
+  { name: 'نافورة الساحة — تصوير ذكرى', x: 0, z: 0, radius: 3.6, action: takePhotoMemory }
 ];
 let activeDialogueNpc = null;
 const puzzles = [
@@ -994,6 +1002,8 @@ document.getElementById('quick-work').addEventListener('click', () => {
   doQuickWork();
 });
 document.getElementById('quick-rest').addEventListener('click', takeRest);
+document.getElementById('quick-photo').addEventListener('click', takePhotoMemory);
+document.getElementById('quick-weather').addEventListener('click', cycleWeather);
 document.getElementById('quick-cafe').addEventListener('click', () => {
   const p = player.getPosition();
   if (Math.hypot(p.x - 15, p.z + 3.2) > 7) { say('اقتربي من مبنى Wonder Cafe الوردي عشان تطلبي.'); return; }
@@ -1139,6 +1149,26 @@ function nearestTarget() {
   let best = null;
   let bestDistance = Infinity;
   if (indoors) {
+    const pet = petCatalog.find(item => item.id === activePetId && ownedPets.includes(item.id));
+    if (pet) {
+      const petState = ensurePetCare(pet.id);
+      const petFurnitureTargets = [
+        { name: 'اللعب مع رفيقك 🐾', x: -3.7, z: -1.2, radius: 1.8, action: () => {
+          petState.joy = clampPetValue(petState.joy + 14); petState.bond = clampPetValue(petState.bond + 6);
+          happiness = Math.min(100, happiness + 3); renderPetPanel(); updateStats(); awardXP(4); saveProgress();
+          say('🐾 لعبتي مع ' + pet.name + ' في الصالة! المرح والرابطة زادوا.');
+        }},
+        { name: 'راحة رفيقك 🛏️', x: 3.8, z: -3.1, radius: 1.8, action: () => {
+          petState.joy = clampPetValue(petState.joy + 8); petState.hunger = clampPetValue(petState.hunger - 2);
+          renderPetPanel(); updateStats(); awardXP(3); saveProgress();
+          say('😴 ' + pet.name + ' أخد راحة هادئة جنب السرير.');
+        }}
+      ];
+      for (const target of petFurnitureTargets) {
+        const d = Math.hypot(p.x - target.x, p.z - target.z);
+        if (d < target.radius && d < bestDistance) { best = { ...target, distance: d }; bestDistance = d; }
+      }
+    }
     for (const target of indoorTargets) {
       const d = Math.hypot(p.x - target.x, p.z - target.z);
       if (d < target.radius && d < bestDistance) {
@@ -1195,11 +1225,65 @@ document.querySelectorAll('[data-dir]').forEach(button => {
 
 const moveSpeed = 4.2;
 let walkClock = 0;
+let worldClockSeconds = 0;
+let weatherMode = 'clear';
+let weatherFeedbackAt = 0;
+const rainDrops = [];
+const rainMaterial = mat(new Color(0.55, 0.78, 0.98));
+for (let i = 0; i < 42; i++) {
+  const drop = box('Rain drop ' + i, 0.035, 0.55, 0.035, (Math.random() - 0.5) * 38, 5 + Math.random() * 10, (Math.random() - 0.5) * 38, rainMaterial);
+  drop.enabled = false;
+  rainDrops.push(drop);
+}
+function takePhotoMemory() {
+  if (indoors) { say('📸 تعالي للساحة أو نافورة الحي عشان تصوري ذكرى.'); return; }
+  const p = player.getPosition();
+  if (Math.hypot(p.x, p.z) > 4.2) { say('📸 اقتربي من نافورة الساحة عشان تصوري ذكرى جميلة.'); return; }
+  const today = localDateKey();
+  if (lastPhotoDay === today) {
+    say('📸 صورة اليوم اتسجلت بالفعل! تقدري ترجعي للنافورة بكرة لصورة ومكافأة جديدة.'); return;
+  }
+  lastPhotoDay = today; photoMemories += 1; happiness = Math.min(100, happiness + 6);
+  updateStats(); awardXP(5); saveProgress();
+  say('📸 اتسجلت ذكرى جديدة عند نافورة WonderWorld! +6 سعادة و+5 خبرة. الصور الفعلية لسه مش محفوظة؛ دي ذكرى داخل اللعبة.');
+}
+function cycleWeather() {
+  weatherMode = weatherMode === 'clear' ? 'cloudy' : weatherMode === 'cloudy' ? 'rain' : 'clear';
+  const labels = { clear: '☀️ الجو صافي', cloudy: '☁️ الجو غائم', rain: '🌧️ بدأ المطر' };
+  document.getElementById('quick-weather').textContent = (weatherMode === 'clear' ? '🌤️' : weatherMode === 'cloudy' ? '☁️' : '🌧️') + ' تغيير الطقس';
+  say(labels[weatherMode] + ' — تقدري تغيّري الطقس في أي وقت.');
+}
+function updateWorldAtmosphere(dt) {
+  worldClockSeconds = (worldClockSeconds + dt) % 240;
+  const phase = worldClockSeconds / 240;
+  const daylight = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(phase * Math.PI * 2 - Math.PI / 2));
+  const night = 1 - daylight;
+  const dim = weatherMode === 'cloudy' ? 0.72 : weatherMode === 'rain' ? 0.52 : 1;
+  sun.light.intensity = (0.25 + daylight * 1.35) * dim;
+  app.scene.ambientLight = new Color(0.20 + daylight * 0.52, 0.24 + daylight * 0.51, 0.34 + daylight * 0.48);
+  const sky = weatherMode === 'rain'
+    ? new Color(0.27 + daylight * 0.18, 0.36 + daylight * 0.25, 0.48 + daylight * 0.27)
+    : weatherMode === 'cloudy'
+      ? new Color(0.42 + daylight * 0.25, 0.49 + daylight * 0.28, 0.58 + daylight * 0.30)
+      : new Color(0.06 + daylight * 0.47, 0.10 + daylight * 0.69, 0.20 + daylight * 0.76);
+  camera.camera.clearColor = sky;
+  const clockLabel = night > 0.58 ? '🌙 ليل' : daylight < 0.48 ? '🌅 غروب/شروق' : '☀️ نهار';
+  document.getElementById('world-clock').textContent = '🕒 ' + clockLabel + ' • ' + (weatherMode === 'clear' ? 'صافي' : weatherMode === 'cloudy' ? 'غائم' : 'ممطر');
+  for (const drop of rainDrops) {
+    const pos = drop.getPosition();
+    pos.y -= dt * 9;
+    if (pos.y < 0.15) { pos.y = 8 + Math.random() * 7; pos.x = pRandom(-19,19); pos.z = pRandom(-19,19); }
+    drop.setPosition(pos);
+    drop.enabled = weatherMode === 'rain' && !indoors;
+  }
+}
+function pRandom(min, max) { return min + Math.random() * (max - min); }
 let cameraX = 0;
 let cameraZ = 12.5;
 let cameraHeight = 7;
 let cameraOffsetZ = 11;
 app.on('update', dt => {
+  updateWorldAtmosphere(dt);
   // Smooth, normalized movement and a small walk cycle for the temporary avatar.
   let x = (pressed.has('right') ? 1 : 0) - (pressed.has('left') ? 1 : 0);
   let z = (pressed.has('down') ? 1 : 0) - (pressed.has('up') ? 1 : 0);
@@ -1256,3 +1340,4 @@ try {
 } catch (_) {}
 updateStats();
 status.textContent = 'WonderWorld prototype ready — تحرّكي واستكشفي الحي';
+updateStats();
