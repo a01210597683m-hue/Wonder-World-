@@ -142,3 +142,13 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [x] Bumped browser cache version to `20261020-17`.
 - [ ] Smoke-test all three NPC profiles, relationship save/restore, dialogue choices, and mobile panel sizing in a real browser/Android.
 - [ ] These NPC bodies remain temporary geometric placeholders and are not final semi-realistic or anime character assets; the original user-provided references remain authoritative.
+
+
+## 2026-10-20 — Character-specific conversation topics (prototype)
+
+- [x] Replaced generic conversation choices with distinct preset topics for Layla, Adam, and Nour, aligned with each character's personality and favorite activities.
+- [x] Kept dialogue curated and choice-based; no free-text player chat or voice chat was introduced.
+- [x] Existing relationship progression, local save/restore, happiness rewards, and daily neighbor quest remain in place.
+- [x] Bumped browser cache version to `20261020-18`.
+- [ ] Smoke-test each NPC's three topics, relationship updates, daily quest, and mobile dialogue layout.
+- [ ] NPC models are still temporary placeholders; final visual design must follow the user's original character references and preserve the separate semi-realistic and anime styles.
