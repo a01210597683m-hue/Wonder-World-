@@ -645,3 +645,11 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 .achievement-icon{font-size:24px;min-width:32px;text-align:center}
 .achievement-info{display:grid;gap:3px;min-width:0}
 .achievement-info strong{font-size:13px}.achievement-info span{font-size:11px;color:#53657a}.achievement-info b{font-size:10px;color:#28754a}
+
+/* Neighborhood fast-travel map and persistent adventure journal. */
+#map-panel.wonder-overlay,#journal-panel.wonder-overlay{width:min(440px,calc(100vw - 24px))!important;max-height:min(78dvh,650px)!important}
+#map-destinations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.map-destination{min-height:42px;padding:8px;border:1px solid #cbd9e5;border-radius:10px;background:#f4f8fc;color:#1e3850;font:inherit;font-size:12px;font-weight:750;touch-action:manipulation}
+#map-feedback{min-height:20px;font-size:12px;color:#26734b}#journal-list{display:grid;gap:7px;max-height:48dvh;overflow:auto}
+.journal-entry{display:grid;gap:4px;padding:9px 10px;border:1px solid #dbe4ec;border-radius:10px;background:#f7f9fb}.journal-entry strong{font-size:12px;color:#263e55}.journal-entry time{font-size:10px;color:#687b8c}.journal-empty{font-size:12px;line-height:1.5;color:#5c6d7b}
+@media(max-width:360px){#map-destinations{grid-template-columns:1fr}}
