@@ -183,3 +183,9 @@ This section is additive. It reaffirms requirements already present elsewhere in
 - Let players customize within each category and manually change outfits when appropriate. Do not impose revealing or age-inappropriate clothing on younger characters. Preserve free, virtual-currency and permitted real-money tiers with transparent pricing and parental safeguards.
 
 These requirements are cumulative with all previously recorded requirements for homes and shared visits, group events, countries/transport, employer jobs and player-owned businesses, puzzles/party games, two distinct character art styles, AI safety, security and monetization. They are requirements until code and tests prove each feature playable.
+
+### Football implementation stages — 2026-10-20
+
+- The long-term requirement is a genuinely playable football game with teams, team kits, player-controlled movement, passing, shooting, tackles, goalkeepers, match rules, formations, match timer and results, designed for keyboard/gamepad/touch and aiming for responsive PC/console-style play.
+- The browser prototype now includes a limited five-shot football drill as a first interactive control milestone. It is not a full football match and does not replace the required team-based mode.
+- Keep football as a separate sports mode from the PUBG-inspired action mode; each needs its own gameplay loop and testing.
