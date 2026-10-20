@@ -49,3 +49,6 @@ The next integration pass is to connect the player-owned storefront to proximity
 
 ## Static regression checks
 Run `node scripts/check-game.mjs` from the repository root to verify that core scene wiring, touch controls, social consent, pet care, career progression, and responsive styles are present. These are static checks, not a substitute for browser, Android, or deployment testing.
+
+## Board games
+The game now includes a local Ludo-vs-CPU prototype and a two-side chess move-practice board. Ludo includes dice, captures and finish rules; chess supports basic piece movement and captures but does not yet enforce check, castling, or en passant. Test touch controls on a real phone before treating these prototypes as production-ready.
