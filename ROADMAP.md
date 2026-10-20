@@ -106,3 +106,15 @@
 ## Non-negotiable continuity rule
 
 Every feature and constraint from the original WonderWorld concept through all later additions remains in scope cumulatively. Never remove or replace an earlier requirement to make room for a new one. If a real conflict appears, document it and ask the user before changing either requirement. Keep this roadmap aligned with the canonical `WONDERWORLD_DESIGN_BRIEF.md` and preserve existing Supabase master-record fields when appending additions. Documentation is not implementation: GitHub Pages must receive actual code and successful gameplay tests before a feature is described as playable.
+
+
+## 2026-10-20 — First enterable home interior (prototype)
+
+- [x] Added a separate interior scene for the two existing homes with a living-room sofa and rug, coffee table, bed, bedside table, kitchen counter/cabinets, window and wall decoration.
+- [x] House interaction now enters the interior instead of only displaying a placeholder message.
+- [x] Added an explicit exit-to-neighborhood control; exiting restores the outdoor entities and the player's saved outdoor position.
+- [x] Updated the asset cache version to `20261020-15`.
+- [ ] Verify JavaScript syntax, run a real browser smoke test, and test entry/exit plus mobile camera framing on Android.
+- [ ] Replace geometric furniture and placeholder avatars with production-quality assets while preserving the user's original character references and separate anime/semi-realistic art directions.
+
+**Scope note:** this is a first functional room-layout prototype, not a finished furnished home system, character-art upgrade, or completed 3D/4K world. It is additive; the outdoor neighborhood and all other roadmap features remain in scope.
