@@ -74,3 +74,17 @@ body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sa
   .life-stats span, #life-message, #life-goal { font-size: 11px; padding: 7px 8px; }
   #interact { padding: 10px 12px; font-size: 12px; }
 }
+
+.avatar-tools { display: flex; flex-wrap: wrap; gap: 6px; pointer-events: auto; }
+.avatar-tools button {
+  border: 1px solid #ffffffb8;
+  border-radius: 12px;
+  padding: 8px 10px;
+  color: #fff;
+  background: #6b4ca5ee;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  box-shadow: 0 3px 10px #10263c30;
+}
+.avatar-tools button:active { transform: scale(.98); background: #51377f; }
