@@ -360,3 +360,17 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [x] Automatically end the NPC walk when entering a home, preventing a stale outdoor companion state indoors.
 - [x] Bump browser asset version to `20261020-40`.
 - [ ] Browser-test challenge retries, daily guard, and entering a home during a walk. Daily guard remains local prototype logic, not server-authoritative.
+
+
+## 2026-10-20 — Home TV interaction and bilateral visits
+
+- [x] Add a visible television set and a proximity-based TV interaction inside the home, with a short cooldown, happiness/XP reward, and journal entry.
+- [x] Bump browser asset version to `20261020-41`.
+- [ ] Add a real home-visit invitation flow: either player may invite the other, or request a visit to the other player's home; no entry before the recipient explicitly accepts.
+- [ ] Add invitation states (pending, accepted, declined, cancelled, ended), expiry, duplicate-request prevention, and a clear leave-visit control.
+- [ ] Add shared home activities after consent: sit together on the sofa, watch TV together, and additional preset-response activities; use visible synchronized character states rather than text-only claims.
+- [ ] Real player visits require authenticated player identities, server-authoritative authorization, private/restricted realtime channels, and server validation. NPC consent is only a prototype simulation and must never be presented as real-player consent.
+- [ ] Reconcile the full master vision into a tracked implementation backlog: house/villa ownership and building, pools/swimming, travel between countries, cars/aircraft/trains and on-demand rides, player-owned businesses, all requested puzzle/arcade/party games, sports/action modes, fashion/makeup/runway, branching stories, AI companion safety, production character art, secure economy, payments, subscriptions/ads, and age-appropriate safety.
+- [ ] Test TV proximity/cooldown, home enter/exit, journal persistence, and mobile layout on Android.
+
+**Scope note:** TV is a local interaction placeholder, not a real streaming service. Home visits between separate human players and synchronized couch/TV activities are not implemented in this build.
