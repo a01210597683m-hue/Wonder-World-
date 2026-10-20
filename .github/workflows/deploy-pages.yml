@@ -25,6 +25,7 @@ jobs:
           node --input-type=module --check < main.js
           node --input-type=module --check < auth.js
           node --check careers.js
+          node --check board-games.js
           node --check scripts/check-game.mjs
           node --check scripts/check-assets.mjs
       - name: Run gameplay regression checks
