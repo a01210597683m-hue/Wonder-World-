@@ -206,3 +206,34 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
   .life-stats span { font-size: 10px; padding: 6px 7px; }
   #life-ui .avatar-tools button { font-size: 11px; padding: 7px 8px; }
 }
+
+
+/* Playable quick-puzzle panel */
+#puzzle-panel {
+  pointer-events: auto;
+  width: min(330px, calc(100vw - 24px));
+  max-height: min(44vh, 380px);
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid #ffffffb8;
+  border-radius: 16px;
+  color: #17324c;
+  background: #fffaf0f7;
+  box-shadow: 0 12px 35px #10263c55;
+}
+#puzzle-panel[hidden] { display: none; }
+#puzzle-question, #puzzle-feedback { margin: 8px 0; font-size: 12px; line-height: 1.55; }
+#puzzle-choices { display: grid; gap: 7px; }
+#puzzle-feedback { font-weight: 750; }
+#next-puzzle {
+  margin-top: 8px;
+  border: 0;
+  border-radius: 10px;
+  padding: 9px 12px;
+  color: #fff;
+  background: #6b4ca5;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+}
+#next-puzzle[hidden] { display: none; }
