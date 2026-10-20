@@ -75,3 +75,9 @@
 - [x] Switched daily quest and flower collection date keys to the device's local calendar date, avoiding UTC-boundary resets that could surprise players.
 - [x] Bumped browser cache version to 20261020-13.
 - [ ] Smoke-test daily reset, reward-once behavior, and flower collection in a real browser; save data remains local to the device.
+
+
+## 2026-10-20 — Flower inventory visibility
+- [x] Added a persistent flower counter to the main HUD so collected garden items remain visible after leaving the park.
+- [x] Bumped browser asset version to 20261020-14.
+- [ ] Verify the updated HUD and flower save/restore behavior in a real browser.
