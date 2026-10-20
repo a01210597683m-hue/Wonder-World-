@@ -415,3 +415,13 @@ This audit is an implementation checklist, not a claim that these systems are al
 
 ### Current verified scope boundary
 The deployed browser build is an early PlayCanvas neighborhood prototype. It has local NPC/pet/life-simulation systems and small playable puzzles, plus a simple local TV interaction. It does **not** yet have real-player multiplayer visits, synchronized shared TV, football matches, PUBG-like combat, drivable vehicles, inter-country travel, player-owned businesses, the full puzzle/party catalogue, production character models, or secure server-authoritative economy/authentication. These are retained as required future work, not dropped ideas.
+
+## 2026-10-20 — First playable football shooting drill
+
+- [x] Add a controllable football shooting challenge with player movement, ball proximity/dribbling, goalkeeper positioning, five attempts, score, restart, best score saved locally, XP/happiness rewards and journal logging.
+- [x] Add touch controls for mobile and a clear in-game note that this is a training prototype, not the full team sport.
+- [x] Bump browser asset version to `20261020-42`.
+- [ ] Build the requested full football mode: teams with kits, kickoff, passing, dribbling, tackles, goalkeeper AI, fouls/rules, match timer, scoreline, formations, opponent AI, gamepad/keyboard/touch controls, and complete match flow comparable in feel and responsiveness to PC/console football games.
+- [ ] Continue the independent PUBG-inspired action mode with responsive movement, aiming, shooting, safe age-specific design, maps, opponents, and full round rules; never present the football drill as satisfying this requirement.
+
+**Scope note:** the new drill is playable locally and does not provide full team matches, online multiplayer, realistic animation, or console-grade gameplay yet.
