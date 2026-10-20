@@ -41,3 +41,7 @@ The careers panel includes three selectable job tracks (café, store, and delive
 
 All balances, ownership, reputation, daily limits, and progress are stored in the current browser's local storage. They are prototype-only and can be reset or edited by the player; they are not synchronized to Supabase, secure multiplayer state, or real money. GitHub Actions checks JavaScript syntax during Pages builds. Browser and Android gameplay verification is still required.
 
+
+
+## 2026-10-21 development note
+The next integration pass is to connect the player-owned storefront to proximity interactions and add it as a navigation destination. The current storefront, career balances, and progression remain local prototype state until authenticated persistence is integrated and tested.
