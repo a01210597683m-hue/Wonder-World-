@@ -264,3 +264,10 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
   box-shadow: 0 4px 14px #10263c33;
 }
 #exit-home[hidden] { display: none; }
+
+/* Character profiles and relationship progression — curated, child-friendly interaction only. */
+.relationship-meter { padding: 9px; border: 1px solid #e0d2ef; border-radius: 12px; background: #f7f0ff; }
+.relationship-label { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 800; color: #533477; }
+.relationship-track { height: 9px; margin-top: 7px; overflow: hidden; border-radius: 99px; background: #e2d8ec; }
+.relationship-track span { display: block; width: 0; height: 100%; border-radius: inherit; background: #8b61c2; transition: width .2s ease; }
+#character-details { margin: 7px 0 0; color: #594c66; font-size: 11px; line-height: 1.5; }
