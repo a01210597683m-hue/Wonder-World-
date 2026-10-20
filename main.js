@@ -281,6 +281,7 @@ ui.innerHTML = `
   <button id="open-achievements" type="button">🏅 إنجازاتي وتقدمي</button>
   <button id="open-map" type="button">🗺️ خريطة الحي والتنقّل</button>
   <button id="open-walks" type="button">🚶 تمشية مع صديق</button>
+  <button id="open-football" type="button">⚽ كرة القدم — تحدّي التسديد</button>
   <button id="open-journal" type="button">📔 سجل مغامراتي</button>
   <div class="avatar-tools"><button id="open-puzzle" type="button">🧩 ألغاز سريعة</button></div>
   <div class="avatar-tools"><button id="open-blockblast" type="button">🟦 Block Blast</button></div>
@@ -377,6 +378,15 @@ document.getElementById('game').appendChild(ui);
  memoryPanel.innerHTML = '<div class="shop-heading"><strong>🃏 لعبة ذاكرة الصور</strong><button id="close-memory-match" type="button" aria-label="إغلاق اللعبة">✕</button></div><p class="shop-intro">اقلبي كارتين في كل مرة، وافتكري أماكن الرموز لحد ما تلاقي كل الأزواج.</p><div class="memory-match-status"><span>الحركات: <b id="memory-moves">0</b></span><span>الأزواج: <b id="memory-pairs">0 / 8</b></span></div><div id="memory-board" aria-label="لوحة كروت الذاكرة"></div><p id="memory-feedback" role="status">جاهزة؟ ابدئي وركزي في أماكن الصور ✨</p><button id="memory-restart" type="button">🔄 لعبة جديدة</button>';
  document.getElementById('game').appendChild(memoryPanel);
 
+const footballPanel = document.createElement('section');
+footballPanel.id = 'football-panel';
+footballPanel.className = 'wonder-overlay';
+footballPanel.hidden = true;
+footballPanel.setAttribute('aria-label', 'تحدي كرة القدم');
+footballPanel.innerHTML = '<div class="shop-heading"><strong>⚽ تحدّي كرة القدم</strong><button id="close-football" type="button" aria-label="إغلاق كرة القدم">✕</button></div><p class="shop-intro">حرّكي اللاعبة ناحية الكرة، قرّبي منها، ثم سدّدي نحو المرمى. دي مرحلة لعب أولية قابلة للتحكم؛ مباريات الفرق الكاملة ولسه حركات التمرير والتدخل والحارس المتقدم ضمن التطوير.</p><div class="football-scorebar"><span>الأهداف: <b id="football-score">0</b></span><span>التسديدات: <b id="football-shots">0 / 5</b></span><span>أفضل نتيجة: <b id="football-best">0</b></span></div><div id="football-pitch" role="application" aria-label="ملعب كرة قدم"><div class="football-goal"></div><div class="football-midline"></div><div class="football-circle"></div><div id="football-keeper" class="football-player keeper" aria-label="حارسة المرمى">🧤</div><div id="football-avatar" class="football-player avatar" aria-label="لاعبة">👟</div><div id="football-ball" aria-label="الكرة">⚽</div></div><div class="football-controls"><div><button data-foot-dir="up" aria-label="تحركي للأعلى">▲</button><div><button data-foot-dir="left" aria-label="تحركي لليسار">◀</button><button data-foot-dir="down" aria-label="تحركي للأسفل">▼</button><button data-foot-dir="right" aria-label="تحركي لليمين">▶</button></div></div><button id="football-shoot">🥅 تسديد!</button></div><p id="football-feedback" role="status">ابدئي بتحريك اللاعبة نحو الكرة.</p><button id="football-restart" type="button">🔄 مباراة تدريبية جديدة</button>';
+document.getElementById('game').appendChild(footballPanel);
+
+
 
 // Keep menus independent from the HUD's scroll area so they can never be clipped by it.
 for (const panelId of ['shop-panel', 'pet-panel', 'achievement-panel', 'map-panel', 'journal-panel', 'social-walk-panel', 'puzzle-panel', 'blockblast-panel', 'watersort-panel', 'dialogue-panel']) {
@@ -402,6 +412,79 @@ actionToggle.addEventListener('click', () => {
   actionToggle.textContent = expanded ? '✕ إخفاء الأنشطة' : '☰ الأنشطة والخيارات';
 });
 const interactButton = document.getElementById('interact');
+
+document.getElementById('open-football').addEventListener('click', () => { footballPanel.hidden = false; resetFootballGame(); });
+document.getElementById('close-football').addEventListener('click', () => { footballPanel.hidden = true; });
+document.getElementById('football-restart').addEventListener('click', resetFootballGame);
+let football = { playerX: 50, playerY: 76, ballX: 50, ballY: 64, keeperX: 50, score: 0, shots: 0 };
+let footballBest = 0;
+try { footballBest = Number(localStorage.getItem('wonderworld-football-best')) || 0; } catch (_) {}
+function renderFootball() {
+  document.getElementById('football-avatar').style.left = football.playerX + '%';
+  document.getElementById('football-avatar').style.top = football.playerY + '%';
+  document.getElementById('football-ball').style.left = football.ballX + '%';
+  document.getElementById('football-ball').style.top = football.ballY + '%';
+  document.getElementById('football-keeper').style.left = football.keeperX + '%';
+  document.getElementById('football-score').textContent = football.score;
+  document.getElementById('football-shots').textContent = football.shots + ' / 5';
+  document.getElementById('football-best').textContent = footballBest;
+}
+function resetFootballGame() {
+  football = { playerX: 50, playerY: 76, ballX: 50, ballY: 64, keeperX: 50, score: 0, shots: 0 };
+  renderFootball();
+  document.getElementById('football-feedback').textContent = 'ابدئي بتحريك اللاعبة نحو الكرة، ثم سدّدي قبل انتهاء المحاولات الخمس.';
+  document.getElementById('football-shoot').disabled = false;
+}
+function moveFootball(dir) {
+  if (football.shots >= 5) return;
+  const step = 5;
+  if (dir === 'up') football.playerY = Math.max(12, football.playerY - step);
+  if (dir === 'down') football.playerY = Math.min(91, football.playerY + step);
+  if (dir === 'left') football.playerX = Math.max(8, football.playerX - step);
+  if (dir === 'right') football.playerX = Math.min(92, football.playerX + step);
+  if (Math.hypot(football.playerX - football.ballX, football.playerY - football.ballY) < 12) {
+    football.ballX = Math.max(8, Math.min(92, football.ballX + (football.playerX - football.ballX) * 0.48));
+    football.ballY = Math.max(8, Math.min(91, football.ballY + (football.playerY - football.ballY) * 0.48));
+  }
+  renderFootball();
+}
+function shootFootball() {
+  if (football.shots >= 5) return;
+  if (Math.hypot(football.playerX - football.ballX, football.playerY - football.ballY) > 13) {
+    document.getElementById('football-feedback').textContent = 'قرّبي اللاعبة من الكرة الأول عشان تقدري تسدّدي!';
+    return;
+  }
+  football.shots += 1;
+  const lane = Math.max(12, Math.min(88, football.ballX + (Math.random() * 26 - 13)));
+  football.keeperX = 50 + (Math.random() * 44 - 22);
+  const scored = Math.abs(lane - football.keeperX) > 13 && Math.random() > 0.16;
+  if (scored) {
+    football.score += 1;
+    happiness = Math.min(100, happiness + 2);
+    awardXP(3);
+    logAdventure('سجّلت هدفًا في تحدّي كرة القدم');
+    document.getElementById('football-feedback').textContent = 'جوووول! ⚽🥳 هدف جميل!';
+  } else {
+    document.getElementById('football-feedback').textContent = 'الحارسة صدّت الكرة! جرّبي تغيّري اتجاه التسديد. 🧤';
+  }
+  football.ballX = lane;
+  football.ballY = 18;
+  if (football.shots >= 5) {
+    if (football.score > footballBest) {
+      footballBest = football.score;
+      try { localStorage.setItem('wonderworld-football-best', String(footballBest)); } catch (_) {}
+    }
+    document.getElementById('football-feedback').textContent += ' انتهى التدريب: ' + football.score + ' أهداف من 5. ' + (football.score >= 3 ? 'أداء ممتاز!' : 'حاولي تاني لتحسّني نتيجتك!');
+    document.getElementById('football-shoot').disabled = true;
+    saveProgress();
+  } else {
+    football.ballX = 50; football.ballY = 64; football.playerX = 50; football.playerY = 76;
+  }
+  renderFootball();
+}
+document.querySelectorAll('[data-foot-dir]').forEach(button => button.addEventListener('click', () => moveFootball(button.dataset.footDir)));
+document.getElementById('football-shoot').addEventListener('click', shootFootball);
+
 const outfitOptions = [mats.player, mats.outfitMint, mats.outfitCoral, mats.outfitBlue, mats.outfitGold];
 const hairOptions = [mats.player, mats.hairBrown, mats.hairBlack, mats.hairRose];
 let outfitIndex = 0;
