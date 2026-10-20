@@ -154,20 +154,37 @@ const interactButton = document.getElementById('interact');
 const message = document.getElementById('life-message');
 let happiness = 60;
 let coins = 20;
+const dailyQuests = { friend: false, park: false, shop: false, rewarded: false };
 function say(text) { message.textContent = text; status.textContent = text; }
 function updateStats() {
   document.getElementById('happiness').textContent = happiness;
   document.getElementById('coins').textContent = coins;
 }
+function updateQuestUI() {
+  const line = document.getElementById('life-goal');
+  const mark = done => done ? '✅' : '⬜';
+  line.textContent = `مهام اليوم: ${mark(dailyQuests.friend)} تعرّفي على جار • ${mark(dailyQuests.park)} زوري الحديقة • ${mark(dailyQuests.shop)} اشتري من المتجر`;
+  if (dailyQuests.friend && dailyQuests.park && dailyQuests.shop && !dailyQuests.rewarded) {
+    dailyQuests.rewarded = true;
+    coins += 10;
+    happiness = Math.min(100, happiness + 10);
+    updateStats();
+    say('برافو! خلّصتي كل مهام اليوم 🎉 مكافأة: 10 عملات و+10 سعادة.');
+  }
+}
+function completeQuest(key) {
+  dailyQuests[key] = true;
+  updateQuestUI();
+}
 const places = [
   { name: 'بيتك', x: -10, z: -7.4, radius: 3.2, action: () => say('وصلتِ إلى بيتك! النموذج الحالي يحدد موقع المنزل؛ تصميم داخلي قابل للدخول مرحلة تطوير لاحقة.') },
   { name: 'بيت العائلة', x: 10, z: -7.4, radius: 3.2, action: () => say('هذا بيت العائلة. تقدري تستكشفي الحي، وسنضيف دخول البيوت وأثاثها في مرحلة تالية.') },
   { name: 'متجر Wonder', x: 10, z: 7.1, radius: 3.5, action: () => {
-    if (coins >= 5) { coins -= 5; happiness = Math.min(100, happiness + 8); updateStats(); say('اشتريتِ هدية صغيرة من متجر Wonder! السعادة +8، العملات -5.'); }
+    if (coins >= 5) { coins -= 5; happiness = Math.min(100, happiness + 8); updateStats(); completeQuest('shop'); say('اشتريتِ هدية صغيرة من متجر Wonder! السعادة +8، العملات -5.'); }
     else say('معاكي عملات قليلة. استكشفي الحي أولًا.');
   }},
   { name: 'حديقة الأصدقاء', x: -11, z: 6.5, radius: 4.2, action: () => {
-    happiness = Math.min(100, happiness + 12); updateStats(); say('قضيتي وقتًا لطيفًا في الحديقة! السعادة +12 🌷');
+    happiness = Math.min(100, happiness + 12); updateStats(); completeQuest('park'); say('قضيتي وقتًا لطيفًا في الحديقة! السعادة +12 🌷');
   }}
 ];
 function nearestTarget() {
@@ -184,6 +201,7 @@ function nearestTarget() {
       npc.relation += 1;
       happiness = Math.min(100, happiness + 5);
       updateStats();
+      completeQuest('friend');
       say(`اتكلمتِ مع ${npc.name} وبقيت علاقتكم أقوى! مستوى العلاقة: ${npc.relation} 💬`);
     }}; bestDistance = d; }
   }
@@ -236,4 +254,5 @@ app.on('update', dt => {
   camera.lookAt(p.x, 1, p.z);
 });
 
+updateQuestUI();
 status.textContent = 'WonderWorld prototype ready — تحرّكي واستكشفي الحي';
