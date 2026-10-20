@@ -5,6 +5,7 @@
 - The signup trigger function has direct execution revoked from `public`, `anon`, and `authenticated`.
 - Signup migration: `supabase/migrations/202610210001_create_wonderworld_player_records.sql`.
 - Client table privilege lockdown migration: `supabase/migrations/202610210002_lock_down_wonderworld_client_table_writes.sql`.
+- Explicit deny policy migration: `supabase/migrations/202610210003_explicitly_deny_client_access_to_design_decisions.sql`.
 - `auth.js` supports email/password sign-up, sign-in, sign-out, persistent client sessions, and read-only profile/progress/wallet display.
 - GitHub Actions validates JavaScript syntax, runs gameplay regression checks and asset/integration checks, then deploys GitHub Pages.
 - Character reference panel loads image filenames from the configured Supabase Storage bucket.
@@ -19,7 +20,7 @@
 
 ## Remaining issues and manual checks
 - Supabase Security Advisor previously reported leaked-password protection disabled. This project setting must be enabled in the Supabase Dashboard's Auth/password security settings; the available project/database tools do not expose that Auth setting, so it is not claimed as fixed.
-- `public.design_decisions` has RLS enabled but no policies. This is intentionally deny-by-default and its privileges have now been revoked from `anon` and `authenticated`.
+- `public.design_decisions` client access is explicitly denied by an RLS policy and its privileges are revoked from `anon` and `authenticated`.
 - A real end-to-end sign-up/sign-in/email-confirmation flow still needs testing with a real mailbox and an authenticated test account.
 - Career/business state remains browser-local `localStorage`, is editable/resettable by the player, and is not cloud-synced.
 - There are no deployed Supabase Edge Functions yet. Secure server-authoritative progress, wallet, inventory, rate-limiting and idempotency operations are not implemented.
