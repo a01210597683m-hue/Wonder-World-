@@ -127,6 +127,16 @@ cylinder('Plaza fountain base', 2.2, 0.35, 2.2, 0, 0.22, 0, mats.white);
 cylinder('Plaza fountain bowl', 1.6, 0.25, 1.6, 0, 0.48, 0, mats.window);
 sphere('Fountain water sparkle', 0.7, 0, 0.95, 0, mats.window);
 
+// Wonder Fitness: a small gym destination.
+box('Wonder Fitness building', 6, 3.2, 4.8, 15, 1.6, -15, mats.white);
+box('Wonder Fitness roof', 6.5, 0.35, 5.2, 15, 3.35, -15, mats.npcBlue);
+box('Wonder Fitness door', 1.0, 1.9, 0.16, 15, 0.98, -17.45, mats.door);
+box('Wonder Fitness window', 2.0, 1.15, 0.14, 13.0, 1.85, -17.45, mats.window);
+box('Wonder Fitness sign', 4.0, 0.55, 0.18, 15, 2.75, -17.48, mats.npcGold);
+cylinder('Fitness weight left', 0.22, 0.55, 0.22, 13.0, 0.35, -12.0, mats.road);
+cylinder('Fitness weight right', 0.22, 0.55, 0.22, 13.8, 0.35, -12.0, mats.road);
+box('Fitness weight bar', 1.3, 0.12, 0.12, 13.4, 0.38, -12.0, mats.bench);
+
 // Park, trees, flowers and benches.
 box('Park lawn', 12, 0.12, 12, -11, 0.05, 10, mats.leaf);
 for (const [x,z] of [[-15,7],[-7,7],[-15,14],[-7,14],[-11,4]]) {
@@ -179,6 +189,7 @@ ui.innerHTML = `
   <button id="open-shop" type="button">🛍️ افتحي متجر Wonder</button>
   <div class="avatar-tools"><button id="open-puzzle" type="button">🧩 ألغاز سريعة</button></div>
   <div class="avatar-tools"><button id="quick-work" type="button">💼 شغل سريع</button><button id="quick-rest" type="button">🛋️ استراحة</button><button id="quick-cafe" type="button">☕ طلب كافيه</button></div>
+  <div class="avatar-tools"><button id="quick-gym" type="button">🏋️ تمرين</button><button id="quick-garden" type="button">🌷 جمع زهور</button></div>
   <button id="interact" type="button">تفاعل / استكشاف</button>
   <section id="shop-panel" hidden aria-label="متجر Wonder">
     <div class="shop-heading"><strong>🛍️ متجر Wonder</strong><button id="close-shop" type="button" aria-label="إغلاق المتجر">✕</button></div>
@@ -218,6 +229,9 @@ let happiness = 60;
 let energy = 80;
 let coins = 20;
 let lastWorkAt = 0;
+let lastWorkoutAt = 0;
+let gardenFlowers = 0;
+let lastFlowerDay = "";
 let puzzleCooldownUntil = 0;
 let currentPuzzle = null;
 const ownedItems = new Set(['default-outfit', 'default-hair']);
@@ -259,7 +273,7 @@ const shopProducts = [
 const saveProgress = () => {
   try {
     localStorage.setItem('wonderworld-save-v1', JSON.stringify({
-      coins, happiness, energy, ownedItems: [...ownedItems], dailyQuests,
+      coins, happiness, energy, gardenFlowers, lastFlowerDay, ownedItems: [...ownedItems], dailyQuests,
       relationships: Object.fromEntries(npcs.map(npc => [npc.name, npc.relation])),
       equippedItems
     }));
@@ -271,6 +285,8 @@ try {
     if (Number.isFinite(loadedProgress.coins)) coins = Math.max(0, loadedProgress.coins);
     if (Number.isFinite(loadedProgress.happiness)) happiness = Math.max(0, Math.min(100, loadedProgress.happiness));
     if (Number.isFinite(loadedProgress.energy)) energy = Math.max(0, Math.min(100, loadedProgress.energy));
+    if (Number.isFinite(loadedProgress.gardenFlowers)) gardenFlowers = Math.max(0, loadedProgress.gardenFlowers);
+    if (typeof loadedProgress.lastFlowerDay === 'string') lastFlowerDay = loadedProgress.lastFlowerDay;
     if (Array.isArray(loadedProgress.ownedItems)) loadedProgress.ownedItems.forEach(id => ownedItems.add(id));
     if (loadedProgress.dailyQuests && typeof loadedProgress.dailyQuests === 'object') {
       for (const key of Object.keys(dailyQuests)) {
@@ -370,6 +386,7 @@ const places = [
   { name: 'متجر Wonder', x: 10, z: 7.1, radius: 3.5, action: openShop },
   { name: 'كافيه Wonder', x: 15, z: -3.2, radius: 4.0, action: orderCafe },
   { name: 'مكتب الحي', x: 0, z: -18.3, radius: 4.0, action: doQuickWork },
+  { name: 'Wonder Fitness', x: 15, z: -18, radius: 4.5, action: doWorkout },
   { name: 'حديقة الأصدقاء', x: -11, z: 6.5, radius: 4.2, action: () => {
     happiness = Math.min(100, happiness + 12); updateStats(); completeQuest('park'); saveProgress(); say('قضيتي وقتًا لطيفًا في الحديقة! السعادة +12 🌷');
   }}
@@ -437,6 +454,34 @@ function doQuickWork() {
   updateStats();
   say('💼 خلصتي وردية قصيرة في مكتب الحي! كسبتي 12 عملة وخسرتِ 15 طاقة. الشغل التالي بعد 30 ثانية.');
 }
+function doWorkout() {
+  if (energy < 12) { say('طاقتك قليلة للتمرين. خدي استراحة أو زوري الكافيه الأول.'); return; }
+  const now = Date.now();
+  if (now - lastWorkoutAt < 20000) { say('خدي وقتك بين التمارين. المحاولة التالية بعد شوية 💪'); return; }
+  lastWorkoutAt = now;
+  energy = Math.max(0, energy - 12);
+  happiness = Math.min(100, happiness + 8);
+  coins += 3;
+  updateStats();
+  say('💪 خلصتي تمرين Wonder Fitness! السعادة +8، وكسبتي 3 عملات، والطاقة -12.');
+}
+function collectGardenFlowers() {
+  const p = player.getPosition();
+  if (Math.hypot(p.x + 11, p.z - 6.5) > 7) { say('اقتربي من حديقة الأصدقاء عشان تجمعي الزهور 🌷'); return; }
+  const today = new Date().toISOString().slice(0, 10);
+  if (lastFlowerDay === today) { say('جمعتي زهور النهارده بالفعل. ارجعي بكرة لمجموعة جديدة 🌷'); return; }
+  lastFlowerDay = today;
+  gardenFlowers += 3;
+  happiness = Math.min(100, happiness + 5);
+  updateStats();
+  say('🌷 جمعتي 3 زهور من الحديقة! إجمالي الزهور معاكِ: ' + gardenFlowers + '. السعادة +5.');
+}
+document.getElementById('quick-gym').addEventListener('click', () => {
+  const p = player.getPosition();
+  if (Math.hypot(p.x - 15, p.z + 15) > 8) { say('اقتربي من مبنى Wonder Fitness الأزرق في جنوب شرق الحي.'); return; }
+  doWorkout();
+});
+document.getElementById('quick-garden').addEventListener('click', collectGardenFlowers);
 function takeRest() {
   energy = Math.min(100, energy + 25);
   happiness = Math.min(100, happiness + 3);
