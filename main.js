@@ -272,6 +272,7 @@ ui.innerHTML = `
   <div class="avatar-tools"><button id="change-outfit" type="button">👕 تغيير الملابس</button><button id="change-hair" type="button">💇 تغيير لون الشعر</button></div>
   <button id="open-shop" type="button">🛍️ افتحي متجر Wonder</button>
   <button id="open-pets" type="button">🐾 حيواناتي الأليفة</button>
+  <button id="open-achievements" type="button">🏅 إنجازاتي وتقدمي</button>
   <div class="avatar-tools"><button id="open-puzzle" type="button">🧩 ألغاز سريعة</button></div>
   <div class="avatar-tools"><button id="open-blockblast" type="button">🟦 Block Blast</button></div>
   <div class="avatar-tools"><button id="open-watersort" type="button">🧪 Water Sort</button></div>
@@ -291,12 +292,17 @@ ui.innerHTML = `
     <div class="shop-heading"><strong>🐾 حيوانات Wonder</strong><button id="close-pets" type="button" aria-label="إغلاق الحيوانات">✕</button></div>
     <p class="pet-intro">تبنّي حيوانك، اختاريه رفيقًا ليكي، واهتمي بيه. الرعاية الأساسية مجانية دائمًا.</p>
     <div id="pet-active-summary" role="status"></div><div id="pet-catalog"></div>
+    <div id="pet-naming-tools" class="pet-naming-tools"><label for="pet-name-input">اسم رفيقك</label><div><input id="pet-name-input" maxlength="18" placeholder="اكتبي اسمًا لطيفًا" autocomplete="off"><button id="save-pet-name" type="button">حفظ الاسم</button></div></div>
     <div id="pet-care" hidden><h3>رعاية رفيقك 🧡</h3><div id="pet-needs"></div>
       <div class="pet-care-actions"><button id="pet-feed" type="button">🥣 أكل</button><button id="pet-water" type="button">💧 مياه</button><button id="pet-play" type="button">🎾 لعب</button><button id="pet-groom" type="button">🧼 تنظيف</button><button id="pet-rest" type="button">🛏️ راحة</button></div>
     </div>
     <div id="pet-feedback" role="status"></div>
     <section id="pet-supplies-section"><h3>🛍️ مستلزمات اختيارية</h3><p class="pet-intro">الرعاية الأساسية تفضل مجانية. المستلزمات الإضافية اختيارية وبأسعار واضحة.</p><div id="pet-supplies-catalog"></div><h4>🎒 شنطة المستلزمات</h4><div id="pet-supplies-inventory"></div><div class="pet-care-actions"><button id="pet-use-food" type="button">استخدام وجبة</button><button id="pet-use-toy" type="button">استخدام لعبة</button><button id="pet-use-bed" type="button">استخدام سرير</button></div><button id="pet-park-activity" type="button">🌳 نشاط مع رفيقي في الحديقة</button></section>
     <p class="pet-premium-note">⭐ الحيوانات المميزة بفلوس حقيقية: هتتوفر لاحقًا فقط من خلال دفع آمن وأسعار واضحة. الشراء الحقيقي مش مفعّل في النموذج الحالي.</p>
+  </section>
+  <section id="achievement-panel" hidden aria-label="إنجازاتي في WonderWorld">
+    <div class="shop-heading"><strong>🏅 إنجازاتي وتقدمي</strong><button id="close-achievements" type="button" aria-label="إغلاق الإنجازات">✕</button></div>
+    <p id="achievement-summary" role="status"></p><div id="achievement-list"></div>
   </section>
   <section id="puzzle-panel" hidden aria-label="لعبة ألغاز">
     <div class="shop-heading"><strong>🧩 تحدّي الألغاز</strong><button id="close-puzzle" type="button" aria-label="إغلاق الألغاز">✕</button></div>
@@ -339,7 +345,7 @@ ui.innerHTML = `
 document.getElementById('game').appendChild(ui);
 
 // Keep menus independent from the HUD's scroll area so they can never be clipped by it.
-for (const panelId of ['shop-panel', 'pet-panel', 'puzzle-panel', 'blockblast-panel', 'watersort-panel', 'dialogue-panel']) {
+for (const panelId of ['shop-panel', 'pet-panel', 'achievement-panel', 'puzzle-panel', 'blockblast-panel', 'watersort-panel', 'dialogue-panel']) {
   const panel = document.getElementById(panelId);
   if (panel) {
     panel.classList.add('wonder-overlay');
@@ -414,7 +420,7 @@ const petCatalog = [
  {id:'wonder-cat',name:'قطة لطيفة',kind:'cat',emoji:'🐱',price:12,tier:'12 عملة افتراضية'},
  {id:'wonder-rabbit',name:'أرنب صغير',kind:'rabbit',emoji:'🐰',price:18,tier:'18 عملة افتراضية'}
 ];
-let ownedPets=[]; let activePetId=null; let petCareState={}; let petCompanionEntity=null;
+let ownedPets=[]; let activePetId=null; let petCareState={}; let petCompanionEntity=null; let petNames={};
 let petSupplies={food:0,toy:0,bed:0,collar:0};
 const petSupplyCatalog=[
  {id:'food',name:'وجبة إضافية',emoji:'🥣',price:3,description:'ترفع الشبع 25 نقطة عند الاستخدام.'},
@@ -435,6 +441,30 @@ let questDate = todayQuestKey;
 const equippedItems = { outfit: 'default-outfit', hair: 'default-hair' };
 let loadedProgress = null;
 function say(text) { message.textContent = text; status.textContent = text; }
+function renderAchievementPanel() {
+  const list = document.getElementById('achievement-list');
+  const summary = document.getElementById('achievement-summary');
+  if (!list || !summary) return;
+  const definitions = [
+    { emoji:'🤝', name:'صديقة الحي', detail:'ابدئي صداقة مع واحدة من الشخصيات', done:npcs.some(npc=>npc.relation>=1) },
+    { emoji:'🐾', name:'رفيق وفيّ', detail:'تبنّي أول حيوان أليف', done:ownedPets.length>=1 },
+    { emoji:'🌷', name:'محبة الطبيعة', detail:'اجمعي 3 زهور أو أكثر', done:gardenFlowers>=3 },
+    { emoji:'📸', name:'صانعة الذكريات', detail:'سجّلي أول ذكرى عند النافورة', done:photoMemories>=1 },
+    { emoji:'⭐', name:'نجمة صاعدة', detail:'وصلي للمستوى 3', done:playerLevel>=3 }
+  ];
+  const unlocked=definitions.filter(item=>item.done).length;
+  summary.textContent='فتحتي '+unlocked+' من '+definitions.length+' إنجازات. كمّلي استكشاف العالم لفتح الباقي!';
+  list.replaceChildren();
+  for(const item of definitions){
+    const card=document.createElement('div');card.className='achievement-card'+(item.done?' is-unlocked':'');
+    const icon=document.createElement('span');icon.className='achievement-icon';icon.textContent=item.done?item.emoji:'🔒';
+    const body=document.createElement('div');body.className='achievement-info';
+    const title=document.createElement('strong');title.textContent=item.name;
+    const detail=document.createElement('span');detail.textContent=item.detail;
+    const status=document.createElement('b');status.textContent=item.done?'تم الفتح ✓':'لسه مقفول';
+    body.append(title,detail,status);card.append(icon,body);list.appendChild(card);
+  }
+}
 function updateStats() {
   document.getElementById('happiness').textContent = happiness;
   document.getElementById('energy').textContent = energy;
@@ -442,6 +472,7 @@ function updateStats() {
   document.getElementById('flowers').textContent = gardenFlowers;
   document.getElementById('photo-memories').textContent = photoMemories;
   updateXPUI();
+  renderAchievementPanel();
   saveProgress();
 }
 function updateQuestUI() {
@@ -477,7 +508,7 @@ const saveProgress = () => {
       coins, happiness, energy, playerLevel, playerXP, gardenFlowers, lastFlowerDay, photoMemories, lastPhotoDay, questDate, dailyQuests: { ...dailyQuests }, ownedItems: [...ownedItems],
       relationships: Object.fromEntries(npcs.map(npc => [npc.name, npc.relation])),
       npcInteractionDates,
-      equippedItems, ownedPets:[...ownedPets], activePetId, petCareState, petSupplies
+      equippedItems, ownedPets:[...ownedPets], activePetId, petCareState, petSupplies, petNames
     }));
   } catch (_) {}
 };
@@ -523,6 +554,7 @@ try {
     }
     if (Array.isArray(loadedProgress.ownedPets)) ownedPets=[...new Set(loadedProgress.ownedPets.filter(id=>petCatalog.some(p=>p.id===id)))];
     if (typeof loadedProgress.activePetId==='string' && ownedPets.includes(loadedProgress.activePetId)) activePetId=loadedProgress.activePetId;
+    if (loadedProgress.petNames && typeof loadedProgress.petNames==='object') for (const id of ownedPets) if (typeof loadedProgress.petNames[id] === 'string') petNames[id] = loadedProgress.petNames[id].slice(0,18);
     if (loadedProgress.petSupplies && typeof loadedProgress.petSupplies==='object') for(const key of Object.keys(petSupplies)) petSupplies[key]=Number.isFinite(loadedProgress.petSupplies[key])?Math.max(0,Math.floor(loadedProgress.petSupplies[key])):0;
     if (loadedProgress.petCareState && typeof loadedProgress.petCareState==='object') for(const id of ownedPets){
       const care=loadedProgress.petCareState[id]; if(care&&typeof care==='object') petCareState[id]={
@@ -550,7 +582,9 @@ function syncPetCompanion(){
 function renderPetPanel(){
  const catalog=document.getElementById('pet-catalog'),summary=document.getElementById('pet-active-summary'),carePanel=document.getElementById('pet-care'),needs=document.getElementById('pet-needs');
  const active=petCatalog.find(p=>p.id===activePetId&&ownedPets.includes(p.id));
- summary.textContent=active?active.emoji+' رفيقك الحالي: '+active.name+' — بيتبعك في العالم. اختاري رعايته من تحت.':'لسه مفيش حيوان عندك. تقدري تبدأي بتبنّي كلب صغير مجانًا.';
+ summary.textContent=active?active.emoji+' رفيقك الحالي: '+(petNames[active.id]||active.name)+' — بيتبعك في العالم. اختاري رعايته من تحت.':'لسه مفيش حيوان عندك. تقدري تبدأي بتبنّي كلب صغير مجانًا.';
+ const petNameInput=document.getElementById('pet-name-input'); if(petNameInput) petNameInput.value=active?(petNames[active.id]||active.name):'';
+ const naming=document.getElementById('pet-naming-tools'); if(naming) naming.hidden=!active;
  carePanel.hidden=!active;catalog.replaceChildren();
  for(const pet of petCatalog){
   const card=document.createElement('div');card.className='pet-card';const info=document.createElement('div');info.className='pet-card-info';
@@ -587,6 +621,14 @@ function careForActivePet(action){
  happiness=Math.min(100,happiness+(action==='play'?2:1));updateStats();awardXP(2);saveProgress()
 }
 document.getElementById('open-pets').addEventListener('click',()=>{document.getElementById('pet-panel').hidden=false;document.getElementById('pet-feedback').textContent='';renderPetPanel()});
+document.getElementById('save-pet-name').addEventListener('click',()=>{
+ if(!activePetId||!ownedPets.includes(activePetId)){document.getElementById('pet-feedback').textContent='تبنّي حيوانًا الأول عشان تختاري اسمه.';return}
+ const input=document.getElementById('pet-name-input');const chosen=(input.value||'').trim().replace(/[<>]/g,'').slice(0,18);
+ if(!chosen){document.getElementById('pet-feedback').textContent='اكتبي اسمًا من حرف إلى 18 حرفًا.';return}
+ petNames[activePetId]=chosen;saveProgress();renderPetPanel();document.getElementById('pet-feedback').textContent='🐾 من النهارده اسم رفيقك '+chosen+'!';
+});
+document.getElementById('open-achievements').addEventListener('click',()=>{renderAchievementPanel();document.getElementById('achievement-panel').hidden=false});
+document.getElementById('close-achievements').addEventListener('click',()=>{document.getElementById('achievement-panel').hidden=true});
 document.getElementById('close-pets').addEventListener('click',()=>{document.getElementById('pet-panel').hidden=true});
 document.getElementById('pet-feed').addEventListener('click',()=>careForActivePet('feed'));
 document.getElementById('pet-water').addEventListener('click',()=>careForActivePet('water'));
