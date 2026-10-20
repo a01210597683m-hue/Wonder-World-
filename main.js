@@ -235,8 +235,14 @@ let lastFlowerDay = "";
 let puzzleCooldownUntil = 0;
 let currentPuzzle = null;
 const ownedItems = new Set(['default-outfit', 'default-hair']);
-const dailyQuests = { friend: false, park: false, shop: false, rewarded: false };
-const todayQuestKey = new Date().toISOString().slice(0, 10);
+const dailyQuests = { friend: false, park: false, shop: false, flowers: false, rewarded: false };
+function localDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+const todayQuestKey = localDateKey();
 let questDate = todayQuestKey;
 const equippedItems = { outfit: 'default-outfit', hair: 'default-hair' };
 let loadedProgress = null;
@@ -250,13 +256,13 @@ function updateStats() {
 function updateQuestUI() {
   const line = document.getElementById('life-goal');
   const mark = done => done ? '✅' : '⬜';
-  line.textContent = `مهام اليوم: ${mark(dailyQuests.friend)} تعرّفي على جار • ${mark(dailyQuests.park)} زوري الحديقة • ${mark(dailyQuests.shop)} اشتري من المتجر`;
-  if (dailyQuests.friend && dailyQuests.park && dailyQuests.shop && !dailyQuests.rewarded) {
+  line.textContent = `مهام اليوم: ${mark(dailyQuests.friend)} تعرّفي على جار • ${mark(dailyQuests.park)} زوري الحديقة • ${mark(dailyQuests.shop)} اشتري من المتجر • ${mark(dailyQuests.flowers)} اجمعي الزهور`;
+  if (dailyQuests.friend && dailyQuests.park && dailyQuests.shop && dailyQuests.flowers && !dailyQuests.rewarded) {
     dailyQuests.rewarded = true;
-    coins += 10;
+    coins += 15;
     happiness = Math.min(100, happiness + 10);
     updateStats();
-    say('برافو! خلّصتي كل مهام اليوم 🎉 مكافأة: 10 عملات و+10 سعادة.');
+    say('برافو! خلّصتي كل مهام اليوم 🎉 مكافأة: 15 عملة و+10 سعادة.');
   }
 }
 function completeQuest(key) {
@@ -476,11 +482,12 @@ function doWorkout() {
 function collectGardenFlowers() {
   const p = player.getPosition();
   if (Math.hypot(p.x + 11, p.z - 6.5) > 7) { say('اقتربي من حديقة الأصدقاء عشان تجمعي الزهور 🌷'); return; }
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDateKey();
   if (lastFlowerDay === today) { say('جمعتي زهور النهارده بالفعل. ارجعي بكرة لمجموعة جديدة 🌷'); return; }
   lastFlowerDay = today;
   gardenFlowers += 3;
   happiness = Math.min(100, happiness + 5);
+  completeQuest('flowers');
   updateStats();
   say('🌷 جمعتي 3 زهور من الحديقة! إجمالي الزهور معاكِ: ' + gardenFlowers + '. السعادة +5.');
 }
@@ -636,7 +643,7 @@ restoreEquippedItems();
 updateQuestUI();
 updateStats();
 try {
-  const today = new Date().toLocaleDateString('en-CA');
+  const today = localDateKey();
   const rewardKey = 'wonderworld-last-daily-reward';
   if (localStorage.getItem(rewardKey) !== today) {
     coins += 5;
