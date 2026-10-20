@@ -170,9 +170,9 @@ function makePerson(name, x, z, shirtMaterial, isPlayer = false) {
 }
 const player = makePerson('Player', 0, 1.5, mats.player, true);
 const npcs = [
-  { name: 'ليلى', role: 'جارة', entity: makePerson('Layla', -3, 3, mats.npcPink), relation: 0, x: -3, z: 3 },
-  { name: 'آدم', role: 'صديق جديد', entity: makePerson('Adam', 3, -3, mats.npcBlue), relation: 0, x: 3, z: -3 },
-  { name: 'نور', role: 'من سكان الحي', entity: makePerson('Nour', -9, 2, mats.npcGold), relation: 0, x: -9, z: 2 }
+  { name: 'ليلى', role: 'جارة', personality: 'اجتماعية وبتحب مساعدة الجيران', favorite: 'الحديقة والزهور', greeting: 'أهلًا! أنا ليلى، بحب أتعرف على جيراني وأساعدهم.', entity: makePerson('Layla', -3, 3, mats.npcPink), relation: 0, x: -3, z: 3 },
+  { name: 'آدم', role: 'صديق جديد', personality: 'مرح وبيحب الألغاز والتحديات', favorite: 'الألغاز والألعاب', greeting: 'أهلًا! أنا آدم، عندك استعداد لتحدي لطيف أو لعبة جديدة؟', entity: makePerson('Adam', 3, -3, mats.npcBlue), relation: 0, x: 3, z: -3 },
+  { name: 'نور', role: 'من سكان الحي', personality: 'هادية وبتحب الفن والطبيعة', favorite: 'الرسم والحديقة', greeting: 'أهلًا بيكي! أنا نور، بحب الفن والأماكن الهادية في الحي.', entity: makePerson('Nour', -9, 2, mats.npcGold), relation: 0, x: -9, z: 2 }
 ];
 
 const camera = new Entity('Follow Camera');
@@ -279,6 +279,11 @@ ui.innerHTML = `
   <section id="dialogue-panel" hidden aria-label="اختيارات الحوار">
     <div class="shop-heading"><strong id="dialogue-title">حوار</strong><button id="close-dialogue" type="button" aria-label="إغلاق الحوار">✕</button></div>
     <p id="dialogue-text">اختاري ردًا مناسبًا.</p>
+    <div id="relationship-meter" class="relationship-meter" aria-live="polite">
+      <div class="relationship-label"><span id="relationship-level">معارف جدد</span><span id="relationship-points">0 / 10</span></div>
+      <div class="relationship-track" role="progressbar" aria-label="مستوى العلاقة" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><span id="relationship-fill"></span></div>
+      <p id="character-details"></p>
+    </div>
     <div id="dialogue-choices"></div>
     <div id="dialogue-feedback" role="status"></div>
   </section>
@@ -587,13 +592,24 @@ document.getElementById('quick-cafe').addEventListener('click', () => {
   if (Math.hypot(p.x - 15, p.z + 3.2) > 7) { say('اقتربي من مبنى Wonder Cafe الوردي عشان تطلبي.'); return; }
   orderCafe();
 });
+function updateRelationshipPanel(npc) {
+  const points = Math.max(0, Math.min(10, npc.relation));
+  const level = points >= 8 ? 'صداقة قوية 💖' : points >= 4 ? 'أصدقاء 😊' : points >= 1 ? 'بدأت الصداقة 🌷' : 'معارف جدد';
+  document.getElementById('relationship-level').textContent = level;
+  document.getElementById('relationship-points').textContent = points + ' / 10';
+  const track = document.querySelector('#relationship-meter .relationship-track');
+  track.setAttribute('aria-valuenow', String(points));
+  document.getElementById('relationship-fill').style.width = (points * 10) + '%';
+  document.getElementById('character-details').textContent = 'الشخصية: ' + npc.personality + ' • بتحب: ' + npc.favorite;
+}
 function showDialogue(npc) {
   activeDialogueNpc = npc;
   const panel = document.getElementById('dialogue-panel');
   document.getElementById('dialogue-title').textContent = npc.name + ' — ' + npc.role;
-  document.getElementById('dialogue-text').textContent = npc.relation === 0
+  document.getElementById('dialogue-text').textContent = npc.greeting + ' ' + (npc.relation === 0
     ? 'لسه بتتعرفوا على بعض. اختاري ردّك:'
-    : 'أهلًا برجوعك! علاقتكم دلوقتي مستوى ' + npc.relation + '. اختاري هتتكلموا في إيه:';
+    : 'سعيدة إني شفتك تاني! اختاري هنعمل إيه المرة دي:');
+  updateRelationshipPanel(npc);
   document.getElementById('dialogue-feedback').textContent = '';
   const choices = [
     { label: '👋 نسلّم ونتعرّف على بعض', reply: 'تشرفت بمعرفتك! مبسوطة إننا اتكلمنا 😊', relation: 1, joy: 5 },
@@ -608,16 +624,17 @@ function showDialogue(npc) {
     button.className = 'dialogue-choice';
     button.textContent = choice.label;
     button.addEventListener('click', () => {
-      npc.relation += choice.relation;
+      npc.relation = Math.min(10, npc.relation + choice.relation);
       happiness = Math.min(100, happiness + choice.joy);
       updateStats();
+      updateRelationshipPanel(npc);
       completeQuest('friend');
       if (choice.parkTip) {
         document.getElementById('dialogue-feedback').textContent = choice.reply;
       } else {
         document.getElementById('dialogue-feedback').textContent = choice.reply;
       }
-      say('اتكلمتِ مع ' + npc.name + ' 💬 مستوى العلاقة: ' + npc.relation);
+      say('اتكلمتِ مع ' + npc.name + ' 💬 ' + document.getElementById('relationship-level').textContent + ' (' + npc.relation + '/10)');
       for (const button of list.querySelectorAll('button')) button.disabled = true;
       const closeButton = document.getElementById('close-dialogue');
       closeButton.focus();
