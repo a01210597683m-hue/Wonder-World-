@@ -149,3 +149,18 @@ This section is additive. It reaffirms requirements already present elsewhere in
 - Protect children and household privacy. Real-money purchases require clear real-currency prices, platform-approved payment flows, purchase confirmation, parental controls where applicable, refund/compliance handling, anti-fraud measures and server-side purchase verification. Never trust client-side balances or expose service-role/secret keys in browser code. No loot-box/gambling mechanics for pets; disclose exactly what is purchased.
 - Persist owned pets, pet needs/state, inventory and transactions through secure server-authoritative systems when implemented. The current browser prototype/localStorage must not be represented as secure, multiplayer-persistent or production-ready.
 - Status: product requirement only; pet systems, models, animations, adoption, care loops, shop and purchase flows are not implemented until code and tests verify them.
+
+
+## Home visits and shared living-room activities — 2026-10-20 (additive)
+
+### Bilateral invitations and consent
+- Either player can invite a friend to their own home, or request an invitation to visit the friend's home.
+- The recipient must explicitly accept before any home entry or visitor movement occurs. Decline, cancellation, invitation expiry, and ending the visit must be supported.
+- A walk ending or a player entering their own home must not imply that social interaction is over; home visits are a separate, consent-based activity flow.
+- Real visits must be authorized by authenticated identities and server-side checks, with private/restricted realtime synchronization. Never trust a client-only flag or simulated NPC choice as consent from a real player.
+
+### Shared home activities
+- Players can sit together on the sofa, watch television together, and select additional home activities through context-appropriate preset choices and emotes.
+- Both players' character positions and activity states must synchronize, and either player can end the visit and leave safely.
+- Television interaction in the early prototype may be a simple in-game activity; it must not be described as real video streaming or synchronized media playback until those capabilities are built.
+- Preserve the no player-to-player free-text or voice-chat rule for all visits and activities.
