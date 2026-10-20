@@ -316,7 +316,7 @@ ui.innerHTML = `
     <div class="shop-heading"><strong>🚶 تمشية مع صديق</strong><button id="close-walks" type="button" aria-label="إغلاق">✕</button></div>
     <p class="shop-intro">اختاري شخصية وابعتي طلب تمشية. المشوار يبدأ فقط بعد تأكيد الموافقة؛ تقدري ترفضي الطلب أو تنهي المشوار في أي وقت.</p>
     <p id="walk-consent-status" role="status">مفيش تمشية نشطة. اختاري صديقًا لإرسال طلب.</p><div id="walk-friends"></div>
-    <div id="walk-active-tools" hidden><p id="walk-active-text"></p><div class="walk-activity-actions"><button id="walk-picnic" type="button">🧺 نزهة في الحديقة (4 عملات)</button><button id="walk-cafe" type="button">☕ خروجة كافيه (5 عملات)</button></div><p id="walk-activity-feedback" role="status">اختاري نشاطًا لما توصلي للمكان المناسب.</p><button id="end-shared-walk" type="button">👋 إنهاء التمشية</button></div>
+    <div id="walk-active-tools" hidden><p id="walk-active-text"></p><div class="walk-activity-actions"><button id="walk-picnic" type="button">🧺 نزهة في الحديقة (4 عملات)</button><button id="walk-cafe" type="button">☕ خروجة كافيه (5 عملات)</button><button id="walk-photo" type="button">📸 ذكرى سوا عند النافورة</button></div><p id="walk-activity-feedback" role="status">اختاري نشاطًا لما توصلي للمكان المناسب.</p><button id="end-shared-walk" type="button">👋 إنهاء التمشية</button></div>
     <p class="walk-prototype-note">الشخصيات المتاحة هنا شخصيات NPC داخل النموذج. الموافقة الحقيقية بين لاعبين مختلفين تحتاج حسابات وخادمًا مشتركًا، وده مش متفعّل في النسخة دي.</p>
   </section>
   <section id="journal-panel" hidden aria-label="سجل مغامراتي">
@@ -519,6 +519,21 @@ function renderWalkPanel() {
   });
   card.append(title,detail,giftRow,invite);list.appendChild(card);
  }
+}
+function takeSharedWalkPhoto(){
+ const status=document.getElementById('walk-activity-feedback');
+ if(!activeWalkNpc){status.textContent='ابدئي تمشية مع صديق بموافقة واضحة الأول.';return;}
+ if(indoors){status.textContent='الذكرى المشتركة محتاجة تكونوا في الساحة الخارجية.';return;}
+ const p=player.getPosition();
+ if(Math.hypot(p.x,p.z)>4.2){status.textContent='اتنقلوا لنافورة الساحة من الخريطة عشان تسجلوا ذكرى سوا.';return;}
+ const companion=activeWalkNpc;
+ const key='wonderworld-shared-photo-'+companion.name+'-'+localDateKey();
+ try{if(localStorage.getItem(key)==='done'){status.textContent='سجلتوا ذكرى عند النافورة مع '+companion.name+' النهارده بالفعل. ارجعوا بكرة لذكرى جديدة!';return;}}catch{}
+ try{localStorage.setItem(key,'done');}catch{}
+ photoMemories+=1;happiness=Math.min(100,happiness+5);updateStats();awardXP(5);saveProgress();
+ logAdventure('ذكرى مشتركة عند نافورة WonderWorld مع '+companion.name);
+ status.textContent='📸 اتسجلت ذكرى مشتركة مع '+companion.name+'! +5 سعادة و+5 XP. دي ذكرى داخل اللعبة وليست صورة محفوظة من الكاميرا.';
+ say('💖 ذكرى جميلة اتضافت لسجلك مع '+companion.name+'!');
 }
 function doSharedWalkActivity(kind){
  const status=document.getElementById('walk-activity-feedback');
@@ -751,6 +766,7 @@ document.getElementById('close-walks').addEventListener('click',()=>{document.ge
 document.getElementById('end-shared-walk').addEventListener('click',()=>endSharedWalk());
 document.getElementById('walk-picnic').addEventListener('click',()=>doSharedWalkActivity('picnic'));
 document.getElementById('walk-cafe').addEventListener('click',()=>doSharedWalkActivity('cafe'));
+document.getElementById('walk-photo').addEventListener('click',takeSharedWalkPhoto);
 document.getElementById('close-map').addEventListener('click',()=>{document.getElementById('map-panel').hidden=true});
 document.getElementById('open-journal').addEventListener('click',()=>{renderJournal();document.getElementById('journal-panel').hidden=false});
 document.getElementById('close-journal').addEventListener('click',()=>{document.getElementById('journal-panel').hidden=true});
