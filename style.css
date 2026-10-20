@@ -533,3 +533,15 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
   .watersort-glass { height: min(36dvh, 145px); min-height: 54px; }
   #watersort-panel #watersort-feedback { overflow-wrap: anywhere; align-self: center; }
 }
+
+
+/* Main-game control dock fix: layer the HUD above the 3D canvas and scroll independently. */
+#life-ui{position:fixed!important;z-index:40!important;top:max(64px,calc(env(safe-area-inset-top) + 58px))!important;left:auto!important;right:max(8px,env(safe-area-inset-right))!important;bottom:max(8px,env(safe-area-inset-bottom))!important;width:min(320px,calc(100vw - 16px))!important;max-height:calc(100dvh - max(76px,calc(env(safe-area-inset-top) + 70px)) - 8px)!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:9px;gap:7px;border:1px solid #ffffffb8;border-radius:16px;background:#17324cef;box-shadow:0 8px 26px #10263c66;pointer-events:auto!important;scrollbar-width:thin}
+#life-ui .life-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+#life-ui .life-stats span{min-width:0;padding:6px 7px;font-size:11px;overflow-wrap:anywhere}
+#life-ui #xp-panel{padding:6px 8px}
+#life-ui .avatar-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+#life-ui .avatar-tools button,#life-ui #open-shop,#life-ui #interact,#life-ui #exit-home{width:100%;min-width:0;min-height:38px;justify-self:stretch;margin:0;padding:7px 6px;font-size:11px;line-height:1.25;overflow-wrap:anywhere;touch-action:manipulation}
+#life-ui #life-message,#life-ui #life-goal{font-size:11px;padding:7px 8px}
+@media (orientation:landscape) and (max-width:900px){#life-ui{top:max(48px,calc(env(safe-area-inset-top) + 42px))!important;right:max(6px,env(safe-area-inset-right))!important;bottom:max(6px,env(safe-area-inset-bottom))!important;width:min(42vw,330px)!important;max-height:calc(100dvh - 60px)!important;padding:7px;gap:5px}#life-ui .life-stats span{font-size:10px;padding:5px}#life-ui .avatar-tools button,#life-ui #open-shop,#life-ui #interact,#life-ui #exit-home{min-height:34px;font-size:10px;padding:5px 4px}#life-ui #life-message,#life-ui #life-goal{font-size:10px;padding:5px 6px}}
+@media (orientation:portrait) and (max-width:600px){#life-ui{top:max(100px,calc(env(safe-area-inset-top) + 94px))!important;right:8px!important;left:auto!important;bottom:max(8px,env(safe-area-inset-bottom))!important;width:min(245px,calc(100vw - 16px))!important;max-height:calc(100dvh - 112px)!important}}
