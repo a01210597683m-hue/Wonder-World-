@@ -461,6 +461,7 @@ const petSupplyCatalog=[
  {id:'collar',name:'طوق ملوّن',emoji:'🎀',price:6,description:'إضافة تجميلية للمقتنيات؛ الاستخدام التجميلي الكامل لاحقًا.'}
 ];
 const npcInteractionDates = {};
+const npcGiftDates = {};
 const dailyQuests = { friend: false, park: false, shop: false, flowers: false, rewarded: false };
 function localDateKey(date = new Date()) {
   const year = date.getFullYear();
@@ -491,6 +492,20 @@ function renderWalkPanel() {
   const card=document.createElement('article');card.className='walk-friend-card';
   const title=document.createElement('strong');title.textContent=npc.name+' — '+npc.role;
   const detail=document.createElement('p');detail.textContent='مستوى الصداقة: '+npc.relation+'/10 • '+npc.favorite;
+  const giftRow=document.createElement('div');giftRow.className='walk-gift-actions';
+  const giftButton=document.createElement('button');giftButton.type='button';giftButton.textContent='🌷 وردة (3 عملات)';
+  const cafeButton=document.createElement('button');cafeButton.type='button';cafeButton.textContent='☕ دعوة كافيه (5 عملات)';
+  const giveGift=(kind,cost,label)=>{
+   if(npcGiftDates[npc.name]===localDateKey()){status.textContent='قدّمتي هدية أو دعوة لـ'+npc.name+' النهارده بالفعل. جربي بكرة!';return;}
+   if(npc.relation>=10){status.textContent='صداقتك مع '+npc.name+' وصلت لأقصى مستوى!';return;}
+   if(coins<cost){status.textContent='محتاجه '+cost+' عملات عشان '+label+'.';return;}
+   coins-=cost;npc.relation=Math.min(10,npc.relation+1);happiness=Math.min(100,happiness+(kind==='cafe'?5:3));npcGiftDates[npc.name]=localDateKey();
+   saveProgress();updateStats();awardXP(4);logAdventure('قدّمت '+label+' إلى '+npc.name+' وزادت الصداقة');status.textContent='🎁 '+npc.name+' فرحت بـ'+label+'! مستوى الصداقة '+npc.relation+'/10. هدية أو دعوة واحدة لكل شخصية يوميًا.';
+   renderWalkPanel();say('💚 لحظة لطيفة مع '+npc.name+'! الصداقة زادت.');
+  };
+  giftButton.addEventListener('click',()=>giveGift('flower',3,'وردة'));cafeButton.addEventListener('click',()=>giveGift('cafe',5,'دعوة كافيه'));
+  giftButton.disabled=npcGiftDates[npc.name]===localDateKey();cafeButton.disabled=npcGiftDates[npc.name]===localDateKey();
+  giftRow.append(giftButton,cafeButton);
   const invite=document.createElement('button');invite.type='button';invite.textContent=activeWalkNpc===npc?'التمشية نشطة':'🚶 طلب تمشية';invite.disabled=Boolean(activeWalkNpc);
   invite.addEventListener('click',()=>{
    if(activeWalkNpc||indoors){status.textContent=indoors?'اخرجي من البيت الأول قبل بدء التمشية.':'في تمشية نشطة بالفعل؛ انهيها الأول.';return;}
@@ -502,7 +517,7 @@ function renderWalkPanel() {
    decline.addEventListener('click',()=>{status.textContent=npc.name+' اعتذرت عن التمشية. مفيش حركة مشتركة، وتقدري تختاري نشاطًا تانيًا.';invite.disabled=false;consent.remove();say('💬 '+npc.name+' اعتذرت بلطف؛ مفيش تمشية من غير موافقة.');});
    consent.append(question,accept,decline);card.appendChild(consent);invite.disabled=true;status.textContent='تم إرسال الدعوة. المشوار مش هيبدأ إلا بعد اختيار الموافقة.';
   });
-  card.append(title,detail,invite);list.appendChild(card);
+  card.append(title,detail,giftRow,invite);list.appendChild(card);
  }
 }
 function endSharedWalk(reason='انتهت التمشية بناءً على طلبك.'){
@@ -586,7 +601,7 @@ const saveProgress = () => {
     localStorage.setItem('wonderworld-save-v1', JSON.stringify({
       coins, happiness, energy, playerLevel, playerXP, gardenFlowers, lastFlowerDay, photoMemories, lastPhotoDay, adventureLog: adventureLog.slice(-30), questDate, dailyQuests: { ...dailyQuests }, ownedItems: [...ownedItems],
       relationships: Object.fromEntries(npcs.map(npc => [npc.name, npc.relation])),
-      npcInteractionDates,
+      npcInteractionDates, npcGiftDates,
       equippedItems, ownedPets:[...ownedPets], activePetId, petCareState, petSupplies, petNames
     }));
   } catch (_) {}
@@ -626,6 +641,12 @@ try {
       for (const npc of npcs) {
         const date = loadedProgress.npcInteractionDates[npc.name];
         if (typeof date === 'string') npcInteractionDates[npc.name] = date;
+      }
+    }
+    if (loadedProgress.npcGiftDates && typeof loadedProgress.npcGiftDates === 'object') {
+      for (const npc of npcs) {
+        const date = loadedProgress.npcGiftDates[npc.name];
+        if (typeof date === 'string') npcGiftDates[npc.name] = date;
       }
     }
     if (loadedProgress.equippedItems && typeof loadedProgress.equippedItems === 'object') {
