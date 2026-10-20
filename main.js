@@ -126,7 +126,9 @@ const playerBusinessSign = box('Player shop sign', 3.3, 0.55, 0.16, 0, 2.85, -2.
 const playerBusinessStock = [
   box('Player shop stock crate 1', 0.55, 0.55, 0.55, -1.5, 0.3, -2.55, mats.outfitGold, playerBusiness),
   box('Player shop stock crate 2', 0.55, 0.55, 0.55, -0.8, 0.3, -2.55, mats.outfitMint, playerBusiness),
-  box('Player shop stock crate 3', 0.55, 0.55, 0.55, 1.5, 0.3, -2.55, mats.outfitCoral, playerBusiness)
+  box('Player shop stock crate 3', 0.55, 0.55, 0.55, -0.1, 0.3, -2.55, mats.outfitCoral, playerBusiness),
+  box('Player shop stock crate 4', 0.55, 0.55, 0.55, 0.6, 0.3, -2.55, mats.outfitBlue, playerBusiness),
+  box('Player shop stock crate 5', 0.55, 0.55, 0.55, 1.3, 0.3, -2.55, mats.flower, playerBusiness)
 ];
 playerBusiness.setPosition(-18, 0, -10);
 playerBusiness.enabled = false;
@@ -135,7 +137,7 @@ window.addEventListener('wonderworld:career-state', event => {
   const business = event.detail || {};
   playerBusiness.enabled = Boolean(business.hasPremises);
   playerBusinessAwning.render.material = business.decorated ? mats.outfitGold : mats.npcPink;
-  playerBusinessSign.render.material = business.decorated ? mats.npcGold : mats.npcBlue;
+  playerBusinessSign.render.material = Number(business.businessLevel) >= 2 ? mats.outfitGold : (business.decorated ? mats.npcGold : mats.npcBlue);
   playerBusinessStock.forEach((crate, index) => { crate.enabled = Boolean(business.hasPremises && Number(business.stock) > index); });
 });
 
