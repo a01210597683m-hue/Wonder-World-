@@ -197,3 +197,14 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [ ] Verify that changing to a new local calendar date resets daily quests and permits the daily reward again.
 
 **Scope note:** progress remains local to this browser/device and is not a server-authoritative multiplayer save.
+
+
+## 2026-10-20 — Block Blast mini-game (prototype)
+- [x] Add an 8×8 board with tap-to-select pieces and tap-to-place controls suitable for mobile.
+- [x] Validate placements against occupied cells and board edges.
+- [x] Clear completed rows and columns, award score, coins, happiness and XP.
+- [x] Save the best score locally and provide a restart control.
+- [ ] Smoke-test on mobile for piece placement, simultaneous row/column clearing, no-move game over, and best-score persistence.
+- [ ] Add richer piece previews and sound/animation only after the core rules pass playtesting.
+
+**Scope note:** this is a client-side prototype. Local scores and rewards are not secure/server-authoritative.
