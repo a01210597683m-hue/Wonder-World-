@@ -667,8 +667,33 @@ function blockBlastRender() {
   document.getElementById('blockblast-score').textContent=String(blockBlastScore);
   document.getElementById('blockblast-best').textContent=String(blockBlastBest);
 }
+async function openLandscapeGame(panelId) {
+  const panel=document.getElementById(panelId);
+  panel.hidden=false;
+  // Ask supported mobile browsers to enter fullscreen and rotate to landscape.
+  // Browsers that prohibit orientation locking still get a responsive landscape layout.
+  try {
+    if (panel.requestFullscreen && !document.fullscreenElement) {
+      await panel.requestFullscreen();
+    }
+  } catch (error) { /* Fullscreen is optional; keep the game playable in-page. */ }
+  try {
+    if (screen.orientation && screen.orientation.lock) {
+      await screen.orientation.lock('landscape');
+    }
+  } catch (error) { /* iOS and some browsers only allow manual device rotation. */ }
+}
+function closeLandscapeGame(panelId) {
+  document.getElementById(panelId).hidden=true;
+  try {
+    if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+  } catch (error) {}
+  if (document.fullscreenElement && document.exitFullscreen) {
+    document.exitFullscreen().catch(()=>{});
+  }
+}
 function openBlockBlast() {
-  document.getElementById('blockblast-panel').hidden=false;
+  openLandscapeGame('blockblast-panel');
   if(!blockBlastPieces.length || blockBlastOver) blockBlastReset();
   else blockBlastRender();
 }
@@ -734,7 +759,7 @@ document.getElementById('blockblast-pieces').addEventListener('click',event=>{
   document.getElementById('blockblast-feedback').textContent='دلوقتي اضغطي على خانة فاضية تناسب شكل القطعة.';
   blockBlastRender();
 });
-document.getElementById('close-blockblast').addEventListener('click',()=>{document.getElementById('blockblast-panel').hidden=true;});
+document.getElementById('close-blockblast').addEventListener('click',()=>closeLandscapeGame('blockblast-panel'));
 document.getElementById('blockblast-restart').addEventListener('click',blockBlastReset);
 document.getElementById('open-blockblast').addEventListener('click',openBlockBlast);
   
@@ -775,9 +800,9 @@ function waterSortTap(i){
  if(won){waterSortWon=true;coins+=5;updateStats();awardXP(10);}
  waterSortRender();
 }
-function openWaterSort(){document.getElementById('watersort-panel').hidden=false;waterSortReset();}
+function openWaterSort(){openLandscapeGame('watersort-panel');waterSortReset();}
 document.getElementById('open-watersort').addEventListener('click',openWaterSort);
-document.getElementById('close-watersort').addEventListener('click',()=>{document.getElementById('watersort-panel').hidden=true;});
+document.getElementById('close-watersort').addEventListener('click',()=>closeLandscapeGame('watersort-panel'));
 document.getElementById('watersort-restart').addEventListener('click',waterSortReset);
 
 
