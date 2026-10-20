@@ -293,6 +293,7 @@ ui.innerHTML = `
       <div class="pet-care-actions"><button id="pet-feed" type="button">🥣 أكل</button><button id="pet-water" type="button">💧 مياه</button><button id="pet-play" type="button">🎾 لعب</button><button id="pet-groom" type="button">🧼 تنظيف</button><button id="pet-rest" type="button">🛏️ راحة</button></div>
     </div>
     <div id="pet-feedback" role="status"></div>
+    <section id="pet-supplies-section"><h3>🛍️ مستلزمات اختيارية</h3><p class="pet-intro">الرعاية الأساسية تفضل مجانية. المستلزمات الإضافية اختيارية وبأسعار واضحة.</p><div id="pet-supplies-catalog"></div><h4>🎒 شنطة المستلزمات</h4><div id="pet-supplies-inventory"></div><div class="pet-care-actions"><button id="pet-use-food" type="button">استخدام وجبة</button><button id="pet-use-toy" type="button">استخدام لعبة</button><button id="pet-use-bed" type="button">استخدام سرير</button></div><button id="pet-park-activity" type="button">🌳 نشاط مع رفيقي في الحديقة</button></section>
     <p class="pet-premium-note">⭐ الحيوانات المميزة بفلوس حقيقية: هتتوفر لاحقًا فقط من خلال دفع آمن وأسعار واضحة. الشراء الحقيقي مش مفعّل في النموذج الحالي.</p>
   </section>
   <section id="puzzle-panel" hidden aria-label="لعبة ألغاز">
@@ -410,6 +411,13 @@ const petCatalog = [
  {id:'wonder-rabbit',name:'أرنب صغير',kind:'rabbit',emoji:'🐰',price:18,tier:'18 عملة افتراضية'}
 ];
 let ownedPets=[]; let activePetId=null; let petCareState={}; let petCompanionEntity=null;
+let petSupplies={food:0,toy:0,bed:0,collar:0};
+const petSupplyCatalog=[
+ {id:'food',name:'وجبة إضافية',emoji:'🥣',price:3,description:'ترفع الشبع 25 نقطة عند الاستخدام.'},
+ {id:'toy',name:'لعبة للحيوان',emoji:'🎾',price:5,description:'تزود المرح 25 نقطة وتزيد الرابطة.'},
+ {id:'bed',name:'سرير مريح',emoji:'🛏️',price:8,description:'وقت راحة لطيف يرفع المرح 15 نقطة.'},
+ {id:'collar',name:'طوق ملوّن',emoji:'🎀',price:6,description:'إضافة تجميلية للمقتنيات؛ الاستخدام التجميلي الكامل لاحقًا.'}
+];
 const npcInteractionDates = {};
 const dailyQuests = { friend: false, park: false, shop: false, flowers: false, rewarded: false };
 function localDateKey(date = new Date()) {
@@ -464,7 +472,7 @@ const saveProgress = () => {
       coins, happiness, energy, playerLevel, playerXP, gardenFlowers, lastFlowerDay, questDate, dailyQuests: { ...dailyQuests }, ownedItems: [...ownedItems],
       relationships: Object.fromEntries(npcs.map(npc => [npc.name, npc.relation])),
       npcInteractionDates,
-      equippedItems, ownedPets:[...ownedPets], activePetId, petCareState
+      equippedItems, ownedPets:[...ownedPets], activePetId, petCareState, petSupplies
     }));
   } catch (_) {}
 };
@@ -508,6 +516,7 @@ try {
     }
     if (Array.isArray(loadedProgress.ownedPets)) ownedPets=[...new Set(loadedProgress.ownedPets.filter(id=>petCatalog.some(p=>p.id===id)))];
     if (typeof loadedProgress.activePetId==='string' && ownedPets.includes(loadedProgress.activePetId)) activePetId=loadedProgress.activePetId;
+    if (loadedProgress.petSupplies && typeof loadedProgress.petSupplies==='object') for(const key of Object.keys(petSupplies)) petSupplies[key]=Number.isFinite(loadedProgress.petSupplies[key])?Math.max(0,Math.floor(loadedProgress.petSupplies[key])):0;
     if (loadedProgress.petCareState && typeof loadedProgress.petCareState==='object') for(const id of ownedPets){
       const care=loadedProgress.petCareState[id]; if(care&&typeof care==='object') petCareState[id]={
         hunger:clampPetValue(care.hunger,60),thirst:clampPetValue(care.thirst,60),joy:clampPetValue(care.joy,50),
@@ -551,7 +560,17 @@ function renderPetPanel(){
  if(active){const care=ensurePetCare(active.id);const labels=[['hunger','الشبع'],['thirst','الارتواء'],['joy','المرح'],['cleanliness','النظافة'],['bond','الرابطة']];needs.replaceChildren();
   for(const [key,label] of labels){const row=document.createElement('div');row.className='pet-need-row';const title=document.createElement('span');title.textContent=label;const meter=document.createElement('progress');meter.max=100;meter.value=care[key];meter.setAttribute('aria-label',label);const value=document.createElement('b');value.textContent=care[key]+'%';row.append(title,meter,value);needs.appendChild(row)}
  }
+ renderPetSupplies();
 }
+function renderPetSupplies(){
+ const catalog=document.getElementById('pet-supplies-catalog'),inventory=document.getElementById('pet-supplies-inventory');if(!catalog||!inventory)return;catalog.replaceChildren();inventory.replaceChildren();
+ for(const item of petSupplyCatalog){const card=document.createElement('div');card.className='pet-card';const info=document.createElement('div');info.className='pet-card-info';const name=document.createElement('strong');name.textContent=item.emoji+' '+item.name;const desc=document.createElement('span');desc.textContent=item.description;const price=document.createElement('span');price.textContent='🪙 '+item.price+' عملات افتراضية';info.append(name,desc,price);const button=document.createElement('button');button.type='button';button.textContent='شراء';button.addEventListener('click',()=>buyPetSupply(item.id));card.append(info,button);catalog.appendChild(card)}
+ for(const item of petSupplyCatalog){const row=document.createElement('div');row.className='pet-inventory-row';row.textContent=item.emoji+' '+item.name+': '+(petSupplies[item.id]||0);inventory.appendChild(row)}
+ document.getElementById('pet-use-food').disabled=(petSupplies.food||0)<1;document.getElementById('pet-use-toy').disabled=(petSupplies.toy||0)<1;document.getElementById('pet-use-bed').disabled=(petSupplies.bed||0)<1;
+}
+function buyPetSupply(id){const item=petSupplyCatalog.find(x=>x.id===id);if(!item)return;if(coins<item.price){document.getElementById('pet-feedback').textContent='رصيدك مش كفاية. سعر '+item.name+' هو '+item.price+' عملات؛ الرعاية الأساسية مجانية ومستمرة.';return}coins-=item.price;petSupplies[id]=(petSupplies[id]||0)+1;updateStats();saveProgress();renderPetSupplies();document.getElementById('pet-feedback').textContent='اشتريتي '+item.name+'؛ بقت في شنطتك. تقدري تستخدميها وقت ما تحبي.';awardXP(2)}
+function usePetSupply(id){const pet=petCatalog.find(p=>p.id===activePetId&&ownedPets.includes(p.id));if(!pet){document.getElementById('pet-feedback').textContent='تبنّي رفيقًا الأول عشان تستخدمي المستلزمات.';return}if((petSupplies[id]||0)<1){document.getElementById('pet-feedback').textContent='المستلزم ده مش موجود في شنطتك.';return}const care=ensurePetCare(pet.id);if(id==='food')care.hunger=Math.min(100,care.hunger+25);if(id==='toy'){care.joy=Math.min(100,care.joy+25);care.bond=Math.min(100,care.bond+5)}if(id==='bed')care.joy=Math.min(100,care.joy+15);petSupplies[id]--;renderPetPanel();document.getElementById('pet-feedback').textContent='استخدمتي '+petSupplyCatalog.find(x=>x.id===id).name+' مع '+pet.name+' 🐾';saveProgress();awardXP(3)}
+function petParkActivity(){const pet=petCatalog.find(p=>p.id===activePetId&&ownedPets.includes(p.id));if(!pet){document.getElementById('pet-feedback').textContent='تبنّي حيوانًا واختاريه رفيقًا قبل نشاط الحديقة.';return}if(indoors){document.getElementById('pet-feedback').textContent='اخرجي للحي الأول وروحي حديقة الأصدقاء مع رفيقك.';return}const p=player.getPosition();if(Math.hypot(p.x+11,p.z-6.5)>7){document.getElementById('pet-feedback').textContent='النشاط ده في حديقة الأصدقاء 🌳 اتحركي ناحية الحديقة ومعاكي رفيقك.';return}const care=ensurePetCare(pet.id);care.joy=Math.min(100,care.joy+20);care.bond=Math.min(100,care.bond+8);happiness=Math.min(100,happiness+5);updateStats();renderPetPanel();awardXP(8);saveProgress();document.getElementById('pet-feedback').textContent='🌳 قضيتوا وقت ممتع في حديقة الأصدقاء! المرح +20 والرابطة +8 والسعادة +5. النشاط مجاني.'}
 function careForActivePet(action){
  const pet=petCatalog.find(p=>p.id===activePetId&&ownedPets.includes(p.id));
  if(!pet){document.getElementById('pet-feedback').textContent='تبنّي حيوانًا أو اختاري رفيقًا الأول عشان تعتني بيه.';return}
@@ -567,6 +586,10 @@ document.getElementById('pet-water').addEventListener('click',()=>careForActiveP
 document.getElementById('pet-play').addEventListener('click',()=>careForActivePet('play'));
 document.getElementById('pet-groom').addEventListener('click',()=>careForActivePet('groom'));
 document.getElementById('pet-rest').addEventListener('click',()=>careForActivePet('rest'));
+document.getElementById('pet-use-food').addEventListener('click',()=>usePetSupply('food'));
+document.getElementById('pet-use-toy').addEventListener('click',()=>usePetSupply('toy'));
+document.getElementById('pet-use-bed').addEventListener('click',()=>usePetSupply('bed'));
+document.getElementById('pet-park-activity').addEventListener('click',petParkActivity);
 function equipItem(item) {
   if (item.category === 'outfit') {
     player.outfitParts.forEach(part => { part.render.material = item.material; });
