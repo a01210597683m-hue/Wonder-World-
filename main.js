@@ -172,16 +172,8 @@ const outfitOptions = [mats.player, mats.outfitMint, mats.outfitCoral, mats.outf
 const hairOptions = [mats.player, mats.hairBrown, mats.hairBlack, mats.hairRose];
 let outfitIndex = 0;
 let hairIndex = 0;
-document.getElementById('change-outfit').addEventListener('click', () => {
-  outfitIndex = (outfitIndex + 1) % outfitOptions.length;
-  player.outfitParts.forEach(part => { part.render.material = outfitOptions[outfitIndex]; });
-  say('غيّرنا لبسك! اختاري اللون اللي يعجبك 👕');
-});
-document.getElementById('change-hair').addEventListener('click', () => {
-  hairIndex = (hairIndex + 1) % hairOptions.length;
-  player.hairPart.render.material = hairOptions[hairIndex];
-  say('غيّرنا لون شعرك ✨');
-});
+document.getElementById('change-outfit').addEventListener('click', openShop);
+document.getElementById('change-hair').addEventListener('click', openShop);
 const message = document.getElementById('life-message');
 let happiness = 60;
 let coins = 20;
@@ -370,4 +362,5 @@ app.on('update', dt => {
 });
 
 updateQuestUI();
+updateStats();
 status.textContent = 'WonderWorld prototype ready — تحرّكي واستكشفي الحي';
