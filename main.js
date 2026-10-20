@@ -111,6 +111,22 @@ box('Shop window', 2.1, 1.35, 0.12, 8.1, 1.85, 7.68, mats.window);
 box('Shop window 2', 2.1, 1.35, 0.12, 11.9, 1.85, 7.68, mats.window);
 box('Shop sign', 4.2, 0.75, 0.18, 10, 3.05, 7.55, mats.npcPink);
 
+// Added destinations: Wonder Cafe, community office and a town-plaza fountain.
+box('Wonder Cafe building', 5.5, 3.1, 4.5, 15, 1.55, 0, mats.wallPink);
+box('Wonder Cafe roof', 6, 0.32, 4.9, 15, 3.18, 0, mats.roof);
+box('Cafe front window', 2.0, 1.25, 0.14, 13.7, 1.8, -2.3, mats.window);
+box('Cafe front window 2', 2.0, 1.25, 0.14, 16.2, 1.8, -2.3, mats.window);
+box('Cafe door', 0.95, 1.9, 0.16, 15, 0.98, -2.34, mats.door);
+box('Cafe sign', 3.8, 0.55, 0.18, 15, 2.75, -2.4, mats.npcPink);
+box('Community office building', 5.4, 3.0, 4.2, 0, 1.5, -16, mats.white);
+box('Community office roof', 5.8, 0.32, 4.6, 0, 3.1, -16, mats.npcBlue);
+box('Community office door', 1.0, 1.9, 0.16, 0, 0.98, -18.15, mats.door);
+box('Community office window', 2.0, 1.1, 0.14, -1.5, 1.8, -18.15, mats.window);
+box('Community office sign', 3.8, 0.55, 0.18, 0, 2.65, -18.15, mats.npcBlue);
+cylinder('Plaza fountain base', 2.2, 0.35, 2.2, 0, 0.22, 0, mats.white);
+cylinder('Plaza fountain bowl', 1.6, 0.25, 1.6, 0, 0.48, 0, mats.window);
+sphere('Fountain water sparkle', 0.7, 0, 0.95, 0, mats.window);
+
 // Park, trees, flowers and benches.
 box('Park lawn', 12, 0.12, 12, -11, 0.05, 10, mats.leaf);
 for (const [x,z] of [[-15,7],[-7,7],[-15,14],[-7,14],[-11,4]]) {
@@ -158,9 +174,10 @@ app.root.addChild(camera);
 const ui = document.createElement('section');
 ui.id = 'life-ui';
 ui.innerHTML = `
-  <div class="life-stats"><span>💛 السعادة: <b id="happiness">60</b></span><span>🪙 العملات: <b id="coins">20</b></span></div>
+  <div class="life-stats"><span>💛 السعادة: <b id="happiness">60</b></span><span>⚡ الطاقة: <b id="energy">80</b></span><span>🪙 العملات: <b id="coins">20</b></span></div>
   <div class="avatar-tools"><button id="change-outfit" type="button">👕 تغيير الملابس</button><button id="change-hair" type="button">💇 تغيير لون الشعر</button></div>
   <button id="open-shop" type="button">🛍️ افتحي متجر Wonder</button>
+  <div class="avatar-tools"><button id="quick-work" type="button">💼 شغل سريع</button><button id="quick-rest" type="button">🛋️ استراحة</button><button id="quick-cafe" type="button">☕ طلب كافيه</button></div>
   <button id="interact" type="button">تفاعل / استكشاف</button>
   <section id="shop-panel" hidden aria-label="متجر Wonder">
     <div class="shop-heading"><strong>🛍️ متجر Wonder</strong><button id="close-shop" type="button" aria-label="إغلاق المتجر">✕</button></div>
@@ -190,7 +207,9 @@ document.getElementById('close-dialogue').addEventListener('click', () => {
 });
 const message = document.getElementById('life-message');
 let happiness = 60;
+let energy = 80;
 let coins = 20;
+let lastWorkAt = 0;
 const ownedItems = new Set(['default-outfit', 'default-hair']);
 const dailyQuests = { friend: false, park: false, shop: false, rewarded: false };
 const equippedItems = { outfit: 'default-outfit', hair: 'default-hair' };
@@ -198,6 +217,7 @@ let loadedProgress = null;
 function say(text) { message.textContent = text; status.textContent = text; }
 function updateStats() {
   document.getElementById('happiness').textContent = happiness;
+  document.getElementById('energy').textContent = energy;
   document.getElementById('coins').textContent = coins;
   saveProgress();
 }
@@ -229,7 +249,7 @@ const shopProducts = [
 const saveProgress = () => {
   try {
     localStorage.setItem('wonderworld-save-v1', JSON.stringify({
-      coins, happiness, ownedItems: [...ownedItems], dailyQuests,
+      coins, happiness, energy, ownedItems: [...ownedItems], dailyQuests,
       relationships: Object.fromEntries(npcs.map(npc => [npc.name, npc.relation])),
       equippedItems
     }));
@@ -240,6 +260,7 @@ try {
   if (loadedProgress) {
     if (Number.isFinite(loadedProgress.coins)) coins = Math.max(0, loadedProgress.coins);
     if (Number.isFinite(loadedProgress.happiness)) happiness = Math.max(0, Math.min(100, loadedProgress.happiness));
+    if (Number.isFinite(loadedProgress.energy)) energy = Math.max(0, Math.min(100, loadedProgress.energy));
     if (Array.isArray(loadedProgress.ownedItems)) loadedProgress.ownedItems.forEach(id => ownedItems.add(id));
     if (loadedProgress.dailyQuests && typeof loadedProgress.dailyQuests === 'object') {
       for (const key of Object.keys(dailyQuests)) {
@@ -337,11 +358,49 @@ const places = [
   { name: 'بيتك', x: -10, z: -7.4, radius: 3.2, action: () => say('وصلتِ إلى بيتك! النموذج الحالي يحدد موقع المنزل؛ تصميم داخلي قابل للدخول مرحلة تطوير لاحقة.') },
   { name: 'بيت العائلة', x: 10, z: -7.4, radius: 3.2, action: () => say('هذا بيت العائلة. تقدري تستكشفي الحي، وسنضيف دخول البيوت وأثاثها في مرحلة تالية.') },
   { name: 'متجر Wonder', x: 10, z: 7.1, radius: 3.5, action: openShop },
+  { name: 'كافيه Wonder', x: 15, z: -3.2, radius: 4.0, action: orderCafe },
+  { name: 'مكتب الحي', x: 0, z: -18.3, radius: 4.0, action: doQuickWork },
   { name: 'حديقة الأصدقاء', x: -11, z: 6.5, radius: 4.2, action: () => {
     happiness = Math.min(100, happiness + 12); updateStats(); completeQuest('park'); saveProgress(); say('قضيتي وقتًا لطيفًا في الحديقة! السعادة +12 🌷');
   }}
 ];
 let activeDialogueNpc = null;
+function orderCafe() {
+  if (coins < 5) { say('طلب الكافيه محتاج 5 عملات. زوري مكتب الحي للشغل أو كمّلي المهام.'); return; }
+  coins -= 5;
+  happiness = Math.min(100, happiness + 10);
+  energy = Math.min(100, energy + 8);
+  updateStats();
+  say('☕ طلبك وصل! دفعتِ 5 عملات، والسعادة +10 والطاقة +8. أهلًا بيكي في Wonder Cafe!');
+}
+function doQuickWork() {
+  if (energy < 15) { say('طاقتك قليلة للشغل. خدي استراحة الأول 🛋️'); return; }
+  const now = Date.now();
+  if (now - lastWorkAt < 30000) { say('خدي دقيقة بين الشغلانات؛ جربي الكافيه أو الحديقة لحد ما تستعدّي.'); return; }
+  lastWorkAt = now;
+  energy = Math.max(0, energy - 15);
+  happiness = Math.max(0, happiness - 2);
+  coins += 12;
+  updateStats();
+  say('💼 خلصتي وردية قصيرة في مكتب الحي! كسبتي 12 عملة وخسرتِ 15 طاقة. الشغل التالي بعد 30 ثانية.');
+}
+function takeRest() {
+  energy = Math.min(100, energy + 25);
+  happiness = Math.min(100, happiness + 3);
+  updateStats();
+  say('🛋️ استراحة لطيفة! الطاقة +25 والسعادة +3. (الاستراحة هنا نموذج أولي وليست دخولًا فعليًا للبيت).');
+}
+document.getElementById('quick-work').addEventListener('click', () => {
+  const p = player.getPosition();
+  if (Math.hypot(p.x, p.z + 18.3) > 7) { say('اقتربي من مكتب الحي الأزرق في آخر الشارع عشان تشتغلي.'); return; }
+  doQuickWork();
+});
+document.getElementById('quick-rest').addEventListener('click', takeRest);
+document.getElementById('quick-cafe').addEventListener('click', () => {
+  const p = player.getPosition();
+  if (Math.hypot(p.x - 15, p.z + 3.2) > 7) { say('اقتربي من مبنى Wonder Cafe الوردي عشان تطلبي.'); return; }
+  orderCafe();
+});
 function showDialogue(npc) {
   activeDialogueNpc = npc;
   const panel = document.getElementById('dialogue-panel');
@@ -469,5 +528,15 @@ app.on('update', dt => {
 
 restoreEquippedItems();
 updateQuestUI();
+updateStats();
+try {
+  const today = new Date().toLocaleDateString('en-CA');
+  const rewardKey = 'wonderworld-last-daily-reward';
+  if (localStorage.getItem(rewardKey) !== today) {
+    coins += 5;
+    localStorage.setItem(rewardKey, today);
+    say('🎁 هدية دخول اليوم: 5 عملات جديدة! استكشفي الحي وجربي الكافيه والشغل.');
+  }
+} catch (_) {}
 updateStats();
 status.textContent = 'WonderWorld prototype ready — تحرّكي واستكشفي الحي';
