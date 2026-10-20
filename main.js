@@ -273,6 +273,7 @@ ui.innerHTML = `
   <button id="open-shop" type="button">🛍️ افتحي متجر Wonder</button>
   <div class="avatar-tools"><button id="open-puzzle" type="button">🧩 ألغاز سريعة</button></div>
   <div class="avatar-tools"><button id="open-blockblast" type="button">🟦 Block Blast</button></div>
+  <div class="avatar-tools"><button id="open-watersort" type="button">🧪 Water Sort</button></div>
   <div class="avatar-tools"><button id="quick-work" type="button">💼 شغل سريع</button><button id="quick-rest" type="button">🛋️ استراحة</button><button id="quick-cafe" type="button">☕ طلب كافيه</button></div>
   <div class="avatar-tools"><button id="quick-gym" type="button">🏋️ تمرين</button><button id="quick-garden" type="button">🌷 جمع زهور</button></div>
   <button id="interact" type="button">تفاعل / استكشاف</button>
@@ -298,6 +299,14 @@ ui.innerHTML = `
     <div id="blockblast-pieces" aria-label="القطع المتاحة"></div>
     <p id="blockblast-feedback" role="status">اختاري قطعة للبدء.</p>
     <button id="blockblast-restart" type="button">🔄 لعبة جديدة</button>
+  </section>
+  <section id="watersort-panel" hidden aria-label="لعبة فرز الألوان">
+    <div class="shop-heading"><strong>🧪 Water Sort</strong><button id="close-watersort" type="button" aria-label="إغلاق اللعبة">✕</button></div>
+    <p class="watersort-help">اختاري أنبوبة، ثم أنبوبة تانية لنقل اللون العلوي. رتّبي كل لون في أنبوبة منفصلة.</p>
+    <div class="watersort-score"><span>الحركات: <b id="watersort-moves">0</b></span><span>الأنابيب المكتملة: <b id="watersort-progress">0/4</b></span></div>
+    <div id="watersort-tubes" aria-label="أنابيب الألوان"></div>
+    <p id="watersort-feedback" role="status">اختاري أنبوبة للبدء.</p>
+    <button id="watersort-restart" type="button">🔄 لغز جديد</button>
   </section>
   <section id="dialogue-panel" hidden aria-label="اختيارات الحوار">
     <div class="shop-heading"><strong id="dialogue-title">حوار</strong><button id="close-dialogue" type="button" aria-label="إغلاق الحوار">✕</button></div>
@@ -728,6 +737,49 @@ document.getElementById('blockblast-pieces').addEventListener('click',event=>{
 document.getElementById('close-blockblast').addEventListener('click',()=>{document.getElementById('blockblast-panel').hidden=true;});
 document.getElementById('blockblast-restart').addEventListener('click',blockBlastReset);
 document.getElementById('open-blockblast').addEventListener('click',openBlockBlast);
+  
+// Water Sort mini-game — tap a source tube, then a compatible target.
+const waterSortColors=[{name:'بنفسجي',value:'#8b61c2'},{name:'مرجاني',value:'#ed6b72'},{name:'أزرق',value:'#4296d6'},{name:'أخضر',value:'#43a875'}];
+let waterSortTubes=[],waterSortSelected=-1,waterSortMoves=0,waterSortWon=false;
+function waterSortReset(){
+ const pool=[];waterSortColors.forEach((_,c)=>{for(let i=0;i<4;i++)pool.push(c);});
+ for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+ waterSortTubes=[pool.slice(0,4),pool.slice(4,8),pool.slice(8,12),pool.slice(12,16),[],[]];
+ waterSortSelected=-1;waterSortMoves=0;waterSortWon=false;
+ document.getElementById('watersort-feedback').textContent='اختاري أنبوبة فيها لون، ثم أنبوبة فاضية أو لونها العلوي مطابق.';
+ waterSortRender();
+}
+function waterSortComplete(t){return !t.length||(t.length===4&&t.every(c=>c===t[0]));}
+function waterSortRender(){
+ const root=document.getElementById('watersort-tubes');root.replaceChildren();
+ waterSortTubes.forEach((tube,i)=>{
+  const b=document.createElement('button');b.type='button';b.className='watersort-tube'+(waterSortSelected===i?' selected':'');b.setAttribute('aria-label','أنبوبة '+(i+1));b.disabled=waterSortWon;
+  const glass=document.createElement('span');glass.className='watersort-glass';
+  for(let k=0;k<4;k++){const layer=document.createElement('i');layer.className='watersort-layer';if(tube[k]!==undefined)layer.style.background=waterSortColors[tube[k]].value;glass.appendChild(layer);}
+  b.appendChild(glass);const label=document.createElement('small');label.textContent=String(i+1);b.appendChild(label);b.addEventListener('click',()=>waterSortTap(i));root.appendChild(b);
+ });
+ document.getElementById('watersort-moves').textContent=String(waterSortMoves);
+ document.getElementById('watersort-progress').textContent=waterSortTubes.filter(t=>t.length===4&&t.every(c=>c===t[0])).length+'/4';
+}
+function waterSortTap(i){
+ if(waterSortWon)return;
+ const target=waterSortTubes[i];
+ if(waterSortSelected<0){if(!target.length){document.getElementById('watersort-feedback').textContent='الأنبوبة فاضية؛ اختاري أنبوبة فيها لون.';return;}waterSortSelected=i;waterSortRender();return;}
+ if(waterSortSelected===i){waterSortSelected=-1;waterSortRender();return;}
+ const source=waterSortTubes[waterSortSelected],top=source[source.length-1];
+ if(target.length>=4||(target.length&&target[target.length-1]!==top)){document.getElementById('watersort-feedback').textContent='اختاري أنبوبة فاضية أو لونها العلوي نفس اللون.';waterSortSelected=-1;waterSortRender();return;}
+ let moved=0;while(source.length&&source[source.length-1]===top&&target.length<4){target.push(source.pop());moved++;}
+ waterSortMoves++;waterSortSelected=-1;
+ const won=waterSortTubes.every(waterSortComplete);
+ document.getElementById('watersort-feedback').textContent=won?'🎉 برافو! رتّبتي الألوان في '+waterSortMoves+' حركة. مكافأتك 5 عملات و10 نقاط خبرة!':'نقلتي '+moved+' طبقة. كمّلي ترتيب الألوان!';
+ if(won){waterSortWon=true;coins+=5;updateStats();awardXP(10);}
+ waterSortRender();
+}
+function openWaterSort(){document.getElementById('watersort-panel').hidden=false;waterSortReset();}
+document.getElementById('open-watersort').addEventListener('click',openWaterSort);
+document.getElementById('close-watersort').addEventListener('click',()=>{document.getElementById('watersort-panel').hidden=true;});
+document.getElementById('watersort-restart').addEventListener('click',waterSortReset);
+
 
 function orderCafe() {
   if (coins < 5) { say('طلب الكافيه محتاج 5 عملات. زوري مكتب الحي للشغل أو كمّلي المهام.'); return; }
