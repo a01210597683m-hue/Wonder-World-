@@ -81,3 +81,12 @@
 - [x] Added a persistent flower counter to the main HUD so collected garden items remain visible after leaving the park.
 - [x] Bumped browser asset version to 20261020-14.
 - [ ] Verify the updated HUD and flower save/restore behavior in a real browser.
+
+
+## 2026-10-20 — Expanded master vision additions (additive)
+- [x] Recorded cross-country travel with cars, aircraft, trains, and on-demand ride services.
+- [x] Recorded player-owned businesses/plots as a separate path from employment, with configurable spaces and simulated in-game earnings.
+- [x] Recorded family gatherings, house/dinner parties, and outings using preset context-sensitive responses, animations, and optional emoji sounds while preserving the no-player-chat rule.
+- [x] Expanded monetization planning across eligible transport, travel, business plots, upgrades, homes, decor, cosmetics, subscriptions, ads, and content packs, with server-side validation and clear pricing.
+- [x] Added healthy-engagement requirements: immersive variety and meaningful progression without manipulative or exploitative loops.
+- [ ] These are vision/documentation additions only; each feature still needs implementation, age-appropriate design, security review, and playable testing.
