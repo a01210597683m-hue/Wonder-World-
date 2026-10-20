@@ -247,3 +247,20 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
   #life-ui .avatar-tools { max-width: 100%; }
   #life-ui .avatar-tools button { min-height: 34px; }
 }
+
+
+/* Enterable home interior controls — additive to the outdoor HUD */
+#exit-home {
+  pointer-events: auto;
+  justify-self: start;
+  border: 1px solid #ffffffd6;
+  border-radius: 13px;
+  padding: 10px 13px;
+  color: #17324c;
+  background: #ffe6a6;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 850;
+  box-shadow: 0 4px 14px #10263c33;
+}
+#exit-home[hidden] { display: none; }
