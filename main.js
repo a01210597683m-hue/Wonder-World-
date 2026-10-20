@@ -170,9 +170,21 @@ function makePerson(name, x, z, shirtMaterial, isPlayer = false) {
 }
 const player = makePerson('Player', 0, 1.5, mats.player, true);
 const npcs = [
-  { name: 'ليلى', role: 'جارة', personality: 'اجتماعية وبتحب مساعدة الجيران', favorite: 'الحديقة والزهور', greeting: 'أهلًا! أنا ليلى، بحب أتعرف على جيراني وأساعدهم.', entity: makePerson('Layla', -3, 3, mats.npcPink), relation: 0, x: -3, z: 3 },
-  { name: 'آدم', role: 'صديق جديد', personality: 'مرح وبيحب الألغاز والتحديات', favorite: 'الألغاز والألعاب', greeting: 'أهلًا! أنا آدم، عندك استعداد لتحدي لطيف أو لعبة جديدة؟', entity: makePerson('Adam', 3, -3, mats.npcBlue), relation: 0, x: 3, z: -3 },
-  { name: 'نور', role: 'من سكان الحي', personality: 'هادية وبتحب الفن والطبيعة', favorite: 'الرسم والحديقة', greeting: 'أهلًا بيكي! أنا نور، بحب الفن والأماكن الهادية في الحي.', entity: makePerson('Nour', -9, 2, mats.npcGold), relation: 0, x: -9, z: 2 }
+  { name: 'ليلى', role: 'جارة', personality: 'اجتماعية وبتحب مساعدة الجيران', favorite: 'الحديقة والزهور', greeting: 'أهلًا! أنا ليلى، بحب أتعرف على جيراني وأساعدهم.', topics: [
+    { label: '🌼 نخطط لزيارة الحديقة', reply: 'فكرة جميلة! ممكن نتمشى بين الزهور ونختار ركننا المفضل.', relation: 1, joy: 4, parkTip: true },
+    { label: '🤝 أطلب منها نصيحة للجيران', reply: 'أحلى حاجة في الحي إننا نساعد بعض ونحترم اختلافنا.', relation: 2, joy: 5 },
+    { label: '🌷 أحكيلها عن زهرة بحبها', reply: 'اختيار جميل! كل زهرة ليها لون وحكاية مختلفة.', relation: 1, joy: 3 }
+  ], entity: makePerson('Layla', -3, 3, mats.npcPink), relation: 0, x: -3, z: 3 },
+  { name: 'آدم', role: 'صديق جديد', personality: 'مرح وبيحب الألغاز والتحديات', favorite: 'الألغاز والألعاب', greeting: 'أهلًا! أنا آدم، عندك استعداد لتحدي لطيف أو لعبة جديدة؟', topics: [
+    { label: '🧩 نتكلم عن الألغاز', reply: 'أنا بحب اللغز اللي يخلينا نفكر بهدوء! جربنا نحل واحد سوا قريبًا.', relation: 2, joy: 4 },
+    { label: '🎮 نختار لعبة صغيرة', reply: 'اختيار رائع! الألعاب أحلى لما تكون ممتعة وعادلة للجميع.', relation: 1, joy: 5 },
+    { label: '🏆 نتكلم عن التحديات', reply: 'المهم نستمتع ونتعلم، مش لازم نكسب كل مرة.', relation: 1, joy: 3 }
+  ], entity: makePerson('Adam', 3, -3, mats.npcBlue), relation: 0, x: 3, z: -3 },
+  { name: 'نور', role: 'من سكان الحي', personality: 'هادية وبتحب الفن والطبيعة', favorite: 'الرسم والحديقة', greeting: 'أهلًا بيكي! أنا نور، بحب الفن والأماكن الهادية في الحي.', topics: [
+    { label: '🎨 نتكلم عن الرسم', reply: 'كل شخص بيعبر عن نفسه بطريقة مختلفة، وده اللي بيخلي الفن مميز.', relation: 2, joy: 4 },
+    { label: '🌳 نختار مكان هادي', reply: 'بحب الأماكن اللي نقدر فيها نرتاح ونلاحظ جمال الطبيعة.', relation: 1, joy: 3, parkTip: true },
+    { label: '💡 نتبادل أفكار إبداعية', reply: 'ممكن نجرب نرسم حاجة شفناها في الحي ونضيف لمستنا الخاصة.', relation: 1, joy: 5 }
+  ], entity: makePerson('Nour', -9, 2, mats.npcGold), relation: 0, x: -9, z: 2 }
 ];
 
 const camera = new Entity('Follow Camera');
@@ -611,11 +623,7 @@ function showDialogue(npc) {
     : 'سعيدة إني شفتك تاني! اختاري هنعمل إيه المرة دي:');
   updateRelationshipPanel(npc);
   document.getElementById('dialogue-feedback').textContent = '';
-  const choices = [
-    { label: '👋 نسلّم ونتعرّف على بعض', reply: 'تشرفت بمعرفتك! مبسوطة إننا اتكلمنا 😊', relation: 1, joy: 5 },
-    { label: '🌷 نسأل عن الأماكن الحلوة في الحي', reply: 'لازم تزوري الحديقة، مكان لطيف نقضي فيه وقت حلو!', relation: 1, joy: 3, parkTip: true },
-    { label: '🎨 نحكي عن الهوايات والاهتمامات', reply: 'جميل إن عندنا اهتمامات مختلفة! خلينا نتكلم تاني قريبًا ✨', relation: 2, joy: 4 }
-  ];
+  const choices = npc.topics;
   const list = document.getElementById('dialogue-choices');
   list.replaceChildren();
   for (const choice of choices) {
