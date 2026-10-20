@@ -191,3 +191,18 @@ body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sa
 @media (max-width: 480px) {
   #dialogue-panel { max-height: 36vh; }
 }
+
+
+/* Expanded playable prototype: quick actions, energy and additional destinations. */
+#life-ui .avatar-tools { gap: 6px; }
+#life-ui .avatar-tools button { min-height: 36px; }
+.life-stats span { white-space: nowrap; }
+#quick-work { background: #26775d; }
+#quick-rest { background: #5d6da8; }
+#quick-cafe { background: #b96d4c; }
+button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
+@media (max-width: 480px) {
+  .life-stats { gap: 5px; }
+  .life-stats span { font-size: 10px; padding: 6px 7px; }
+  #life-ui .avatar-tools button { font-size: 11px; padding: 7px 8px; }
+}
