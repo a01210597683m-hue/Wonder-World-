@@ -164,3 +164,22 @@ This section is additive. It reaffirms requirements already present elsewhere in
 - Both players' character positions and activity states must synchronize, and either player can end the visit and leave safely.
 - Television interaction in the early prototype may be a simple in-game activity; it must not be described as real video streaming or synchronized media playback until those capabilities are built.
 - Preserve the no player-to-player free-text or voice-chat rule for all visits and activities.
+
+
+## Explicit football, action, and context-aware wardrobe requirements — 2026-10-20 (additive)
+
+### Football / soccer — a full playable sports game
+- Football must feel like a real PC/console sports game rather than a simple mini-game prompt: two opposing teams, selectable sides, team kits and colors, a proper pitch, kickoff, match clock, scoreline, goals, ball physics, passing, shooting, tackling/interception, goalkeeper and opponent behavior, player switching/positioning, match outcomes and replay/rematch.
+- Controls should be responsive on keyboard/gamepad and adapted for mobile touch; camera, animation, collision and ball control must support active play. Add team formation/roles and richer match rules as the mode matures.
+- Football kits are part of the outfit-by-context system, separate from everyday clothing and from action-mode equipment.
+
+### Dedicated battle-royale action mode
+- Keep a separate PUBG-inspired mode within the broader WonderWorld world. Preserve the familiar genre-level feel of third-person movement, sprinting, crouching and appropriate traversal, aiming, shooting, reloads, weapon handling, health/armor, equipment/loot, combat encounters, safe-zone pressure, match start/end and win/loss.
+- Use WonderWorld's own character styles, outfits, maps, interface and original assets; do not substitute unrelated character art or copy proprietary PUBG assets. Target a polished experience that can eventually surpass the inspiration in quality, but never claim that level until implemented and tested.
+- Keep the mode age-appropriate with safety controls and clear separation from ordinary social/life-simulation spaces.
+
+### Clothing and appearance adapt to context
+- Support clothing presets/categories for everyday life, home/lounge, work uniforms, gym, football kits, action-mode gear, swimming, travel, formal gatherings, parties and runway competitions, plus sensible weather/location options.
+- Let players customize within each category and manually change outfits when appropriate. Do not impose revealing or age-inappropriate clothing on younger characters. Preserve free, virtual-currency and permitted real-money tiers with transparent pricing and parental safeguards.
+
+These requirements are cumulative with all previously recorded requirements for homes and shared visits, group events, countries/transport, employer jobs and player-owned businesses, puzzles/party games, two distinct character art styles, AI safety, security and monetization. They are requirements until code and tests prove each feature playable.
