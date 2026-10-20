@@ -3,7 +3,7 @@
 'use strict';
 const el=(tag,attrs={},text='')=>{const n=document.createElement(tag);Object.entries(attrs).forEach(([k,v])=>k==='className'?n.className=v:n.setAttribute(k,String(v)));if(text)n.textContent=text;return n;};
 const style=el('style');
-style.textContent=\`
+style.textContent=`
 #board-games-launch{width:100%;margin:4px 0;border:0;border-radius:11px;padding:10px;background:#e8e2fb;color:#47326d;font:inherit;font-weight:800}
 #board-games-panel{position:fixed;z-index:10020;inset:3dvh 10px auto;max-width:560px;max-height:94dvh;overflow:auto;margin:auto;padding:14px;border-radius:18px;background:#fff;color:#243b53;box-shadow:0 12px 50px #10243c66;font-family:inherit}
 #board-games-panel[hidden]{display:none}.bg-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.bg-head button,.bg-actions button,.bg-mode{border:0;border-radius:10px;padding:9px 12px;background:#e7edf5;color:#263f58;font:inherit;font-weight:800}
@@ -14,7 +14,7 @@ style.textContent=\`
 .ludo-cell .red{background:#f5c2c2;color:#8d2020}.ludo-cell .blue{background:#c7e4ff;color:#164e87}.ludo-center{grid-column:3/6;grid-row:3/6;background:#e5f2e8;border:2px dashed #7caf8c;border-radius:10px;display:grid;place-items:center;text-align:center;font-size:12px;font-weight:800;padding:5px}
 #chess-board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));width:min(100%,420px);margin:12px auto;border:3px solid #40576c;border-radius:5px;overflow:hidden}.chess-square{aspect-ratio:1;display:grid;place-items:center;border:0;padding:0;font-size:clamp(22px,6.8vw,39px);line-height:1;color:#18232d}.chess-square.light{background:#f2e9d5}.chess-square.dark{background:#83a58b}.chess-square.chosen{box-shadow:inset 0 0 0 4px #f2b93b}.chess-square.target{box-shadow:inset 0 0 0 4px #4384db}
 @media(max-width:380px){#board-games-panel{inset:2dvh 5px auto;padding:10px}.ludo-cell{border-radius:4px}}
-\`;
+`;
 document.head.appendChild(style);
 function boot(){
  const hud=document.getElementById('life-ui');if(!hud||document.getElementById('board-games-launch'))return false;
