@@ -118,3 +118,17 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [ ] Replace geometric furniture and placeholder avatars with production-quality assets while preserving the user's original character references and separate anime/semi-realistic art directions.
 
 **Scope note:** this is a first functional room-layout prototype, not a finished furnished home system, character-art upgrade, or completed 3D/4K world. It is additive; the outdoor neighborhood and all other roadmap features remain in scope.
+
+
+## 2026-10-20 — Interactive home furniture (prototype)
+
+- [x] Made the sofa a usable comfort interaction that increases happiness.
+- [x] Made the bed restore energy and a little happiness, with a short cooldown.
+- [x] Added a kitchen meal interaction that spends 3 prototype coins and restores energy/happiness; insufficient balance is handled without charging.
+- [x] Added a read-a-book interaction with a short cooldown.
+- [x] Interaction targeting now switches to indoor furniture while inside a home, so outdoor destinations and NPCs cannot steal the interaction.
+- [x] Bumped browser cache version to `20261020-16`.
+- [ ] Run browser runtime smoke tests for entering/exiting, furniture range, cooldowns, and saved stats; test on Android.
+- [ ] Replace temporary geometric furniture and avatars with polished assets based on the user's original references.
+
+**Scope note:** all furniture rewards are local prototype values. This does not yet implement multiplayer synchronization, server-authoritative economy, or final production assets.
