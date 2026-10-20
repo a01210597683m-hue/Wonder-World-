@@ -271,3 +271,10 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 .relationship-track { height: 9px; margin-top: 7px; overflow: hidden; border-radius: 99px; background: #e2d8ec; }
 .relationship-track span { display: block; width: 0; height: 100%; border-radius: inherit; background: #8b61c2; transition: width .2s ease; }
 #character-details { margin: 7px 0 0; color: #594c66; font-size: 11px; line-height: 1.5; }
+
+
+/* Player progression: level and XP feedback */
+#xp-panel { pointer-events: none; padding: 7px 9px; border: 1px solid #ffffff80; border-radius: 11px; color: #fff; background: #17324cdd; box-shadow: 0 3px 10px #10263c25; }
+.xp-label { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; font-weight: 750; }
+#xp-track { height: 8px; margin-top: 6px; overflow: hidden; border-radius: 99px; background: #ffffff55; }
+#xp-fill { display: block; width: 0; height: 100%; border-radius: inherit; background: #ffe28a; transition: width .25s ease; }
