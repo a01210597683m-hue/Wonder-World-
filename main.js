@@ -323,6 +323,30 @@ ui.innerHTML = `
   <div id="life-goal">مهمتك: تعرّفي على شخص، ثم زوري المتجر والحديقة.</div>
 `;
 document.getElementById('game').appendChild(ui);
+
+// Keep menus independent from the HUD's scroll area so they can never be clipped by it.
+for (const panelId of ['shop-panel', 'puzzle-panel', 'blockblast-panel', 'watersort-panel', 'dialogue-panel']) {
+  const panel = document.getElementById(panelId);
+  if (panel) {
+    panel.classList.add('wonder-overlay');
+    document.body.appendChild(panel);
+  }
+}
+
+// Compact action dock: show only status and the two essential controls until requested.
+const actionToggle = document.createElement('button');
+actionToggle.id = 'toggle-actions';
+actionToggle.type = 'button';
+actionToggle.setAttribute('aria-expanded', 'false');
+actionToggle.textContent = '☰ الأنشطة والخيارات';
+ui.insertBefore(actionToggle, document.getElementById('xp-panel'));
+ui.classList.add('actions-collapsed');
+actionToggle.addEventListener('click', () => {
+  const expanded = ui.classList.toggle('actions-expanded');
+  ui.classList.toggle('actions-collapsed', !expanded);
+  actionToggle.setAttribute('aria-expanded', String(expanded));
+  actionToggle.textContent = expanded ? '✕ إخفاء الأنشطة' : '☰ الأنشطة والخيارات';
+});
 const interactButton = document.getElementById('interact');
 const outfitOptions = [mats.player, mats.outfitMint, mats.outfitCoral, mats.outfitBlue, mats.outfitGold];
 const hairOptions = [mats.player, mats.hairBrown, mats.hairBlack, mats.hairRose];
