@@ -341,3 +341,12 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [x] Add responsive activity controls and status feedback to the companion panel; preserve the end-walk action.
 - [x] Bump browser asset version to `20261020-38`.
 - [ ] Browser-test location gating, insufficient coins, daily limits, and mobile layout. Local-device limits are prototype protections, not server-authoritative anti-cheat.
+
+
+## 2026-10-20 — Shared fountain memories
+
+- [x] Add a consented-companion photo-memory action available only while a shared walk is active and the player is at the fountain plaza.
+- [x] Limit the memory to once per local day per NPC, add it to the adventure journal, and reward +5 happiness and +5 XP.
+- [x] Clearly state that this records an in-game memory, not a real camera photo or uploaded image.
+- [x] Bump browser asset version to `20261020-39`.
+- [ ] Browser-test fountain proximity, once-per-day guard, journal entry, and mobile layout. This local-device guard is not server-authoritative.
