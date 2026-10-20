@@ -67,3 +67,11 @@
 - [x] Daily quests now reset when the saved calendar date changes.
 - [x] Added mobile styles and bumped asset version to 20261020-12.
 - [ ] Browser smoke test and deployment confirmation remain outstanding; all balances and inventory in this prototype are local-device values.
+
+
+## 2026-10-20 — Four-part daily challenge and local calendar handling
+- [x] Expanded the daily objective from three to four tasks by adding the once-per-day flower collection goal.
+- [x] Increased the full daily challenge reward to 15 prototype coins plus 10 happiness, granted only after all four goals are completed.
+- [x] Switched daily quest and flower collection date keys to the device's local calendar date, avoiding UTC-boundary resets that could surprise players.
+- [x] Bumped browser cache version to 20261020-13.
+- [ ] Smoke-test daily reset, reward-once behavior, and flower collection in a real browser; save data remains local to the device.
