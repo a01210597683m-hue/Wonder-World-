@@ -331,3 +331,13 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [x] Expand achievements to include playing a mini-game, completing daily quests, a three-day login streak, and completing a shared-walk outing.
 - [x] Show the current login streak in the achievement summary and bump assets to `20261020-38`.
 - [ ] Verify day-boundary and storage behavior in browser testing. Streaks and rewards are device-local prototype data and are not server-authoritative.
+
+
+## 2026-10-20 — Companion outings at the park and café
+
+- [x] Add two location-gated activities during an active consented NPC walk: a park picnic (4 virtual coins) and a café outing (5 virtual coins).
+- [x] Require the player to be outdoors, have an active companion walk, and be within the target location before charging coins.
+- [x] Give a modest friendship/happiness/XP reward and limit each activity to once per local day per NPC using local-device guards.
+- [x] Add responsive activity controls and status feedback to the companion panel; preserve the end-walk action.
+- [x] Bump browser asset version to `20261020-38`.
+- [ ] Browser-test location gating, insufficient coins, daily limits, and mobile layout. Local-device limits are prototype protections, not server-authoritative anti-cheat.
