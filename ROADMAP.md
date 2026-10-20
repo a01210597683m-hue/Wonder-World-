@@ -152,3 +152,14 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [x] Bumped browser cache version to `20261020-18`.
 - [ ] Smoke-test each NPC's three topics, relationship updates, daily quest, and mobile dialogue layout.
 - [ ] NPC models are still temporary placeholders; final visual design must follow the user's original character references and preserve the separate semi-realistic and anime styles.
+
+
+## 2026-10-20 — Daily NPC relationship reward guard (prototype)
+
+- [x] Persist the local-calendar date of the last rewarded conversation for each NPC.
+- [x] Award relationship progress and happiness once per NPC per local day, while allowing later conversations for their character-specific replies without repeat rewards.
+- [x] Clamp restored relationship values to the displayed 0–10 range.
+- [x] Bumped browser asset version to `20261020-19`.
+- [ ] Smoke-test first conversation, repeated same-day conversation, next-day reset, saved progress, and daily neighbor quest on Android.
+
+**Scope note:** this is a client-side prototype anti-farming guard, not a tamper-proof or server-authoritative reward system.
