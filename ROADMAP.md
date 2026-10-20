@@ -9,6 +9,7 @@
 - [x] 3D test ground, lighting, camera, placeholder character, and touch controls.
 - [x] Supabase-backed character-reference panel (reference images are not 3D models).
 - [x] Prototype curated NPC dialogue with three response choices and relationship/happiness effects.
+- [x] Save prototype progress locally: coins, happiness, completed objectives, NPC relationship levels, owned items, and equipped shop items.
 - [ ] Test NPC dialogue, mobile layout, and deployment on the target Android phone.
 - [ ] Verify the prototype on the target Android phone.
 - [ ] Replace placeholder character with production-quality 3D character assets based on the user's original references.
