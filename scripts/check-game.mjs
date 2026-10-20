@@ -10,6 +10,9 @@ const css = read('../style.css');
 const careerCss = read('../career.css');
 
 const checks = [
+  ['Ludo and chess activities are dynamically wired', /import\(['"]\.\/board-games\.js\?v=/.test(game)],
+  ['Board-game module contains Ludo and chess activities', /function initLudo\(/.test(boardGames) && /function initChess\(/.test(boardGames) && /cpuTurn/.test(boardGames)],
+
   ['PlayCanvas scene entry is loaded', /main\.js\?v=/.test(html)],
   ['Career system is loaded', /careers\.js\?v=/.test(html)],
   ['Mobile touch controls exist', /data-dir="up"/.test(html) && /data-dir="left"/.test(html)],
