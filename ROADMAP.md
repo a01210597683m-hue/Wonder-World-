@@ -234,3 +234,16 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [ ] Preserve the no-player-to-player-text/voice-chat rule for every pet/social feature.
 
 **Scope note:** this is a product requirement, not an implemented pet feature. The current browser prototype does not yet provide a playable pet adoption, pet-care, or pet-purchase system. Build and test it before marking these tasks complete.
+
+## 2026-10-20 — First playable pet-companion prototype
+- [x] Add a pet panel accessible from the expanded action menu.
+- [x] Add a free dog adoption plus cat and rabbit options bought with prototype virtual coins.
+- [x] Create a simple geometric placeholder pet that follows the player and can be switched between owned pets.
+- [x] Add free care actions for food, water, play, grooming and rest, with care meters and bond progression.
+- [x] Save owned pets, active companion and care state in the existing local browser save.
+- [x] Clearly label real-money premium pets as future work; no real-money payment or checkout is enabled.
+- [ ] Test adoption, virtual-coin purchases, companion switching, care meters, save/reload and mobile panel layout in a real browser/Android device.
+- [ ] Replace placeholder pet geometry with production pet models, animation and audio; add pet supplies and pet-friendly locations in later milestones.
+- [ ] Move ownership, inventory, care state and valuable purchases to secure server-authoritative Supabase flows before multiplayer or real-money release.
+
+**Scope note:** this is an early local prototype. The geometric companion, localStorage inventory and client-side virtual-coin purchases are not secure, synchronized multiplayer, production pet art, or real-money commerce. The pet system is additive; all previous game requirements remain in scope.
