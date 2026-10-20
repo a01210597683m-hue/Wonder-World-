@@ -208,3 +208,14 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [ ] Add richer piece previews and sound/animation only after the core rules pass playtesting.
 
 **Scope note:** this is a client-side prototype. Local scores and rewards are not secure/server-authoritative.
+
+
+## 2026-10-20 — Mobile mini-game layout and Water Sort
+- [x] Make Block Blast a fixed, safe-area-aware mobile game window with internal scrolling and a board sized for short screens.
+- [x] Add Water Sort with six tubes (four colors plus two empty tubes), tap-to-select/tap-to-pour controls, move count, completion progress, and restart.
+- [x] Award a small local prototype reward for solving Water Sort; keep the reward client-side and non-authoritative.
+- [x] Style Water Sort tubes and controls for phone and desktop layouts.
+- [ ] Verify Block Blast and Water Sort on a physical phone, including short viewport, tube selection, invalid pours, and win detection.
+- [ ] Review all other activity panels on mobile for clipped content and reachable close/action buttons.
+
+**Scope note:** the CSS changes are implemented, but physical-device usability still needs hands-on testing. Water Sort puzzle generation is randomized; difficulty balancing and guaranteed progression are future polish.
