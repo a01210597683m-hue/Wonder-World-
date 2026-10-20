@@ -135,6 +135,11 @@ function makePerson(name, x, z, shirtMaterial, isPlayer = false) {
   const rightArm = box(name + ' right arm', 0.22, 0.95, 0.24, 0.54, 1.0, 0, shirtMaterial, person);
   person.outfitParts = [body, leftArm, rightArm];
   person.hairPart = hair;
+  person.bodyPart = body;
+  person.leftArm = leftArm;
+  person.rightArm = rightArm;
+  person.baseHeadY = 1.95;
+  person.baseHairY = 2.28;
   return person;
 }
 const player = makePerson('Player', 0, 1.5, mats.player, true);
@@ -425,19 +430,40 @@ document.querySelectorAll('[data-dir]').forEach(button => {
 });
 
 const moveSpeed = 4.2;
+let walkClock = 0;
+let cameraX = 0;
+let cameraZ = 12.5;
 app.on('update', dt => {
+  // Smooth, normalized movement and a small walk cycle for the temporary avatar.
   let x = (pressed.has('right') ? 1 : 0) - (pressed.has('left') ? 1 : 0);
   let z = (pressed.has('down') ? 1 : 0) - (pressed.has('up') ? 1 : 0);
   const length = Math.hypot(x, z);
-  if (length > 0) {
+  const moving = length > 0;
+  if (moving) {
     x /= length; z /= length;
     player.translate(x * moveSpeed * dt, 0, z * moveSpeed * dt);
+    walkClock += dt * 9;
+    player.setEulerAngles(0, Math.atan2(x, z) * 180 / Math.PI, 0);
+    const swing = Math.sin(walkClock) * 24;
+    player.leftArm.setLocalEulerAngles(swing, 0, 0);
+    player.rightArm.setLocalEulerAngles(-swing, 0, 0);
+    player.bodyPart.setLocalPosition(0, 0.95 + Math.abs(Math.sin(walkClock * 2)) * 0.055, 0);
+  } else {
+    player.leftArm.setLocalEulerAngles(0, 0, 0);
+    player.rightArm.setLocalEulerAngles(0, 0, 0);
+    player.bodyPart.setLocalPosition(0, 0.95, 0);
   }
+
   const p = player.getPosition();
   p.x = Math.max(-21, Math.min(21, p.x));
   p.z = Math.max(-21, Math.min(21, p.z));
   player.setPosition(p);
-  camera.setPosition(p.x, 7, p.z + 11);
+
+  // Ease the camera toward the player instead of snapping on every frame.
+  const follow = 1 - Math.exp(-5 * dt);
+  cameraX += (p.x - cameraX) * follow;
+  cameraZ += (p.z + 11 - cameraZ) * follow;
+  camera.setPosition(cameraX, 7, cameraZ);
   camera.lookAt(p.x, 1, p.z);
 });
 
