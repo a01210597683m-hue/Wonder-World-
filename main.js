@@ -627,10 +627,79 @@ function showDialogue(npc) {
   panel.hidden = false;
 }
 
+let lastBedRestAt = 0;
+let lastReadingAt = 0;
+const indoorTargets = [
+  {
+    name: 'الكنبة',
+    x: -3.7, z: -1.2, radius: 2.5,
+    action: () => {
+      happiness = Math.min(100, happiness + 5);
+      updateStats();
+      say('🛋️ قعدتي على الكنبة شوية! السعادة +5. خدي وقتك في بيتك.');
+    }
+  },
+  {
+    name: 'السرير',
+    x: 3.8, z: -3.1, radius: 2.5,
+    action: () => {
+      const now = Date.now();
+      if (now - lastBedRestAt < 20000) {
+        say('😴 لسه واخدة راحة على السرير؛ استني شوية قبل الراحة التالية.');
+        return;
+      }
+      lastBedRestAt = now;
+      energy = Math.min(100, energy + 20);
+      happiness = Math.min(100, happiness + 2);
+      updateStats();
+      say('🛏️ ارتحتي في سريرك! الطاقة +20 والسعادة +2.');
+    }
+  },
+  {
+    name: 'مطبخ البيت',
+    x: -3.8, z: -5.4, radius: 2.5,
+    action: () => {
+      if (coins < 3) {
+        say('🍎 تجهيز وجبة بسيطة محتاج 3 عملات. تقدري تكسبي عملات من الشغل أو الأنشطة.');
+        return;
+      }
+      coins -= 3;
+      energy = Math.min(100, energy + 10);
+      happiness = Math.min(100, happiness + 4);
+      updateStats();
+      say('🍲 جهزتي وجبة في مطبخ البيت! اتخصم 3 عملات، والطاقة +10 والسعادة +4.');
+    }
+  },
+  {
+    name: 'كتاب الترابيزة',
+    x: -1, z: -1, radius: 2.0,
+    action: () => {
+      const now = Date.now();
+      if (now - lastReadingAt < 10000) {
+        say('📖 خلّصي استراحة القراءة الأولى وبعدين ارجعي للكتاب بعد شوية.');
+        return;
+      }
+      lastReadingAt = now;
+      happiness = Math.min(100, happiness + 4);
+      updateStats();
+      say('📚 قضيتي وقت لطيف مع كتابك! السعادة +4.');
+    }
+  }
+];
 function nearestTarget() {
   const p = player.getPosition();
   let best = null;
   let bestDistance = Infinity;
+  if (indoors) {
+    for (const target of indoorTargets) {
+      const d = Math.hypot(p.x - target.x, p.z - target.z);
+      if (d < target.radius && d < bestDistance) {
+        best = { ...target, distance: d };
+        bestDistance = d;
+      }
+    }
+    return best;
+  }
   for (const place of places) {
     const d = Math.hypot(p.x - place.x, p.z - place.z);
     if (d < place.radius && d < bestDistance) { best = { ...place, distance: d }; bestDistance = d; }
