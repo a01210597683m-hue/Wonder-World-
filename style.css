@@ -692,3 +692,5 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 .walk-activity-actions button{border:0;border-radius:9px;padding:9px 8px;background:#e7e0f8;color:#49386f;font:inherit;font-size:12px;font-weight:800}
 #walk-activity-feedback{font-size:12px;line-height:1.5;margin:6px 0;color:var(--text-color,#29435b)}
 @media(max-width:420px){.walk-activity-actions{grid-template-columns:1fr}}
+
+.walk-activity-actions #walk-photo{background:#fde5ed;color:#813c58}
