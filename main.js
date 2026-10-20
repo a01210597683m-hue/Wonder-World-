@@ -316,7 +316,7 @@ ui.innerHTML = `
     <div class="shop-heading"><strong>🚶 تمشية مع صديق</strong><button id="close-walks" type="button" aria-label="إغلاق">✕</button></div>
     <p class="shop-intro">اختاري شخصية وابعتي طلب تمشية. المشوار يبدأ فقط بعد تأكيد الموافقة؛ تقدري ترفضي الطلب أو تنهي المشوار في أي وقت.</p>
     <p id="walk-consent-status" role="status">مفيش تمشية نشطة. اختاري صديقًا لإرسال طلب.</p><div id="walk-friends"></div>
-    <div id="walk-active-tools" hidden><p id="walk-active-text"></p><button id="end-shared-walk" type="button">👋 إنهاء التمشية</button></div>
+    <div id="walk-active-tools" hidden><p id="walk-active-text"></p><div class="walk-activity-actions"><button id="walk-picnic" type="button">🧺 نزهة في الحديقة (4 عملات)</button><button id="walk-cafe" type="button">☕ خروجة كافيه (5 عملات)</button></div><p id="walk-activity-feedback" role="status">اختاري نشاطًا لما توصلي للمكان المناسب.</p><button id="end-shared-walk" type="button">👋 إنهاء التمشية</button></div>
     <p class="walk-prototype-note">الشخصيات المتاحة هنا شخصيات NPC داخل النموذج. الموافقة الحقيقية بين لاعبين مختلفين تحتاج حسابات وخادمًا مشتركًا، وده مش متفعّل في النسخة دي.</p>
   </section>
   <section id="journal-panel" hidden aria-label="سجل مغامراتي">
@@ -519,6 +519,22 @@ function renderWalkPanel() {
   });
   card.append(title,detail,giftRow,invite);list.appendChild(card);
  }
+}
+function doSharedWalkActivity(kind){
+ const status=document.getElementById('walk-activity-feedback');
+ if(!activeWalkNpc){status.textContent='ابدئي تمشية بموافقة واضحة الأول.';return;}
+ if(indoors){status.textContent='النشاط محتاج تكونوا في الحي الخارجي.';return;}
+ const activity=kind==='picnic'?{name:'نزهة في الحديقة',cost:4,x:-11,z:5.5,radius:4.5,key:'picnic'}:{name:'خروجة كافيه',cost:5,x:15,z:-4,radius:4.5,key:'cafe'};
+ const p=player.getPosition();
+ if(Math.hypot(p.x-activity.x,p.z-activity.z)>activity.radius){status.textContent='روحوا '+activity.name+' الأول من خريطة الحي، وبعدها ابدئي النشاط.';return;}
+ const rewardKey='wonderworld-walk-'+activity.key+'-'+activeWalkNpc.name+'-'+localDateKey();
+ try{if(localStorage.getItem(rewardKey)==='done'){status.textContent='عملتوا النشاط ده مع '+activeWalkNpc.name+' النهارده بالفعل. جربوه بكرة!';return;}}catch{}
+ if(coins<activity.cost){status.textContent='محتاجين '+activity.cost+' عملات افتراضية للنشاط ده.';return;}
+ const companion=activeWalkNpc;coins-=activity.cost;companion.relation=Math.min(10,companion.relation+1);happiness=Math.min(100,happiness+7);
+ try{localStorage.setItem(rewardKey,'done');}catch{}
+ updateStats();awardXP(8);saveProgress();logAdventure('عملت '+activity.name+' مع '+companion.name+' بموافقة التمشية');
+ status.textContent='✨ وقت لطيف مع '+companion.name+'! +1 صداقة، +7 سعادة، +8 XP. النشاط مرة واحدة يوميًا لكل شخصية.';
+ say('💚 خلصتوا '+activity.name+' سوا! علاقتكم بقت أقوى.');
 }
 function endSharedWalk(reason='انتهت التمشية بناءً على طلبك.'){
  if(!activeWalkNpc)return;const name=activeWalkNpc.name;activeWalkNpc=null;walkVisitedDestinations.clear();
@@ -733,6 +749,8 @@ document.getElementById('open-map').addEventListener('click',()=>{renderNeighbor
 document.getElementById('open-walks').addEventListener('click',()=>{renderWalkPanel();document.getElementById('social-walk-panel').hidden=false});
 document.getElementById('close-walks').addEventListener('click',()=>{document.getElementById('social-walk-panel').hidden=true});
 document.getElementById('end-shared-walk').addEventListener('click',()=>endSharedWalk());
+document.getElementById('walk-picnic').addEventListener('click',()=>doSharedWalkActivity('picnic'));
+document.getElementById('walk-cafe').addEventListener('click',()=>doSharedWalkActivity('cafe'));
 document.getElementById('close-map').addEventListener('click',()=>{document.getElementById('map-panel').hidden=true});
 document.getElementById('open-journal').addEventListener('click',()=>{renderJournal();document.getElementById('journal-panel').hidden=false});
 document.getElementById('close-journal').addEventListener('click',()=>{document.getElementById('journal-panel').hidden=true});
