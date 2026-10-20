@@ -443,7 +443,7 @@ let lastPhotoDay = "";
 let adventureLog = [];
 let activeWalkNpc = null;
 let walkVisitedDestinations = new Set();
-let walkRewardDate = '';
+let walkRewardDate = (()=>{try{return localStorage.getItem('wonderworld-shared-walk-reward-day')||'';}catch{return '';}})();
 let puzzleCooldownUntil = 0;
 let currentPuzzle = null;
 const ownedItems = new Set(['default-outfit', 'default-hair']);
@@ -499,7 +499,7 @@ function renderWalkPanel() {
    const accept=document.createElement('button');accept.type='button';accept.textContent='💚 موافقة — نتمشى سوا';
    const decline=document.createElement('button');decline.type='button';decline.textContent='🙅 اعتذار عن التمشية';
    accept.addEventListener('click',()=>{if(activeWalkNpc||indoors)return;activeWalkNpc=npc;walkVisitedDestinations=new Set();npc.entity.enabled=true;const p=player.getPosition();npc.entity.setPosition(p.x-1.5,0,p.z-1.5);logAdventure('بدأت تمشية بموافقة متبادلة مع '+npc.name);say('🚶 '+npc.name+' وافقت! اتحركي، وهتتمشى معاكي في الحي.');renderWalkPanel();});
-   decline.addEventListener('click',()=>{status.textContent=npc.name+' اعتذرت عن التمشية. مفيش حركة مشتركة، وتقدري تختاري نشاطًا تانيًا.';consent.remove();say('💬 '+npc.name+' اعتذرت بلطف؛ مفيش تمشية من غير موافقة.');});
+   decline.addEventListener('click',()=>{status.textContent=npc.name+' اعتذرت عن التمشية. مفيش حركة مشتركة، وتقدري تختاري نشاطًا تانيًا.';invite.disabled=false;consent.remove();say('💬 '+npc.name+' اعتذرت بلطف؛ مفيش تمشية من غير موافقة.');});
    consent.append(question,accept,decline);card.appendChild(consent);invite.disabled=true;status.textContent='تم إرسال الدعوة. المشوار مش هيبدأ إلا بعد اختيار الموافقة.';
   });
   card.append(title,detail,invite);list.appendChild(card);
@@ -513,7 +513,7 @@ function endSharedWalk(reason='انتهت التمشية بناءً على طل�
 function renderNeighborhoodMap() {
  const list=document.getElementById('map-destinations');if(!list)return;list.replaceChildren();
  const destinations=[{name:'نافورة الساحة',emoji:'⛲',x:0,z:3},{name:'حديقة الأصدقاء',emoji:'🌳',x:-11,z:5.5},{name:'متجر Wonder',emoji:'🛍️',x:10,z:4.5},{name:'كافيه Wonder',emoji:'☕',x:15,z:-4},{name:'مكتب الحي',emoji:'💼',x:0,z:-20},{name:'Wonder Fitness',emoji:'🏋️',x:15,z:-19},{name:'البيت الأول',emoji:'🏡',x:-10,z:-6.2},{name:'البيت العائلي',emoji:'🏠',x:10,z:-6.2}];
- for(const d of destinations){const b=document.createElement('button');b.type='button';b.className='map-destination';b.textContent=d.emoji+' '+d.name;b.addEventListener('click',()=>{if(indoors){document.getElementById('map-feedback').textContent='اخرجي للحي الأول قبل التنقّل السريع.';return;}player.setPosition(d.x,0,d.z);cameraX=d.x;cameraZ=d.z+cameraOffsetZ;camera.setPosition(cameraX,cameraHeight,cameraZ);camera.lookAt(d.x,1,d.z);document.getElementById('map-panel').hidden=true;logAdventure('وصلت إلى '+d.name);if(activeWalkNpc){walkVisitedDestinations.add(d.name);if(walkVisitedDestinations.size>=3&&walkRewardDate!==localDateKey()){walkRewardDate=localDateKey();happiness=Math.min(100,happiness+8);coins+=5;updateStats();awardXP(12);logAdventure('مغامرة تمشية مكتملة مع '+activeWalkNpc.name+' — زرت 3 أماكن مختلفة');say('🌟 مغامرة مشتركة رائعة! زرتوا 3 أماكن مع '+activeWalkNpc.name+'؛ +8 سعادة و+5 عملات و+12 XP. المكافأة مرة واحدة يوميًا.');}else{say('🗺️ وصلتي إلى '+d.name+' مع '+activeWalkNpc.name+'! زارتم '+walkVisitedDestinations.size+' من 3 أماكن للمغامرة المشتركة.');}}else{say('🗺️ وصلتي إلى '+d.name+'!');}});list.appendChild(b);}
+ for(const d of destinations){const b=document.createElement('button');b.type='button';b.className='map-destination';b.textContent=d.emoji+' '+d.name;b.addEventListener('click',()=>{if(indoors){document.getElementById('map-feedback').textContent='اخرجي للحي الأول قبل التنقّل السريع.';return;}player.setPosition(d.x,0,d.z);cameraX=d.x;cameraZ=d.z+cameraOffsetZ;camera.setPosition(cameraX,cameraHeight,cameraZ);camera.lookAt(d.x,1,d.z);document.getElementById('map-panel').hidden=true;logAdventure('وصلت إلى '+d.name);if(activeWalkNpc){walkVisitedDestinations.add(d.name);if(walkVisitedDestinations.size>=3&&walkRewardDate!==localDateKey()){walkRewardDate=localDateKey();try{localStorage.setItem('wonderworld-shared-walk-reward-day',walkRewardDate);}catch{}happiness=Math.min(100,happiness+8);coins+=5;updateStats();awardXP(12);logAdventure('مغامرة تمشية مكتملة مع '+activeWalkNpc.name+' — زرت 3 أماكن مختلفة');say('🌟 مغامرة مشتركة رائعة! زرتوا 3 أماكن مع '+activeWalkNpc.name+'؛ +8 سعادة و+5 عملات و+12 XP. المكافأة مرة واحدة يوميًا.');}else{say('🗺️ وصلتي إلى '+d.name+' مع '+activeWalkNpc.name+'! زارتم '+walkVisitedDestinations.size+' من 3 أماكن للمغامرة المشتركة.');}}else{say('🗺️ وصلتي إلى '+d.name+'!');}});list.appendChild(b);}
 }
 
 function renderAchievementPanel() {
