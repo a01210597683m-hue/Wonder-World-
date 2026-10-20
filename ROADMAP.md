@@ -281,3 +281,12 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [x] Refresh achievement status as player progress changes; the panel is informational and does not grant paid or random rewards.
 - [ ] Test pet naming, switching between named pets, persistence, achievement unlocks, and small-screen panel layout on Android.
 - [ ] Names, achievements and progression remain local prototype data until server-authoritative save support is implemented.
+
+
+## 2026-10-20 — Neighborhood map and adventure journal
+- [x] Add an in-game destination panel with quick travel to the plaza fountain, park, shop, café, office, fitness center, and the two home entrances.
+- [x] Block fast travel while inside a home and update the player and camera together after destination selection.
+- [x] Add a local journal that stores the latest 30 dated activities and records destination visits and fountain memories.
+- [x] Persist journal entries in the existing local save and render them as text-only DOM nodes.
+- [ ] Test arrival positions, home exit behavior, journal persistence, and mobile layout on Android.
+- [ ] The map is a destination list, not a full navigable map; travel and journal remain local prototype features.
