@@ -51,3 +51,10 @@
 - [x] Added simple cafe/office architecture and a central plaza fountain to the neighborhood.
 - [x] Added mobile layout polish and cache-busting version 20261020-10.
 - [ ] Smoke-test all new actions and the deployed site on Android; the economy is local-only prototype logic, not server-secured multiplayer or real-money commerce.
+
+
+## 2026-10-20 — Playable puzzle activity
+- [x] Added a quick-puzzle panel with five short fixed-choice questions.
+- [x] Correct answers grant 5 prototype coins and 4 happiness, with feedback and a short anti-spam cooldown.
+- [x] Added responsive styling and cache-busting version 20261020-11.
+- [ ] Validate puzzle interaction and full page runtime in a real browser; rewards remain client-side prototype values.
