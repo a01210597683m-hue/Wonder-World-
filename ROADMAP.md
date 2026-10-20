@@ -41,3 +41,13 @@
 - Follow camera eases toward the player rather than snapping instantly.
 - Bumped the browser asset version to `20261020-9`.
 - Validation note: repository files were updated; the browser runtime and published GitHub Pages build still need an on-device smoke test. These are placeholder-avatar animations, not final reference-matched character art.
+
+
+## 2026-10-20 — More playable life systems
+- [x] Added a Wonder Cafe destination with a repeatable paid order: costs 5 prototype coins and restores happiness and energy.
+- [x] Added a community office destination and a quick-work action: earns 12 prototype coins, costs 15 energy, and has a 30-second cooldown.
+- [x] Added an energy stat saved locally with the other prototype progress, plus a rest action to restore energy.
+- [x] Added a once-per-local-day welcome reward of 5 prototype coins, saved on the current device.
+- [x] Added simple cafe/office architecture and a central plaza fountain to the neighborhood.
+- [x] Added mobile layout polish and cache-busting version 20261020-10.
+- [ ] Smoke-test all new actions and the deployed site on Android; the economy is local-only prototype logic, not server-secured multiplayer or real-money commerce.
