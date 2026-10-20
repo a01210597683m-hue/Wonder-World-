@@ -1784,3 +1784,7 @@ try {
 updateStats();
 status.textContent = 'WonderWorld prototype ready — تحرّكي واستكشفي الحي';
 updateStats();
+
+
+// Load the standalone Ludo/chess activities after the game HUD is created.
+import('./board-games.js?v=20261021-1').catch(error => console.error('WonderWorld board games failed to load:', error));
