@@ -260,3 +260,15 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [ ] Replace local-only ownership/inventory with secure server-authoritative Supabase persistence before multiplayer or real-money release.
 
 **Scope note:** optional supply purchases and rewards are prototype-only client-side state. The cosmetic collar is tracked in inventory but does not yet change the pet's appearance. Basic pet care remains free; real-money checkout remains disabled.
+
+
+## 2026-10-20 — World atmosphere, photo memories, and indoor pet bonding
+- [x] Add an automatic day/night and dawn/dusk cycle with changing sky tint and sunlight/ambient lighting.
+- [x] Add a player-controlled weather cycle (clear, cloudy, rain) with simple falling rain visuals in the outdoor neighborhood.
+- [x] Add a fountain photo-memory activity with a once-per-local-day happiness/XP reward and a saved memory counter. This records an in-game memory, not an actual screenshot or uploaded photo.
+- [x] Add pet bonding interactions near the living-room sofa and pet rest near the bedroom bed when a companion is active indoors.
+- [x] Persist the photo-memory count/date with the existing local save and expose the counter in the HUD.
+- [ ] Test day/night readability, rain performance, photo proximity/cooldown, pet furniture interactions, and save/reload on a real phone.
+- [ ] Weather, memories, and pet interaction rewards remain client-side prototype behavior; no server-authoritative multiplayer persistence has been added.
+
+**Scope note:** atmosphere uses lightweight prototype geometry and color changes. It is not a finished weather simulation, screenshot/photo capture feature, or final art pass.
