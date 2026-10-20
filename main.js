@@ -236,6 +236,8 @@ let puzzleCooldownUntil = 0;
 let currentPuzzle = null;
 const ownedItems = new Set(['default-outfit', 'default-hair']);
 const dailyQuests = { friend: false, park: false, shop: false, rewarded: false };
+const todayQuestKey = new Date().toISOString().slice(0, 10);
+let questDate = todayQuestKey;
 const equippedItems = { outfit: 'default-outfit', hair: 'default-hair' };
 let loadedProgress = null;
 function say(text) { message.textContent = text; status.textContent = text; }
@@ -273,7 +275,7 @@ const shopProducts = [
 const saveProgress = () => {
   try {
     localStorage.setItem('wonderworld-save-v1', JSON.stringify({
-      coins, happiness, energy, gardenFlowers, lastFlowerDay, ownedItems: [...ownedItems], dailyQuests,
+      coins, happiness, energy, gardenFlowers, lastFlowerDay, questDate, ownedItems: [...ownedItems], dailyQuests,
       relationships: Object.fromEntries(npcs.map(npc => [npc.name, npc.relation])),
       equippedItems
     }));
@@ -292,6 +294,12 @@ try {
       for (const key of Object.keys(dailyQuests)) {
         if (typeof loadedProgress.dailyQuests[key] === 'boolean') dailyQuests[key] = loadedProgress.dailyQuests[key];
       }
+    }
+    if (loadedProgress.questDate !== todayQuestKey) {
+      for (const key of Object.keys(dailyQuests)) dailyQuests[key] = false;
+      questDate = todayQuestKey;
+    } else {
+      questDate = loadedProgress.questDate;
     }
     if (loadedProgress.relationships && typeof loadedProgress.relationships === 'object') {
       for (const npc of npcs) {
