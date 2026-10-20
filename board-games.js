@@ -1,0 +1,67 @@
+// WonderWorld board games: Ludo vs CPU and chess move-practice.
+(() => {
+'use strict';
+const el=(tag,attrs={},text='')=>{const n=document.createElement(tag);Object.entries(attrs).forEach(([k,v])=>k==='className'?n.className=v:n.setAttribute(k,String(v)));if(text)n.textContent=text;return n;};
+const style=el('style');
+style.textContent=\`
+#board-games-launch{width:100%;margin:4px 0;border:0;border-radius:11px;padding:10px;background:#e8e2fb;color:#47326d;font:inherit;font-weight:800}
+#board-games-panel{position:fixed;z-index:10020;inset:3dvh 10px auto;max-width:560px;max-height:94dvh;overflow:auto;margin:auto;padding:14px;border-radius:18px;background:#fff;color:#243b53;box-shadow:0 12px 50px #10243c66;font-family:inherit}
+#board-games-panel[hidden]{display:none}.bg-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.bg-head button,.bg-actions button,.bg-mode{border:0;border-radius:10px;padding:9px 12px;background:#e7edf5;color:#263f58;font:inherit;font-weight:800}
+.bg-sub,.bg-note{font-size:12px;line-height:1.6;color:#52677c}.bg-modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.bg-mode{background:#e8e2fb;color:#47326d;min-height:48px}
+.bg-status{padding:10px;border-radius:10px;background:#f1f6fb;font-size:13px;line-height:1.5;margin:9px 0}.bg-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.bg-actions button{background:#26754d;color:white}.bg-actions button:disabled{opacity:.45}
+#ludo-board{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;max-width:390px;margin:12px auto}.ludo-cell{aspect-ratio:1;min-width:0;display:grid;place-items:center;border:1px solid #d6e1e9;border-radius:6px;background:#f8fafc;position:relative;padding:0}
+.ludo-cell.track{background:#edf3f8}.ludo-cell.safe{background:#fff1cb;border-color:#e4c56e}.ludo-cell.home{background:#eef1f5}.ludo-cell button{border:0;border-radius:50%;width:84%;height:84%;font-size:clamp(13px,4vw,22px);font-weight:900;padding:0;line-height:1;box-shadow:0 1px 4px #0002}.ludo-cell .selected{outline:3px solid #e5a500}
+.ludo-cell .red{background:#f5c2c2;color:#8d2020}.ludo-cell .blue{background:#c7e4ff;color:#164e87}.ludo-center{grid-column:3/6;grid-row:3/6;background:#e5f2e8;border:2px dashed #7caf8c;border-radius:10px;display:grid;place-items:center;text-align:center;font-size:12px;font-weight:800;padding:5px}
+#chess-board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));width:min(100%,420px);margin:12px auto;border:3px solid #40576c;border-radius:5px;overflow:hidden}.chess-square{aspect-ratio:1;display:grid;place-items:center;border:0;padding:0;font-size:clamp(22px,6.8vw,39px);line-height:1;color:#18232d}.chess-square.light{background:#f2e9d5}.chess-square.dark{background:#83a58b}.chess-square.chosen{box-shadow:inset 0 0 0 4px #f2b93b}.chess-square.target{box-shadow:inset 0 0 0 4px #4384db}
+@media(max-width:380px){#board-games-panel{inset:2dvh 5px auto;padding:10px}.ludo-cell{border-radius:4px}}
+\`;
+document.head.appendChild(style);
+function boot(){
+ const hud=document.getElementById('life-ui');if(!hud||document.getElementById('board-games-launch'))return false;
+ const launch=el('button',{id:'board-games-launch',type:'button'},'🎲♟️ ألعاب الطاولة: لودو وشطرنج');hud.appendChild(launch);
+ const panel=el('section',{id:'board-games-panel',role:'dialog','aria-modal':'true','aria-label':'ألعاب الطاولة'});panel.hidden=true;
+ panel.innerHTML='<div class="bg-head"><strong>🎲 ركن ألعاب الطاولة</strong><button id="bg-close" type="button" aria-label="إغلاق">✕</button></div><p class="bg-sub">اختاري لعبة وابدئي فورًا: لودو ضد الكمبيوتر أو الشطرنج للتدريب على تحريك القطع.</p><div class="bg-modes"><button class="bg-mode" id="bg-open-ludo" type="button">🎲 لودو ضد الكمبيوتر</button><button class="bg-mode" id="bg-open-chess" type="button">♟️ الشطرنج</button></div><section id="bg-ludo-section" hidden><h3>🎲 لودو السريعة</h3><div class="bg-status" id="ludo-status" role="status">دوركِ! ارمي النرد.</div><div class="bg-actions"><button id="ludo-roll" type="button">🎲 ارمي النرد</button><button id="ludo-reset" type="button">🔄 لعبة جديدة</button></div><div id="ludo-board" aria-label="لوحة لودو"></div><p class="bg-note">نسخة مبسطة: لكل لاعب قطعتان، تحتاج القطعة إلى 6 للخروج، ويمكن إرجاع قطعة الخصم عند الوقوف على خانتها. أول لاعب يوصل القطعتين للنهاية يفوز.</p></section><section id="bg-chess-section" hidden><h3>♟️ الشطرنج — تدريب الحركات</h3><div class="bg-status" id="chess-status" role="status">دور الأبيض. اختاري قطعة ثم خانة متاحة.</div><div class="bg-actions"><button id="chess-reset" type="button">🔄 إعادة اللوحة</button><button id="chess-flip" type="button">↕️ تدوير اللوحة</button></div><div id="chess-board" aria-label="لوحة الشطرنج"></div><p class="bg-note">وضع تدريب للحركات الأساسية وأخذ القطع بالتناوب. لا يتحقق بعد من كش الملك أو التبييت أو الأخذ بالتجاوز، وليس بديلًا عن محرك شطرنج كامل.</p></section></section>';
+ document.body.appendChild(panel);const close=()=>panel.hidden=true;launch.addEventListener('click',()=>panel.hidden=false);document.getElementById('bg-close').addEventListener('click',close);panel.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+ const ls=document.getElementById('bg-ludo-section'),cs=document.getElementById('bg-chess-section');
+ document.getElementById('bg-open-ludo').addEventListener('click',()=>{ls.hidden=false;cs.hidden=true;initLudo();});document.getElementById('bg-open-chess').addEventListener('click',()=>{cs.hidden=false;ls.hidden=true;initChess();});
+ const path=[];for(let c=0;c<7;c++)path.push([0,c]);for(let r=1;r<7;r++)path.push([r,6]);for(let c=5;c>=0;c--)path.push([6,c]);for(let r=5;r>=1;r--)path.push([r,0]);
+ let ludo;const lstat=document.getElementById('ludo-status');
+ function initLudo(){ludo={turn:'red',dice:0,rolled:false,p:{red:[0,0],blue:[0,0]},over:false};renderLudo('دوركِ! ارمي النرد. تحتاج القطعة إلى 6 للخروج من البيت.');}
+ function renderLudo(msg){
+  const board=document.getElementById('ludo-board');board.replaceChildren();const occupied=new Map();
+  for(const color of ['red','blue'])ludo.p[color].forEach((progress,index)=>{if(progress>0&&progress<24){const idx=(progress-1+(color==='red'?0:12))%24,key=path[idx].join(',');if(!occupied.has(key))occupied.set(key,[]);occupied.get(key).push({color,index,progress});}});
+  for(let r=0;r<7;r++)for(let c=0;c<7;c++){const cell=el('div',{className:'ludo-cell'}),idx=path.findIndex(p=>p[0]===r&&p[1]===c);
+   if(idx>=0){cell.classList.add('track');if([0,6,12,18].includes(idx))cell.classList.add('safe');const pieces=occupied.get(r+','+c)||[];
+    pieces.forEach(piece=>{const b=el('button',{type:'button',className:piece.color+(ludo.turn===piece.color&&ludo.rolled?' selected':'')},piece.color==='red'?'🔴':'🔵');b.setAttribute('aria-label',(piece.color==='red'?'حمراء':'زرقاء')+' '+(piece.index+1));b.addEventListener('click',()=>moveLudo(piece.color,piece.index));cell.appendChild(b);});
+    if(!pieces.length)cell.textContent=[0,6,12,18].includes(idx)?'★':'·';
+   }else if(r>=2&&r<=4&&c>=2&&c<=4){if(r===2&&c===2){cell.className='ludo-center';cell.textContent='🏁 النهاية';}else cell.classList.add('home');}else cell.classList.add('home');board.appendChild(cell);}
+  document.getElementById('ludo-roll').disabled=ludo.over||ludo.rolled||ludo.turn!=='red';lstat.textContent=msg;
+ }
+ function moveLudo(color,i){
+  if(ludo.over||!ludo.rolled||ludo.turn!==color)return;const old=ludo.p[color][i],roll=ludo.dice;
+  if((old===0&&roll!==6)||(old>0&&old+roll>24)){renderLudo(old===0?'تحتاجين إلى 6 لإخراج القطعة. اختاري الأخرى أو مرّري الدور.':'تحتاجين رقمًا يصل بكِ للنهاية بالضبط. اختاري القطعة الأخرى.');return;}
+  const next=old===0?1:old+roll;ludo.p[color][i]=next;let note='';
+  if(next<24){const idx=(next-1+(color==='red'?0:12))%24;if(![0,6,12,18].includes(idx)){const opp=color==='red'?'blue':'red';ludo.p[opp]=ludo.p[opp].map(p=>{if(p>0&&p<24&&(p-1+(opp==='red'?0:12))%24===idx){note=' أعدتِ قطعة الخصم إلى البيت!';return 0;}return p;});}}
+  if(ludo.p[color].every(p=>p===24)){ludo.over=true;ludo.rolled=false;renderLudo((color==='red'?'فزتِ! 🎉':'الكمبيوتر فاز هذه المرة 🤖')+' ابدئي لعبة جديدة للعب مجددًا.');return;}
+  if(roll!==6)ludo.turn=color==='red'?'blue':'red';ludo.rolled=false;renderLudo((color==='red'?'حركتِ القطعة.':'الكمبيوتر حرّك قطعة.')+note+(roll===6?' رمية إضافية!':'')+' '+(ludo.turn==='red'?'دوركِ.':'دور الكمبيوتر.'));
+  if(ludo.turn==='blue')window.setTimeout(cpuTurn,600);
+ }
+ function cpuTurn(){if(ludo.over||ludo.turn!=='blue')return;ludo.dice=1+Math.floor(Math.random()*6);ludo.rolled=true;const legal=ludo.p.blue.map((p,i)=>({p,i})).filter(x=>(x.p>0&&x.p+ludo.dice<=24)||(x.p===0&&ludo.dice===6));if(!legal.length){const n=ludo.dice;ludo.rolled=false;ludo.turn='red';renderLudo('الكمبيوتر رمى '+n+' ولا توجد حركة. دوركِ!');return;}const pick=legal.sort((a,b)=>b.p-a.p)[0];moveLudo('blue',pick.i);}
+ document.getElementById('ludo-roll').addEventListener('click',()=>{if(ludo.over||ludo.rolled||ludo.turn!=='red')return;ludo.dice=1+Math.floor(Math.random()*6);ludo.rolled=true;const ok=ludo.p.red.some(p=>(p>0&&p+ludo.dice<=24)||(p===0&&ludo.dice===6));if(!ok){const n=ludo.dice;ludo.rolled=false;ludo.turn='blue';renderLudo('طلع '+n+' ومفيش حركة متاحة؛ الكمبيوتر هيلعب.');window.setTimeout(cpuTurn,600);return;}renderLudo('طلع '+ludo.dice+'! اضغطي على قطعة حمراء لتحريكها.');});
+ document.getElementById('ludo-reset').addEventListener('click',initLudo);
+ const glyph={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};let chess;const cstat=document.getElementById('chess-status');
+ function initChess(){chess={b:Array.from({length:8},()=>Array(8).fill('')),turn:'w',sel:null,targets:[],flip:false,over:false};const back='rnbqkbnr';for(let c=0;c<8;c++){chess.b[0][c]=back[c];chess.b[1][c]='p';chess.b[6][c]='P';chess.b[7][c]=back[c].toUpperCase();}renderChess('دور الأبيض. اختاري قطعة ثم خانة متاحة.');}
+ const colorOf=p=>p===p.toUpperCase()?'w':'b';
+ function moves(r,c){const p=chess.b[r][c],col=colorOf(p),type=p.toUpperCase(),out=[];if(!p||col!==chess.turn)return out;
+  const add=(rr,cc)=>{if(rr<0||rr>7||cc<0||cc>7)return false;const t=chess.b[rr][cc];if(!t){out.push([rr,cc]);return true;}if(colorOf(t)!==col)out.push([rr,cc]);return false;};
+  if(type==='P'){const d=col==='w'?-1:1,start=col==='w'?6:1;if(r+d>=0&&r+d<8&&!chess.b[r+d][c]){out.push([r+d,c]);if(r===start&&!chess.b[r+2*d][c])out.push([r+2*d,c]);}for(const dc of [-1,1])if(r+d>=0&&r+d<8&&c+dc>=0&&c+dc<8&&chess.b[r+d][c+dc]&&colorOf(chess.b[r+d][c+dc])!==col)out.push([r+d,c+dc]);}
+  else if(type==='N'){for(const [dr,dc] of [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]])add(r+dr,c+dc);}
+  else if(type==='K'){for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)if(dr||dc)add(r+dr,c+dc);}
+  else{const ds=[];if(type==='R'||type==='Q')ds.push([1,0],[-1,0],[0,1],[0,-1]);if(type==='B'||type==='Q')ds.push([1,1],[1,-1],[-1,1],[-1,-1]);for(const [dr,dc] of ds){let rr=r+dr,cc=c+dc;while(rr>=0&&rr<8&&cc>=0&&cc<8){if(!add(rr,cc))break;rr+=dr;cc+=dc;}}}return out;}
+ function renderChess(msg){const root=document.getElementById('chess-board');root.replaceChildren();for(let rr=0;rr<8;rr++)for(let cc=0;cc<8;cc++){const r=chess.flip?7-rr:rr,c=chess.flip?7-cc:cc,p=chess.b[r][c],sq=el('button',{type:'button',className:'chess-square '+((r+c)%2?'dark':'light'),'aria-label':'خانة '+String.fromCharCode(97+c)+(8-r)},glyph[p]||'');if(chess.sel&&chess.sel[0]===r&&chess.sel[1]===c)sq.classList.add('chosen');if(chess.targets.some(t=>t[0]===r&&t[1]===c))sq.classList.add('target');sq.addEventListener('click',()=>clickSquare(r,c));root.appendChild(sq);}cstat.textContent=msg;}
+ function clickSquare(r,c){if(chess.over)return;const p=chess.b[r][c];if(chess.sel&&chess.targets.some(t=>t[0]===r&&t[1]===c)){const [sr,sc]=chess.sel,moving=chess.b[sr][sc],captured=chess.b[r][c];chess.b[r][c]=moving;chess.b[sr][sc]='';if(moving.toUpperCase()==='P'&&(r===0||r===7))chess.b[r][c]=colorOf(moving)==='w'?'Q':'q';chess.sel=null;chess.targets=[];if(captured&&captured.toUpperCase()==='K'){chess.over=true;renderChess((colorOf(captured)==='b'?'الأبيض':'الأسود')+' أخذ الملك. انتهت جولة التدريب!');return;}chess.turn=chess.turn==='w'?'b':'w';renderChess('تم التحريك. دور '+(chess.turn==='w'?'الأبيض':'الأسود')+'.');return;}if(p&&colorOf(p)===chess.turn){chess.sel=[r,c];chess.targets=moves(r,c);renderChess('اختاري خانة مميزة لنقل القطعة.');}else{chess.sel=null;chess.targets=[];renderChess('الحركة غير متاحة. اختاري قطعة من دورك الحالي.');}}
+ document.getElementById('chess-reset').addEventListener('click',initChess);document.getElementById('chess-flip').addEventListener('click',()=>{chess.flip=!chess.flip;renderChess('تم تدوير اللوحة. دور '+(chess.turn==='w'?'الأبيض':'الأسود')+'.');});
+ initLudo();initChess();return true;
+}
+if(!boot()){const observer=new MutationObserver(()=>{if(boot())observer.disconnect();});observer.observe(document.documentElement,{childList:true,subtree:true});}
+})();
