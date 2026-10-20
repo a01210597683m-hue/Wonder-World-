@@ -23,6 +23,7 @@ jobs:
       - name: Check JavaScript syntax
         run: |
           node --input-type=module --check < main.js
+          node --input-type=module --check < auth.js
           node --check careers.js
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
