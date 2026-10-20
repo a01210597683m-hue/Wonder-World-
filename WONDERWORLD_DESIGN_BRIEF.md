@@ -67,3 +67,41 @@ Plan multiple sustainable revenue streams for the game owner:
 
 ## One-sentence promise
 **WonderWorld is one beautiful, interactive world where people can live, explore, build, travel, compete, play, tell stories, and personalize their experience—with safe AI conversation, no player-to-player chat, and a sustainable monetization system.**
+
+
+## Expanded additions — 2026-10-20 (additive; do not replace earlier requirements)
+
+These requirements extend the existing WonderWorld vision. They do not cancel, narrow, or replace any previously recorded requirement.
+
+### Cross-country travel and transport services
+- Let characters travel between countries and destinations, not only move around one neighborhood.
+- Travel options should include player-owned vehicles and vehicles obtained free, with virtual currency, or through real-money purchase where permitted.
+- Include on-demand transport inspired by ride-hailing: request an available car, aircraft, or train service, choose a destination, and travel there with clear pricing, timing/availability, and smooth transitions.
+- Include trains alongside cars and aircraft. Each transport type should have appropriate controls, routes, interiors/boarding interactions where feasible, and travel destinations.
+- Transport ownership, rentals/ride requests, fares, routes, and paid purchases must be separate systems with transparent prices and server-side validation for valuable transactions.
+
+### Player-owned businesses and careers
+- Support two distinct career paths: working for an employer at existing venues for virtual wages, and owning/running a business.
+- Players who want their own business should be able to acquire an empty plot or suitable commercial property using eligible free options, virtual currency, or real-money purchase where permitted.
+- Owners can arrange and decorate the space, choose the business type and layout, stock/select products or services, set up customer interactions and orders, and operate the venue as an interactive gameplay loop.
+- Businesses should be able to earn in-game revenue through simulated customers, services, and activities. Keep business earnings distinct from real-money monetization; any real-money sale, payout, or cash-out would require a separately designed compliant system and must not be implied by virtual earnings.
+- Continue supporting conventional jobs, shifts, and virtual salaries for players who prefer working for another character or organization.
+
+### Social life without player-to-player chat
+- Characters who become friends through context-sensitive, preset/generated-in-context response choices can organize family gatherings, house parties, dinner parties, outings, and group activities at homes or public venues.
+- Use NPC schedules, invitation/attendance choices, emotes, animations, group activities, and optional sound-enabled emoji reactions to make gatherings feel alive.
+- Never add direct player-to-player text chat, voice chat, private messages, or a side channel that bypasses the no-chat rule. Social situations use several curated response choices per context, with outcomes influenced by choices where appropriate.
+- The only free-form conversation remains the separate AI chat area, with respectful advice, joking, and conversation under strong age-appropriate boundaries and child-safety protections.
+
+### Enjoyment, immersion, and healthy engagement
+- The overall goal is a large, coherent 3D world that feels lively, surprising, varied, and worth returning to—not a repetitive list of buttons or empty buildings.
+- Make the experience engaging through meaningful choice, discovery, varied playable activities, expressive animation, responsive controls, progression, social events, and player-created businesses.
+- Aim for sustained enjoyment without manipulative or exploitative engagement loops, especially for children. Include sensible breaks, transparent purchases, age-appropriate limits, and fair free-to-play options.
+
+### Monetization expansion and safeguards
+- Keep all earlier monetization plans and add the transport and business systems to the catalog: free, virtual-currency, and eligible real-money tiers for vehicles, rides, travel-related content, plots, commercial spaces, upgrades, cosmetics, homes, decor, and activity/story packs.
+- Preserve multiple potential owner revenue streams: eligible direct purchases, virtual-currency sales, optional subscriptions, optional rewarded ads/ads where permitted, and paid content/expansions.
+- Do not promise or guarantee revenue. Use platform-approved payment systems, clear pricing, parental controls, refund/compliance handling, anti-fraud checks, and server-side verification. Never trust client-side balances or expose secret keys.
+
+### Delivery rule
+- These are product requirements, not claims of implementation. Build and test each system in stages; the current browser prototype is not yet a finished 3D/4K world, and documentation updates do not mean that travel, business ownership, group gatherings, production-quality characters, or real-money monetization are already playable.
