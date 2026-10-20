@@ -184,7 +184,7 @@ app.root.addChild(camera);
 const ui = document.createElement('section');
 ui.id = 'life-ui';
 ui.innerHTML = `
-  <div class="life-stats"><span>💛 السعادة: <b id="happiness">60</b></span><span>⚡ الطاقة: <b id="energy">80</b></span><span>🪙 العملات: <b id="coins">20</b></span></div>
+  <div class="life-stats"><span>💛 السعادة: <b id="happiness">60</b></span><span>⚡ الطاقة: <b id="energy">80</b></span><span>🪙 العملات: <b id="coins">20</b></span><span>🌷 الزهور: <b id="flowers">0</b></span></div>
   <div class="avatar-tools"><button id="change-outfit" type="button">👕 تغيير الملابس</button><button id="change-hair" type="button">💇 تغيير لون الشعر</button></div>
   <button id="open-shop" type="button">🛍️ افتحي متجر Wonder</button>
   <div class="avatar-tools"><button id="open-puzzle" type="button">🧩 ألغاز سريعة</button></div>
@@ -251,6 +251,7 @@ function updateStats() {
   document.getElementById('happiness').textContent = happiness;
   document.getElementById('energy').textContent = energy;
   document.getElementById('coins').textContent = coins;
+  document.getElementById('flowers').textContent = gardenFlowers;
   saveProgress();
 }
 function updateQuestUI() {
