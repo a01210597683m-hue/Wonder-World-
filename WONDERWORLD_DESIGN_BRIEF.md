@@ -128,3 +128,11 @@ This section is additive. It reaffirms requirements already present elsewhere in
 - The AI chat is the only free-form chat area. No free-text or voice chat, private messages, or side-channel communication between players. Social play outside AI chat uses curated, context-sensitive response choices and suitable emotes.
 
 **Implementation status:** these are design requirements. The existing quick-puzzle panel is only an early prototype; the PUBG-inspired mode, full puzzle catalogue, polished group games, and production-safe AI companion still require implementation, safety testing, and gameplay testing.
+
+
+## Non-negotiable continuity rule — preserve the complete vision
+
+- The entire WonderWorld vision across all user conversations and all dated additions is cumulative and additive. No earlier feature, detail, constraint, reference image, safety boundary, art direction, game mode, economy requirement, or platform requirement may be silently removed, forgotten, replaced, or treated as superseded by a newer addition.
+- New requests must be appended or reconciled as additional requirements. If two requirements genuinely conflict, document the conflict and ask the user before changing either; never silently choose one and discard the other.
+- Keep this brief as the canonical product-vision record and keep the roadmap aligned with it. Supabase's master vision record must preserve prior JSON fields while adding new fields. GitHub Pages is the deployed playable application, not a substitute for implementation: each requirement must be built and tested in the app before being called playable or complete.
+- Any summary must explicitly preserve the full breadth of the vision; a short summary is not permission to drop details.
