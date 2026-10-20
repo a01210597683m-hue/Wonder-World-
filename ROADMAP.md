@@ -290,3 +290,13 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [x] Persist journal entries in the existing local save and render them as text-only DOM nodes.
 - [ ] Test arrival positions, home exit behavior, journal persistence, and mobile layout on Android.
 - [ ] The map is a destination list, not a full navigable map; travel and journal remain local prototype features.
+
+
+## 2026-10-20 — Playable memory-match mini-game
+
+- [x] Add a playable 4×4 memory-card board with eight symbol pairs, tap-to-flip controls, matching logic, move counter, and restart.
+- [x] Prevent additional card input while a mismatched pair is briefly revealed, and disable already-matched cards.
+- [x] Award a small prototype reward after completing all pairs and add the result to the adventure journal.
+- [x] Bump the browser asset version to `20261020-35`.
+- [ ] Test card matching, mismatches, rapid taps, restart, reward delivery, and narrow mobile layouts in a real browser/Android.
+- [ ] This is a client-side prototype; its coins and XP are not secure or server-authoritative. Do not use it as the basis for competitive multiplayer or real-money rewards.
