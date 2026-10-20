@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Check JavaScript syntax
+        run: node --input-type=module --check < main.js
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
       - name: Upload static site
