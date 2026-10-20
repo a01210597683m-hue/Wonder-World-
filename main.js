@@ -1,83 +1,211 @@
 import {
-  Application,
-  Color,
-  Entity,
-  FILLMODE_FILL_WINDOW,
-  RESOLUTION_AUTO,
-  StandardMaterial,
-  Vec3
+  Application, Color, Entity, FILLMODE_FILL_WINDOW, RESOLUTION_AUTO,
+  StandardMaterial, Vec3
 } from 'playcanvas';
 
 const canvas = document.getElementById('application');
 const status = document.getElementById('status');
 const app = new Application(canvas, {
-  mouse: undefined,
-  touch: undefined,
-  keyboard: undefined,
   graphicsDeviceOptions: { antialias: true, alpha: false }
 });
 app.setCanvasFillMode(FILLMODE_FILL_WINDOW);
 app.setCanvasResolution(RESOLUTION_AUTO);
 app.start();
+app.scene.ambientLight = new Color(0.72, 0.75, 0.82);
 
-app.scene.ambientLight = new Color(0.65, 0.69, 0.78);
+function mat(color) {
+  const m = new StandardMaterial();
+  m.diffuse = color;
+  m.update();
+  return m;
+}
+const mats = {
+  grass: mat(new Color(0.32, 0.62, 0.35)),
+  road: mat(new Color(0.27, 0.31, 0.36)),
+  path: mat(new Color(0.82, 0.78, 0.66)),
+  wall: mat(new Color(0.94, 0.83, 0.66)),
+  wallPink: mat(new Color(0.89, 0.63, 0.62)),
+  roof: mat(new Color(0.55, 0.24, 0.21)),
+  white: mat(new Color(0.97, 0.96, 0.88)),
+  window: mat(new Color(0.28, 0.72, 0.86)),
+  door: mat(new Color(0.34, 0.20, 0.13)),
+  leaf: mat(new Color(0.18, 0.47, 0.25)),
+  trunk: mat(new Color(0.38, 0.23, 0.13)),
+  flower: mat(new Color(0.96, 0.42, 0.64)),
+  bench: mat(new Color(0.48, 0.29, 0.15)),
+  player: mat(new Color(0.53, 0.31, 0.82)),
+  skin: mat(new Color(0.88, 0.63, 0.46)),
+  npcBlue: mat(new Color(0.18, 0.53, 0.82)),
+  npcPink: mat(new Color(0.89, 0.34, 0.56)),
+  npcGold: mat(new Color(0.96, 0.68, 0.19))
+};
 
-const sky = new Entity('Sky and lighting');
-sky.addComponent('light', { type: 'directional', color: new Color(1, 0.94, 0.82), intensity: 1.6, castShadows: true });
-sky.setEulerAngles(45, 25, 0);
-app.root.addChild(sky);
-
-const groundMaterial = new StandardMaterial();
-groundMaterial.diffuse = new Color(0.25, 0.58, 0.32);
-groundMaterial.update();
-
-const ground = new Entity('Green test island');
-ground.addComponent('render', { type: 'box' });
-ground.setLocalScale(40, 0.5, 40);
-ground.setPosition(0, -0.3, 0);
-ground.render.material = groundMaterial;
-app.root.addChild(ground);
-
-function makeBox(name, scale, position, color) {
-  const entity = new Entity(name);
-  entity.addComponent('render', { type: 'box' });
-  entity.setLocalScale(scale.x, scale.y, scale.z);
-  entity.setPosition(position.x, position.y, position.z);
-  const material = new StandardMaterial();
-  material.diffuse = color;
-  material.update();
-  entity.render.material = material;
-  app.root.addChild(entity);
-  return entity;
+function box(name, sx, sy, sz, x, y, z, material, parent = app.root) {
+  const e = new Entity(name);
+  e.addComponent('render', { type: 'box' });
+  e.setLocalScale(sx, sy, sz);
+  e.setLocalPosition(x, y, z);
+  e.render.material = material;
+  parent.addChild(e);
+  return e;
+}
+function sphere(name, scale, x, y, z, material, parent = app.root) {
+  const e = new Entity(name);
+  e.addComponent('render', { type: 'sphere' });
+  e.setLocalScale(scale, scale, scale);
+  e.setLocalPosition(x, y, z);
+  e.render.material = material;
+  parent.addChild(e);
+  return e;
+}
+function cylinder(name, sx, sy, sz, x, y, z, material) {
+  const e = new Entity(name);
+  e.addComponent('render', { type: 'cylinder' });
+  e.setLocalScale(sx, sy, sz);
+  e.setPosition(x, y, z);
+  e.render.material = material;
+  app.root.addChild(e);
+  return e;
 }
 
-// A colorful placeholder character until custom 3D models are added.
-const player = makeBox('WonderWorld Player', new Vec3(0.8, 1.7, 0.7), new Vec3(0, 0.9, 0), new Color(0.94, 0.38, 0.28));
-const head = makeBox('Head', new Vec3(0.65, 0.65, 0.65), new Vec3(0, 2.05, 0), new Color(1, 0.76, 0.58));
-app.root.removeChild(head);
-player.addChild(head);
-head.setLocalPosition(0, 1.15, 0);
-makeBox('Welcome sign', new Vec3(3.5, 1.1, 0.25), new Vec3(0, 1.1, -6), new Color(0.98, 0.76, 0.25));
+// Lighting and a small neighborhood rather than an empty test island.
+const sun = new Entity('Sun');
+sun.addComponent('light', { type: 'directional', color: new Color(1, 0.94, 0.82), intensity: 1.55, castShadows: true });
+sun.setEulerAngles(45, 25, 0);
+app.root.addChild(sun);
+box('Town green', 48, 0.4, 48, 0, -0.25, 0, mats.grass);
+box('Main street', 5.5, 0.06, 42, 0, 0.0, 0, mats.road);
+box('Cross street', 42, 0.06, 5.5, 0, 0.01, 0, mats.road);
+box('North sidewalk', 7, 0.08, 42, -6.2, 0.03, 0, mats.path);
+box('South sidewalk', 7, 0.08, 42, 6.2, 0.03, 0, mats.path);
+box('West sidewalk', 42, 0.08, 7, 0, 0.03, -6.2, mats.path);
+box('East sidewalk', 42, 0.08, 7, 0, 0.03, 6.2, mats.path);
+
+// Houses with doors, windows, roofs and little gardens.
+function house(name, x, z, wallMaterial, width = 5) {
+  box(name + ' walls', width, 3.1, 4.2, x, 1.55, z, wallMaterial);
+  box(name + ' roof', width + 0.55, 0.38, 4.7, x, 3.28, z, mats.roof);
+  box(name + ' door', 0.95, 1.9, 0.16, x, 0.98, z - 2.17, mats.door);
+  box(name + ' window left', 0.95, 0.85, 0.13, x - width * 0.29, 1.95, z - 2.18, mats.window);
+  box(name + ' window right', 0.95, 0.85, 0.13, x + width * 0.29, 1.95, z - 2.18, mats.window);
+  box(name + ' step', 1.5, 0.18, 0.65, x, 0.1, z - 2.45, mats.path);
+  for (let i = 0; i < 3; i++) {
+    sphere(name + ' garden bush ' + i, 0.65, x - width / 2 + i * 0.65, 0.42, z - 2.9, mats.leaf);
+  }
+}
+house('Home', -10, -10, mats.wall, 5);
+house('Family home', 10, -10, mats.wallPink, 5);
+
+// Shop, sign and colorful awning.
+box('Wonder Shop building', 6, 3.5, 4.5, 10, 1.75, 10, mats.white);
+box('Shop roof', 6.5, 0.35, 5, 10, 3.7, 10, mats.npcBlue);
+box('Shop door', 1.1, 2, 0.16, 10, 1, 7.7, mats.door);
+box('Shop window', 2.1, 1.35, 0.12, 8.1, 1.85, 7.68, mats.window);
+box('Shop window 2', 2.1, 1.35, 0.12, 11.9, 1.85, 7.68, mats.window);
+box('Shop sign', 4.2, 0.75, 0.18, 10, 3.05, 7.55, mats.npcPink);
+
+// Park, trees, flowers and benches.
+box('Park lawn', 12, 0.12, 12, -11, 0.05, 10, mats.leaf);
+for (const [x,z] of [[-15,7],[-7,7],[-15,14],[-7,14],[-11,4]]) {
+  cylinder('Tree trunk', 0.45, 1.8, 0.45, x, 0.9, z, mats.trunk);
+  sphere('Tree crown', 2.2, x, 2.5, z, mats.leaf);
+}
+for (const [x,z] of [[-13,9],[-9,9],[-13,12],[-9,12]]) {
+  sphere('Park flower', 0.38, x, 0.3, z, mats.flower);
+}
+box('Park bench seat', 2.2, 0.2, 0.65, -11, 0.7, 10, mats.bench);
+box('Park bench back', 2.2, 0.8, 0.18, -11, 1.05, 10.28, mats.bench);
+
+// The current avatars are temporary geometric placeholders, not final reference-matched art.
+function makePerson(name, x, z, shirtMaterial, isPlayer = false) {
+  const person = new Entity(name);
+  person.setPosition(x, 0, z);
+  app.root.addChild(person);
+  box(name + ' body', 0.82, 1.35, 0.58, 0, 0.95, 0, shirtMaterial, person);
+  sphere(name + ' head', 0.78, 0, 1.95, 0, mats.skin, person);
+  sphere(name + ' hair', 0.8, 0, 2.28, -0.04, isPlayer ? mats.player : mats.trunk, person);
+  box(name + ' left arm', 0.22, 0.95, 0.24, -0.54, 1.0, 0, shirtMaterial, person);
+  box(name + ' right arm', 0.22, 0.95, 0.24, 0.54, 1.0, 0, shirtMaterial, person);
+  return person;
+}
+const player = makePerson('Player', 0, 1.5, mats.player, true);
+const npcs = [
+  { name: 'ليلى', role: 'جارة', entity: makePerson('Layla', -3, 3, mats.npcPink), relation: 0, x: -3, z: 3 },
+  { name: 'آدم', role: 'صديق جديد', entity: makePerson('Adam', 3, -3, mats.npcBlue), relation: 0, x: 3, z: -3 },
+  { name: 'نور', role: 'من سكان الحي', entity: makePerson('Nour', -9, 2, mats.npcGold), relation: 0, x: -9, z: 2 }
+];
 
 const camera = new Entity('Follow Camera');
-camera.addComponent('camera', { clearColor: new Color(0.52, 0.78, 0.96), fov: 60, farClip: 200 });
-camera.setPosition(0, 6, 10);
+camera.addComponent('camera', { clearColor: new Color(0.53, 0.79, 0.96), fov: 60, farClip: 200 });
+camera.setPosition(0, 7, 11);
 camera.lookAt(0, 1, 0);
 app.root.addChild(camera);
 
+const ui = document.createElement('section');
+ui.id = 'life-ui';
+ui.innerHTML = `
+  <div class="life-stats"><span>💛 السعادة: <b id="happiness">60</b></span><span>🪙 العملات: <b id="coins">20</b></span></div>
+  <button id="interact" type="button">تفاعل / استكشاف</button>
+  <div id="life-message" role="status">أهلًا بكِ في WonderWorld! تحرّكي واستكشفي الحي.</div>
+  <div id="life-goal">مهمتك: تعرّفي على شخص، ثم زوري المتجر والحديقة.</div>
+`;
+document.getElementById('game').appendChild(ui);
+const interactButton = document.getElementById('interact');
+const message = document.getElementById('life-message');
+let happiness = 60;
+let coins = 20;
+function say(text) { message.textContent = text; status.textContent = text; }
+function updateStats() {
+  document.getElementById('happiness').textContent = happiness;
+  document.getElementById('coins').textContent = coins;
+}
+const places = [
+  { name: 'بيتك', x: -10, z: -7.4, radius: 3.2, action: () => say('وصلتِ إلى بيتك! النموذج الحالي يحدد موقع المنزل؛ تصميم داخلي قابل للدخول مرحلة تطوير لاحقة.') },
+  { name: 'بيت العائلة', x: 10, z: -7.4, radius: 3.2, action: () => say('هذا بيت العائلة. تقدري تستكشفي الحي، وسنضيف دخول البيوت وأثاثها في مرحلة تالية.') },
+  { name: 'متجر Wonder', x: 10, z: 7.1, radius: 3.5, action: () => {
+    if (coins >= 5) { coins -= 5; happiness = Math.min(100, happiness + 8); updateStats(); say('اشتريتِ هدية صغيرة من متجر Wonder! السعادة +8، العملات -5.'); }
+    else say('معاكي عملات قليلة. استكشفي الحي أولًا.');
+  }},
+  { name: 'حديقة الأصدقاء', x: -11, z: 6.5, radius: 4.2, action: () => {
+    happiness = Math.min(100, happiness + 12); updateStats(); say('قضيتي وقتًا لطيفًا في الحديقة! السعادة +12 🌷');
+  }}
+];
+function nearestTarget() {
+  const p = player.getPosition();
+  let best = null;
+  let bestDistance = Infinity;
+  for (const place of places) {
+    const d = Math.hypot(p.x - place.x, p.z - place.z);
+    if (d < place.radius && d < bestDistance) { best = { ...place, distance: d }; bestDistance = d; }
+  }
+  for (const npc of npcs) {
+    const d = Math.hypot(p.x - npc.x, p.z - npc.z);
+    if (d < 2.7 && d < bestDistance) { best = { name: npc.name, distance: d, action: () => {
+      npc.relation += 1;
+      happiness = Math.min(100, happiness + 5);
+      updateStats();
+      say(`اتكلمتِ مع ${npc.name} وبقيت علاقتكم أقوى! مستوى العلاقة: ${npc.relation} 💬`);
+    }}; bestDistance = d; }
+  }
+  return best;
+}
+interactButton.addEventListener('click', () => {
+  const target = nearestTarget();
+  if (target) target.action();
+  else say('اقتربي من شخصية أو البيت أو المتجر أو الحديقة، ثم اضغطي «تفاعل / استكشاف».');
+});
+
 const pressed = new Set();
 const keyMap = {
-  ArrowUp: 'up', KeyW: 'up',
-  ArrowDown: 'down', KeyS: 'down',
-  ArrowLeft: 'left', KeyA: 'left',
-  ArrowRight: 'right', KeyD: 'right'
+  ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down',
+  ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right'
 };
 window.addEventListener('keydown', e => {
   if (keyMap[e.code]) { pressed.add(keyMap[e.code]); e.preventDefault(); }
+  if (e.code === 'Space' || e.code === 'Enter') { interactButton.click(); e.preventDefault(); }
 });
 window.addEventListener('keyup', e => { if (keyMap[e.code]) pressed.delete(keyMap[e.code]); });
 window.addEventListener('blur', () => pressed.clear());
-
 document.querySelectorAll('[data-dir]').forEach(button => {
   const dir = button.dataset.dir;
   const release = e => { pressed.delete(dir); if (e) e.preventDefault(); };
@@ -91,7 +219,7 @@ document.querySelectorAll('[data-dir]').forEach(button => {
   button.addEventListener('lostpointercapture', release);
 });
 
-const moveSpeed = 5;
+const moveSpeed = 4.2;
 app.on('update', dt => {
   let x = (pressed.has('right') ? 1 : 0) - (pressed.has('left') ? 1 : 0);
   let z = (pressed.has('down') ? 1 : 0) - (pressed.has('up') ? 1 : 0);
@@ -101,11 +229,11 @@ app.on('update', dt => {
     player.translate(x * moveSpeed * dt, 0, z * moveSpeed * dt);
   }
   const p = player.getPosition();
-  p.x = Math.max(-17, Math.min(17, p.x));
-  p.z = Math.max(-17, Math.min(17, p.z));
+  p.x = Math.max(-21, Math.min(21, p.x));
+  p.z = Math.max(-21, Math.min(21, p.z));
   player.setPosition(p);
-  camera.setPosition(p.x, 6, p.z + 10);
+  camera.setPosition(p.x, 7, p.z + 11);
   camera.lookAt(p.x, 1, p.z);
 });
 
-status.textContent = '3D world ready — use the arrows to move';
+status.textContent = 'WonderWorld prototype ready — تحرّكي واستكشفي الحي';
