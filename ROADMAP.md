@@ -311,3 +311,14 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [x] Bump the browser asset version to `20261020-36`.
 - [ ] Test the wardrobe purchase/equip flow, memory-game best score and daily reward guard on mobile.
 - [ ] Local storage checks are a convenience only; players can modify browser data. Competitive rewards still require server-side validation and authenticated persistence.
+
+
+## 2026-10-20 — Consent-first shared walks and social outing
+
+- [x] Add a shared-walk panel to invite a neighborhood NPC, with explicit accept/decline choices before companion movement begins.
+- [x] Move the accepted NPC alongside the player while exploring; let the player end the walk at any time.
+- [x] Track distinct destinations visited together and award a small once-per-local-day outing reward after three places; record activity in the adventure journal.
+- [x] Block starting a shared walk indoors and document that real-player consent needs authenticated identities and server-authoritative invite/accept/decline/end states.
+- [x] Bump browser asset version to `20261020-37`.
+- [ ] Test accept/decline, following, map stops, ending the walk, daily reward, and mobile layout in a real browser.
+- [ ] Real player-to-player walking is not implemented yet. It must require both players' explicit consent and must never move a player based on the other player's consent alone.
