@@ -225,6 +225,7 @@ let indoorReturnPosition = null;
 let outdoorEnabledStates = new Map();
 function enterHome(homeName) {
   if (indoors) return;
+  if (activeWalkNpc) endSharedWalk('انتهت التمشية لأنك دخلتي البيت. تقدري تبدأي تمشية جديدة بعد الخروج.');
   const position = player.getPosition();
   indoorReturnPosition = new Vec3(position.x, position.y, position.z);
   outdoorEnabledStates = new Map();
@@ -316,7 +317,7 @@ ui.innerHTML = `
     <div class="shop-heading"><strong>🚶 تمشية مع صديق</strong><button id="close-walks" type="button" aria-label="إغلاق">✕</button></div>
     <p class="shop-intro">اختاري شخصية وابعتي طلب تمشية. المشوار يبدأ فقط بعد تأكيد الموافقة؛ تقدري ترفضي الطلب أو تنهي المشوار في أي وقت.</p>
     <p id="walk-consent-status" role="status">مفيش تمشية نشطة. اختاري صديقًا لإرسال طلب.</p><div id="walk-friends"></div>
-    <div id="walk-active-tools" hidden><p id="walk-active-text"></p><div class="walk-activity-actions"><button id="walk-picnic" type="button">🧺 نزهة في الحديقة (4 عملات)</button><button id="walk-cafe" type="button">☕ خروجة كافيه (5 عملات)</button><button id="walk-photo" type="button">📸 ذكرى سوا عند النافورة</button></div><p id="walk-activity-feedback" role="status">اختاري نشاطًا لما توصلي للمكان المناسب.</p><button id="end-shared-walk" type="button">👋 إنهاء التمشية</button></div>
+    <div id="walk-active-tools" hidden><p id="walk-active-text"></p><div class="walk-activity-actions"><button id="walk-picnic" type="button">🧺 نزهة في الحديقة (4 عملات)</button><button id="walk-cafe" type="button">☕ خروجة كافيه (5 عملات)</button><button id="walk-photo" type="button">📸 ذكرى سوا عند النافورة</button><button id="walk-challenge" type="button">🧠 تحدّي تعاون سريع</button></div><p id="walk-activity-feedback" role="status">اختاري نشاطًا لما توصلي للمكان المناسب.</p><button id="end-shared-walk" type="button">👋 إنهاء التمشية</button></div>
     <p class="walk-prototype-note">الشخصيات المتاحة هنا شخصيات NPC داخل النموذج. الموافقة الحقيقية بين لاعبين مختلفين تحتاج حسابات وخادمًا مشتركًا، وده مش متفعّل في النسخة دي.</p>
   </section>
   <section id="journal-panel" hidden aria-label="سجل مغامراتي">
@@ -519,6 +520,38 @@ function renderWalkPanel() {
   });
   card.append(title,detail,giftRow,invite);list.appendChild(card);
  }
+}
+function startSharedCoopChallenge(){
+ const status=document.getElementById('walk-activity-feedback');
+ if(!activeWalkNpc){status.textContent='ابدئي تمشية بموافقة واضحة الأول.';return;}
+ if(indoors){status.textContent='التحدّي متاح في الحي الخارجي.';return;}
+ const companion=activeWalkNpc;
+ const key='wonderworld-coop-challenge-'+companion.name+'-'+localDateKey();
+ try{if(localStorage.getItem(key)==='done'){status.textContent='كمّلتوا تحدّي التعاون مع '+companion.name+' النهارده بالفعل. تحدّي جديد بكرة!';return;}}catch{}
+ const rounds=[
+  {question:'لغز تعاون: إيه اللي بييجي بعد 2، 4، 6؟',options:['7','8','10'],answer:'8'},
+  {question:'عشان الحديقة تفضل جميلة، نعمل إيه؟',options:['نرمي الزبالة','نحافظ على النظافة','نكسر الزرع'],answer:'نحافظ على النظافة'},
+  {question:'لو صديقك محتاج مساعدة في لعبة، الأفضل…',options:['نسمعه ونتعاون','نضحك عليه','نمنعه يلعب'],answer:'نسمعه ونتعاون'}
+ ];
+ const round=rounds[Math.floor(Math.random()*rounds.length)];
+ status.replaceChildren();
+ const q=document.createElement('strong');q.textContent=round.question;status.appendChild(q);
+ const choices=document.createElement('div');choices.className='walk-challenge-options';
+ for(const option of round.options){
+  const b=document.createElement('button');b.type='button';b.textContent=option;
+  b.addEventListener('click',()=>{
+   if(!activeWalkNpc||activeWalkNpc!==companion){status.textContent='التحدّي اتوقف لأن التمشية انتهت.';return;}
+   if(option!==round.answer){status.textContent='قربتي! جرّبي إجابة تانية، والتعاون أهم من السرعة 💚';return;}
+   try{localStorage.setItem(key,'done');}catch{}
+   companion.relation=Math.min(10,companion.relation+1);happiness=Math.min(100,happiness+4);
+   updateStats();awardXP(8);saveProgress();logAdventure('نجحت في تحدّي تعاون مع '+companion.name);
+   status.textContent='🎉 إجابة صحيحة! +1 صداقة، +4 سعادة، +8 XP. التحدّي مرة واحدة يوميًا لكل شخصية.';
+   say('🧠 حلّيتوا التحدّي سوا! الصداقة بتكبر بالتعاون.');
+   for(const choiceButton of choices.querySelectorAll('button'))choiceButton.disabled=true;
+  });
+  choices.appendChild(b);
+ }
+ status.appendChild(choices);
 }
 function takeSharedWalkPhoto(){
  const status=document.getElementById('walk-activity-feedback');
@@ -767,6 +800,7 @@ document.getElementById('end-shared-walk').addEventListener('click',()=>endShare
 document.getElementById('walk-picnic').addEventListener('click',()=>doSharedWalkActivity('picnic'));
 document.getElementById('walk-cafe').addEventListener('click',()=>doSharedWalkActivity('cafe'));
 document.getElementById('walk-photo').addEventListener('click',takeSharedWalkPhoto);
+document.getElementById('walk-challenge').addEventListener('click',startSharedCoopChallenge);
 document.getElementById('close-map').addEventListener('click',()=>{document.getElementById('map-panel').hidden=true});
 document.getElementById('open-journal').addEventListener('click',()=>{renderJournal();document.getElementById('journal-panel').hidden=false});
 document.getElementById('close-journal').addEventListener('click',()=>{document.getElementById('journal-panel').hidden=true});
