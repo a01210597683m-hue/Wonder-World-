@@ -25,6 +25,12 @@ jobs:
           node --input-type=module --check < main.js
           node --input-type=module --check < auth.js
           node --check careers.js
+          node --check scripts/check-game.mjs
+          node --check scripts/check-assets.mjs
+      - name: Run gameplay regression checks
+        run: node scripts/check-game.mjs
+      - name: Run asset and integration checks
+        run: node scripts/check-assets.mjs
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
       - name: Upload static site
