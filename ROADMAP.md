@@ -132,3 +132,13 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [ ] Replace temporary geometric furniture and avatars with polished assets based on the user's original references.
 
 **Scope note:** all furniture rewards are local prototype values. This does not yet implement multiplayer synchronization, server-authoritative economy, or final production assets.
+
+
+## 2026-10-20 — NPC personality profiles and relationship progression (prototype)
+
+- [x] Added distinct, fixed personality descriptions, favorite activities, and welcoming greetings for Layla, Adam, and Nour.
+- [x] Added an accessible relationship meter (0–10), relationship-stage labels, and a brief character profile in the existing preset-choice dialogue.
+- [x] Kept all player-to-player/free-text chat out of scope; this is curated NPC dialogue, not an open chat feature.
+- [x] Bumped browser cache version to `20261020-17`.
+- [ ] Smoke-test all three NPC profiles, relationship save/restore, dialogue choices, and mobile panel sizing in a real browser/Android.
+- [ ] These NPC bodies remain temporary geometric placeholders and are not final semi-realistic or anime character assets; the original user-provided references remain authoritative.
