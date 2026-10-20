@@ -324,6 +324,7 @@ let lastFlowerDay = "";
 let puzzleCooldownUntil = 0;
 let currentPuzzle = null;
 const ownedItems = new Set(['default-outfit', 'default-hair']);
+const npcInteractionDates = {};
 const dailyQuests = { friend: false, park: false, shop: false, flowers: false, rewarded: false };
 function localDateKey(date = new Date()) {
   const year = date.getFullYear();
@@ -373,6 +374,7 @@ const saveProgress = () => {
     localStorage.setItem('wonderworld-save-v1', JSON.stringify({
       coins, happiness, energy, gardenFlowers, lastFlowerDay, questDate, ownedItems: [...ownedItems], dailyQuests,
       relationships: Object.fromEntries(npcs.map(npc => [npc.name, npc.relation])),
+      npcInteractionDates,
       equippedItems
     }));
   } catch (_) {}
@@ -400,7 +402,13 @@ try {
     if (loadedProgress.relationships && typeof loadedProgress.relationships === 'object') {
       for (const npc of npcs) {
         const level = loadedProgress.relationships[npc.name];
-        if (Number.isFinite(level)) npc.relation = Math.max(0, level);
+        if (Number.isFinite(level)) npc.relation = Math.max(0, Math.min(10, level));
+      }
+    }
+    if (loadedProgress.npcInteractionDates && typeof loadedProgress.npcInteractionDates === 'object') {
+      for (const npc of npcs) {
+        const date = loadedProgress.npcInteractionDates[npc.name];
+        if (typeof date === 'string') npcInteractionDates[npc.name] = date;
       }
     }
     if (loadedProgress.equippedItems && typeof loadedProgress.equippedItems === 'object') {
@@ -623,6 +631,10 @@ function showDialogue(npc) {
     : 'سعيدة إني شفتك تاني! اختاري هنعمل إيه المرة دي:');
   updateRelationshipPanel(npc);
   document.getElementById('dialogue-feedback').textContent = '';
+  const alreadyRewardedToday = npcInteractionDates[npc.name] === localDateKey();
+  document.getElementById('dialogue-text').textContent += alreadyRewardedToday
+    ? ' أخدتي مكافأة التعارف مع ' + npc.name + ' النهارده؛ تقدري تكملي الحوار للمتعة، والمكافأة تتجدد بكرة.'
+    : ' أول اختيار النهارده يطوّر الصداقة ويمنح مكافأة.';
   const choices = npc.topics;
   const list = document.getElementById('dialogue-choices');
   list.replaceChildren();
@@ -632,17 +644,20 @@ function showDialogue(npc) {
     button.className = 'dialogue-choice';
     button.textContent = choice.label;
     button.addEventListener('click', () => {
-      npc.relation = Math.min(10, npc.relation + choice.relation);
-      happiness = Math.min(100, happiness + choice.joy);
-      updateStats();
-      updateRelationshipPanel(npc);
-      completeQuest('friend');
-      if (choice.parkTip) {
-        document.getElementById('dialogue-feedback').textContent = choice.reply;
+      if (npcInteractionDates[npc.name] !== localDateKey()) {
+        const previousRelation = npc.relation;
+        npc.relation = Math.min(10, npc.relation + choice.relation);
+        happiness = Math.min(100, happiness + choice.joy);
+        npcInteractionDates[npc.name] = localDateKey();
+        updateStats();
+        updateRelationshipPanel(npc);
+        completeQuest('friend');
+        document.getElementById('dialogue-feedback').textContent = choice.reply + ' 🎁 مكافأة اليوم: +' + (npc.relation - previousRelation) + ' صداقة و+' + choice.joy + ' سعادة.';
+        say('اتكلمتِ مع ' + npc.name + ' 💬 ' + document.getElementById('relationship-level').textContent + ' (' + npc.relation + '/10)');
       } else {
-        document.getElementById('dialogue-feedback').textContent = choice.reply;
+        document.getElementById('dialogue-feedback').textContent = choice.reply + ' 🌷 مكافأة الحوار اتاخدت النهارده؛ تقدري ترجعي بكرة لتطوير الصداقة.';
+        say('حوار لطيف مع ' + npc.name + ' 💬 مكافأة الصداقة اليومية محفوظة لحد بكرة.');
       }
-      say('اتكلمتِ مع ' + npc.name + ' 💬 ' + document.getElementById('relationship-level').textContent + ' (' + npc.relation + '/10)');
       for (const button of list.querySelectorAll('button')) button.disabled = true;
       const closeButton = document.getElementById('close-dialogue');
       closeButton.focus();
