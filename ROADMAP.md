@@ -219,3 +219,18 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [ ] Review all other activity panels on mobile for clipped content and reachable close/action buttons.
 
 **Scope note:** the CSS changes are implemented, but physical-device usability still needs hands-on testing. Water Sort puzzle generation is randomized; difficulty balancing and guaranteed progression are future polish.
+
+## 2026-10-20 — Pet companions, adoption and care (additive requirement)
+
+- [ ] Add a pet adoption centre and pet shop; preserve all existing game systems and requirements.
+- [ ] Offer three clearly labelled access tiers: free adoption/pets, pets bought with earned virtual coins, and optional premium pets bought with real money where permitted. Keep basic pet ownership and care enjoyable without paying.
+- [ ] Plan companion animals such as dogs, cats, rabbits, birds and hamsters; final species, breeds and art need approval/design work and production assets.
+- [ ] Implement naming, following/companionship, pet interactions, feeding, water, play, grooming, rest, affection/bond progression and understandable wellbeing feedback.
+- [ ] Add pet supplies (food, toys, beds, grooming items, collars, outfits and carriers) with transparent free/virtual/real-money pricing tiers.
+- [ ] Integrate pets with suitable homes, furniture, neighbourhood locations and pet-friendly activities.
+- [ ] Keep care forgiving and humane: no graphic suffering, cruelty, or manipulative pressure to log in or spend; no pet loot-box/gambling mechanics.
+- [ ] Secure persistent pet ownership, care state, inventory and purchases with server-authoritative validation and Supabase RLS. Real-money purchases require approved payment flows, clear real-currency pricing, confirmations, applicable parental controls, refunds/compliance handling and anti-fraud checks.
+- [ ] Do not treat localStorage/client-side coins as secure; never expose service-role or secret keys in browser code.
+- [ ] Preserve the no-player-to-player-text/voice-chat rule for every pet/social feature.
+
+**Scope note:** this is a product requirement, not an implemented pet feature. The current browser prototype does not yet provide a playable pet adoption, pet-care, or pet-purchase system. Build and test it before marking these tasks complete.
