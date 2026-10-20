@@ -374,3 +374,44 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [ ] Test TV proximity/cooldown, home enter/exit, journal persistence, and mobile layout on Android.
 
 **Scope note:** TV is a local interaction placeholder, not a real streaming service. Home visits between separate human players and synchronized couch/TV activities are not implemented in this build.
+
+
+## Full gameplay backlog audit — 2026-10-20 (cumulative, nothing removed)
+
+This audit is an implementation checklist, not a claim that these systems are already playable. A checkbox may be marked complete only after the feature exists in code and has been tested.
+
+### P0 — Core playable sports/action foundations
+- [ ] **Football/soccer mode with real gameplay**, not a decorative ball or a menu: two teams, team selection, recognizable team kits/colors, match start/end, goals and score, ball physics, pass, shoot, tackle/intercept, goalkeeper/opponent behavior, responsive player switching/movement, camera and controls suitable for keyboard/gamepad and mobile touch. Target the feel and depth of PC/console football games while developing original WonderWorld art/assets and identity.
+- [ ] **Dedicated PUBG-inspired action mode**, separate from everyday life: responsive third-person movement, sprint, crouch/prone where appropriate, jump/vault, aiming, shooting, reload, weapon handling, hit feedback, health/armor, loot/equipment, shrinking safe zone, match start/end and win/loss loop; preserve the familiar genre's control feel and readability while using WonderWorld's own character models, outfits, environments, UI and original assets. Do not copy proprietary PUBG assets or claim feature parity before testing.
+- [ ] Build both modes as actual controllable games with keyboard/gamepad and touch layouts; do not count buttons, mockups or passive animations as completion.
+
+### P1 — Life simulation, outfits and social homes
+- [ ] Outfit rules by context and location: everyday, home/lounge, work/uniform, gym/sports, football kits, action-mode gear, swimwear for pools, travel, parties/formal events, runway/fashion, and weather/location-appropriate layers; allow manual override and never force a revealing or age-inappropriate outfit.
+- [ ] Two-way home invitations/visit requests with explicit accept/decline, cancel, expiry and leave/end controls; real player visits only after authenticated server-verified consent.
+- [ ] Synchronized co-presence and activities in a shared living room: sit on sofa, watch TV together, curated reactions/choices, meals, family gatherings, house parties, dinner parties and group outings. No player-to-player free text, private messages or voice chat.
+- [ ] Larger homes and villas, ready-made homes, optional building/decoration, furniture placement, ownership/permissions, pools and natural swimming.
+
+### P2 — World scale and transport
+- [ ] Distinct destinations and travel between countries; travel UI, destinations, loading/arrival, locale-appropriate environments and progress.
+- [ ] Controllable drivable cars and aircraft, train boarding/travel, owned/rented vehicles, and on-demand ride/flight/train requests inspired by ride-hailing. Show destination, price and availability; distinguish ownership, rentals, fares and purchases.
+
+### P3 — Careers, business and economy
+- [ ] Jobs working for an employer with shifts, tasks, schedules, wages and progression.
+- [ ] Player-owned businesses: acquire a plot/commercial property, choose type/layout, decorate, choose products/services, stock and orders, serve NPC customers, operate a gameplay loop and earn virtual revenue.
+- [ ] Server-authoritative accounts, progress, inventory, wallet and transactions; RLS, anti-cheat, verified purchases, transparent prices, parental controls and compliant optional subscriptions/ads/paid packs. Virtual earnings must not be represented as real cash income.
+
+### P4 — Full game catalogue
+- [ ] Billiards/pool with aiming, cue power, ball collisions, rules and scoring.
+- [ ] Rope untangling, arrow/logic puzzles, match-3/candy-style puzzle, space/rocket arcade shooter, Ludo-like board game, cup-based game and party/group mini-games.
+- [ ] Expand sports beyond the gym and football; each mode needs actual controls, rules, scoring and results.
+- [ ] Branching interactive stories where choices meaningfully change later scenes/outcomes; separate AI companion chat with age-aware safety and privacy.
+- [ ] Makeup, accessories, male/female styling, runway/fashion contests with judging/results and context-aware wardrobe.
+
+### P5 — Production quality, safety and delivery
+- [ ] Final character pipeline from the user's original references: beautiful friendly Barbie-like semi-realistic characters with natural facial features/skin/hair and broad ages 5–65; a separate anime style matching the user's liked reference. Never merge the styles or substitute rejected mockups. Include rigs, expressions, hair/clothing detail and suitable animations.
+- [ ] Preserve all currently implemented prototype features (NPC relationships, pets/care, shop/wardrobe, homes/interior interactions, map/journal, quests, progression, achievements, Block Blast, Water Sort, memory match, companion walks and activities, weather/day-night controls where verified) while expanding the game.
+- [ ] Child protection, age-appropriate content, privacy minimization, accessibility, mobile performance, testing, backups and security review.
+- [ ] Test each mode on Android and desktop keyboard/gamepad where relevant; record known limits and never label a feature complete solely because it is documented.
+
+### Current verified scope boundary
+The deployed browser build is an early PlayCanvas neighborhood prototype. It has local NPC/pet/life-simulation systems and small playable puzzles, plus a simple local TV interaction. It does **not** yet have real-player multiplayer visits, synchronized shared TV, football matches, PUBG-like combat, drivable vehicles, inter-country travel, player-owned businesses, the full puzzle/party catalogue, production character models, or secure server-authoritative economy/authentication. These are retained as required future work, not dropped ideas.
