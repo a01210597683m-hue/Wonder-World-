@@ -175,3 +175,14 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [ ] Test unlock thresholds at relationship levels 4 and 8, dialogue on mobile, daily reward guard, and deployment on Android.
 
 **Scope note:** these are branching dialogue choices, not yet fully simulated co-op mini-games or an implemented adventure mission.
+
+
+## 2026-10-20 — Player levels and experience progression (prototype)
+
+- Added a visible player level and XP progress bar to the HUD.
+- Social choices, puzzles, shopping, café orders, work shifts, workouts, garden collection, rest, and home activities award XP.
+- Each level requires more XP than the previous level; leveling up grants 10 virtual coins and a small happiness bonus.
+- Player level and remaining XP are saved with the existing local save, alongside current game progress.
+- Daily login reward also grants a small XP bonus.
+- This is prototype progression stored in browser local storage, not a server-authoritative or anti-cheat-safe economy.
+- Build/cache version: 20261020-21. Testing pending.
