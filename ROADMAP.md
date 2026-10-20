@@ -300,3 +300,14 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [x] Bump the browser asset version to `20261020-35`.
 - [ ] Test card matching, mismatches, rapid taps, restart, reward delivery, and narrow mobile layouts in a real browser/Android.
 - [ ] This is a client-side prototype; its coins and XP are not secure or server-authoritative. Do not use it as the basis for competitive multiplayer or real-money rewards.
+
+
+## 2026-10-20 — Wardrobe clarity and memory-game reward guard
+
+- [x] Group clothing and hair into separate wardrobe sections and show owned/equipped status for each item.
+- [x] Display the currently equipped outfit and hair plus collection count, without replacing existing inventory or character reference styles.
+- [x] Track the best memory-match move count locally and display it on future rounds.
+- [x] Limit the memory-match coin/XP reward to once per local calendar day to reduce trivial repeat farming in this client-side prototype.
+- [x] Bump the browser asset version to `20261020-36`.
+- [ ] Test the wardrobe purchase/equip flow, memory-game best score and daily reward guard on mobile.
+- [ ] Local storage checks are a convenience only; players can modify browser data. Competitive rewards still require server-side validation and authenticated persistence.
