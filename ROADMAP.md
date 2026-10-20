@@ -58,3 +58,12 @@
 - [x] Correct answers grant 5 prototype coins and 4 happiness, with feedback and a short anti-spam cooldown.
 - [x] Added responsive styling and cache-busting version 20261020-11.
 - [ ] Validate puzzle interaction and full page runtime in a real browser; rewards remain client-side prototype values.
+
+
+## 2026-10-20 — Fitness, collecting and daily objective refresh
+- [x] Added a Wonder Fitness building with simple visible gym props.
+- [x] Added a workout action near the gym: consumes 12 energy, grants 8 happiness and 3 prototype coins, with a 20-second cooldown.
+- [x] Added a once-per-day flower gathering action near the park; saves the collected flower count locally.
+- [x] Daily quests now reset when the saved calendar date changes.
+- [x] Added mobile styles and bumped asset version to 20261020-12.
+- [ ] Browser smoke test and deployment confirmation remain outstanding; all balances and inventory in this prototype are local-device values.
