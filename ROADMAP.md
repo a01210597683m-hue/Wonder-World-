@@ -322,3 +322,12 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [x] Bump browser asset version to `20261020-37`.
 - [ ] Test accept/decline, following, map stops, ending the walk, daily reward, and mobile layout in a real browser.
 - [ ] Real player-to-player walking is not implemented yet. It must require both players' explicit consent and must never move a player based on the other player's consent alone.
+
+
+## 2026-10-20 — Daily login streak and expanded progression
+
+- [x] Preserve the original once-per-day login grant of 5 coins and 5 XP, adding a modest consecutive-day coin bonus capped at 6 extra coins.
+- [x] Track a local consecutive-day login streak, resetting after a missed calendar day and avoiding duplicate same-day rewards.
+- [x] Expand achievements to include playing a mini-game, completing daily quests, a three-day login streak, and completing a shared-walk outing.
+- [x] Show the current login streak in the achievement summary and bump assets to `20261020-38`.
+- [ ] Verify day-boundary and storage behavior in browser testing. Streaks and rewards are device-local prototype data and are not server-authoritative.
