@@ -45,3 +45,7 @@ All balances, ownership, reputation, daily limits, and progress are stored in th
 
 ## 2026-10-21 development note
 The next integration pass is to connect the player-owned storefront to proximity interactions and add it as a navigation destination. The current storefront, career balances, and progression remain local prototype state until authenticated persistence is integrated and tested.
+
+
+## Static regression checks
+Run `node scripts/check-game.mjs` from the repository root to verify that core scene wiring, touch controls, social consent, pet care, career progression, and responsive styles are present. These are static checks, not a substitute for browser, Android, or deployment testing.
