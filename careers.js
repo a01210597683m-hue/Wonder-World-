@@ -225,6 +225,19 @@
     panel.addEventListener('keydown', event => { if (event.key === 'Escape') panel.hidden = true; });
     render();
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
-  else init();
+  function bootWhenHudExists() {
+    if (document.getElementById('life-ui')) { init(); return; }
+    const observer = new MutationObserver(() => {
+      if (document.getElementById('life-ui')) {
+        observer.disconnect();
+        init();
+      }
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootWhenHudExists, { once: true });
+  } else {
+    bootWhenHudExists();
+  }
 })();
