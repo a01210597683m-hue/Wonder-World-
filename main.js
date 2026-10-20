@@ -181,6 +181,77 @@ camera.setPosition(0, 7, 11);
 camera.lookAt(0, 1, 0);
 app.root.addChild(camera);
 
+// First enterable home interior: a separate room scene, reversible without deleting the outdoor world.
+const interiorRoot = new Entity('Home Interior Scene');
+app.root.addChild(interiorRoot);
+box('Interior floor', 14, 0.25, 14, 0, -0.16, 0, mats.path, interiorRoot);
+box('Interior back wall', 14, 4.8, 0.3, 0, 2.25, -7, mats.wall, interiorRoot);
+box('Interior left wall', 0.3, 4.8, 14, -7, 2.25, 0, mats.white, interiorRoot);
+box('Interior right wall', 0.3, 4.8, 14, 7, 2.25, 0, mats.white, interiorRoot);
+// Split front wall leaves a visible doorway so the room reads as a space rather than a closed box.
+box('Interior front wall left', 4.8, 4.8, 0.3, -4.6, 2.25, 7, mats.wallPink, interiorRoot);
+box('Interior front wall right', 4.8, 4.8, 0.3, 4.6, 2.25, 7, mats.wallPink, interiorRoot);
+box('Interior door frame left', 0.22, 2.5, 0.35, -2.1, 1.25, 7, mats.door, interiorRoot);
+box('Interior door frame right', 0.22, 2.5, 0.35, 2.1, 1.25, 7, mats.door, interiorRoot);
+box('Interior rug', 5.2, 0.08, 3.8, 0, 0.02, 1.1, mats.flower, interiorRoot);
+box('Living room sofa base', 4.0, 0.65, 1.1, -3.7, 0.45, -1.2, mats.outfitMint, interiorRoot);
+box('Living room sofa back', 4.0, 1.25, 0.35, -3.7, 0.95, -0.75, mats.outfitMint, interiorRoot);
+box('Coffee table', 2.0, 0.25, 1.2, -1.0, 0.48, -1.0, mats.bench, interiorRoot);
+box('Coffee table book', 0.65, 0.06, 0.45, -1.0, 0.64, -1.0, mats.white, interiorRoot);
+box('Bedroom bed base', 3.0, 0.45, 4.0, 3.8, 0.35, -3.1, mats.outfitBlue, interiorRoot);
+box('Bedroom pillow', 2.1, 0.2, 0.8, 3.8, 0.69, -4.45, mats.white, interiorRoot);
+box('Bedroom blanket', 2.9, 0.12, 2.2, 3.8, 0.63, -2.4, mats.outfitCoral, interiorRoot);
+box('Bedside table', 0.9, 0.8, 0.9, 5.4, 0.4, -4.8, mats.bench, interiorRoot);
+box('Kitchen counter', 3.2, 0.35, 1.0, -3.8, 1.0, -5.4, mats.white, interiorRoot);
+box('Kitchen lower cabinets', 3.2, 0.8, 0.9, -3.8, 0.4, -5.4, mats.outfitMint, interiorRoot);
+box('Kitchen window', 2.0, 1.2, 0.12, -3.8, 2.65, -6.76, mats.window, interiorRoot);
+box('Wall picture frame', 1.6, 1.2, 0.12, 0.0, 2.65, -6.78, mats.outfitGold, interiorRoot);
+box('Wall picture art', 1.25, 0.85, 0.06, 0.0, 2.65, -6.68, mats.flower, interiorRoot);
+interiorRoot.enabled = false;
+let indoors = false;
+let indoorReturnPosition = null;
+let outdoorEnabledStates = new Map();
+function enterHome(homeName) {
+  if (indoors) return;
+  const position = player.getPosition();
+  indoorReturnPosition = new Vec3(position.x, position.y, position.z);
+  outdoorEnabledStates = new Map();
+  for (const entity of app.root.children) {
+    if (entity === player || entity === camera || entity === sun || entity === interiorRoot) continue;
+    outdoorEnabledStates.set(entity, entity.enabled);
+    entity.enabled = false;
+  }
+  interiorRoot.enabled = true;
+  indoors = true;
+  player.setPosition(0, 0, 2.0);
+  player.setEulerAngles(0, 180, 0);
+  cameraX = 0;
+  cameraZ = 6.0;
+  cameraHeight = 5.5;
+  cameraOffsetZ = 4.0;
+  camera.setPosition(cameraX, cameraHeight, cameraZ);
+  camera.lookAt(0, 1, 2);
+  document.getElementById('exit-home').hidden = false;
+  say('دخلتي ' + homeName + ' 🏡 استكشفي الصالة وغرفة النوم والمطبخ. تقدري ترجعي للحي من زر الخروج.');
+}
+function exitHome() {
+  if (!indoors) return;
+  interiorRoot.enabled = false;
+  for (const [entity, enabled] of outdoorEnabledStates) entity.enabled = enabled;
+  outdoorEnabledStates.clear();
+  indoors = false;
+  if (indoorReturnPosition) player.setPosition(indoorReturnPosition);
+  cameraHeight = 7;
+  cameraOffsetZ = 11;
+  const p = player.getPosition();
+  cameraX = p.x;
+  cameraZ = p.z + cameraOffsetZ;
+  camera.setPosition(cameraX, cameraHeight, cameraZ);
+  camera.lookAt(p.x, 1, p.z);
+  document.getElementById('exit-home').hidden = true;
+  say('رجعتي للحي 🌳 كل الأماكن والأنشطة الخارجية رجعت زي ما كانت.');
+}
+
 const ui = document.createElement('section');
 ui.id = 'life-ui';
 ui.innerHTML = `
@@ -191,6 +262,7 @@ ui.innerHTML = `
   <div class="avatar-tools"><button id="quick-work" type="button">💼 شغل سريع</button><button id="quick-rest" type="button">🛋️ استراحة</button><button id="quick-cafe" type="button">☕ طلب كافيه</button></div>
   <div class="avatar-tools"><button id="quick-gym" type="button">🏋️ تمرين</button><button id="quick-garden" type="button">🌷 جمع زهور</button></div>
   <button id="interact" type="button">تفاعل / استكشاف</button>
+  <button id="exit-home" type="button" hidden>🚪 الخروج للحي</button>
   <section id="shop-panel" hidden aria-label="متجر Wonder">
     <div class="shop-heading"><strong>🛍️ متجر Wonder</strong><button id="close-shop" type="button" aria-label="إغلاق المتجر">✕</button></div>
     <p class="shop-intro">اختاري قطعة، واشتريها بعملاتك، وبعدها تقدري تلبسيها في أي وقت.</p>
@@ -396,8 +468,8 @@ document.getElementById('shop-products').addEventListener('click', event => {
   say('مبروك! اشتريتي ' + item.name + ' من متجر Wonder 🛍️');
 });
 const places = [
-  { name: 'بيتك', x: -10, z: -7.4, radius: 3.2, action: () => say('وصلتِ إلى بيتك! النموذج الحالي يحدد موقع المنزل؛ تصميم داخلي قابل للدخول مرحلة تطوير لاحقة.') },
-  { name: 'بيت العائلة', x: 10, z: -7.4, radius: 3.2, action: () => say('هذا بيت العائلة. تقدري تستكشفي الحي، وسنضيف دخول البيوت وأثاثها في مرحلة تالية.') },
+  { name: 'بيتك', x: -10, z: -7.4, radius: 3.2, action: () => enterHome('بيتك') },
+  { name: 'بيت العائلة', x: 10, z: -7.4, radius: 3.2, action: () => enterHome('بيت العائلة') },
   { name: 'متجر Wonder', x: 10, z: 7.1, radius: 3.5, action: openShop },
   { name: 'كافيه Wonder', x: 15, z: -3.2, radius: 4.0, action: orderCafe },
   { name: 'مكتب الحي', x: 0, z: -18.3, radius: 4.0, action: doQuickWork },
@@ -572,6 +644,8 @@ function nearestTarget() {
   }
   return best;
 }
+document.getElementById('exit-home').addEventListener('click', exitHome);
+
 interactButton.addEventListener('click', () => {
   const target = nearestTarget();
   if (target) target.action();
@@ -606,6 +680,8 @@ const moveSpeed = 4.2;
 let walkClock = 0;
 let cameraX = 0;
 let cameraZ = 12.5;
+let cameraHeight = 7;
+let cameraOffsetZ = 11;
 app.on('update', dt => {
   // Smooth, normalized movement and a small walk cycle for the temporary avatar.
   let x = (pressed.has('right') ? 1 : 0) - (pressed.has('left') ? 1 : 0);
@@ -635,8 +711,8 @@ app.on('update', dt => {
   // Ease the camera toward the player instead of snapping on every frame.
   const follow = 1 - Math.exp(-5 * dt);
   cameraX += (p.x - cameraX) * follow;
-  cameraZ += (p.z + 11 - cameraZ) * follow;
-  camera.setPosition(cameraX, 7, cameraZ);
+  cameraZ += (p.z + cameraOffsetZ - cameraZ) * follow;
+  camera.setPosition(cameraX, cameraHeight, cameraZ);
   camera.lookAt(p.x, 1, p.z);
 });
 
