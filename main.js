@@ -163,6 +163,12 @@ ui.innerHTML = `
     <div id="shop-products"></div>
     <div id="shop-feedback" role="status"></div>
   </section>
+  <section id="dialogue-panel" hidden aria-label="اختيارات الحوار">
+    <div class="shop-heading"><strong id="dialogue-title">حوار</strong><button id="close-dialogue" type="button" aria-label="إغلاق الحوار">✕</button></div>
+    <p id="dialogue-text">اختاري ردًا مناسبًا.</p>
+    <div id="dialogue-choices"></div>
+    <div id="dialogue-feedback" role="status"></div>
+  </section>
   <div id="life-message" role="status">أهلًا بكِ في WonderWorld! تحرّكي واستكشفي الحي.</div>
   <div id="life-goal">مهمتك: تعرّفي على شخص، ثم زوري المتجر والحديقة.</div>
 `;
@@ -174,6 +180,9 @@ let outfitIndex = 0;
 let hairIndex = 0;
 document.getElementById('change-outfit').addEventListener('click', openShop);
 document.getElementById('change-hair').addEventListener('click', openShop);
+document.getElementById('close-dialogue').addEventListener('click', () => {
+  document.getElementById('dialogue-panel').hidden = true;
+});
 const message = document.getElementById('life-message');
 let happiness = 60;
 let coins = 20;
@@ -294,6 +303,47 @@ const places = [
     happiness = Math.min(100, happiness + 12); updateStats(); completeQuest('park'); saveProgress(); say('قضيتي وقتًا لطيفًا في الحديقة! السعادة +12 🌷');
   }}
 ];
+let activeDialogueNpc = null;
+function showDialogue(npc) {
+  activeDialogueNpc = npc;
+  const panel = document.getElementById('dialogue-panel');
+  document.getElementById('dialogue-title').textContent = npc.name + ' — ' + npc.role;
+  document.getElementById('dialogue-text').textContent = npc.relation === 0
+    ? 'لسه بتتعرفوا على بعض. اختاري ردّك:'
+    : 'أهلًا برجوعك! علاقتكم دلوقتي مستوى ' + npc.relation + '. اختاري هتتكلموا في إيه:';
+  document.getElementById('dialogue-feedback').textContent = '';
+  const choices = [
+    { label: '👋 نسلّم ونتعرّف على بعض', reply: 'تشرفت بمعرفتك! مبسوطة إننا اتكلمنا 😊', relation: 1, joy: 5 },
+    { label: '🌷 نسأل عن الأماكن الحلوة في الحي', reply: 'لازم تزوري الحديقة، مكان لطيف نقضي فيه وقت حلو!', relation: 1, joy: 3, parkTip: true },
+    { label: '🎨 نحكي عن الهوايات والاهتمامات', reply: 'جميل إن عندنا اهتمامات مختلفة! خلينا نتكلم تاني قريبًا ✨', relation: 2, joy: 4 }
+  ];
+  const list = document.getElementById('dialogue-choices');
+  list.replaceChildren();
+  for (const choice of choices) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'dialogue-choice';
+    button.textContent = choice.label;
+    button.addEventListener('click', () => {
+      npc.relation += choice.relation;
+      happiness = Math.min(100, happiness + choice.joy);
+      updateStats();
+      completeQuest('friend');
+      if (choice.parkTip) {
+        document.getElementById('dialogue-feedback').textContent = choice.reply;
+      } else {
+        document.getElementById('dialogue-feedback').textContent = choice.reply;
+      }
+      say('اتكلمتِ مع ' + npc.name + ' 💬 مستوى العلاقة: ' + npc.relation);
+      for (const button of list.querySelectorAll('button')) button.disabled = true;
+      const closeButton = document.getElementById('close-dialogue');
+      closeButton.focus();
+    });
+    list.appendChild(button);
+  }
+  panel.hidden = false;
+}
+
 function nearestTarget() {
   const p = player.getPosition();
   let best = null;
@@ -304,13 +354,10 @@ function nearestTarget() {
   }
   for (const npc of npcs) {
     const d = Math.hypot(p.x - npc.x, p.z - npc.z);
-    if (d < 2.7 && d < bestDistance) { best = { name: npc.name, distance: d, action: () => {
-      npc.relation += 1;
-      happiness = Math.min(100, happiness + 5);
-      updateStats();
-      completeQuest('friend');
-      say(`اتكلمتِ مع ${npc.name} وبقيت علاقتكم أقوى! مستوى العلاقة: ${npc.relation} 💬`);
-    }}; bestDistance = d; }
+    if (d < 2.7 && d < bestDistance) {
+      best = { name: npc.name, distance: d, action: () => showDialogue(npc) };
+      bestDistance = d;
+    }
   }
   return best;
 }
