@@ -188,6 +188,8 @@ let happiness = 60;
 let coins = 20;
 const ownedItems = new Set(['default-outfit', 'default-hair']);
 const dailyQuests = { friend: false, park: false, shop: false, rewarded: false };
+const equippedItems = { outfit: 'default-outfit', hair: 'default-hair' };
+let loadedProgress = null;
 function say(text) { message.textContent = text; status.textContent = text; }
 function updateStats() {
   document.getElementById('happiness').textContent = happiness;
@@ -220,25 +222,56 @@ const shopProducts = [
   { id: 'rose-hair', name: 'شعر وردي غامق', category: 'hair', price: 10, material: mats.hairRose, emoji: '🌸' }
 ];
 const saveProgress = () => {
-  try { localStorage.setItem('wonderworld-save-v1', JSON.stringify({ coins, happiness, ownedItems: [...ownedItems] })); } catch (_) {}
+  try {
+    localStorage.setItem('wonderworld-save-v1', JSON.stringify({
+      coins, happiness, ownedItems: [...ownedItems], dailyQuests,
+      relationships: Object.fromEntries(npcs.map(npc => [npc.name, npc.relation])),
+      equippedItems
+    }));
+  } catch (_) {}
 };
 try {
-  const saved = JSON.parse(localStorage.getItem('wonderworld-save-v1') || 'null');
-  if (saved) {
-    if (Number.isFinite(saved.coins)) coins = saved.coins;
-    if (Number.isFinite(saved.happiness)) happiness = saved.happiness;
-    if (Array.isArray(saved.ownedItems)) saved.ownedItems.forEach(id => ownedItems.add(id));
+  loadedProgress = JSON.parse(localStorage.getItem('wonderworld-save-v1') || 'null');
+  if (loadedProgress) {
+    if (Number.isFinite(loadedProgress.coins)) coins = Math.max(0, loadedProgress.coins);
+    if (Number.isFinite(loadedProgress.happiness)) happiness = Math.max(0, Math.min(100, loadedProgress.happiness));
+    if (Array.isArray(loadedProgress.ownedItems)) loadedProgress.ownedItems.forEach(id => ownedItems.add(id));
+    if (loadedProgress.dailyQuests && typeof loadedProgress.dailyQuests === 'object') {
+      for (const key of Object.keys(dailyQuests)) {
+        if (typeof loadedProgress.dailyQuests[key] === 'boolean') dailyQuests[key] = loadedProgress.dailyQuests[key];
+      }
+    }
+    if (loadedProgress.relationships && typeof loadedProgress.relationships === 'object') {
+      for (const npc of npcs) {
+        const level = loadedProgress.relationships[npc.name];
+        if (Number.isFinite(level)) npc.relation = Math.max(0, level);
+      }
+    }
+    if (loadedProgress.equippedItems && typeof loadedProgress.equippedItems === 'object') {
+      if (typeof loadedProgress.equippedItems.outfit === 'string') equippedItems.outfit = loadedProgress.equippedItems.outfit;
+      if (typeof loadedProgress.equippedItems.hair === 'string') equippedItems.hair = loadedProgress.equippedItems.hair;
+    }
   }
-} catch (_) {}
+} catch (_) { loadedProgress = null; }
 function equipItem(item) {
   if (item.category === 'outfit') {
     player.outfitParts.forEach(part => { part.render.material = item.material; });
+    equippedItems.outfit = item.id;
     const index = outfitOptions.indexOf(item.material);
     if (index >= 0) outfitIndex = index;
   } else {
     player.hairPart.render.material = item.material;
+    equippedItems.hair = item.id;
     const index = hairOptions.indexOf(item.material);
     if (index >= 0) hairIndex = index;
+  }
+  saveProgress();
+}
+function restoreEquippedItems() {
+  for (const category of ['outfit', 'hair']) {
+    const id = equippedItems[category];
+    const item = shopProducts.find(product => product.id === id && product.category === category);
+    if (item && ownedItems.has(item.id)) equipItem(item);
   }
 }
 function renderShop() {
@@ -408,6 +441,7 @@ app.on('update', dt => {
   camera.lookAt(p.x, 1, p.z);
 });
 
+restoreEquippedItems();
 updateQuestUI();
 updateStats();
 status.textContent = 'WonderWorld prototype ready — تحرّكي واستكشفي الحي';
