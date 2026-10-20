@@ -247,3 +247,16 @@ Every feature and constraint from the original WonderWorld concept through all l
 - [ ] Move ownership, inventory, care state and valuable purchases to secure server-authoritative Supabase flows before multiplayer or real-money release.
 
 **Scope note:** this is an early local prototype. The geometric companion, localStorage inventory and client-side virtual-coin purchases are not secure, synchronized multiplayer, production pet art, or real-money commerce. The pet system is additive; all previous game requirements remain in scope.
+
+
+## 2026-10-20 — Pet supplies and pet-friendly park activity (prototype)
+- [x] Add optional pet supplies with clear virtual-coin prices: extra food (3), toy (5), comfort bed (8), and cosmetic collar (6).
+- [x] Persist supply inventory locally and display owned quantities in a simple pet bag.
+- [x] Allow food, toy, and bed items to be consumed for small care-meter boosts; free basic care actions remain available.
+- [x] Add a pet-friendly activity that requires the player and active companion to be at Friends Park; awards joy, bond, happiness and XP.
+- [x] Bump browser asset version to `20261020-31`.
+- [ ] Test supply purchases, insufficient balance, inventory persistence after reload, item use, and park proximity on Android.
+- [ ] Add production pet models, animation and visuals; integrate pets with more homes and activities.
+- [ ] Replace local-only ownership/inventory with secure server-authoritative Supabase persistence before multiplayer or real-money release.
+
+**Scope note:** optional supply purchases and rewards are prototype-only client-side state. The cosmetic collar is tracked in inventory but does not yet change the pet's appearance. Basic pet care remains free; real-money checkout remains disabled.
