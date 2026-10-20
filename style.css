@@ -155,3 +155,39 @@ body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sa
   #shop-panel { max-height: 42vh; }
   .shop-product { padding: 7px; }
 }
+
+
+/* Curated NPC dialogue — deliberately no free-text player chat */
+#dialogue-panel {
+  pointer-events: auto;
+  width: min(330px, calc(100vw - 24px));
+  max-height: min(46vh, 390px);
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid #ffffffb8;
+  border-radius: 16px;
+  color: #17324c;
+  background: #fffaf0f7;
+  box-shadow: 0 12px 35px #10263c55;
+}
+#dialogue-panel[hidden] { display: none; }
+#dialogue-text, #dialogue-feedback { margin: 8px 0; font-size: 12px; line-height: 1.55; }
+#dialogue-choices { display: grid; gap: 7px; }
+.dialogue-choice {
+  width: 100%;
+  border: 1px solid #d8e0e8;
+  border-radius: 11px;
+  padding: 10px;
+  color: #17324c;
+  background: #fff;
+  text-align: right;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.dialogue-choice:active { background: #f5e8ff; }
+.dialogue-choice:disabled { opacity: .65; }
+#dialogue-feedback { font-weight: 700; }
+@media (max-width: 480px) {
+  #dialogue-panel { max-height: 36vh; }
+}
