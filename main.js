@@ -155,7 +155,14 @@ ui.id = 'life-ui';
 ui.innerHTML = `
   <div class="life-stats"><span>💛 السعادة: <b id="happiness">60</b></span><span>🪙 العملات: <b id="coins">20</b></span></div>
   <div class="avatar-tools"><button id="change-outfit" type="button">👕 تغيير الملابس</button><button id="change-hair" type="button">💇 تغيير لون الشعر</button></div>
+  <button id="open-shop" type="button">🛍️ افتحي متجر Wonder</button>
   <button id="interact" type="button">تفاعل / استكشاف</button>
+  <section id="shop-panel" hidden aria-label="متجر Wonder">
+    <div class="shop-heading"><strong>🛍️ متجر Wonder</strong><button id="close-shop" type="button" aria-label="إغلاق المتجر">✕</button></div>
+    <p class="shop-intro">اختاري قطعة، واشتريها بعملاتك، وبعدها تقدري تلبسيها في أي وقت.</p>
+    <div id="shop-products"></div>
+    <div id="shop-feedback" role="status"></div>
+  </section>
   <div id="life-message" role="status">أهلًا بكِ في WonderWorld! تحرّكي واستكشفي الحي.</div>
   <div id="life-goal">مهمتك: تعرّفي على شخص، ثم زوري المتجر والحديقة.</div>
 `;
@@ -178,11 +185,13 @@ document.getElementById('change-hair').addEventListener('click', () => {
 const message = document.getElementById('life-message');
 let happiness = 60;
 let coins = 20;
+const ownedItems = new Set(['default-outfit', 'default-hair']);
 const dailyQuests = { friend: false, park: false, shop: false, rewarded: false };
 function say(text) { message.textContent = text; status.textContent = text; }
 function updateStats() {
   document.getElementById('happiness').textContent = happiness;
   document.getElementById('coins').textContent = coins;
+  saveProgress();
 }
 function updateQuestUI() {
   const line = document.getElementById('life-goal');
@@ -200,15 +209,97 @@ function completeQuest(key) {
   dailyQuests[key] = true;
   updateQuestUI();
 }
+const shopProducts = [
+  { id: 'mint-outfit', name: 'طقم نعناعي', category: 'outfit', price: 8, material: mats.outfitMint, emoji: '👕' },
+  { id: 'coral-outfit', name: 'طقم مرجاني', category: 'outfit', price: 10, material: mats.outfitCoral, emoji: '🧥' },
+  { id: 'blue-outfit', name: 'طقم أزرق', category: 'outfit', price: 12, material: mats.outfitBlue, emoji: '👚' },
+  { id: 'gold-outfit', name: 'طقم ذهبي', category: 'outfit', price: 15, material: mats.outfitGold, emoji: '✨' },
+  { id: 'brown-hair', name: 'شعر بني', category: 'hair', price: 6, material: mats.hairBrown, emoji: '💇' },
+  { id: 'black-hair', name: 'شعر أسود', category: 'hair', price: 8, material: mats.hairBlack, emoji: '🖤' },
+  { id: 'rose-hair', name: 'شعر وردي غامق', category: 'hair', price: 10, material: mats.hairRose, emoji: '🌸' }
+];
+const saveProgress = () => {
+  try { localStorage.setItem('wonderworld-save-v1', JSON.stringify({ coins, happiness, ownedItems: [...ownedItems] })); } catch (_) {}
+};
+try {
+  const saved = JSON.parse(localStorage.getItem('wonderworld-save-v1') || 'null');
+  if (saved) {
+    if (Number.isFinite(saved.coins)) coins = saved.coins;
+    if (Number.isFinite(saved.happiness)) happiness = saved.happiness;
+    if (Array.isArray(saved.ownedItems)) saved.ownedItems.forEach(id => ownedItems.add(id));
+  }
+} catch (_) {}
+function equipItem(item) {
+  if (item.category === 'outfit') {
+    player.outfitParts.forEach(part => { part.render.material = item.material; });
+    const index = outfitOptions.indexOf(item.material);
+    if (index >= 0) outfitIndex = index;
+  } else {
+    player.hairPart.render.material = item.material;
+    const index = hairOptions.indexOf(item.material);
+    if (index >= 0) hairIndex = index;
+  }
+}
+function renderShop() {
+  const list = document.getElementById('shop-products');
+  list.replaceChildren();
+  for (const item of shopProducts) {
+    const card = document.createElement('div');
+    card.className = 'shop-product';
+    const info = document.createElement('div');
+    info.className = 'shop-product-info';
+    const name = document.createElement('strong');
+    name.textContent = item.emoji + ' ' + item.name;
+    const price = document.createElement('span');
+    price.textContent = '🪙 ' + item.price;
+    info.append(name, price);
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.shopItem = item.id;
+    button.textContent = ownedItems.has(item.id) ? 'ارتديها' : 'شراء';
+    card.append(info, button);
+    list.appendChild(card);
+  }
+}
+function openShop() {
+  document.getElementById('shop-panel').hidden = false;
+  renderShop();
+  document.getElementById('shop-feedback').textContent = 'رصيدك الحالي: ' + coins + ' عملة.';
+}
+document.getElementById('open-shop').addEventListener('click', openShop);
+document.getElementById('close-shop').addEventListener('click', () => { document.getElementById('shop-panel').hidden = true; });
+document.getElementById('shop-products').addEventListener('click', event => {
+  const button = event.target.closest('button[data-shop-item]');
+  if (!button) return;
+  const item = shopProducts.find(product => product.id === button.dataset.shopItem);
+  if (!item) return;
+  if (ownedItems.has(item.id)) {
+    equipItem(item);
+    document.getElementById('shop-feedback').textContent = 'لبستي ' + item.name + ' بالفعل ✨';
+    say('تم ارتداء ' + item.name + '!');
+    return;
+  }
+  if (coins < item.price) {
+    document.getElementById('shop-feedback').textContent = 'رصيدك مش كفاية. محتاجة ' + item.price + ' عملة.';
+    return;
+  }
+  coins -= item.price;
+  ownedItems.add(item.id);
+  equipItem(item);
+  happiness = Math.min(100, happiness + 3);
+  updateStats();
+  saveProgress();
+  completeQuest('shop');
+  document.getElementById('shop-feedback').textContent = 'اشتريتي ' + item.name + ' واتضافت لمقتنياتك 🎉 الرصيد: ' + coins + ' عملة.';
+  renderShop();
+  say('مبروك! اشتريتي ' + item.name + ' من متجر Wonder 🛍️');
+});
 const places = [
   { name: 'بيتك', x: -10, z: -7.4, radius: 3.2, action: () => say('وصلتِ إلى بيتك! النموذج الحالي يحدد موقع المنزل؛ تصميم داخلي قابل للدخول مرحلة تطوير لاحقة.') },
   { name: 'بيت العائلة', x: 10, z: -7.4, radius: 3.2, action: () => say('هذا بيت العائلة. تقدري تستكشفي الحي، وسنضيف دخول البيوت وأثاثها في مرحلة تالية.') },
-  { name: 'متجر Wonder', x: 10, z: 7.1, radius: 3.5, action: () => {
-    if (coins >= 5) { coins -= 5; happiness = Math.min(100, happiness + 8); updateStats(); completeQuest('shop'); say('اشتريتِ هدية صغيرة من متجر Wonder! السعادة +8، العملات -5.'); }
-    else say('معاكي عملات قليلة. استكشفي الحي أولًا.');
-  }},
+  { name: 'متجر Wonder', x: 10, z: 7.1, radius: 3.5, action: openShop },
   { name: 'حديقة الأصدقاء', x: -11, z: 6.5, radius: 4.2, action: () => {
-    happiness = Math.min(100, happiness + 12); updateStats(); completeQuest('park'); say('قضيتي وقتًا لطيفًا في الحديقة! السعادة +12 🌷');
+    happiness = Math.min(100, happiness + 12); updateStats(); completeQuest('park'); saveProgress(); say('قضيتي وقتًا لطيفًا في الحديقة! السعادة +12 🌷');
   }}
 ];
 function nearestTarget() {
