@@ -630,3 +630,18 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 #quick-photo,#quick-weather{min-height:36px;touch-action:manipulation}
 .life-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(min-width:700px){.life-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* Companion naming and achievement collection. */
+#pet-naming-tools{margin:10px 0;padding:10px;border-radius:10px;background:#f2f7fb}
+#pet-naming-tools label{display:block;margin-bottom:6px;font-size:12px;font-weight:800}
+#pet-naming-tools>div{display:flex;gap:6px}
+#pet-name-input{width:100%;min-width:0;padding:8px;border:1px solid #b8c9d8;border-radius:8px;font:inherit;font-size:12px;color:#17324c}
+#save-pet-name{padding:7px 10px;border:0;border-radius:8px;background:#d8f0e2;color:#1d5037;font:inherit;font-size:11px;font-weight:800;white-space:nowrap}
+#achievement-panel.wonder-overlay{width:min(440px,calc(100vw - 24px))!important;max-height:min(78dvh,650px)!important}
+#achievement-summary{font-size:12px;line-height:1.5;color:#43546b}
+#achievement-list{display:grid;gap:8px}
+.achievement-card{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #d5dfe8;border-radius:12px;background:#f5f7fa}
+.achievement-card.is-unlocked{border-color:#9bd2b2;background:#effaf3}
+.achievement-icon{font-size:24px;min-width:32px;text-align:center}
+.achievement-info{display:grid;gap:3px;min-width:0}
+.achievement-info strong{font-size:13px}.achievement-info span{font-size:11px;color:#53657a}.achievement-info b{font-size:10px;color:#28754a}
