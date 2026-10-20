@@ -621,3 +621,6 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 #pet-feedback{font-size:12px;line-height:1.5;margin-top:8px;min-height:18px}
 .pet-premium-note{margin:10px 0 0;padding-top:8px;border-top:1px dashed #cdd9e5}
 @media(max-width:380px){.pet-card{align-items:flex-start;flex-direction:column}.pet-card button{width:100%}.pet-care-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Optional pet supplies and pet-friendly park activity. */
+#pet-supplies-section{margin-top:12px;padding-top:10px;border-top:1px solid #d9e2ec}#pet-supplies-section h3{font-size:14px;margin:0 0 6px}#pet-supplies-section h4{font-size:12px;margin:10px 0 6px}#pet-supplies-catalog{display:grid;gap:7px}#pet-supplies-catalog .pet-card{align-items:flex-start}#pet-supplies-catalog .pet-card-info{flex:1}#pet-supplies-catalog .pet-card-info span{line-height:1.4}#pet-supplies-catalog button:disabled,#pet-supplies-section button:disabled{opacity:.5}#pet-supplies-inventory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.pet-inventory-row{background:#f2f6fa;border-radius:8px;padding:7px;font-size:11px}#pet-park-activity{width:100%;margin-top:8px;min-height:38px;border:1px solid #a9bfd0;border-radius:9px;background:#e9f5ff;color:#17324c;font:inherit;font-size:12px;font-weight:750;touch-action:manipulation}
