@@ -793,3 +793,18 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 .watersort-actions button{min-height:44px;padding:9px 14px;border:2px solid #c9dce8;border-radius:12px;background:#f5f9fc;color:#18334a;font:inherit;font-weight:700;touch-action:manipulation}
 .watersort-actions button:disabled{opacity:.5;cursor:not-allowed}
 .watersort-actions button:focus-visible{outline:3px solid #f0b949;outline-offset:2px}
+
+
+/* Preset-only family and friend gatherings — no player chat or free-text messaging. */
+#gathering-panel{position:fixed;z-index:75;inset:12px 12px 84px;max-width:640px;margin:auto;overflow:auto;padding:14px;border:1px solid #ead4e6;border-radius:18px;background:#fffafc;color:#3b2440;box-shadow:0 16px 48px #180d2840;pointer-events:auto}
+#gathering-panel[hidden]{display:none!important}
+.gathering-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.gathering-controls label{display:grid;gap:6px;font-weight:800}
+.gathering-controls select{min-width:0;width:100%;padding:10px;border:1px solid #dec6d9;border-radius:10px;background:#fff;color:#3b2440;font:inherit}
+#gathering-invites{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 12px}
+.gathering-invite{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #ead4e6;border-radius:12px;background:#fff;font-size:13px}
+.gathering-invite input{width:18px;height:18px;accent-color:#b83280;flex:none}
+.gathering-person{margin:10px 0;padding:10px;border:1px solid #ead4e6;border-radius:14px;background:#fff}
+.gathering-reaction{padding:8px;border-radius:10px;background:#fff0f7;color:#6d315a}
+#gathering-panel button{pointer-events:auto}
+@media(max-width:520px){.gathering-controls,#gathering-invites{grid-template-columns:1fr}.gathering-controls label{font-size:14px}}
