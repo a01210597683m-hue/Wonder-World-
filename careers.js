@@ -17,6 +17,33 @@
     const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (saved && typeof saved === 'object' && !Array.isArray(saved)) state = { ...defaults, ...saved };
   } catch (_) {}
+  // Local persistence is always available; signed-in players also sync this demo state to a private cloud row.
+  let cloudUserId = null;
+  let cloudReady = false;
+  let cloudSyncToken = 0;
+  let cloudSaveTimer = null;
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (_) {}
+    if (!cloudReady || !cloudUserId || !window.wonderWorldSupabase) return;
+    if (cloudSaveTimer) window.clearTimeout(cloudSaveTimer);
+    cloudSaveTimer = window.setTimeout(async () => {
+      const userId = cloudUserId;
+      const payload = {};
+      for (const key of Object.keys(defaults)) payload[key] = state[key];
+      try {
+        const { error } = await window.wonderWorldSupabase.from('player_career_saves').upsert({
+          player_id: userId, save_data: payload, updated_at: new Date().toISOString()
+        }, { onConflict: 'player_id' });
+        if (error) throw error;
+        const status = document.getElementById('career-cloud-status');
+        if (status && cloudUserId === userId) status.textContent = '☁️ تم حفظ تقدم الوظائف والمحل على حسابك.';
+      } catch (error) {
+        console.warn('WonderWorld career cloud save failed:', error);
+        const status = document.getElementById('career-cloud-status');
+        if (status && cloudUserId === userId) status.textContent = 'الحفظ على الجهاز يعمل؛ تعذّر تحديث النسخة السحابية الآن.';
+      }
+    }, 500);
+  }
   const jobs = [
     { id: 'cafe', title: 'مساعدة في الكافيه', icon: '☕', wage: 12, detail: 'جهزي طلبات المشروبات وساعدي الزبائن.' },
     { id: 'market', title: 'مساعدة في المتجر', icon: '🛍️', wage: 11, detail: 'رتبي المنتجات ووجهي الزبائن.' },
@@ -51,7 +78,8 @@
     heading.append(el('strong', { id: 'career-title' }, '💼 الوظائف ومشروعي الخاص'));
     const close = el('button', { type: 'button', 'aria-label': 'إغلاق لوحة العمل' }, '✕');
     heading.appendChild(close);
-    const note = el('p', { class: 'career-note' }, 'نموذج تجريبي: كل الأرصدة افتراضية ومحفوظة على هذا الجهاز فقط. لا توجد أموال حقيقية أو معاملات متصلة بـ Supabase.');
+    const note = el('p', { class: 'career-note' }, 'نموذج تجريبي: الأرصدة افتراضية وليست أموالًا حقيقية. الحفظ السحابي يحفظ حالة هذا النموذج فقط، وليس رصيد المحفظة الرسمي.');
+    const cloudStatus = el('p', { id: 'career-cloud-status', class: 'career-subtle', role: 'status' }, '☁️ يمكنك اللعب محليًا، وسيتفعّل الحفظ السحابي بعد تسجيل الدخول.');
     const stats = el('div', { id: 'career-stats', class: 'career-stats', 'aria-live': 'polite' });
     const feedback = el('p', { id: 'career-feedback', role: 'status', class: 'career-feedback' }, 'اختاري وظيفة، أو طوّري مشروعك الخاص خطوة بخطوة.');
 
@@ -101,7 +129,7 @@
     achievements.append(el('h3', {}, '🏅 إنجازات العمل'));
     const achievementList = el('div', { id: 'career-achievements', class: 'career-achievements' });
     achievements.appendChild(achievementList);
-    panel.append(heading, note, stats, jobCard, business, contract, achievements, feedback);
+    panel.append(heading, note, cloudStatus, stats, jobCard, business, contract, achievements, feedback);
     document.body.appendChild(panel);
 
     const selectedJob = () => jobs.find(job => job.id === state.selectedJob) || jobs[0];
@@ -224,6 +252,56 @@
     close.addEventListener('click', () => { panel.hidden = true; });
     panel.addEventListener('keydown', event => { if (event.key === 'Escape') panel.hidden = true; });
     render();
+
+    async function syncCareerCloud(user) {
+      const token = ++cloudSyncToken;
+      cloudUserId = user?.id || null;
+      cloudReady = false;
+      if (cloudSaveTimer) { window.clearTimeout(cloudSaveTimer); cloudSaveTimer = null; }
+      if (!cloudUserId || !window.wonderWorldSupabase) {
+        cloudStatus.textContent = 'الحفظ المحلي متاح. سجّلي الدخول لتفعيل الحفظ السحابي.';
+        return;
+      }
+      cloudStatus.textContent = '☁️ جاري تحميل حفظ حسابك…';
+      try {
+        const { data, error } = await window.wonderWorldSupabase
+          .from('player_career_saves').select('save_data').eq('player_id', cloudUserId).maybeSingle();
+        if (token !== cloudSyncToken) return;
+        if (error) throw error;
+        if (data?.save_data && typeof data.save_data === 'object' && !Array.isArray(data.save_data)) {
+          const incoming = data.save_data;
+          const safe = { ...defaults };
+          for (const key of Object.keys(defaults)) {
+            const value = incoming[key], fallback = defaults[key];
+            if (typeof fallback === 'number' && Number.isFinite(Number(value))) safe[key] = Math.max(0, Math.min(1000000000, Number(value)));
+            else if (typeof fallback === 'boolean' && typeof value === 'boolean') safe[key] = value;
+            else if (typeof fallback === 'string' && typeof value === 'string' && value.length <= 40) safe[key] = value;
+          }
+          if (!jobs.some(job => job.id === safe.selectedJob)) safe.selectedJob = defaults.selectedJob;
+          state = { ...state, ...safe };
+          if (state.dailyOrderDate !== today()) { state.dailyOrderDate = today(); state.dailyOrderCount = 0; }
+          cloudStatus.textContent = '☁️ تم تحميل حفظك من الحساب.';
+          cloudReady = true;
+          save();
+          render();
+        } else {
+          cloudReady = true;
+          save();
+          cloudStatus.textContent = '☁️ تم تفعيل الحفظ السحابي لحسابك.';
+        }
+      } catch (error) {
+        if (token !== cloudSyncToken) return;
+        cloudReady = false;
+        cloudStatus.textContent = 'الحفظ المحلي يعمل؛ تعذّر الاتصال بالحفظ السحابي. جرّبي فتح اللعبة مع اتصال بالإنترنت.';
+        console.warn('WonderWorld career cloud load failed:', error);
+      }
+    }
+    window.addEventListener('wonderworld:auth-state', event => { void syncCareerCloud(event.detail?.user || null); });
+    if (window.wonderWorldSupabase) {
+      window.wonderWorldSupabase.auth.getSession().then(({ data, error }) => {
+        if (!error) void syncCareerCloud(data.session?.user || null);
+      }).catch(error => console.warn('WonderWorld auth session unavailable:', error));
+    }
   }
   function bootWhenHudExists() {
     if (document.getElementById('life-ui')) { init(); return; }
