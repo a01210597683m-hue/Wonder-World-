@@ -384,6 +384,7 @@ ui.innerHTML = `
   <button id="open-map" type="button">🗺️ خريطة الحي والتنقّل</button>
   <button id="open-home-build" type="button">🏡 تخصيص البيت والحديقة</button>
   <button id="open-walks" type="button">🚶 تمشية مع صديق</button>
+  <button id="open-wonder-guide" type="button">🤖 مساعد Wonder الإرشادي</button>
   <button id="open-football" type="button">⚽ كرة القدم — تحدّي التسديد</button>
   <button id="open-journal" type="button">📔 سجل مغامراتي</button>
   <div class="avatar-tools"><button id="open-puzzle" type="button">🧩 ألغاز سريعة</button></div>
@@ -437,6 +438,12 @@ ui.innerHTML = `
     <div id="walk-active-tools" hidden><p id="walk-active-text"></p><div class="walk-activity-actions"><button id="walk-picnic" type="button">🧺 نزهة في الحديقة (4 عملات)</button><button id="walk-cafe" type="button">☕ خروجة كافيه (5 عملات)</button><button id="walk-photo" type="button">📸 ذكرى سوا عند النافورة</button><button id="walk-challenge" type="button">🧠 تحدّي تعاون سريع</button></div><p id="walk-activity-feedback" role="status">اختاري نشاطًا لما توصلي للمكان المناسب.</p><button id="end-shared-walk" type="button">👋 إنهاء التمشية</button></div>
     <p class="walk-prototype-note">الشخصيات المتاحة هنا شخصيات NPC داخل النموذج. الموافقة الحقيقية بين لاعبين مختلفين تحتاج حسابات وخادمًا مشتركًا، وده مش متفعّل في النسخة دي.</p>
   </section>
+  <section id="wonder-guide-panel" class="wonder-overlay" hidden aria-label="مساعد Wonder الإرشادي">
+    <div class="shop-heading"><strong>🤖 مساعد Wonder</strong><button id="close-wonder-guide" type="button" aria-label="إغلاق">✕</button></div>
+    <p class="shop-intro">اختاري سؤالًا من الأسئلة الجاهزة للحصول على إرشاد آمن. النسخة دي لا تستقبل رسائل حرة ولا تتصل بنموذج ذكاء اصطناعي خارجي بعد.</p>
+    <div id="wonder-guide-choices"></div>
+    <p id="wonder-guide-answer" role="status">أهلًا بيكي! اختاري موضوعًا وسأرشدك داخل اللعبة.</p>
+  </section>
   <section id="journal-panel" hidden aria-label="سجل مغامراتي">
     <div class="shop-heading"><strong>📔 سجل مغامراتي</strong><button id="close-journal" type="button" aria-label="إغلاق السجل">✕</button></div><p id="journal-summary" class="shop-intro"></p><div id="journal-list"></div>
   </section>
@@ -479,6 +486,24 @@ ui.innerHTML = `
   <div id="life-goal">مهمتك: تعرّفي على شخص، ثم زوري المتجر والحديقة.</div>
 `;
 document.getElementById('game').appendChild(ui);
+document.getElementById('open-wonder-guide').addEventListener('click', () => { document.getElementById('wonder-guide-panel').hidden = false; });
+document.getElementById('close-wonder-guide').addEventListener('click', () => { document.getElementById('wonder-guide-panel').hidden = true; });
+const wonderGuideTopics = [
+  { question: '🎮 إزاي أبدأ اللعب؟', answer: 'استخدمي الأسهم أو أزرار الحركة للمشي، واقتربي من مكان أو شخصية ثم اضغطي «تفاعل / استكشاف». جربي الحديقة والمتجر والألغاز أولًا.' },
+  { question: '👗 إزاي أغيّر شعري وهدومي؟', answer: 'افتحي متجر Wonder واختاري القطعة. مشتريات الحساب المسجّل تُراجع على الخادم، أما الدفع بفلوس حقيقية فغير مفعّل. لو زر الشراء ما استجابش، افتحي حساب اللاعب وتحققي من تسجيل الدخول.' },
+  { question: '🤝 إزاي أتعامل مع صديق؟', answer: 'في النموذج الحالي تقدري تتفاعلي مع شخصيات NPC. أي زيارة بين لاعبين حقيقيين لازم يكون فيها موافقة واضحة من الطرفين، والنظام المشترك لزيارات اللاعبين لسه غير مكتمل.' },
+  { question: '🪙 إزاي أكسب عملات؟', answer: 'الحساب السحابي يحصل على مكافأة يومية حسب قواعد الخادم. الوظائف والمحل ما زالا نموذجًا محليًا، لذلك لا تعتبري أرصدتهما رصيدًا سحابيًا موثوقًا حتى يكتمل الربط الآمن.' },
+  { question: '🛡️ إيه أعمل لو حاجة ضايقتني؟', answer: 'أنهي النشاط فورًا ولا تشاركي اسمك الكامل أو عنوانك أو كلمة السر. الدردشة الحرة بين اللاعبين غير متاحة. أدوات البلاغات والإشراف الكامل لسه مطلوبة قبل الإطلاق العام.' }
+];
+const wonderGuideChoices = document.getElementById('wonder-guide-choices');
+wonderGuideTopics.forEach(topic => {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'wonder-guide-choice';
+  button.textContent = topic.question;
+  button.addEventListener('click', () => { document.getElementById('wonder-guide-answer').textContent = topic.answer; });
+  wonderGuideChoices.appendChild(button);
+});
 document.getElementById('open-home-build').addEventListener('click', () => { document.getElementById('home-build-panel').hidden = false; });
 document.getElementById('close-home-build').addEventListener('click', () => { document.getElementById('home-build-panel').hidden = true; });
 const homeDesignDefaults = { wall: 'cream', roof: 'terracotta', garden: true };
