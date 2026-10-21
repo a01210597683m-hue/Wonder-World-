@@ -90,6 +90,11 @@ try {
   await page.locator('#toggle-home-garden').click();
   assert.equal(await page.locator('#toggle-home-garden').getAttribute('aria-pressed'), 'false', 'garden customization should toggle off');
   assert.match(await page.evaluate(() => localStorage.getItem('wonderworld-home-design-v1')), /"wall":"mint"/, 'home design should persist locally');
+  assert.equal(await page.locator('[data-home-wall="mint"]').getAttribute('aria-pressed'), 'true', 'selected facade must be visibly and accessibly marked');
+  assert.equal(await page.locator('[data-home-wall="brick"]').getAttribute('aria-pressed'), 'false', 'unselected facade must not appear selected');
+  await page.locator('#reset-home-design').click();
+  assert.equal(await page.locator('[data-home-wall="brick"]').getAttribute('aria-pressed'), 'true', 'reset must select the default brick facade');
+  assert.match(await page.evaluate(() => localStorage.getItem('wonderworld-home-design-v1')), /"wall":"brick"/, 'reset must persist the default design');
   await page.locator('#close-home-build').click();
   await page.locator('#home-build-panel').waitFor({ state: 'hidden' });
 

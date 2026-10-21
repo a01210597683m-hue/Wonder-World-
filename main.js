@@ -659,7 +659,7 @@ ui.innerHTML = `
     <p class="shop-intro">غيّري ألوان واجهة بيتك والسقف، واظهري أو اخفي الشجيرات. التصميم يُحفظ على هذا الجهاز في النسخة التجريبية.</p>
     <h4>لون وخامة الواجهة</h4><div class="avatar-tools"><button type="button" data-home-wall="brick">🧱 طوب أحمر</button><button type="button" data-home-wall="gold">✨ دهبي</button><button type="button" data-home-wall="yellow">🌞 أصفر دافئ</button><button type="button" data-home-wall="cream">🤍 كريمي</button><button type="button" data-home-wall="pink">🌸 وردي</button><button type="button" data-home-wall="mint">🌿 نعناعي</button></div>
     <h4>لون السقف</h4><div class="avatar-tools"><button type="button" data-home-roof="terracotta">🧱 طوبي</button><button type="button" data-home-roof="blue">💙 أزرق</button><button type="button" data-home-roof="gold">✨ ذهبي</button></div>
-    <button id="toggle-home-garden" type="button" aria-pressed="true">🌳 إخفاء شجيرات الحديقة</button><p id="home-build-feedback" role="status"></p>
+    <button id="toggle-home-garden" type="button" aria-pressed="true">🌳 إخفاء شجيرات الحديقة</button><button id="reset-home-design" class="home-design-reset" type="button">↩️ رجّعي التصميم الأساسي</button><p id="home-build-feedback" role="status" aria-live="polite">اختاري لونًا؛ الاختيار الحالي هيتحدد بوضوح ويتحفظ على الجهاز.</p>
   </section>
   <section id="map-panel" hidden aria-label="خريطة الحي">
     <div class="shop-heading"><strong>🗺️ خريطة WonderWorld</strong><button id="close-map" type="button" aria-label="إغلاق الخريطة">✕</button></div>
@@ -761,6 +761,18 @@ let homeDesign = { ...homeDesignDefaults };
 try { const savedDesign = JSON.parse(localStorage.getItem('wonderworld-home-design-v1') || 'null'); if (savedDesign && typeof savedDesign === 'object') homeDesign = { ...homeDesignDefaults, ...savedDesign }; } catch (_) {}
 const homeWallMaterials = { cream: mats.wall, brick: mats.wallBrick, gold: mats.wallGold, yellow: mats.wallYellow, pink: mats.wallPink, mint: mats.outfitMint };
 const homeRoofMaterials = { terracotta: mats.roof, blue: mats.npcBlue, gold: mats.outfitGold };
+function syncHomeDesignControls() {
+  document.querySelectorAll('[data-home-wall]').forEach(button => {
+    const selected = button.dataset.homeWall === homeDesign.wall;
+    button.setAttribute('aria-pressed', String(selected));
+    button.classList.toggle('is-selected', selected);
+  });
+  document.querySelectorAll('[data-home-roof]').forEach(button => {
+    const selected = button.dataset.homeRoof === homeDesign.roof;
+    button.setAttribute('aria-pressed', String(selected));
+    button.classList.toggle('is-selected', selected);
+  });
+}
 function applyHomeDesign() {
   playerHomeBuild.walls.render.material = homeWallMaterials[homeDesign.wall] || mats.wall;
   playerHomeBuild.roof.render.material = homeRoofMaterials[homeDesign.roof] || mats.roof;
@@ -768,6 +780,7 @@ function applyHomeDesign() {
   const gardenButton = document.getElementById('toggle-home-garden');
   gardenButton.setAttribute('aria-pressed', String(Boolean(homeDesign.garden)));
   gardenButton.textContent = homeDesign.garden ? '🌳 إخفاء شجيرات الحديقة' : '🌱 إظهار شجيرات الحديقة';
+  syncHomeDesignControls();
 }
 function saveHomeDesign(message) {
   try { localStorage.setItem('wonderworld-home-design-v1', JSON.stringify(homeDesign)); } catch (_) {}
@@ -787,6 +800,10 @@ document.querySelectorAll('[data-home-roof]').forEach(button => button.addEventL
 document.getElementById('toggle-home-garden').addEventListener('click', () => {
   homeDesign.garden = !homeDesign.garden;
   saveHomeDesign(homeDesign.garden ? 'رجّعنا شجيرات الحديقة.' : 'اتشالت شجيرات الحديقة من العرض.');
+});
+document.getElementById('reset-home-design').addEventListener('click', () => {
+  homeDesign = { ...homeDesignDefaults };
+  saveHomeDesign('رجّعنا الواجهة الطوبية والسقف الطوبي والحديقة للتصميم الأساسي.');
 });
 applyHomeDesign();
 document.getElementById('toggle-vehicle').addEventListener('click', () => { toggleVehicleMode(); document.getElementById('toggle-vehicle').setAttribute('aria-pressed', String(vehicleMode)); });
