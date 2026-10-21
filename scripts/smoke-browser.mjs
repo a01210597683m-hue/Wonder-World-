@@ -143,27 +143,17 @@ try {
   assert.equal(await page.evaluate(() => document.activeElement?.id), 'ww-arcade-launch', 'Escape should close the arcade dialog and restore focus to its launcher');
   await page.locator('#ww-arcade-launch').click();
   await page.locator('#ww-arcade-panel').waitFor({ state: 'visible' });
-  await page.locator('#wwa-memory-open').click();
-  assert.equal(await page.locator('#ww-memory-grid .ww-memory-card').count(), 12, 'memory pairs should render six matching pairs');
-  await page.locator('#wwa-memory-reset').click();
-  assert.equal(await page.locator('#ww-memory-grid .ww-memory-card').count(), 12, 'memory game restart should keep a full shuffled board');
-  let memoryPairFound = false;
-  for (let candidate = 1; candidate < 12; candidate++) {
-    const cards = page.locator('#ww-memory-grid .ww-memory-card');
-    await cards.nth(0).click();
-    const firstSymbol = (await page.locator('#ww-memory-grid .ww-memory-card').nth(0).innerText()).trim();
-    await page.locator('#ww-memory-grid .ww-memory-card').nth(candidate).click();
-    const secondSymbol = (await page.locator('#ww-memory-grid .ww-memory-card').nth(candidate).innerText()).trim();
-    if (firstSymbol === secondSymbol) {
-      assert.equal(await page.locator('#ww-memory-grid .ww-memory-card.matched').count(), 2, 'matching symbols should stay revealed as a completed pair');
-      memoryPairFound = true;
-      break;
-    }
-    await page.waitForTimeout(900);
-  }
-  assert.ok(memoryPairFound, 'memory game should allow a real matching pair to be completed');
-  await page.locator('#wwa-memory-reset').click();
-  assert.equal(await page.locator('#ww-memory-grid .ww-memory-card').count(), 12, 'memory restart should rebuild the board after a successful match');
+  await page.locator('#wwa-color-open').click();
+  const targetColor = await page.locator('#wwa-color-target').getAttribute('data-target');
+  assert.ok(['mint', 'coral', 'blue', 'violet'].includes(targetColor), 'color matching should select a known target color');
+  await page.locator('.wwa-color-choice[data-color="' + targetColor + '"]').click();
+  assert.equal(await page.locator('#wwa-color-score').innerText(), '1', 'choosing the target color should increment the score');
+  assert.match(await page.locator('#wwa-color-status').innerText(), /صح/, 'correct color choice should show positive feedback');
+  assert.equal(await page.locator('#wwa-color-options .wwa-color-choice:disabled').count(), 4, 'color round should lock answers after one choice');
+  await page.locator('#wwa-color-next').click();
+  assert.equal(await page.locator('#wwa-color-options .wwa-color-choice:disabled').count(), 0, 'next color round should enable all answer choices');
+  await page.locator('#wwa-color-reset').click();
+  assert.equal(await page.locator('#wwa-color-score').innerText(), '0', 'color game restart should reset the score');
   await page.locator('#wwa-cups-open').click();
   await page.locator('#ww-cups .ww-cup').first().click();
   assert.match(await page.locator('#wwa-cups-status').innerText(), /النجمة/, 'cup guessing should reveal a result and identify the hidden star');
