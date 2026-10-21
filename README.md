@@ -39,7 +39,7 @@ Do not commit service-role keys, passwords, or other secrets. Keep Row Level Sec
 ## Careers and player-owned shop prototype
 The careers panel includes three selectable job tracks (café, store, and delivery coordination), repeatable paid shifts, job experience, a player-owned storefront, shop decoration, stock deliveries, customer orders, business reputation and level upgrades, additional shelves, a daily marketing action, a once-per-local-day three-order contract, and progress badges. The storefront is linked to the 3D neighborhood and its sign/visible stock react to local business state.
 
-All balances, ownership, reputation, daily limits, and progress are stored in the current browser's local storage. They are prototype-only and can be reset or edited by the player; they are not synchronized to Supabase, secure multiplayer state, or real money. GitHub Actions checks JavaScript syntax during Pages builds. Browser and Android gameplay verification is still required.
+Career and business progress is stored locally and, when signed in, synchronized to the private `player_career_saves` row for that account. This is prototype-only client-controlled state, not secure multiplayer progression, a trusted wallet, or real money. Browser and Android gameplay verification is still required.
 
 
 
@@ -59,3 +59,10 @@ The game now includes a local Ludo-vs-CPU prototype and a two-side chess move-pr
 - Added private per-account cloud saves for the career/business demo using the `player_career_saves` table and row-level security (RLS). Signed-in players can access only their own row.
 - Cloud-saved career credits and business state remain prototype data controlled by the client. They are not authoritative wallet currency, purchases, or anti-cheat-secure progression.
 - Restored mobile browser zoom accessibility in the viewport settings.
+
+
+## Full game progression cloud saves — 2026-10-21
+- Added a private `player_game_saves` row per authenticated player with RLS policies for select/insert/update/delete restricted to `auth.uid() = player_id`.
+- The game syncs levels and XP, prototype coins, happiness/energy, daily quests, wardrobe ownership/equipment, NPC relationships, pet ownership/care/names/supplies, adventure history, and selected mini-game records/login streaks. Local storage remains the fallback when signed out or when the network is unavailable.
+- Completing all four daily objectives now also grants 10 XP, in addition to the existing coin and happiness reward.
+- Cloud saves are persistence, not anti-cheat protection: prototype currency and progress are still client-controlled. The cloud round-trip and cross-account isolation still need real signed-in browser testing.
