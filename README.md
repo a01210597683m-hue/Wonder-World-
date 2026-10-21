@@ -93,3 +93,10 @@ GitHub Actions now installs a pinned Playwright version and runs Chromium with s
 - Prevented global world movement/interact shortcuts from hijacking keyboard activation of buttons and form fields.
 - Expanded mobile smoke coverage to finish a full five-shot round, verify score persistence, restart without losing the best score, and test keyboard aiming.
 - Added visible keyboard focus and tighter small-screen football controls.
+
+
+## Mini-game reliability batch — 2026-10-21
+- Water Sort now builds a puzzle from a solved state using reversible top-run moves, preserving a known solution path instead of arbitrarily shuffling color units into potentially unsolvable boards.
+- Browser smoke coverage now checks Block Blast board size, placement/scoring, best-score persistence and reset behavior.
+- Browser smoke coverage now checks Water Sort tube count, a valid pour, move counter, solvable-scramble guidance and reset behavior.
+- Refreshed asset cache versions for the gameplay changes.

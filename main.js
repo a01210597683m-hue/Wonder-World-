@@ -1747,11 +1747,36 @@ document.getElementById('open-blockblast').addEventListener('click',openBlockBla
 const waterSortColors=[{name:'بنفسجي',value:'#8b61c2'},{name:'مرجاني',value:'#ed6b72'},{name:'أزرق',value:'#4296d6'},{name:'أخضر',value:'#43a875'}];
 let waterSortTubes=[],waterSortSelected=-1,waterSortMoves=0,waterSortWon=false;
 function waterSortReset(){
- const pool=[];waterSortColors.forEach((_,c)=>{for(let i=0;i<4;i++)pool.push(c);});
- for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
- waterSortTubes=[pool.slice(0,4),pool.slice(4,8),pool.slice(8,12),pool.slice(12,16),[],[]];
+ // Start from a solved board and scramble only with reversible reverse-moves.
+ // Each moved top run can be poured back in reverse order, so every generated
+ // puzzle remains solvable (unlike shuffling all 16 color units arbitrarily).
+ waterSortTubes=waterSortColors.map((_,color)=>Array(4).fill(color)).concat([[],[]]);
+ for(let step=0;step<80;step++){
+  const candidates=[];
+  for(let source=0;source<waterSortTubes.length;source++){
+   const from=waterSortTubes[source];
+   if(!from.length)continue;
+   const color=from[from.length-1];
+   let runLength=1;
+   for(let i=from.length-2;i>=0&&from[i]===color;i--)runLength++;
+   for(let target=0;target<waterSortTubes.length;target++){
+    if(target===source)continue;
+    const to=waterSortTubes[target];
+    if(to.length>=4||(to.length&&to[to.length-1]===color))continue;
+    const maxAmount=Math.min(runLength,4-to.length);
+    for(let amount=1;amount<=maxAmount;amount++){
+     // Avoid pointless full-tube swaps between a full tube and an empty one.
+     if(from.length===amount&&to.length===0)continue;
+     candidates.push({source,target,amount});
+    }
+   }
+  }
+  if(!candidates.length)break;
+  const move=candidates[Math.floor(Math.random()*candidates.length)];
+  for(let n=0;n<move.amount;n++)waterSortTubes[move.target].push(waterSortTubes[move.source].pop());
+ }
  waterSortSelected=-1;waterSortMoves=0;waterSortWon=false;
- document.getElementById('watersort-feedback').textContent='اختاري أنبوبة فيها لون، ثم أنبوبة فاضية أو لونها العلوي مطابق.';
+ document.getElementById('watersort-feedback').textContent='لغز جديد قابل للحل! اختاري أنبوبة فيها لون، ثم أنبوبة فاضية أو لونها العلوي مطابق.';
  waterSortRender();
 }
 function waterSortComplete(t){return !t.length||(t.length===4&&t.every(c=>c===t[0]));}
