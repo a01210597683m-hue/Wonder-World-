@@ -18,6 +18,7 @@ const readme = read('../README.md');
 const main = read('../main.js');
 const auth = read('../auth.js');
 const careers = read('../careers.js');
+const boardGames = read('../board-games.js');
 
 check('Official branding reference is stored in App-Branding', exists('App-Branding/1792530004270.jpg'));
 check('Character reference folder exists', exists('assets/characters'));
@@ -27,6 +28,10 @@ check('Game-design reference folder contains multiple original references',
   files('game-design-references').filter(entry => entry.isFile() && /\.(avif|gif|jpe?g|png|webp|bmp)$/i.test(entry.name)).length >= 4);
 check('Reference panel targets the configured Supabase Storage bucket',
   /const BUCKET = 'Wonder World Game'/.test(html) && /prefix: 'characters'/.test(html));
+check('Water Sort is wired into the board-games module',
+  /bg-open-water-sort/.test(boardGames) && /function initWaterSort/.test(boardGames) && /water-sort-undo/.test(boardGames));
+check('Board-games module cache version is refreshed after feature addition',
+  /board-games\\.js\\?v=20261021-4/.test(main));
 check('Core game and account modules are wired into the HTML',
   /main\.js\?v=/.test(html) && /auth\.js\?v=/.test(html) && /careers\.js\?v=/.test(html));
 check('Core game files exist and are non-empty',
