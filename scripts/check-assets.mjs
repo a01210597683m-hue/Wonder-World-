@@ -19,6 +19,7 @@ const main = read('../main.js');
 const auth = read('../auth.js');
 const careers = read('../careers.js');
 const boardGames = read('../board-games.js');
+const miniGames = read('../mini-games.js');
 
 check('Official branding reference is stored in App-Branding', exists('App-Branding/1792530004270.jpg'));
 check('Character reference folder exists', exists('assets/characters'));
@@ -32,6 +33,10 @@ check('Water Sort is wired into the board-games module',
   /bg-open-water-sort/.test(boardGames) && /function initWaterSort/.test(boardGames) && /water-sort-undo/.test(boardGames));
 check('Board-games module cache version is refreshed after feature addition',
   main.includes('board-games.js?v=20261021-4'));
+check('Casual arcade module is loaded and both mini-games are wired',
+  html.includes('mini-games.js?v=20261021-1') && /wwa-memory-open/.test(miniGames) && /wwa-cups-open/.test(miniGames));
+check('Casual arcade source includes pair matching and cup-guess outcomes',
+  /function flipMemory/.test(miniGames) && /function newCups/.test(miniGames) && /وجدتي النجمة|لقيتي النجمة/.test(miniGames));
 check('Core game and account modules are wired into the HTML',
   /main\.js\?v=/.test(html) && /auth\.js\?v=/.test(html) && /careers\.js\?v=/.test(html));
 check('Core game files exist and are non-empty',
