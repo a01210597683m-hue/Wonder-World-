@@ -72,3 +72,10 @@ The game now includes a local Ludo-vs-CPU prototype and a two-side chess move-pr
 
 ## Automated browser smoke tests
 GitHub Actions now installs a pinned Playwright version and runs Chromium with software WebGL before deployment. The smoke suite opens the mobile viewport and exercises the 3D canvas, touch controls, careers/business panel, a football shot, the 16-card memory board, and the account dialog. These checks catch basic runtime/UI regressions; they do not replace real-device Android testing, visual QA, secure purchase testing, or full production gameplay acceptance.
+
+
+## Secure cloud wardrobe economy — 2026-10-21
+- Added a Supabase migration for a server-validated virtual wallet, private daily reward claims, and an append-only transaction history with owner-scoped read access.
+- Seeded the seven existing wardrobe items into the database catalog. Signed-in players can claim 10 virtual coins once per UTC day and purchase catalog items through authenticated Postgres RPCs; balance checks, deductions, ownership inserts, and transaction logging run in a single database transaction.
+- The signed-in wardrobe UI uses the cloud wallet path rather than the local-only checkout. Signed-out play retains the existing local prototype economy and is explicitly labeled as device-local.
+- This hardens the wardrobe purchase path only. Other gameplay rewards, career/business balances, paid-money checkout, and overall progression still require their own server-authoritative implementations and end-to-end authenticated testing. No real-money payment processing was added.
