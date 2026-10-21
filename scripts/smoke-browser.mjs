@@ -132,6 +132,19 @@ try {
   await page.locator('#wwa-home').click();
   await page.locator('#ww-activities').waitFor({ state: 'hidden' });
 
+  await page.locator('#open-map').click();
+  await page.locator('.map-destination').filter({ hasText: 'منصة عروض الأزياء' }).click();
+  await page.locator('#interact').click();
+  await page.locator('#ww-activities').waitFor({ state: 'visible' });
+  assert.match(await page.locator('#wwa-title').innerText(), /الموضة/);
+  await page.locator('#wwa-looks button').first().click();
+  assert.notEqual(await page.locator('#wwa-fashion-clothes').innerText(), '👗', 'fashion selection should update the runway avatar');
+  await page.locator('#wwa-runway-go').click();
+  assert.match(await page.locator('#wwa-feedback').innerText(), /تقييم لجنة التحكيم/);
+  assert.equal((await page.locator('#wwa-fashion-theme').innerText()).trim(), 'إطلالة رياضية', 'one runway show should advance exactly one theme');
+  await page.locator('#wwa-home').click();
+  await page.locator('#ww-activities').waitFor({ state: 'hidden' });
+
   await page.locator('#open-wonder-guide').click();
   await page.locator('#wonder-guide-panel').waitFor({ state: 'visible' });
   assert.equal(await page.locator('.wonder-guide-choice').count(), 5, 'Wonder guide should expose only bounded preset questions');
