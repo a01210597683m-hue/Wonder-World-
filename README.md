@@ -52,3 +52,10 @@ Run `node scripts/check-game.mjs` from the repository root to verify that core s
 
 ## Board games
 The game now includes a local Ludo-vs-CPU prototype and a two-side chess move-practice board. Ludo includes dice, captures and finish rules; chess supports basic piece movement and captures but does not yet enforce check, castling, or en passant. Test touch controls on a real phone before treating these prototypes as production-ready.
+
+
+## Player career saves — 2026-10-21
+- Fixed the career module's missing local persistence function, so job and business progress is stored in localStorage again.
+- Added private per-account cloud saves for the career/business demo using the `player_career_saves` table and row-level security (RLS). Signed-in players can access only their own row.
+- Cloud-saved career credits and business state remain prototype data controlled by the client. They are not authoritative wallet currency, purchases, or anti-cheat-secure progression.
+- Restored mobile browser zoom accessibility in the viewport settings.
