@@ -6,6 +6,7 @@ const html = read('../index.html');
 const game = read('../main.js');
 const careers = read('../careers.js');
 const boardGames = read('../board-games.js');
+const miniGames = read('../mini-games.js');
 const gameSaveMigration = read('../supabase/migrations/202610210006_add_private_player_game_saves.sql');
 const economyMigration = read('../supabase/migrations/202610210007_secure_virtual_economy.sql');
 const welcomeMigration = read('../supabase/migrations/202610210010_wallet_welcome_bonus.sql');
@@ -39,6 +40,9 @@ const checks = [
   ['Mobile viewport allows user zoom', /viewport-fit=cover/.test(html) && !/user-scalable=no|max(?:imum)?-scale=1/i.test(html)],
 
   ['Ludo and chess activities are dynamically wired', /import\(['"]\.\/board-games\.js\?v=/.test(game)],
+  ['Casual arcade module is loaded by the page', /mini-games\.js\?v=/.test(html) && /function boot\(\)/.test(miniGames)],
+  ['Memory-pair game supports matching, move counting, and restart', /function flipMemory/.test(miniGames) && /memory\.matched\.add/.test(miniGames) && /memory\.moves\+\+/.test(miniGames) && /wwa-memory-reset/.test(miniGames)],
+  ['Cup guessing game reveals the hidden star and can restart', /function newCups/.test(miniGames) && /ww-cup/.test(miniGames) && /wwa-cups-reset/.test(miniGames)],
   ['Board-game module contains Ludo and chess activities', /function initLudo\(/.test(boardGames) && /function initChess\(/.test(boardGames) && /cpuTurn/.test(boardGames)],
   ['Ludo home pieces are rendered and selectable before launch', /homeSlots=\{/.test(boardGames) && /data-ludo-home/.test(boardGames) && /moveLudo\(slot\[0\],slot\[1\]\)/.test(boardGames)],
   ['Static houses and pool are re-enabled independently of account state', /staticHouseStructures/.test(game) && /staticPoolStructures/.test(game) && /ensureStaticWorldVisible\(\)/.test(game)],
