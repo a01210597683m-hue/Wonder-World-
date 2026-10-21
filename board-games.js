@@ -13,7 +13,6 @@ style.textContent=`
 .ludo-cell.track{background:#edf3f8}.ludo-cell.safe{background:#fff1cb;border-color:#e4c56e}.ludo-cell.home{background:#eef1f5}.ludo-cell button{border:0;border-radius:50%;width:84%;height:84%;font-size:clamp(13px,4vw,22px);font-weight:900;padding:0;line-height:1;box-shadow:0 1px 4px #0002}.ludo-cell .selected{outline:3px solid #e5a500}
 .ludo-cell .red{background:#f5c2c2;color:#8d2020}.ludo-cell .blue{background:#c7e4ff;color:#164e87}.ludo-center{grid-column:3/6;grid-row:3/6;background:#e5f2e8;border:2px dashed #7caf8c;border-radius:10px;display:grid;place-items:center;text-align:center;font-size:12px;font-weight:800;padding:5px}
 #chess-board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));width:min(100%,420px);margin:12px auto;border:3px solid #40576c;border-radius:5px;overflow:hidden}.chess-square{aspect-ratio:1;display:grid;place-items:center;border:0;padding:0;font-size:clamp(22px,6.8vw,39px);line-height:1;color:#18232d}.chess-square.light{background:#f2e9d5}.chess-square.dark{background:#83a58b}.chess-square.chosen{box-shadow:inset 0 0 0 4px #f2b93b}.chess-square.target{box-shadow:inset 0 0 0 4px #4384db}
-#water-sort-board{display:flex;justify-content:center;align-items:flex-end;gap:clamp(7px,2vw,14px);flex-wrap:wrap;margin:18px auto;max-width:460px;min-height:180px}.water-tube{width:clamp(42px,11vw,58px);height:clamp(125px,33vw,165px);border:3px solid #9bb1c6;border-top:0;border-radius:0 0 16px 16px;background:#f8fbffdd;padding:5px 4px 6px;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;overflow:hidden}.water-tube.selected{outline:3px solid #e5a500;outline-offset:3px}.water-layer{height:22%;min-height:8px;border-radius:5px 5px 9px 9px;width:100%;flex-shrink:0}.water-tube:focus-visible{outline:3px solid #d97706;outline-offset:3px}
 @media(max-width:380px){#board-games-panel{inset:2dvh 5px auto;padding:10px}.ludo-cell{border-radius:4px}}
 `;
 document.head.appendChild(style);
@@ -21,10 +20,10 @@ function boot(){
  const hud=document.getElementById('life-ui');if(!hud||document.getElementById('board-games-launch'))return false;
  const launch=el('button',{id:'board-games-launch',type:'button'},'🎲♟️ ألعاب الطاولة: لودو وشطرنج');hud.appendChild(launch);
  const panel=el('section',{id:'board-games-panel',role:'dialog','aria-modal':'true','aria-label':'ألعاب الطاولة'});panel.hidden=true;
- panel.innerHTML='<div class="bg-head"><strong>🎲 ركن الألعاب</strong><button id="bg-close" type="button" aria-label="إغلاق">✕</button></div><p class="bg-sub">اختاري لعبة وابدئي فورًا.</p><div class="bg-modes"><button class="bg-mode" id="bg-open-ludo" type="button">🎲 لودو ضد الكمبيوتر</button><button class="bg-mode" id="bg-open-chess" type="button">♟️ الشطرنج</button><button class="bg-mode" id="bg-open-water-sort" type="button">🧪 ترتيب الألوان</button></div><section id="bg-ludo-section" hidden><h3>🎲 لودو السريعة</h3><div class="bg-status" id="ludo-status" role="status">دوركِ! ارمي النرد.</div><div class="bg-record" id="ludo-record" aria-live="polite">سجلّك: ٠ فوز · ٠ خسارة</div><div class="bg-actions"><button id="ludo-roll" type="button">🎲 ارمي النرد</button><button id="ludo-reset" type="button">🔄 لعبة جديدة</button></div><div id="ludo-board" aria-label="لوحة لودو"></div><p class="bg-note">نسخة مبسطة: لكل لاعب قطعتان، تحتاج القطعة إلى 6 للخروج، ويمكن إرجاع قطعة الخصم عند الوقوف على خانتها. أول لاعب يوصل القطعتين للنهاية يفوز.</p></section><section id="bg-chess-section" hidden><h3>♟️ الشطرنج — تدريب الحركات</h3><div class="bg-status" id="chess-status" role="status">دور الأبيض. اختاري قطعة ثم خانة متاحة.</div><div class="bg-actions"><button id="chess-reset" type="button">🔄 إعادة اللوحة</button><button id="chess-undo" type="button" disabled>↩️ تراجع عن الحركة</button><button id="chess-flip" type="button">↕️ تدوير اللوحة</button></div><div id="chess-board" aria-label="لوحة الشطرنج"></div><p class="bg-note">وضع تدريب للحركات الأساسية وأخذ القطع بالتناوب. لا يتحقق بعد من كش الملك أو التبييت أو الأخذ بالتجاوز، وليس بديلًا عن محرك شطرنج كامل.</p></section><section id="bg-water-sort-section" hidden><h3>🧪 ترتيب الألوان</h3><div class="bg-status" id="water-sort-status" role="status">انقلي الألوان حتى يصبح كل أنبوب بلون واحد.</div><div class="bg-actions"><button id="water-sort-reset" type="button">🔄 لغز جديد</button><button id="water-sort-undo" type="button" disabled>↩️ تراجع</button></div><div id="water-sort-board" aria-label="أنابيب ترتيب الألوان"></div><p class="bg-note">اضغطي أنبوبًا لاختيار اللون العلوي، ثم أنبوبًا آخر لنقل اللون إليه. لا يمكن وضع لون فوق لون مختلف، وسعة كل أنبوب أربع طبقات.</p></section></section>';
+ panel.innerHTML='<div class="bg-head"><strong>🎲 ركن ألعاب الطاولة</strong><button id="bg-close" type="button" aria-label="إغلاق">✕</button></div><p class="bg-sub">اختاري لعبة وابدئي فورًا: لودو ضد الكمبيوتر أو الشطرنج للتدريب على تحريك القطع.</p><div class="bg-modes"><button class="bg-mode" id="bg-open-ludo" type="button">🎲 لودو ضد الكمبيوتر</button><button class="bg-mode" id="bg-open-chess" type="button">♟️ الشطرنج</button></div><section id="bg-ludo-section" hidden><h3>🎲 لودو السريعة</h3><div class="bg-status" id="ludo-status" role="status">دوركِ! ارمي النرد.</div><div class="bg-record" id="ludo-record" aria-live="polite">سجلّك: ٠ فوز · ٠ خسارة</div><div class="bg-actions"><button id="ludo-roll" type="button">🎲 ارمي النرد</button><button id="ludo-reset" type="button">🔄 لعبة جديدة</button></div><div id="ludo-board" aria-label="لوحة لودو"></div><p class="bg-note">نسخة مبسطة: لكل لاعب قطعتان، تحتاج القطعة إلى 6 للخروج، ويمكن إرجاع قطعة الخصم عند الوقوف على خانتها. أول لاعب يوصل القطعتين للنهاية يفوز.</p></section><section id="bg-chess-section" hidden><h3>♟️ الشطرنج — تدريب الحركات</h3><div class="bg-status" id="chess-status" role="status">دور الأبيض. اختاري قطعة ثم خانة متاحة.</div><div class="bg-actions"><button id="chess-reset" type="button">🔄 إعادة اللوحة</button><button id="chess-undo" type="button" disabled>↩️ تراجع عن الحركة</button><button id="chess-flip" type="button">↕️ تدوير اللوحة</button></div><div id="chess-board" aria-label="لوحة الشطرنج"></div><p class="bg-note">وضع تدريب للحركات الأساسية وأخذ القطع بالتناوب. لا يتحقق بعد من كش الملك أو التبييت أو الأخذ بالتجاوز، وليس بديلًا عن محرك شطرنج كامل.</p></section></section>';
  document.body.appendChild(panel);const close=()=>panel.hidden=true;launch.addEventListener('click',()=>panel.hidden=false);document.getElementById('bg-close').addEventListener('click',close);panel.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
- const ls=document.getElementById('bg-ludo-section'),cs=document.getElementById('bg-chess-section'),ws=document.getElementById('bg-water-sort-section');
- document.getElementById('bg-open-ludo').addEventListener('click',()=>{ls.hidden=false;cs.hidden=true;ws.hidden=true;initLudo();});document.getElementById('bg-open-chess').addEventListener('click',()=>{cs.hidden=false;ls.hidden=true;ws.hidden=true;initChess();});document.getElementById('bg-open-water-sort').addEventListener('click',()=>{ws.hidden=false;ls.hidden=true;cs.hidden=true;initWaterSort();});
+ const ls=document.getElementById('bg-ludo-section'),cs=document.getElementById('bg-chess-section');
+ document.getElementById('bg-open-ludo').addEventListener('click',()=>{ls.hidden=false;cs.hidden=true;initLudo();});document.getElementById('bg-open-chess').addEventListener('click',()=>{cs.hidden=false;ls.hidden=true;initChess();});
  const readLudoRecord=()=>{try{return JSON.parse(localStorage.getItem('wonderworld-ludo-record-v1')||'{"wins":0,"losses":0}');}catch{return {wins:0,losses:0};}};
  const ludoRecord=readLudoRecord();const renderLudoRecord=()=>{document.getElementById('ludo-record').textContent='سجلّك: '+ludoRecord.wins+' فوز · '+ludoRecord.losses+' خسارة';};
  function recordLudoResult(won){if(ludo.recorded)return;ludo.recorded=true;if(won)ludoRecord.wins++;else ludoRecord.losses++;try{localStorage.setItem('wonderworld-ludo-record-v1',JSON.stringify(ludoRecord));}catch{}renderLudoRecord();}
@@ -56,47 +55,6 @@ function boot(){
  function cpuTurn(){if(ludo.over||ludo.turn!=='blue')return;ludo.dice=1+Math.floor(Math.random()*6);ludo.rolled=true;const legal=ludo.p.blue.map((p,i)=>({p,i})).filter(x=>(x.p>0&&x.p+ludo.dice<=24)||(x.p===0&&ludo.dice===6));if(!legal.length){const n=ludo.dice;ludo.rolled=false;ludo.turn='red';renderLudo('الكمبيوتر رمى '+n+' ولا توجد حركة. دوركِ!');return;}const pick=legal.sort((a,b)=>b.p-a.p)[0];moveLudo('blue',pick.i);}
  document.getElementById('ludo-roll').addEventListener('click',()=>{if(ludo.over||ludo.rolled||ludo.turn!=='red')return;ludo.dice=1+Math.floor(Math.random()*6);ludo.rolled=true;const ok=ludo.p.red.some(p=>(p>0&&p+ludo.dice<=24)||(p===0&&ludo.dice===6));if(!ok){const n=ludo.dice;ludo.rolled=false;ludo.turn='blue';renderLudo('طلع '+n+' ومفيش حركة متاحة؛ الكمبيوتر هيلعب.');window.setTimeout(cpuTurn,600);return;}renderLudo('طلع '+ludo.dice+'! '+(ludo.dice===6?'القطع الحمراء ظاهرة في البيت؛ اضغطي على واحدة لإخراجها.':'اضغطي على قطعة حمراء متحركة لتحريكها.'));});
  document.getElementById('ludo-reset').addEventListener('click',initLudo);
- // Water Sort: a complete, local puzzle with legal pours, undo and win detection.
- const waterColors=[
-  {name:'أحمر',hex:'#ef5350'},{name:'أزرق',hex:'#42a5f5'},
-  {name:'أخضر',hex:'#66bb6a'},{name:'بنفسجي',hex:'#ab70d6'}
- ];
- let water;
- function initWaterSort(){
-  const layers=waterColors.flatMap((color,index)=>Array(4).fill(index));
-  for(let i=layers.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[layers[i],layers[j]]=[layers[j],layers[i]];}
-  water={tubes:[layers.slice(0,4),layers.slice(4,8),layers.slice(8,12),layers.slice(12,16),[],[]],selected:null,history:[],moves:0,won:false};
-  renderWaterSort('ابدئي باختيار أنبوب ثم اختاري أنبوبًا مناسبًا لنقل اللون العلوي.');
- }
- function waterSolved(){return water.tubes.every(t=>t.length===0||(t.length===4&&t.every(v=>v===t[0])));}
- function renderWaterSort(message){
-  const root=document.getElementById('water-sort-board');root.replaceChildren();
-  water.tubes.forEach((tube,index)=>{
-   const button=el('button',{type:'button',className:'water-tube'+(water.selected===index?' selected':''),'aria-label':'الأنبوب '+(index+1)+'، '+tube.length+' من 4 طبقات'},'');
-   tube.forEach(color=>{const layer=el('span',{className:'water-layer','aria-hidden':'true'});layer.style.background=waterColors[color].hex;button.appendChild(layer);});
-   button.addEventListener('click',()=>clickWaterTube(index));root.appendChild(button);
-  });
-  document.getElementById('water-sort-undo').disabled=water.history.length===0||water.won;
-  document.getElementById('water-sort-status').textContent=message;
- }
- function clickWaterTube(index){
-  if(water.won)return;
-  const tube=water.tubes[index];
-  if(water.selected===null){if(!tube.length){renderWaterSort('الأنبوب فارغ. اختاري أنبوبًا فيه لون أولًا.');return;}water.selected=index;renderWaterSort('تم اختيار الأنبوب '+(index+1)+'. اختاري أنبوبًا فارغًا أو ينتهي بنفس اللون.');return;}
-  const from=water.selected,to=index;
-  if(from===to){water.selected=null;renderWaterSort('أُلغي اختيار الأنبوب. اختاري أنبوبًا آخر.');return;}
-  const source=water.tubes[from],target=water.tubes[to],top=source[source.length-1];
-  if(target.length>=4||(target.length&&target[target.length-1]!==top)){water.selected=null;renderWaterSort('الحركة غير مسموحة: اختاري أنبوبًا فارغًا أو بلون علوي مطابق.');return;}
-  water.history.push({tubes:water.tubes.map(t=>t.slice()),moves:water.moves});
-  let count=1;for(let i=source.length-2;i>=0&&source[i]===top;i--)count++;
-  const amount=Math.min(count,4-target.length);
-  for(let i=0;i<amount;i++)target.push(source.pop());
-  water.moves++;water.selected=null;
-  if(waterSolved()){water.won=true;renderWaterSort('مبروك! 🎉 رتّبتي كل الألوان في '+water.moves+' حركة. اضغطي «لغز جديد» للتحدي التالي.');}
-  else renderWaterSort('حركة صحيحة! عدد الحركات: '+water.moves+'. كمّلي ترتيب الألوان.');
- }
- document.getElementById('water-sort-reset').addEventListener('click',initWaterSort);
- document.getElementById('water-sort-undo').addEventListener('click',()=>{if(!water.history.length||water.won)return;const previous=water.history.pop();water.tubes=previous.tubes;water.moves=previous.moves;water.selected=null;renderWaterSort('تم التراجع عن آخر حركة.');});
  const glyph={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};let chess;const cstat=document.getElementById('chess-status');
  function initChess(){chess={b:Array.from({length:8},()=>Array(8).fill('')),turn:'w',sel:null,targets:[],flip:false,over:false,history:[],moves:0,captures:0};const back='rnbqkbnr';for(let c=0;c<8;c++){chess.b[0][c]=back[c];chess.b[1][c]='p';chess.b[6][c]='P';chess.b[7][c]=back[c].toUpperCase();}renderChess('دور الأبيض. اختاري قطعة ثم خانة متاحة.');}
  const colorOf=p=>p===p.toUpperCase()?'w':'b';
@@ -109,7 +67,7 @@ function boot(){
  function renderChess(msg){const root=document.getElementById('chess-board');root.replaceChildren();document.getElementById('chess-undo').disabled=chess.history.length===0;for(let rr=0;rr<8;rr++)for(let cc=0;cc<8;cc++){const r=chess.flip?7-rr:rr,c=chess.flip?7-cc:cc,p=chess.b[r][c],sq=el('button',{type:'button',className:'chess-square '+((r+c)%2?'dark':'light'),'aria-label':'خانة '+String.fromCharCode(97+c)+(8-r)},glyph[p]||'');if(chess.sel&&chess.sel[0]===r&&chess.sel[1]===c)sq.classList.add('chosen');if(chess.targets.some(t=>t[0]===r&&t[1]===c))sq.classList.add('target');sq.addEventListener('click',()=>clickSquare(r,c));root.appendChild(sq);}cstat.textContent=msg;}
  function clickSquare(r,c){if(chess.over)return;const p=chess.b[r][c];if(chess.sel&&chess.targets.some(t=>t[0]===r&&t[1]===c)){const [sr,sc]=chess.sel,moving=chess.b[sr][sc],captured=chess.b[r][c];chess.history.push({b:chess.b.map(row=>row.slice()),turn:chess.turn,over:chess.over,moves:chess.moves,captures:chess.captures});chess.moves++;if(captured)chess.captures++;chess.b[r][c]=moving;chess.b[sr][sc]='';if(moving.toUpperCase()==='P'&&(r===0||r===7))chess.b[r][c]=colorOf(moving)==='w'?'Q':'q';chess.sel=null;chess.targets=[];if(captured&&captured.toUpperCase()==='K'){chess.over=true;renderChess((colorOf(captured)==='b'?'الأبيض':'الأسود')+' أخذ الملك. انتهت جولة التدريب!');return;}chess.turn=chess.turn==='w'?'b':'w';renderChess('تم التحريك. دور '+(chess.turn==='w'?'الأبيض':'الأسود')+'.');return;}if(p&&colorOf(p)===chess.turn){chess.sel=[r,c];chess.targets=moves(r,c);renderChess('اختاري خانة مميزة لنقل القطعة.');}else{chess.sel=null;chess.targets=[];renderChess('الحركة غير متاحة. اختاري قطعة من دورك الحالي.');}}
  document.getElementById('chess-reset').addEventListener('click',initChess);document.getElementById('chess-undo').addEventListener('click',()=>{if(!chess.history.length)return;const previous=chess.history.pop();chess.b=previous.b;chess.turn=previous.turn;chess.over=previous.over;chess.moves=previous.moves;chess.captures=previous.captures;chess.sel=null;chess.targets=[];renderChess('تم التراجع عن آخر حركة. دور '+(chess.turn==='w'?'الأبيض':'الأسود')+'.');});document.getElementById('chess-flip').addEventListener('click',()=>{chess.flip=!chess.flip;renderChess('تم تدوير اللوحة. دور '+(chess.turn==='w'?'الأبيض':'الأسود')+'.');});
- initWaterSort();initLudo();initChess();return true;
+ initLudo();initChess();return true;
 }
 if(!boot()){const observer=new MutationObserver(()=>{if(boot())observer.disconnect();});observer.observe(document.documentElement,{childList:true,subtree:true});}
 })();
