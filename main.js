@@ -24,6 +24,9 @@ const mats = {
   road: mat(new Color(0.27, 0.31, 0.36)),
   path: mat(new Color(0.82, 0.78, 0.66)),
   wall: mat(new Color(0.94, 0.83, 0.66)),
+  wallBrick: mat(new Color(0.67, 0.31, 0.20)),
+  wallGold: mat(new Color(0.88, 0.61, 0.16)),
+  wallYellow: mat(new Color(0.96, 0.79, 0.29)),
   wallPink: mat(new Color(0.89, 0.63, 0.62)),
   roof: mat(new Color(0.55, 0.24, 0.21)),
   white: mat(new Color(0.97, 0.96, 0.88)),
@@ -475,7 +478,7 @@ ui.innerHTML = `
   <section id="home-build-panel" class="wonder-overlay" hidden aria-label="تخصيص البيت">
     <div class="shop-heading"><strong>🏡 ورشة تصميم البيت</strong><button id="close-home-build" type="button" aria-label="إغلاق">✕</button></div>
     <p class="shop-intro">غيّري ألوان واجهة بيتك والسقف، واظهري أو اخفي الشجيرات. التصميم يُحفظ على هذا الجهاز في النسخة التجريبية.</p>
-    <h4>لون الواجهة</h4><div class="avatar-tools"><button type="button" data-home-wall="cream">🤍 كريمي</button><button type="button" data-home-wall="pink">🌸 وردي</button><button type="button" data-home-wall="mint">🌿 نعناعي</button></div>
+    <h4>لون وخامة الواجهة</h4><div class="avatar-tools"><button type="button" data-home-wall="brick">🧱 طوب أحمر</button><button type="button" data-home-wall="gold">✨ دهبي</button><button type="button" data-home-wall="yellow">🌞 أصفر دافئ</button><button type="button" data-home-wall="cream">🤍 كريمي</button><button type="button" data-home-wall="pink">🌸 وردي</button><button type="button" data-home-wall="mint">🌿 نعناعي</button></div>
     <h4>لون السقف</h4><div class="avatar-tools"><button type="button" data-home-roof="terracotta">🧱 طوبي</button><button type="button" data-home-roof="blue">💙 أزرق</button><button type="button" data-home-roof="gold">✨ ذهبي</button></div>
     <button id="toggle-home-garden" type="button" aria-pressed="true">🌳 إخفاء شجيرات الحديقة</button><p id="home-build-feedback" role="status"></p>
   </section>
@@ -558,10 +561,10 @@ wonderGuideTopics.forEach(topic => {
 });
 document.getElementById('open-home-build').addEventListener('click', () => { document.getElementById('home-build-panel').hidden = false; });
 document.getElementById('close-home-build').addEventListener('click', () => { document.getElementById('home-build-panel').hidden = true; });
-const homeDesignDefaults = { wall: 'cream', roof: 'terracotta', garden: true };
+const homeDesignDefaults = { wall: 'brick', roof: 'terracotta', garden: true };
 let homeDesign = { ...homeDesignDefaults };
 try { const savedDesign = JSON.parse(localStorage.getItem('wonderworld-home-design-v1') || 'null'); if (savedDesign && typeof savedDesign === 'object') homeDesign = { ...homeDesignDefaults, ...savedDesign }; } catch (_) {}
-const homeWallMaterials = { cream: mats.wall, pink: mats.wallPink, mint: mats.outfitMint };
+const homeWallMaterials = { cream: mats.wall, brick: mats.wallBrick, gold: mats.wallGold, yellow: mats.wallYellow, pink: mats.wallPink, mint: mats.outfitMint };
 const homeRoofMaterials = { terracotta: mats.roof, blue: mats.npcBlue, gold: mats.outfitGold };
 function applyHomeDesign() {
   playerHomeBuild.walls.render.material = homeWallMaterials[homeDesign.wall] || mats.wall;
@@ -578,7 +581,7 @@ function saveHomeDesign(message) {
 }
 document.querySelectorAll('[data-home-wall]').forEach(button => button.addEventListener('click', () => {
   homeDesign.wall = button.dataset.homeWall;
-  const labels = { cream: 'الكريمي', pink: 'الوردي', mint: 'النعناعي' };
+  const labels = { cream: 'الكريمي', brick: 'الطوبي', gold: 'الذهبي', yellow: 'الأصفر', pink: 'الوردي', mint: 'النعناعي' };
   saveHomeDesign('اتغير لون واجهة البيت إلى ' + labels[homeDesign.wall] + '.');
 }));
 document.querySelectorAll('[data-home-roof]').forEach(button => button.addEventListener('click', () => {
