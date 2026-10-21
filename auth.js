@@ -52,7 +52,7 @@ overlay.innerHTML = `
     <label for="ww-email">البريد الإلكتروني</label>
     <input id="ww-email" type="email" autocomplete="email" required maxlength="254" placeholder="name@example.com">
     <label for="ww-password">كلمة المرور</label>
-    <input id="ww-password" type="password" autocomplete="current-password" required minlength="8" maxlength="128" placeholder="8 أحرف على الأقل">
+    <input id="ww-password" type="password" autocomplete="current-password" required minlength="8" maxlength="128" placeholder="12 حرفًا على الأقل">
     <div class="ww-actions">
       <button id="ww-signin" class="ww-primary" type="button">تسجيل الدخول</button>
       <button id="ww-signup" class="ww-secondary" type="button">إنشاء حساب</button>
@@ -86,7 +86,7 @@ function friendlyAuthError(error) {
   const raw = String(error?.message || '').toLowerCase();
   if (raw.includes('invalid login credentials')) return 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
   if (raw.includes('email not confirmed')) return 'أكّدي البريد الإلكتروني أولًا، ثم حاولي تسجيل الدخول.';
-  if (raw.includes('password should be at least') || raw.includes('password is too short')) return 'كلمة المرور لازم تكون 8 أحرف على الأقل.';
+  if (raw.includes('password should be at least') || raw.includes('password is too short')) return 'كلمة المرور أقصر من الحد المطلوب. استخدمي 12 حرفًا على الأقل.';
   if (raw.includes('rate limit') || raw.includes('too many requests')) return 'محاولات كتير في وقت قصير. استني شوية وجربي تاني.';
   if (raw.includes('user already registered')) return 'الحساب موجود بالفعل. جرّبي تسجيل الدخول أو استعادة كلمة المرور.';
   if (raw.includes('network') || raw.includes('fetch')) return 'تعذّر الاتصال بالخدمة. راجعي الإنترنت وحاولي مرة تانية.';
@@ -99,7 +99,9 @@ function validateCredentials(forSignup = false) {
   if (!email.checkValidity()) { message('اكتبي بريدًا إلكترونيًا صحيحًا.'); email.focus(); return false; }
   const password = byId('ww-password').value;
   if (!password) { message('اكتبي كلمة المرور.'); byId('ww-password').focus(); return false; }
-  if (forSignup && password.length < 8) { message('كلمة المرور لازم تكون 8 أحرف على الأقل.'); byId('ww-password').focus(); return false; }
+  if (forSignup && password.length < 12) { message('لأمان حسابك، اختاري كلمة مرور من 12 حرفًا على الأقل.'); byId('ww-password').focus(); return false; }
+  if (forSignup && /^(.)\\1+$/.test(password)) { message('اختاري كلمة مرور متنوعة، مش نفس الحرف مكرر.'); byId('ww-password').focus(); return false; }
+  if (forSignup && /^(?:1234567890|0987654321|qwertyuiop|password)$/i.test(password)) { message('اختاري كلمة مرور أقوى وفريدة لحساب WonderWorld.'); byId('ww-password').focus(); return false; }
   return true;
 }
 function showSignedOut() {
