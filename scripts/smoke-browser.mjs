@@ -106,8 +106,11 @@ try {
 
   await page.locator('#open-football').click();
   await page.locator('#football-panel').waitFor({ state: 'visible' });
+  await page.locator('[data-foot-aim="40"]').click();
+  assert.equal(await page.locator('[data-foot-aim="24"]').getAttribute('aria-pressed'), 'true', 'football aim selector should update its selected state');
   await page.locator('#football-shoot').click();
   assert.equal(await page.locator('#football-shots').innerText(), '1 / 5', 'football practice should register a valid first shot');
+  assert.equal(await page.locator('#football-score').innerText(), '1', 'a deliberate shot away from the keeper should score deterministically');
   await page.locator('#close-football').click();
   await page.locator('#football-panel').waitFor({ state: 'hidden' });
 

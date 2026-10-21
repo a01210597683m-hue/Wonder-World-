@@ -79,3 +79,9 @@ GitHub Actions now installs a pinned Playwright version and runs Chromium with s
 - Seeded the seven existing wardrobe items into the database catalog. Signed-in players can claim 10 virtual coins once per UTC day and purchase catalog items through authenticated Postgres RPCs; balance checks, deductions, ownership inserts, and transaction logging run in a single database transaction.
 - The signed-in wardrobe UI uses the cloud wallet path rather than the local-only checkout. Signed-out play retains the existing local prototype economy and is explicitly labeled as device-local.
 - This hardens the wardrobe purchase path only. Other gameplay rewards, career/business balances, paid-money checkout, and overall progression still require their own server-authoritative implementations and end-to-end authenticated testing. No real-money payment processing was added.
+
+
+## Football aiming gameplay — 2026-10-21
+- Added player-selected left/center/right shot lanes with a visible target marker and mobile-friendly controls.
+- Replaced random shot outcomes with a predictable keeper training pattern so goals reward choosing a lane away from the keeper.
+- Browser smoke tests now verify aim selection and a deterministic successful shot. This remains a solo training mini-game, not a full team match or advanced football simulation.
