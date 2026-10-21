@@ -29,10 +29,12 @@ check('Game-design reference folder contains multiple original references',
   files('game-design-references').filter(entry => entry.isFile() && /\.(avif|gif|jpe?g|png|webp|bmp)$/i.test(entry.name)).length >= 4);
 check('Reference panel targets the configured Supabase Storage bucket',
   /const BUCKET = 'Wonder World Game'/.test(html) && /prefix: 'characters'/.test(html));
-check('Water Sort is wired into the board-games module',
-  /bg-open-water-sort/.test(boardGames) && /function initWaterSort/.test(boardGames) && /water-sort-undo/.test(boardGames));
-check('Board-games module cache version is refreshed after feature addition',
-  main.includes('board-games.js?v=20261021-4'));
+check('Existing Water Sort game remains wired through the main game panel',
+  /id="open-watersort"/.test(main) && /function waterSortReset/.test(main) && /function waterSortTap/.test(main) && /waterSortHistory/.test(main));
+check('Water Sort puzzle generation uses reversible moves from a solved board',
+  /scramble only with reversible reverse-moves/.test(main) && /لغز جديد قابل للحل/.test(main));
+check('Water Sort is not duplicated in the board-games panel',
+  !/bg-open-water-sort/.test(boardGames) && !/function initWaterSort/.test(boardGames));
 check('Casual arcade module is loaded and both mini-games are wired',
   html.includes('mini-games.js?v=20261021-1') && /wwa-memory-open/.test(miniGames) && /wwa-cups-open/.test(miniGames));
 check('Casual arcade source includes pair matching and cup-guess outcomes',
