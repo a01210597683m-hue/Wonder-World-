@@ -40,6 +40,8 @@ const checks = [
 
   ['Ludo and chess activities are dynamically wired', /import\(['"]\.\/board-games\.js\?v=/.test(game)],
   ['Board-game module contains Ludo and chess activities', /function initLudo\(/.test(boardGames) && /function initChess\(/.test(boardGames) && /cpuTurn/.test(boardGames)],
+  ['Ludo win-loss record persists locally and only records each finished game once', /wonderworld-ludo-record-v1/.test(boardGames) && /function recordLudoResult/.test(boardGames) && /ludo\.recorded/.test(boardGames)],
+  ['Chess supports undo snapshots and resettable history', /chess\.history\.push/.test(boardGames) && /id="chess-undo"/.test(boardGames) && /chess\.history\.pop\(\)/.test(boardGames) && /chess\.history\.length===0/.test(boardGames)],
 
   ['PlayCanvas scene entry is loaded', /main\.js\?v=/.test(html)],
   ['Cross-country destinations include Egypt, Paris and Tokyo with separate 3D landmark areas', /رحلة إلى مصر — الأهرامات/.test(game) && /رحلة إلى باريس — البرج/.test(game) && /رحلة إلى طوكيو — حديقة الساكورا/.test(game) && /Egypt stepped pyramid tier/.test(game) && /Paris tower left leg/.test(game) && /Tokyo torii lintel/.test(game) && /Math\.min\(42, p\.[xz]\)/.test(game)],
