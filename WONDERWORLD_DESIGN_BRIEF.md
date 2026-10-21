@@ -189,3 +189,66 @@ These requirements are cumulative with all previously recorded requirements for 
 - The long-term requirement is a genuinely playable football game with teams, team kits, player-controlled movement, passing, shooting, tackles, goalkeepers, match rules, formations, match timer and results, designed for keyboard/gamepad/touch and aiming for responsive PC/console-style play.
 - The browser prototype now includes a limited five-shot football drill as a first interactive control milestone. It is not a full football match and does not replace the required team-based mode.
 - Keep football as a separate sports mode from the PUBG-inspired action mode; each needs its own gameplay loop and testing.
+
+
+## Explicit mode identity, fidelity, and complete feature inventory — 2026-10-22 (additive)
+
+This section sharpens the requested identity of each WonderWorld activity. It adds specificity to the existing requirements above; it does not replace them, and none of the following is considered implemented merely because it is documented.
+
+### Each mode must feel like its own complete game
+- Give every major mode its own dedicated entry point, scene or clearly separated environment, interface/HUD, controls, camera, rules, progression, audio/animation direction, wardrobe/equipment, rewards, and tested gameplay loop. Avoid reusing one generic panel or visual style for unrelated activities.
+- Use named commercial games below as quality and genre references, not as assets to copy. WonderWorld must use original characters, maps, UI, branding, animation, code and content; do not reproduce proprietary assets or present a clone as the original game. The target is familiar, polished genre-level gameplay with WonderWorld's own identity.
+
+### Battle royale / action
+- Target the recognizable third-person battle-royale experience associated with PUBG Mobile and Free Fire: responsive movement, sprint/crouch, aiming, shooting, reloads, weapon handling, loot/equipment, health/armor, tactical encounters, match boundaries or safe-zone pressure, match results and replay.
+- This is a separate action mode with dedicated maps, controls, UI, animations and age-appropriate WonderWorld character outfits/equipment. Characters must be the user's requested WonderWorld characters and approved character styles—not copied PUBG/Free Fire characters or assets.
+- Keep combat stylized and non-graphic, with age ratings and child-safety controls appropriate to the release territory. The AI companion must not assist with real-world harm.
+
+### Football / soccer
+- Target the depth and presentation of a modern 2026 football season or games in the EA SPORTS FC / Soccer genre: proper pitch and stadium atmosphere, two teams, kits, match clock, score, kickoff, ball physics, player switching, passing, shooting, tackling/interceptions, goalkeeper and opponent AI, formations/roles, rules, results, replays and rematches.
+- Include player-controlled gameplay with responsive keyboard/gamepad and mobile controls. This must be its own sports mode with football kits, camera, HUD, match flow and sports-specific animations—not the existing five-shot drill alone.
+- Use original/licensed-cleared teams, player likenesses, logos and kits only. Do not imply official league or EA licensing where none exists.
+
+### Fashion, makeup and runway competitions
+- Target the polish and dedicated workflow of fashion competition, styling and makeup games such as Fashion Queen and Fashion Make Up: Dress Up Show, while maintaining original WonderWorld presentation and assets.
+- Provide a complete loop: event/theme and brief, wardrobe browsing, outfit assembly, context-specific makeup and hair, accessories, pose/walk selection, runway presentation, judging criteria, scoring, rankings/results, rewards and replay/next competition.
+- Keep separate wardrobes and presets for daily life, home/lounge, school/age-appropriate activities, work uniforms, gym, football, action mode, swimming, travel, formal events, parties and runway. Age-inappropriate styling must not be offered to child characters.
+
+### Standalone puzzle, arcade, board and party games
+- Treat each as a self-contained game with its familiar rules, visual language, controls, score/state, win/loss or completion feedback, restart, accessibility and testing. These modes generally do not need visible WonderWorld avatars during the board/puzzle round.
+- Required catalogue includes: Block Blast-style block placement; Water Sort; Space Shooter/space arcade; card-memory matching; Sporcle Party-style quiz/trivia party; chess; Ludo; dominoes; billiards/pool; arrow/logic puzzles; rope untangling; cup/party games; UNO-style shedding cards; and standard playing-card games. Add other requested logic and brain puzzles without removing any existing listed game.
+- Group games must support the intended solo/local/online format only when that format is actually implemented and tested. Even for online group play, do not add player-to-player text/voice chat or private messages; use game actions, preset choices and safe emotes.
+
+### Shared drawing garden
+- Create a dedicated, attractive garden activity for solo drawing and collaborative drawing. Provide canvas/tools, colors, undo/clear, saving where appropriate, and an opt-in session/invitation flow for collaboration.
+- Participation and sharing must be voluntary and authorized by everyone involved. Collaboration must not introduce a free-text chat or voice-chat side channel; any shared content requires age-appropriate moderation and reporting controls.
+
+### Vehicles, ride-hailing, airport and end-to-end travel
+- Separate player-owned cars/aircraft from on-demand transport inspired by ride-hailing. The former need ownership, garage/hangar, customization and responsive driving/flying; the latter need booking, pickup/boarding, destination, fare/availability, and a visible trip flow.
+- Give airports and air travel a complete sequence: choose destination and ticket, prepare/pack luggage, check in, security/boarding steps where suitable, travel/flight, arrival and destination arrival. Apply the same end-to-end principle to international travel and other transport types, with destinations around the world.
+- Preserve the previously requested countries, trains and cross-country travel. Avoid reducing travel to a list of destinations or instant teleportation as the final experience.
+
+### Swimming, gym, pets, jobs and life simulation
+- Swimming needs believable entry/exit, movement, buoyancy/turning, pool boundaries and responsive animation. Gym needs a dedicated attractive environment and usable equipment/workout interactions, not decorative props alone.
+- Pet ownership is optional. Players may adopt/own pets, name them, care for and play with them, or choose not to have a pet. Keep welfare mechanics kind and forgiving.
+- Preserve optional employment: work for an employer, run a player-owned business, or choose not to work. Keep salaries and simulated business revenue distinct from real-money revenue.
+- Life stories and everyday social scenarios should be context-sensitive across streets, homes, cafés, restaurants, parties, schools, hospitals and workplaces. Choices should affect outcomes where appropriate and remain respectful, consensual and age-appropriate. Invitations, visits, outings and group walks require explicit mutual consent; either side can decline or end an activity.
+
+### AI companion and language learning
+- The separate AI companion should be warm, helpful, humorous and educational: support ordinary questions, practical assistance, jokes, advice with appropriate uncertainty, and learning. Apply strict child-appropriate safeguards and block/redirect explicit or sensitive sexual content, abusive religious content, and harmful or graphic violence. Treat religions respectfully and consistently. This does not remove harmless, neutral educational discussion.
+- Add a dedicated language-learning area, accessible either through the AI learning experience or a distinct section, supporting a broad range of world languages, practice, pronunciation/listening where available, vocabulary, lessons, quizzes and progress tracking. Do not claim every language or audio capability is supported until verified.
+- No player-to-player private chat, direct messages, free-text chat or voice chat anywhere. NPC/social stories use curated choices; only the dedicated protected AI area supports free-form conversation.
+
+### Player onboarding, localization and demographics
+- Onboarding should record the selected country/region, age/date-of-birth category needed for age assurance, and a male/female character/gender selection, as requested. Do not infer these attributes from appearance or location. Explain why data is needed, collect the minimum, protect it, and comply with age, privacy and platform rules in each territory.
+- Support Egyptian and international players through localization, country/region-aware defaults, suitable language/currency display, and content that can be safely localized. Country selection is not proof of nationality or precise physical location.
+- For children, use age-appropriate defaults, data minimization, guardian/purchase protections where legally required, and no manipulative monetization.
+
+### Monetization and ads
+- Plan revenue opportunities across eligible cosmetics, clothing/makeup, avatars, homes/decor, vehicles/aircraft, travel content, business/property systems, premium memberships, story/activity packs, virtual-currency sales, and rewarded or other permitted advertising. Preserve meaningful free options and keep group/party mini-games free of monetization placements as requested.
+- A revenue system must be implemented per item/feature with transparent pricing, purchase confirmation, platform-approved billing, server-verified receipts, refunds/compliance, anti-fraud protections and parental consent where required. Ads need a compliant ad provider, privacy/consent configuration, age-appropriate targeting and clear reward rules. Do not enable ads or real-money purchases in a way that violates children's privacy, app-store rules, local law or provider policy.
+- Monetization is a product objective, not a guarantee of earnings. Client-side prototype coins and UI buttons are not real commerce, secure balances or proof of revenue.
+
+### Delivery and acceptance gate
+- Prioritize one complete, independently testable slice at a time. Each mode needs explicit acceptance criteria and tests for core gameplay, mobile responsiveness, persistence, accessibility, safety, privacy and server-side economy as applicable.
+- The current GitHub Pages app is an early browser prototype. The full game cannot truthfully be completed instantly or by documentation alone; do not mark a mode done until working code and tests demonstrate it. Keep original logo and user reference files unchanged and use them as the visual source of truth.
