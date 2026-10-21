@@ -57,3 +57,11 @@ Keep the prototype status visible until all credentialed and device-specific che
 - [ ] Merge and verify the deployed GitHub Pages build only after checks pass.
 
 **Scope note:** this is a small playable puzzle slice, not completion of the full puzzle catalogue or of the broader WonderWorld requirements. This branch is not yet merged or deployed.
+
+## Casual arcade batch — 2026-10-21
+
+- Added a separate casual arcade panel with a playable 12-card memory-pair matching game, move count, match feedback, restart, and a three-cup hidden-star guessing game.
+- Loaded the arcade module from `index.html` and added static regression checks for module wiring and both activities.
+- [ ] Run the repository checks and browser smoke suite; source edits alone do not prove they pass.
+- [ ] Test on narrow mobile screens and a real Android device, including repeated restarts and rapid card taps.
+- [ ] Keep the broader game catalogue, secure cloud persistence, multiplayer consent flows, full football/action modes, production 3D characters, and owner-controlled Supabase security settings marked incomplete until implemented and verified.
