@@ -42,7 +42,7 @@ const checks = [
 
   ['Ludo and chess activities are dynamically wired', /import\(['"]\.\/board-games\.js\?v=/.test(game)],
   ['Casual arcade module is loaded by the page', /mini-games\.js\?v=/.test(html) && /function boot\(\)/.test(miniGames)],
-  ['All twelve requested activity prototypes are available in the activity hub', /wonderworld-activities\.js\?v=/.test(html) && ['battle','football','ropes','fashion','plane','gym','train','arrows','stocks','cups','space','candy','party'].every(id => activities.includes("'" + id + "'"))],
+  ['Activity hub adds only missing modes and avoids duplicate gym/cup entries', /wonderworld-activities\.js\?v=/.test(html) && ['battle','football','ropes','fashion','plane','train','arrows','stocks','space','candy','party'].every(id => activities.includes("'" + id + "'")) && !activities.includes("['gym','🏋️'") && !activities.includes("['cups','🥤'") && /Wonder Gym/.test(game) && /wwa-cups-open/.test(miniGames)],
   ['Battle prototype includes health, ammunition, aim and training targets', /hp:100,ammo:12/.test(activities) && /state\.aimX/.test(activities) && /targets:/.test(activities)],
   ['Football prototype includes movement, passing, shooting, keeper and scoring', /function renderFootball/.test(activities) && /const pass=\(\)/.test(activities) && /const shoot=\(\)/.test(activities) && /keeperX/.test(activities)],
   ['Rope puzzle supports node swaps and tracks puzzle progress', /function renderRopes/.test(activities) && /wwa-rope-nodes/.test(activities) && /wwa-crossings/.test(activities)],
