@@ -69,10 +69,13 @@ try {
   await page.locator('#open-map').click();
   await page.locator('#map-panel').waitFor({ state: 'visible' });
   await page.locator('.map-destination').filter({ hasText: 'رحلة إلى مصر' }).click();
-  assert.match(await page.locator('#status').innerText(), /وصلتي إلى رحلة إلى مصر/ , 'country travel should report arrival');
+  assert.match(await page.locator('#status').innerText(), /وصلتي إلى رحلة إلى مصر/, 'Egypt destination should report arrival');
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'رحلة إلى باريس' }).click();
-  assert.match(await page.locator('#status').innerText(), /وصلتي إلى رحلة إلى باريس/ , 'second country destination should be reachable');
+  assert.match(await page.locator('#status').innerText(), /وصلتي إلى رحلة إلى باريس/, 'Paris destination should report arrival');
+  await page.locator('#open-map').click();
+  await page.locator('.map-destination').filter({ hasText: 'رحلة إلى طوكيو' }).click();
+  assert.match(await page.locator('#status').innerText(), /وصلتي إلى رحلة إلى طوكيو/, 'Tokyo destination should report arrival');
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'نافورة الساحة' }).click();
   await page.locator('#open-home-build').click();
@@ -124,11 +127,15 @@ try {
 
   await page.locator('#ww-auth-launch').click();
   await page.locator('#ww-auth-overlay').waitFor({ state: 'visible' });
+  await page.locator('#ww-signin').click();
+  assert.match(await page.locator('#ww-auth-message').innerText(), /البريد الإلكتروني وكلمة المرور/, 'empty sign-in should be rejected with clear guidance');
+  await page.locator('#ww-signup').click();
+  assert.match(await page.locator('#ww-auth-message').innerText(), /البريد الإلكتروني وكلمة المرور/, 'empty sign-up should be rejected with clear guidance');
   await page.locator('#ww-auth-close').click();
   await page.locator('#ww-auth-overlay').waitFor({ state: 'hidden' });
 
   assert.deepEqual(pageErrors, [], 'browser should not raise uncaught JavaScript exceptions');
-  process.stdout.write('PASS — mobile browser smoke tests: 3D canvas, touch controls, career panel, football shot, memory board, account dialog, signed-out cloud-wallet guidance, and no uncaught page errors.\n');
+  process.stdout.write('PASS — mobile browser smoke tests: 3D canvas, touch controls, Egypt/Paris/Tokyo travel, home customization persistence, bounded guide, careers, football, memory board, signed-out cloud-wallet guidance, account form validation, and no uncaught page errors.\n');
 } finally {
   if (browser) await browser.close();
   await new Promise(resolveClose => server.close(resolveClose));
