@@ -6,6 +6,7 @@ const html = read('../index.html');
 const game = read('../main.js');
 const careers = read('../careers.js');
 const boardGames = read('../board-games.js');
+const gameSaveMigration = read('../supabase/migrations/202610210006_add_private_player_game_saves.sql');
 const css = read('../style.css');
 const careerCss = read('../career.css');
 
@@ -13,6 +14,10 @@ const checks = [
   ['Career persistence function exists', /function save\s*\(/.test(careers)],
   ['Auth exposes the configured client to game modules', /window\.wonderWorldSupabase = supabase/.test(read('../auth.js'))],
   ['Career state supports private Supabase cloud saves', /player_career_saves/.test(careers) && /wonderworld:auth-state/.test(careers)],
+  ['Full game progression has private cloud-save sync', /player_game_saves/.test(game) && /buildProgressSnapshot/.test(game) && /deviceRecords/.test(game)],
+  ['Game-save status is visible in the HUD', /game-cloud-status/.test(game)],
+  ['Game-save migration enables RLS and owner-scoped policies', /enable row level security/i.test(gameSaveMigration) && (gameSaveMigration.match(/using \\(\\(select auth\\.uid\\(\\)\\) = player_id\\)/g) || []).length >= 3 && (gameSaveMigration.match(/with check \\(\\(select auth\\.uid\\(\\)\\) = player_id\\)/g) || []).length >= 2],
+  ['Daily objective completion rewards XP', /awardXP\\(10\\);\\s*say/.test(game)],
   ['Mobile viewport allows user zoom', /viewport-fit=cover/.test(html) && !/user-scalable=no|max(?:imum)?-scale=1/i.test(html)],
 
   ['Ludo and chess activities are dynamically wired', /import\(['"]\.\/board-games\.js\?v=/.test(game)],
