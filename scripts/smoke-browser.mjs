@@ -172,6 +172,19 @@ try {
   await page.locator('#close-gathering').click();
   await page.locator('#gathering-panel').waitFor({ state: 'hidden' });
 
+  await page.locator('#open-avatar-creator').click();
+  await page.locator('#avatar-creator-panel').waitFor({ state: 'visible' });
+  await page.locator('#avatar-age').fill('65');
+  await page.locator('#avatar-presentation').selectOption('masculine');
+  await page.locator('#avatar-skin').selectOption('deep');
+  await page.locator('#avatar-hair-style').selectOption('curly');
+  await page.locator('#save-avatar-profile').click();
+  assert.match(await page.locator('#avatar-creator-feedback').innerText(), /اتحفظ شكل شخصيتك/);
+  const avatarSave = await page.evaluate(() => JSON.parse(localStorage.getItem('wonderworld-save-v1') || '{}').avatarProfile);
+  assert.deepEqual(avatarSave, { age: 65, presentation: 'masculine', skin: 'deep', hairStyle: 'curly' });
+  await page.locator('#close-avatar-creator').click();
+  await page.locator('#avatar-creator-panel').waitFor({ state: 'hidden' });
+
   await page.locator('#open-wonder-guide').click();
   await page.locator('#wonder-guide-panel').waitFor({ state: 'visible' });
   assert.equal(await page.locator('.wonder-guide-choice').count(), 5, 'Wonder guide should expose only bounded preset questions');
