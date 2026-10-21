@@ -297,7 +297,14 @@ try {
     await page.locator('#wwa-menu [data-game="' + id + '"]').click();
     await page.locator('#wwa-game').waitFor({ state: 'visible' });
     assert.notEqual((await page.locator('#wwa-title').innerText()).trim(), '', id + ' should open with a title');
-    if (id === 'battle') await page.locator('[data-act="fire"]').click();
+    if (id === 'battle') {
+      await page.locator('[data-act="fire"]').click();
+      await page.locator('[data-act="fire"]').click();
+      assert.equal(await page.locator('#wwa-ammo').innerText(), '10', 'battle training should consume one round per shot');
+      assert.equal(await page.locator('#wwa-bscore').innerText(), '1', 'two accurate shots should complete one two-hit target');
+      await page.locator('[data-act="reload"]').click();
+      assert.equal(await page.locator('#wwa-ammo').innerText(), '12', 'battle reload should refill the training magazine');
+    }
     if (id === 'football') { await page.locator('[data-f="pass"]').click(); await page.locator('[data-f="shoot"]').click(); }
     if (id === 'ropes') { await page.locator('#wwa-rope-nodes button').nth(0).click(); await page.locator('#wwa-rope-nodes button').nth(1).click(); }
     if (id === 'fashion') { await page.locator('#wwa-looks button').first().click(); await page.locator('#wwa-runway-go').click(); }
