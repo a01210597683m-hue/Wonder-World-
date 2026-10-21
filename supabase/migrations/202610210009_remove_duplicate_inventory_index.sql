@@ -1,0 +1,1 @@
+drop index if exists public.player_inventory_owner_item_unique;
