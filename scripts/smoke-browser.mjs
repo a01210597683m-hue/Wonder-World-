@@ -158,6 +158,20 @@ try {
   await page.locator('#close-map').click();
   await page.locator('#map-panel').waitFor({ state: 'hidden' });
 
+  // Preset-only group gathering: choose participants, respond to each, and finish with no free-text chat.
+  await page.locator('#open-gathering').click();
+  await page.locator('#gathering-panel').waitFor({ state: 'visible' });
+  await page.locator('#gathering-location').selectOption('park');
+  await page.locator('#gathering-event').selectOption('birthday');
+  await page.locator('#start-gathering').click();
+  await page.locator('#gathering-choices .gathering-person').first().locator('button').first().click();
+  await page.locator('#gathering-choices .gathering-person').nth(1).locator('button').nth(1).click();
+  await page.locator('#finish-gathering').waitFor({ state: 'visible' });
+  await page.locator('#finish-gathering').click();
+  await page.locator('#gathering-active').waitFor({ state: 'hidden' });
+  await page.locator('#close-gathering').click();
+  await page.locator('#gathering-panel').waitFor({ state: 'hidden' });
+
   await page.locator('#open-wonder-guide').click();
   await page.locator('#wonder-guide-panel').waitFor({ state: 'visible' });
   assert.equal(await page.locator('.wonder-guide-choice').count(), 5, 'Wonder guide should expose only bounded preset questions');
