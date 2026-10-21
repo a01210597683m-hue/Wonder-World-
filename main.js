@@ -1111,6 +1111,66 @@ function renderShop() {
 let cloudWalletBalance = null;
 let cloudEconomyBusy = false;
 let cloudOwnedItemIds = new Set();
+async function purchaseCloudItem(item, triggerButton = null) {
+  const client = window.wonderWorldSupabase;
+  const feedback = document.getElementById('shop-feedback');
+  if (!client || !gameCloudUserId) {
+    if (feedback) feedback.textContent = 'سجّلي الدخول من زر «حساب اللاعب» عشان تشتري القطعة على حسابك.';
+    return;
+  }
+  if (cloudEconomyBusy) {
+    if (feedback) feedback.textContent = 'لحظة واحدة، جاري إنهاء عملية المتجر الحالية…';
+    return;
+  }
+  cloudEconomyBusy = true;
+  if (triggerButton) triggerButton.disabled = true;
+  const panelFeedback = document.querySelector('#cloud-economy-panel .cloud-economy-feedback');
+  if (panelFeedback) panelFeedback.textContent = 'جاري التحقق من الرصيد والشراء بأمان…';
+  if (feedback) feedback.textContent = 'جاري التحقق من الرصيد والشراء بأمان…';
+  try {
+    const { data, error } = await client.rpc('ww_purchase_game_item', { p_item_id: item.id });
+    if (error) throw error;
+    if (data && Number.isFinite(Number(data.coins))) cloudWalletBalance = Number(data.coins);
+    if (data?.ok) {
+      cloudOwnedItemIds.add(item.id);
+      ownedItems.add(item.id);
+      equipItem(item);
+      happiness = Math.min(100, happiness + 3);
+      updateStats();
+      awardXP(12);
+      saveProgress();
+      completeQuest('shop');
+      const text = '🎉 تم شراء ' + item.name + ' وتسجيلها في مقتنيات حسابك. الرصيد السحابي: ' + cloudWalletBalance + ' عملة.';
+      if (feedback) feedback.textContent = text;
+      if (panelFeedback) panelFeedback.textContent = text;
+    } else if (data?.reason === 'insufficient_funds') {
+      const text = 'رصيد الحساب غير كافٍ. سعر القطعة ' + data.price + ' عملة؛ استلمي مكافأة اليوم أو اجمعي عملات داخل اللعبة.';
+      if (feedback) feedback.textContent = text;
+      if (panelFeedback) panelFeedback.textContent = text;
+    } else if (data?.reason === 'already_owned') {
+      cloudOwnedItemIds.add(item.id);
+      ownedItems.add(item.id);
+      equipItem(item);
+      const text = 'القطعة دي موجودة بالفعل في مقتنيات حسابك؛ تم ارتداؤها ✨';
+      if (feedback) feedback.textContent = text;
+      if (panelFeedback) panelFeedback.textContent = text;
+    } else {
+      const text = 'لم يكتمل الشراء. حدّثي المتجر وحاولي مجددًا.';
+      if (feedback) feedback.textContent = text;
+      if (panelFeedback) panelFeedback.textContent = text;
+    }
+  } catch (error) {
+    const text = 'الشراء لم يكتمل، ولم نعرضه كعملية ناجحة. تأكدي من تسجيل الدخول والاتصال ثم جرّبي تاني.';
+    if (feedback) feedback.textContent = text;
+    if (panelFeedback) panelFeedback.textContent = text;
+    console.error('Cloud item purchase failed', error);
+  } finally {
+    cloudEconomyBusy = false;
+    await refreshCloudEconomyPanel((document.getElementById('shop-feedback')?.textContent || ''));
+    renderShop();
+  }
+}
+
 function ensureCloudEconomyPanel() {
   let panel = document.getElementById('cloud-economy-panel');
   if (panel) return panel;
@@ -1161,28 +1221,13 @@ async function refreshCloudEconomyPanel(messageText = '') {
     balance.textContent='الرصيد السحابي: '+cloudWalletBalance+' عملة';
     if(panel.isConnected) renderShop();
   }catch(error){feedback.textContent='تعذّر تحميل المحفظة أو المقتنيات. تأكدي من الاتصال ثم افتحي المتجر مجددًا.';console.error('Cloud economy read failed',error);}
-  for(const item of shopProducts){
-    const buy=document.createElement('button'); buy.type='button'; buy.dataset.cloudBuyItem=item.id;
-    buy.textContent=cloudOwnedItemIds.has(item.id)?'☑️ مشتراة على الحساب':'شراء من المحفظة السحابية — '+item.price+' عملة';
-    buy.disabled=cloudEconomyBusy||cloudOwnedItemIds.has(item.id);
-    buy.addEventListener('click',async()=>{
-      if(cloudEconomyBusy)return;
-      cloudEconomyBusy=true; buy.disabled=true; feedback.textContent='جاري التحقق من الرصيد والشراء بأمان…';
-      try{
-        const {data,error}=await client.rpc('ww_purchase_game_item',{p_item_id:item.id}); if(error)throw error;
-        cloudWalletBalance=Number(data.coins);
-        balance.textContent='الرصيد السحابي: '+cloudWalletBalance+' عملة';
-        if(data.ok){
-          cloudOwnedItemIds.add(item.id); ownedItems.add(item.id); equipItem(item); renderShop();
-          feedback.textContent='🎉 تم شراء '+item.name+' وتسجيلها في مقتنيات حسابك. الرصيد السحابي: '+cloudWalletBalance+' عملة.';
-        }else if(data.reason==='insufficient_funds'){
-          feedback.textContent='رصيد الحساب غير كافٍ. سعر القطعة '+data.price+' عملة.';
-        }else if(data.reason==='already_owned'){
-          cloudOwnedItemIds.add(item.id); ownedItems.add(item.id); feedback.textContent='القطعة دي موجودة بالفعل في مقتنيات حسابك.';
-        }else{feedback.textContent='لم يكتمل الشراء. حدّثي المتجر وحاولي مجددًا.';}
-      }catch(error){feedback.textContent='الشراء لم يكتمل، ولم نعرضه كعملية ناجحة. جرّبي تاني.';console.error('Cloud item purchase failed',error);}
-      finally{cloudEconomyBusy=false;refreshCloudEconomyPanel(feedback.textContent);renderShop();}
-    });
+  for (const item of shopProducts) {
+    const buy = document.createElement('button');
+    buy.type = 'button';
+    buy.dataset.cloudBuyItem = item.id;
+    buy.textContent = cloudOwnedItemIds.has(item.id) ? '☑️ مشتراة على الحساب' : 'شراء من المحفظة السحابية — ' + item.price + ' عملة';
+    buy.disabled = cloudEconomyBusy || cloudOwnedItemIds.has(item.id);
+    buy.addEventListener('click', () => void purchaseCloudItem(item, buy));
     panel.appendChild(buy);
   }
 }
@@ -1204,13 +1249,13 @@ document.getElementById('shop-products').addEventListener('click', event => {
   const item = shopProducts.find(product => product.id === button.dataset.shopItem);
   if (!item) return;
   if (gameCloudUserId) {
-    if (cloudOwnedItemIds.has(item.id)) {
+    if (cloudOwnedItemIds.has(item.id) || ownedItems.has(item.id) && cloudWalletBalance !== null) {
       ownedItems.add(item.id);
       equipItem(item);
       renderShop();
       document.getElementById('shop-feedback').textContent = 'تم ارتداء ' + item.name + ' من مقتنيات حسابك السحابية ✨';
     } else {
-      document.getElementById('shop-feedback').textContent = 'حسابك مسجّل: اشتري القطعة من قسم «محفظة الحساب الآمن» عشان يتسجل الشراء على الخادم.';
+      void purchaseCloudItem(item, button);
     }
     return;
   }
