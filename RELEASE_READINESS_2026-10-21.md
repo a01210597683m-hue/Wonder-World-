@@ -6,7 +6,7 @@ This checklist separates automated checks from tasks that require a real account
 
 ## Automated browser coverage
 
-The CI smoke suite verifies the 3D canvas and mobile controls, travel to Egypt/Paris/Tokyo, home customization persistence, the curated Wonder guide, careers, a football practice shot, the memory board, signed-out cloud-wallet guidance, account form validation, and absence of uncaught browser exceptions.
+The CI smoke suite verifies the 3D canvas and mobile controls, travel to Egypt/Paris/Tokyo, home customization persistence, the curated Wonder guide, careers, a football practice round, Ludo/chess interactions, Block Blast, Water Sort legal moves/undo/restart, arcade memory-pair matching, cup-star reveal, arcade keyboard focus, signed-out cloud-wallet guidance, account form validation, and absence of uncaught browser exceptions.
 
 ## Must be verified with real credentials / owner access
 
@@ -52,7 +52,7 @@ Keep the prototype status visible until all credentialed and device-specific che
 
 - Added a Water Sort mode to the existing board-games panel on the feature branch, with six tubes, randomized color distribution, valid pour rules, move count, undo, restart, and win detection.
 - Refreshed the board-games module and page cache-busting versions, and corrected the static regression check to assert the exact module URL.
-- [ ] Run the repository's automated checks and inspect their results; no successful workflow run is confirmed for this branch yet.
+- [x] GitHub Actions pull-request workflow run `39620196354` passed on commit `648cbe258004e4db34a9d49940ff65392e3a2797`, including syntax, gameplay regression, asset/integration, and Chromium browser smoke checks.
 - [ ] Play through valid/invalid pours, undo, restart, and win completion in a real browser and on a physical Android device.
 - [ ] Merge and verify the deployed GitHub Pages build only after checks pass.
 
@@ -62,7 +62,8 @@ Keep the prototype status visible until all credentialed and device-specific che
 
 - Added a separate casual arcade panel with a playable 12-card memory-pair matching game, move count, match feedback, restart, and a three-cup hidden-star guessing game.
 - Loaded the arcade module from `index.html` and added static regression checks for module wiring and both activities.
-- [ ] Inspect the pull-request workflow run and confirm syntax, static regression, and browser smoke checks pass; source edits alone do not prove they pass.
+- [x] Pull-request workflow run `39620196354` passed syntax, static regression, and Chromium browser smoke checks.
+- [x] Browser smoke tests verify actual pair matching, one-star reveal, restart behavior, and keyboard focus restoration on Escape.
 
 - Updated the Pages workflow to run build/regression/browser checks on pull requests and prevent pull-request events from deploying to Pages. Added syntax, static, and browser smoke coverage for the new arcade module; the resulting workflow run must still be inspected before merge.
 - [ ] Test on narrow mobile screens and a real Android device, including repeated restarts and rapid card taps.
