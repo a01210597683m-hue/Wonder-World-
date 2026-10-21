@@ -123,8 +123,29 @@ async function refreshPlayer(user) {
   }
 }
 async function syncSession(session) {
+  const signedInUserId = session?.user?.id || null;
+  // Keep browser-local prototype saves isolated when a different account signs in.
+  // The first account adopts existing local progress; switching accounts clears local game state
+  // before any module can upload the previous account's data to the new account.
+  if (signedInUserId) {
+    const ownerKey = 'wonderworld-local-owner';
+    let previousOwner = null;
+    try { previousOwner = localStorage.getItem(ownerKey); } catch (_) {}
+    if (previousOwner && previousOwner !== signedInUserId) {
+      try {
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('wonderworld-') && key !== ownerKey) localStorage.removeItem(key);
+        }
+        localStorage.setItem(ownerKey, signedInUserId);
+      } catch (_) {}
+      window.location.reload();
+      return;
+    }
+    try { if (!previousOwner) localStorage.setItem(ownerKey, signedInUserId); } catch (_) {}
+  }
   window.dispatchEvent(new CustomEvent('wonderworld:auth-state', {
-    detail: { user: session?.user ? { id: session.user.id } : null }
+    detail: { user: signedInUserId ? { id: signedInUserId } : null }
   }));
   if (!session?.user) { showSignedOut(); return; }
   try { await refreshPlayer(session.user); }
