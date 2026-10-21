@@ -139,16 +139,136 @@
       update();msg('ابدئي بالتحرك والتصويب على الأهداف. ده تدريب تصويب 2D، مش نسخة PUBG ثلاثية الأبعاد.');
     }
     function renderFootball(){
-      state={x:320,y:205,ballX:350,ballY:205,score:0,shots:0,keeperX:320};
-      html(canvas('wwa-football-canvas')+'<div class="wwa-controls"><button data-f="up">▲ للأمام</button><button data-f="pass">تمرير ⚽</button><button data-f="shoot">تسديد 🥅</button><button data-f="left">◀ يسار</button><button data-f="down">▼ للخلف</button><button data-f="right">يمين ▶</button></div><p>النتيجة: <b id="wwa-goals">0</b> أهداف</p>');
+      state={
+        player:{x:320,y:315}, teammates:[{x:220,y:255},{x:420,y:255},{x:280,y:190},{x:360,y:190}],
+        opponents:[{x:250,y:92},{x:390,y:92},{x:320,y:140},{x:205,y:175},{x:435,y:175}],
+        keeper:{x:320,y:42}, ball:{x:320,y:300,vx:0,vy:0}, possession:'player',
+        blue:0,red:0,seconds:90,startedAt:Date.now(),lastTick:Date.now(),ended:false,shots:0,passes:0
+      };
+      html(
+        '<div class="wwa-note" id="wwa-match-status">صافرة البداية! حرّكي اللاعب ومرّري أو سدّدي. المباراة 90 ثانية.</div>'+
+        '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;padding:9px 12px;border-radius:12px;background:#17324c;color:white;font-weight:900">'+
+        '<span>🔵 WONDER FC <b id="wwa-blue-score">0</b></span><span id="wwa-match-clock">90:00</span><span>🔴 RIVALS <b id="wwa-red-score">0</b></span></div>'+
+        '<canvas id="wwa-football-canvas" class="wwa-canvas" width="640" height="400" tabindex="0" aria-label="ملعب كرة قدم. استخدمي الأسهم أو WASD للحركة"></canvas>'+
+        '<div class="wwa-controls">'+
+        '<button data-f="up">▲ للأمام</button><button data-f="pass">تمرير ⚽</button><button data-f="shoot">تسديد 🥅</button>'+
+        '<button data-f="left">◀ يسار</button><button data-f="down">▼ للخلف</button><button data-f="right">يمين ▶</button></div>'+
+        '<p class="wwa-note">هدف الشريحة دي: مباراة محلية قابلة للعب، بوقت ونتيجة وفريقين وحارس وخصوم وحركة الكرة. دي نسخة أولية وليست محاكاة FC كاملة أو لعبًا أونلاين.</p>'
+      );
       const c=$('#wwa-football-canvas',panel),ctx=c.getContext('2d');
-      function draw(){ctx.clearRect(0,0,640,400);ctx.fillStyle='#3d9a62';ctx.fillRect(0,0,640,400);ctx.strokeStyle='#eaffec';ctx.lineWidth=3;ctx.strokeRect(18,18,604,364);ctx.beginPath();ctx.moveTo(320,18);ctx.lineTo(320,382);ctx.stroke();ctx.beginPath();ctx.arc(320,200,55,0,Math.PI*2);ctx.stroke();ctx.strokeRect(235,18,170,65);ctx.strokeRect(270,18,100,35);ctx.fillStyle='#fff';ctx.fillRect(280,18,80,9);ctx.fillStyle='#f4f4f4';ctx.beginPath();ctx.arc(state.ballX,state.ballY,9,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#27364b';ctx.stroke();ctx.fillStyle='#e9f2ff';ctx.beginPath();ctx.arc(state.x,state.y,14,0,Math.PI*2);ctx.fill();ctx.fillStyle='#255dba';ctx.fillRect(state.x-11,state.y-4,22,14);ctx.fillStyle='#ee6a65';ctx.beginPath();ctx.arc(state.keeperX,49,12,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.font='bold 16px sans-serif';ctx.fillText('WONDER FC',25,36);ctx.fillText('GOAL',292,76);}
-      const move=(dx,dy)=>{state.x=Math.max(30,Math.min(610,state.x+dx));state.y=Math.max(35,Math.min(365,state.y+dy));if(Math.hypot(state.x-state.ballX,state.y-state.ballY)<36){state.ballX=state.x+18;state.ballY=state.y-4;}draw();};
-      const shoot=()=>{state.shots++;if(state.y<145&&Math.abs(state.x-320)<105&&Math.random()>.28){state.score++;msg('جوووول! تسديدة ناجحة ⚽');}else msg('الحارس صد التسديدة أو كنتي بعيدة. قرّبي الكرة من منطقة الجزاء.');$('#wwa-goals',panel).textContent=state.score;state.ballX=state.x+18;state.ballY=state.y-4;draw();};
-      const pass=()=>{state.ballX=Math.max(25,Math.min(615,state.x+(state.x<320?85:-85)));state.ballY=Math.max(30,Math.min(370,state.y-35));msg('تمريرة! تحركي لمكان الكرة وكملي الهجمة.');draw();};
-      $('#wwa-content',panel).querySelectorAll('[data-f]').forEach(b=>b.addEventListener('click',()=>{const a=b.dataset.f;if(a==='up')move(0,-20);if(a==='down')move(0,20);if(a==='left')move(-20,0);if(a==='right')move(20,0);if(a==='pass')pass();if(a==='shoot')shoot();}));
-      c.addEventListener('pointerdown',e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*640,y=(e.clientY-r.top)/r.height*400;state.x=x;state.y=y;if(Math.hypot(x-state.ballX,y-state.ballY)<70){state.ballX=x+18;state.ballY=y-4;}draw();});
-      draw();msg('حرّكي اللاعب باتجاه المرمى، قرّبي الكرة ثم سددي. كل الأهداف محسوبة في الجولة.');
+      const matchStatus=$('#wwa-match-status',panel);
+      const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+      const ball=()=>state.ball;
+      function draw(){
+        ctx.clearRect(0,0,640,400);
+        ctx.fillStyle='#318c54';ctx.fillRect(0,0,640,400);
+        for(let i=0;i<8;i++){ctx.fillStyle=i%2?'#ffffff08':'#123f2410';ctx.fillRect(20+i*75,20,75,360);}
+        ctx.strokeStyle='#f4fff1';ctx.lineWidth=2.5;ctx.strokeRect(18,18,604,364);
+        ctx.beginPath();ctx.moveTo(18,200);ctx.lineTo(622,200);ctx.stroke();
+        ctx.beginPath();ctx.arc(320,200,48,0,Math.PI*2);ctx.stroke();
+        ctx.strokeRect(220,18,200,65);ctx.strokeRect(270,18,100,32);
+        ctx.strokeRect(220,317,200,65);ctx.strokeRect(270,350,100,32);
+        ctx.fillStyle='#f7f7f7';ctx.fillRect(state.keeper.x-29,24,58,8);
+        const drawPlayer=(p,color,shirt,label)=>{
+          ctx.fillStyle='#142a22';ctx.beginPath();ctx.ellipse(p.x,p.y+13,12,5,0,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle=color;ctx.beginPath();ctx.arc(p.x,p.y-8,7,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle=shirt;ctx.fillRect(p.x-10,p.y-2,20,17);
+          ctx.fillStyle='#fff';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText(label,p.x,p.y+8);
+        };
+        state.teammates.forEach((p,i)=>drawPlayer(p,'#f0c9a1','#2565c9',String(i+2)));
+        state.opponents.forEach((p,i)=>drawPlayer(p,'#eac19e','#d94d50',String(i+2)));
+        drawPlayer(state.player,'#f2c8a3','#174ba5','1');
+        drawPlayer(state.keeper,'#e8bf9a','#f0b323','GK');
+        ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(ball().x,ball().y,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#202a31';ctx.lineWidth=1.5;ctx.stroke();
+        ctx.fillStyle='#fff';ctx.font='bold 13px sans-serif';ctx.textAlign='left';ctx.fillText('WONDER FC',26,36);
+        ctx.textAlign='right';ctx.fillText('RIVALS',614,36);
+        if(state.ended){ctx.fillStyle='#10243acc';ctx.fillRect(90,145,460,100);ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 26px sans-serif';ctx.fillText('نهاية المباراة',320,183);ctx.font='bold 18px sans-serif';ctx.fillText(state.blue>state.red?'فوز Wonder FC! 🎉':state.blue<state.red?'فوز الفريق المنافس':'تعادل!',320,215);}
+      }
+      function updateScore(){
+        $('#wwa-blue-score',panel).textContent=String(state.blue);
+        $('#wwa-red-score',panel).textContent=String(state.red);
+        const sec=Math.max(0,Math.ceil(state.seconds));
+        $('#wwa-match-clock',panel).textContent=Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');
+      }
+      function resetKickoff(scoringTeam){
+        state.player={x:320,y:315};state.teammates=[{x:220,y:255},{x:420,y:255},{x:280,y:190},{x:360,y:190}];
+        state.opponents=[{x:250,y:92},{x:390,y:92},{x:320,y:140},{x:205,y:175},{x:435,y:175}];
+        state.keeper={x:320,y:42};state.ball={x:320,y:300,vx:0,vy:0};state.possession='player';
+        matchStatus.textContent=scoringTeam==='player'?'جوووول لـ Wonder FC! ⚽ استعدي لبدء اللعب من جديد.':'الفريق المنافس سجّل. تقدري ترجعي وتعدّلي النتيجة!';
+      }
+      function move(dx,dy){
+        if(state.ended)return;
+        const p=state.player;p.x=clamp(p.x+dx,32,608);p.y=clamp(p.y+dy,35,365);
+        if(Math.hypot(p.x-ball().x,p.y-ball().y)<38){state.possession='player';ball().vx=0;ball().vy=0;}
+        if(state.possession==='player'){ball().x=p.x+10;ball().y=p.y-7;}
+        draw();
+      }
+      function pass(){
+        if(state.ended)return;
+        const p=state.player,b=ball();
+        if(state.possession!=='player'&&Math.hypot(p.x-b.x,p.y-b.y)>42){matchStatus.textContent='قرّبي من الكرة الأول عشان تقدري تمرّري.';return;}
+        state.possession='player';state.passes++;
+        const mate=state.teammates.reduce((best,t)=>Math.hypot(t.x-p.x,t.y-p.y)<Math.hypot(best.x-p.x,best.y-p.y)?t:best,state.teammates[0]);
+        b.x=mate.x;b.y=mate.y-8;p.x=clamp(p.x+(mate.x-p.x)*.12,32,608);p.y=clamp(p.y+(mate.y-p.y)*.12,35,365);
+        matchStatus.textContent='تمريرة وصلت لزميلتك! تحرّكي للمساحة وكمّلي الهجمة.';
+        draw();
+      }
+      function shoot(){
+        if(state.ended)return;
+        const p=state.player,b=ball();
+        if(state.possession!=='player'&&Math.hypot(p.x-b.x,p.y-b.y)>44){matchStatus.textContent='لازم تستحوذي على الكرة قبل التسديد.';return;}
+        state.possession='none';state.shots++;
+        const targetX=clamp(320+(p.x-320)*.38+(Math.random()*36-18),245,395);
+        b.x=p.x+8;b.y=p.y-12;b.vx=(targetX-b.x)/16;b.vy=-Math.max(8,(b.y-24)/16);
+        matchStatus.textContent='تسديدة! ⚽ تابعي الكرة والحارس.';
+        draw();
+      }
+      function tick(now){
+        if(state.ended)return;
+        const dt=Math.min(.05,(now-state.lastTick)/1000);state.lastTick=now;state.seconds=Math.max(0,state.seconds-dt);
+        const p=state.player,b=ball();
+        if(state.possession==='player'){b.x=p.x+10;b.y=p.y-7;}
+        else if(state.possession==='opponent'){
+          const carrier=state.opponents[2];carrier.y=clamp(carrier.y+45*dt,45,350);b.x=carrier.x;b.y=carrier.y+8;
+          if(carrier.y>300){state.possession='none';b.vx=(320-b.x)*.035;b.vy=7;matchStatus.textContent='الفريق المنافس بيهاجم! اقطعي الكرة.';}
+        } else {
+          b.x+=b.vx;b.y+=b.vy;b.vx*=.985;b.vy*=.985;
+          if(b.x<25||b.x>615)b.vx*=-.72;
+          if(b.y>375){b.y=375;b.vy*=-.55;}
+          if(b.y<28&&b.x>252&&b.x<388){
+            if(Math.abs(b.x-state.keeper.x)<27){b.y=38;b.vy=Math.abs(b.vy)*.65;matchStatus.textContent='الحارس صدّ الكرة! جرّبي زاوية تانية.';}
+            else {state.blue++;updateScore();resetKickoff('player');}
+          } else if(b.y<25){b.y=25;b.vy=Math.abs(b.vy)*.6;}
+          if(b.y>360&&b.x>252&&b.x<388){state.red++;updateScore();resetKickoff('opponent');}
+          if(Math.hypot(p.x-b.x,p.y-b.y)<23){state.possession='player';b.vx=0;b.vy=0;matchStatus.textContent='استحواذ ممتاز! مرّري أو سدّدي.';}
+          else {
+            const rival=state.opponents.reduce((best,o)=>Math.hypot(o.x-b.x,o.y-b.y)<Math.hypot(best.x-b.x,best.y-b.y)?o:best,state.opponents[0]);
+            const d=Math.hypot(rival.x-b.x,rival.y-b.y);
+            if(d<16&&b.y>50&&b.y<345&&Math.random()<.035){state.possession='opponent';matchStatus.textContent='الخصم استحوذ على الكرة — اقطعيها بسرعة!';}
+            else if(d>0){rival.x+=((b.x-rival.x)/d)*25*dt;rival.y+=((b.y-rival.y)/d)*25*dt;}
+          }
+        }
+        state.keeper.x=clamp(state.keeper.x+(clamp(b.x-state.keeper.x,-1,1))*95*dt,280,360);
+        if(state.seconds<=0){state.ended=true;state.seconds=0;matchStatus.textContent='انتهى الوقت! تقدري تعيدي المباراة أو ترجعي لقائمة الألعاب.';$('#wwa-reset',panel).textContent='🔄 مباراة جديدة';}
+        updateScore();draw();if(!state.ended)frame=requestAnimationFrame(tick);
+      }
+      $('#wwa-content',panel).querySelectorAll('[data-f]').forEach(b=>b.addEventListener('click',()=>{
+        const a=b.dataset.f;if(a==='up')move(0,-18);if(a==='down')move(0,18);if(a==='left')move(-18,0);if(a==='right')move(18,0);if(a==='pass')pass();if(a==='shoot')shoot();
+      }));
+      c.addEventListener('pointerdown',e=>{
+        c.focus();if(state.ended)return;
+        const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*640,y=(e.clientY-r.top)/r.height*400;
+        const dx=x-state.player.x,dy=y-state.player.y,d=Math.hypot(dx,dy);
+        if(d>8)move(dx/d*24,dy/d*24);
+      });
+      c.addEventListener('keydown',e=>{
+        const map={ArrowUp:[0,-18],w:[0,-18],W:[0,-18],ArrowDown:[0,18],s:[0,18],S:[0,18],ArrowLeft:[-18,0],a:[-18,0],A:[-18,0],ArrowRight:[18,0],d:[18,0],D:[18,0]};
+        if(map[e.key]){e.preventDefault();move(...map[e.key]);}
+        if(e.key===' '){e.preventDefault();shoot();}
+      });
+      $('#wwa-reset',panel).textContent='🔄 إعادة المباراة';
+      updateScore();draw();matchStatus.textContent='صافرة البداية! تحكّمي بالأسهم أو WASD أو أزرار الشاشة. استحوذي على الكرة وسجّلي قبل انتهاء الوقت.';
+      frame=requestAnimationFrame(tick);
     }
     function renderRopes(){
       state={nodes:[0,1,2,3],selected:0,moves:0};
