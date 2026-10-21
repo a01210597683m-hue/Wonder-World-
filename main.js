@@ -45,6 +45,10 @@ const mats = {
   hairBlack: mat(new Color(0.055, 0.045, 0.07)),
   hairRose: mat(new Color(0.55, 0.19, 0.35)),
   skin: mat(new Color(0.88, 0.63, 0.46)),
+  skinLight: mat(new Color(0.98, 0.78, 0.62)),
+  skinTan: mat(new Color(0.68, 0.42, 0.28)),
+  skinDeep: mat(new Color(0.39, 0.23, 0.17)),
+  hairSilver: mat(new Color(0.72, 0.74, 0.78)),
   eyes: mat(new Color(0.98, 0.98, 0.96)),
   pupil: mat(new Color(0.12, 0.09, 0.18)),
   shoes: mat(new Color(0.16, 0.18, 0.24)),
@@ -304,14 +308,14 @@ function makePerson(name, x, z, shirtMaterial, isPlayer = false) {
   person.setPosition(x, 0, z);
   app.root.addChild(person);
   const body = box(name + ' body', 0.82, 1.22, 0.58, 0, 1.02, 0, shirtMaterial, person);
-  sphere(name + ' head', 0.78, 0, 1.95, 0, mats.skin, person);
+  const head = sphere(name + ' head', 0.78, 0, 1.95, 0, mats.skin, person);
   const hair = sphere(name + ' hair', 0.8, 0, 2.28, -0.04, isPlayer ? mats.player : mats.trunk, person);
   const hairFront = sphere(name + ' fringe', 0.38, 0, 2.16, 0.31, isPlayer ? mats.player : mats.trunk, person);
   const leftEye = sphere(name + ' left eye', 0.13, -0.18, 2.00, 0.335, mats.eyes, person);
   const rightEye = sphere(name + ' right eye', 0.13, 0.18, 2.00, 0.335, mats.eyes, person);
   sphere(name + ' left pupil', 0.065, -0.18, 2.00, 0.445, mats.pupil, person);
   sphere(name + ' right pupil', 0.065, 0.18, 2.00, 0.445, mats.pupil, person);
-  sphere(name + ' nose', 0.075, 0, 1.86, 0.37, mats.skin, person);
+  const nose = sphere(name + ' nose', 0.075, 0, 1.86, 0.37, mats.skin, person);
   box(name + ' smile', 0.16, 0.035, 0.04, 0, 1.77, 0.36, mats.outfitCoral, person);
   const leftArm = box(name + ' left arm', 0.22, 0.88, 0.24, -0.54, 1.0, 0, shirtMaterial, person);
   const rightArm = box(name + ' right arm', 0.22, 0.88, 0.24, 0.54, 1.0, 0, shirtMaterial, person);
@@ -320,6 +324,8 @@ function makePerson(name, x, z, shirtMaterial, isPlayer = false) {
   const leftShoe = box(name + ' left shoe', 0.32, 0.16, 0.48, -0.22, 0.09, 0.08, mats.shoes, person);
   const rightShoe = box(name + ' right shoe', 0.32, 0.16, 0.48, 0.22, 0.09, 0.08, mats.shoes, person);
   person.outfitParts = [body, leftArm, rightArm, leftLeg, rightLeg];
+  person.headPart = head;
+  person.skinParts = [head, nose];
   person.hairPart = hair;
   person.hairParts = [hair, hairFront];
   person.bodyPart = body;
@@ -333,6 +339,21 @@ function makePerson(name, x, z, shirtMaterial, isPlayer = false) {
   return person;
 }
 const player = makePerson('Player', 0, 1.5, mats.player, true);
+const avatarHairStyles = {
+  long: [
+    box('Player long hair left', 0.3, 0.98, 0.38, -0.31, 1.83, 0.01, mats.player, player),
+    box('Player long hair right', 0.3, 0.98, 0.38, 0.31, 1.83, 0.01, mats.player, player)
+  ],
+  curly: [
+    sphere('Player curly hair left', 0.42, -0.35, 2.22, 0.0, mats.player, player),
+    sphere('Player curly hair right', 0.42, 0.35, 2.22, 0.0, mats.player, player),
+    sphere('Player curly hair crown', 0.4, 0, 2.48, -0.02, mats.player, player)
+  ],
+  bun: [sphere('Player hair bun', 0.38, 0, 2.55, -0.18, mats.player, player)]
+};
+for (const parts of Object.values(avatarHairStyles)) for (const part of parts) part.enabled = false;
+player.hairParts.push(...Object.values(avatarHairStyles).flat());
+
 
 // First playable vehicle slice: a low-poly car that follows the avatar and uses the same touch/keyboard controls.
 const playerCar = new Entity('WonderWorld compact car');
@@ -577,6 +598,7 @@ ui.innerHTML = `
   <div id="xp-panel" aria-label="تقدم الخبرة"><div class="xp-label"><span>خبرة اللاعب</span><span id="xp-count">0 / 100 XP</span></div><div id="xp-track" role="progressbar" aria-label="التقدم للمستوى التالي" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="xp-fill"></span></div></div>
   <p id="game-cloud-status" role="status">💾 التقدم محفوظ على هذا الجهاز. سجّلي الدخول لتفعيل النسخة السحابية.</p>
   <div class="avatar-tools"><button id="change-outfit" type="button">👕 تغيير الملابس</button><button id="change-hair" type="button">💇 تغيير لون الشعر</button></div>
+  <button id="open-avatar-creator" type="button">✨ تصميم شخصيتي (العمر والشكل)</button>
   <button id="open-shop" type="button">🛍️ افتحي متجر Wonder</button>
   <button id="open-pets" type="button">🐾 حيواناتي الأليفة</button>
   <button id="open-achievements" type="button">🏅 إنجازاتي وتقدمي</button>
@@ -598,6 +620,18 @@ ui.innerHTML = `
   <div id="world-clock" role="status">🕒 نهار هادئ</div>
   <button id="interact" type="button">تفاعل / استكشاف</button>
   <button id="exit-home" type="button" hidden>🚪 الخروج للحي</button>\n  <button id="indoor-place-action" type="button" hidden>تنفيذ نشاط المكان</button>
+  <section id="avatar-creator-panel" hidden aria-label="تصميم الشخصية">
+    <div class="shop-heading"><strong>✨ استوديو تصميم شخصيتك</strong><button id="close-avatar-creator" type="button" aria-label="إغلاق">✕</button></div>
+    <p>اختاري عمر الشخصية من 5 إلى 65 سنة، وطابع المظهر، ودرجة البشرة وتسريحة الشعر. التغييرات تظهر على الشخصية داخل العالم وتُحفظ مع تقدمك.</p>
+    <div class="avatar-creator-grid">
+      <label for="avatar-age">العمر: <output id="avatar-age-value">22 سنة</output><input id="avatar-age" type="range" min="5" max="65" step="1" value="22"></label>
+      <label for="avatar-presentation">ستايل الشخصية<select id="avatar-presentation"><option value="feminine">ستايل أنثوي</option><option value="masculine">ستايل ذكوري</option><option value="neutral">ستايل محايد</option></select></label>
+      <label for="avatar-skin">درجة البشرة<select id="avatar-skin"><option value="light">فاتحة</option><option value="medium" selected>قمحية</option><option value="tan">سمراء فاتحة</option><option value="deep">سمراء داكنة</option></select></label>
+      <label for="avatar-hair-style">تسريحة الشعر<select id="avatar-hair-style"><option value="short">قصير</option><option value="long" selected>طويل</option><option value="curly">كيرلي</option><option value="bun">كعكة شعر</option></select></label>
+    </div>
+    <button id="save-avatar-profile" type="button">💾 حفظ شكل شخصيتي</button>
+    <p id="avatar-creator-feedback" role="status">كل التغييرات شكلية ومحفوظة داخل تقدم اللعبة.</p>
+  </section>
   <section id="shop-panel" hidden aria-label="متجر Wonder">
     <div class="shop-heading"><strong>🛍️ متجر Wonder</strong><button id="close-shop" type="button" aria-label="إغلاق المتجر">✕</button></div>
     <p class="shop-intro">اختاري قطعة، واشتريها بعملاتك، وبعدها تقدري تلبسيها في أي وقت. كل فئة مستقلة، وتقدري تغيّري إطلالتك من غير ما تخسري القطع القديمة.</p>
@@ -918,6 +952,23 @@ const hairOptions = [mats.player, mats.hairBrown, mats.hairBlack, mats.hairRose]
 let outfitIndex = 0;
 let hairIndex = 0;
 document.getElementById('change-outfit').addEventListener('click', openShop);
+document.getElementById('open-avatar-creator').addEventListener('click', () => {
+  applyAvatarProfile();
+  document.getElementById('avatar-creator-feedback').textContent = 'اختاري التفاصيل، وهتشوفي التغيير على شخصيتك فورًا.';
+  document.getElementById('avatar-creator-panel').hidden = false;
+});
+document.getElementById('close-avatar-creator').addEventListener('click', () => { document.getElementById('avatar-creator-panel').hidden = true; });
+document.getElementById('avatar-age').addEventListener('input', event => { avatarProfile.age = Number(event.target.value); applyAvatarProfile(); });
+document.getElementById('avatar-presentation').addEventListener('change', event => { avatarProfile.presentation = event.target.value; applyAvatarProfile(); });
+document.getElementById('avatar-skin').addEventListener('change', event => { avatarProfile.skin = event.target.value; applyAvatarProfile(); });
+document.getElementById('avatar-hair-style').addEventListener('change', event => { avatarProfile.hairStyle = event.target.value; applyAvatarProfile(); });
+document.getElementById('save-avatar-profile').addEventListener('click', () => {
+  applyAvatarProfile();
+  saveProgress();
+  document.getElementById('avatar-creator-feedback').textContent = 'اتحفظ شكل شخصيتك وعمرها على الجهاز، وهيتزامن مع حسابك لو تسجيل الدخول السحابي متاح. ✨';
+  say('حفظنا شكل شخصيتك الجديد! تقدري ترجعي تغيريه وقت ما تحبي.');
+});
+
 document.getElementById('change-hair').addEventListener('click', openShop);
 document.getElementById('close-dialogue').addEventListener('click', () => {
   document.getElementById('dialogue-panel').hidden = true;
@@ -989,6 +1040,33 @@ function localDateKey(date = new Date()) {
 const todayQuestKey = localDateKey();
 let questDate = todayQuestKey;
 const equippedItems = { outfit: 'default-outfit', hair: 'default-hair' };
+const avatarProfile = { age: 22, presentation: 'feminine', skin: 'medium', hairStyle: 'long' };
+const avatarSkinMaterials = { light: mats.skinLight, medium: mats.skin, tan: mats.skinTan, deep: mats.skinDeep };
+function applyAvatarProfile() {
+  const age = Math.max(5, Math.min(65, Number(avatarProfile.age) || 22));
+  avatarProfile.age = age;
+  const scale = age <= 12 ? 0.68 + (age - 5) * 0.022 : age <= 18 ? 0.834 + (age - 12) * 0.023 : age <= 25 ? 0.972 + (age - 18) * 0.004 : 1 + Math.min(0.035, (age - 25) * 0.000875);
+  player.setLocalScale(scale, scale, scale);
+  player.headPart.setLocalScale(0.78 * (age <= 12 ? 1.1 : age <= 18 ? 1.04 : 1), 0.78 * (age <= 12 ? 1.1 : age <= 18 ? 1.04 : 1), 0.78 * (age <= 12 ? 1.1 : age <= 18 ? 1.04 : 1));
+  const bodyWidth = avatarProfile.presentation === 'masculine' ? 0.9 : avatarProfile.presentation === 'feminine' ? 0.76 : 0.82;
+  player.bodyPart.setLocalScale(bodyWidth, 1.22, 0.58);
+  player.leftArm.setLocalPosition(-bodyWidth / 2 - 0.13, 1.0, 0);
+  player.rightArm.setLocalPosition(bodyWidth / 2 + 0.13, 1.0, 0);
+  const skin = avatarSkinMaterials[avatarProfile.skin] || mats.skin;
+  player.skinParts.forEach(part => { part.render.material = skin; });
+  for (const [style, parts] of Object.entries(avatarHairStyles)) for (const part of parts) part.enabled = style === avatarProfile.hairStyle;
+  const ageLabel = document.getElementById('avatar-age-value');
+  if (ageLabel) ageLabel.textContent = age + ' سنة';
+  const ageInput = document.getElementById('avatar-age');
+  if (ageInput && ageInput.value !== String(age)) ageInput.value = String(age);
+  const presentation = document.getElementById('avatar-presentation');
+  if (presentation) presentation.value = avatarProfile.presentation;
+  const skinInput = document.getElementById('avatar-skin');
+  if (skinInput) skinInput.value = avatarProfile.skin;
+  const hairInput = document.getElementById('avatar-hair-style');
+  if (hairInput) hairInput.value = avatarProfile.hairStyle;
+}
+
 let loadedProgress = null;
 const ownedHomes = new Set(['starter-villa']);
 function say(text) { message.textContent = text; status.textContent = text; }
@@ -1202,7 +1280,7 @@ function buildProgressSnapshot() {
     dailyQuests: { ...dailyQuests }, ownedItems: [...ownedItems],
     relationships: Object.fromEntries(npcs.map(npc => [npc.name, npc.relation])),
     npcInteractionDates: { ...npcInteractionDates }, npcGiftDates: { ...npcGiftDates },
-    equippedItems: { ...equippedItems }, ownedHomes: [...ownedHomes], ownedPets: [...ownedPets], activePetId,
+    equippedItems: { ...equippedItems }, avatarProfile: { ...avatarProfile }, ownedHomes: [...ownedHomes], ownedPets: [...ownedPets], activePetId,
     petCareState: { ...petCareState }, petSupplies: { ...petSupplies }, petNames: { ...petNames },
     deviceRecords: readGameRecords()
   };
@@ -1275,6 +1353,13 @@ try {
         const date = loadedProgress.npcGiftDates[npc.name];
         if (typeof date === 'string') npcGiftDates[npc.name] = date;
       }
+    }
+    if (loadedProgress.avatarProfile && typeof loadedProgress.avatarProfile === 'object') {
+      const profile = loadedProgress.avatarProfile;
+      if (Number.isFinite(profile.age)) avatarProfile.age = Math.max(5, Math.min(65, Math.floor(profile.age)));
+      if (['feminine','masculine','neutral'].includes(profile.presentation)) avatarProfile.presentation = profile.presentation;
+      if (['light','medium','tan','deep'].includes(profile.skin)) avatarProfile.skin = profile.skin;
+      if (['short','long','curly','bun'].includes(profile.hairStyle)) avatarProfile.hairStyle = profile.hairStyle;
     }
     if (loadedProgress.equippedItems && typeof loadedProgress.equippedItems === 'object') {
       if (typeof loadedProgress.equippedItems.outfit === 'string') equippedItems.outfit = loadedProgress.equippedItems.outfit;
@@ -2603,6 +2688,7 @@ app.on('update', dt => {
   camera.lookAt(p.x, 1, p.z);
 });
 
+applyAvatarProfile();
 restoreEquippedItems();
 syncPetCompanion();
 renderPetPanel();
