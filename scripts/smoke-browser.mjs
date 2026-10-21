@@ -141,6 +141,7 @@ try {
   assert.notEqual(await page.locator('#wwa-fashion-clothes').innerText(), '👗', 'fashion selection should update the runway avatar');
   await page.locator('#wwa-runway-go').click();
   assert.match(await page.locator('#wwa-feedback').innerText(), /تقييم لجنة التحكيم/);
+  assert.equal((await page.locator('#wwa-fashion-theme').innerText()).trim(), 'إطلالة رياضية', 'one runway show should advance exactly one theme');
   await page.locator('#wwa-home').click();
   await page.locator('#ww-activities').waitFor({ state: 'hidden' });
 
