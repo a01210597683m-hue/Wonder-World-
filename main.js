@@ -785,7 +785,7 @@ let gameCloudTimer = null;
 let gameCloudSyncToken = 0;
 const GAME_RECORD_KEYS = [
   'wonderworld-football-best', 'wonderworld-blockblast-best',
-  'wonderworld-memory-best', 'wonderworld-memory-best-moves',
+  'wonderworld-memory-best', 'wonderworld-memory-best-moves', 'wonderworld-memory-reward-day',
   'wonderworld-login-streak', 'wonderworld-last-daily-reward',
   'wonderworld-shared-walk-reward-day'
 ];
