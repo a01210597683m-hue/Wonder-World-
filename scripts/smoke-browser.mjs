@@ -145,6 +145,19 @@ try {
   await page.locator('#wwa-home').click();
   await page.locator('#ww-activities').waitFor({ state: 'hidden' });
 
+  // A free ready-made villa opens a distinct furnished interior; the premium villa is price-gated.
+  await page.locator('#open-map').click();
+  await page.locator('.map-destination').filter({ hasText: 'فيلا Wonder الجاهزة' }).click();
+  await page.locator('#interact').click();
+  await page.locator('#exit-home').waitFor({ state: 'visible' });
+  await page.locator('#exit-home').click();
+  await page.locator('#exit-home').waitFor({ state: 'hidden' });
+  await page.locator('#open-map').click();
+  await page.locator('.map-destination').filter({ hasText: 'فيلا Wonder الفاخرة' }).click();
+  assert.match(await page.locator('#map-feedback').innerText(), /250 عملة/);
+  await page.locator('#close-map').click();
+  await page.locator('#map-panel').waitFor({ state: 'hidden' });
+
   await page.locator('#open-wonder-guide').click();
   await page.locator('#wonder-guide-panel').waitFor({ state: 'visible' });
   assert.equal(await page.locator('.wonder-guide-choice').count(), 5, 'Wonder guide should expose only bounded preset questions');

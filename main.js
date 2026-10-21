@@ -122,6 +122,8 @@ function ensureStaticWorldVisible() {
 }
 const playerHomeBuild = house('Home', -10, -10, mats.wall, 5);
 house('Family home', 10, -10, mats.wallPink, 5);
+house('Wonder Starter Villa', -24, -10, mats.wallGold, 8);
+house('Wonder Luxury Villa', 24, -10, mats.wallPink, 9);
 
 // A first backyard/pool activity slice: a visible pool beside the player's home.
 staticPoolStructures.push(box('Home pool deck', 6.4, 0.18, 5.2, -16.1, 0.08, -10.0, mats.path));
@@ -458,7 +460,59 @@ for (const [x, z] of [[-4, 1.5], [3.5, 1.5], [-4, -1.8], [3.5, -1.8]]) {
   for (const dx of [-0.7, 0.7]) box('Cafe table leg ' + x + ' ' + z + ' ' + dx, 0.14, 0.8, 0.14, x + dx, 0.42, z, mats.tvFrame, cafeInteriorRoot);
   box('Cafe chair ' + x + ' ' + z, 0.8, 0.65, 0.75, x, 0.38, z + 1.25, mats.outfitMint, cafeInteriorRoot);
 }
+
 cafeInteriorRoot.enabled = false;
+
+// Ready-to-live villas: distinct furnished interiors; construction remains optional.
+const starterVillaRoot = new Entity('Wonder Starter Villa Interior');
+app.root.addChild(starterVillaRoot);
+box('Starter villa marble floor', 20, 0.22, 20, 0, -0.16, 0, mats.white, starterVillaRoot);
+box('Starter villa back wall', 20, 4.8, 0.28, 0, 2.25, -10, mats.wallGold, starterVillaRoot);
+box('Starter villa left wall', 0.28, 4.8, 20, -10, 2.25, 0, mats.white, starterVillaRoot);
+box('Starter villa right wall', 0.28, 4.8, 20, 10, 2.25, 0, mats.white, starterVillaRoot);
+box('Starter villa lounge sofa', 4.2, 0.9, 1.3, -4.8, 0.55, 4.2, mats.outfitMint, starterVillaRoot);
+box('Starter villa sofa cushion', 3.8, 0.18, 1.05, -4.8, 1.05, 4.0, mats.white, starterVillaRoot);
+box('Starter villa coffee table', 2.5, 0.18, 1.5, -4.4, 0.55, 1.9, mats.bench, starterVillaRoot);
+box('Starter villa TV console', 3.2, 0.55, 0.6, -4.6, 0.45, -2.5, mats.bench, starterVillaRoot);
+box('Starter villa television', 2.4, 1.35, 0.16, -4.6, 1.45, -2.8, mats.tvFrame, starterVillaRoot);
+box('Starter villa dining table', 3.0, 0.18, 1.7, 4.2, 0.95, 4.0, mats.bench, starterVillaRoot);
+for (const [x,z] of [[3.0,4.0],[5.4,4.0],[4.2,2.7],[4.2,5.2]]) box('Starter villa dining chair '+x+' '+z,0.65,0.8,0.65,x,0.42,z,mats.outfitBlue,starterVillaRoot);
+box('Starter villa kitchen island', 4.2, 0.95, 1.5, 4.5, 0.58, -0.4, mats.wallGold, starterVillaRoot);
+box('Starter villa kitchen counter', 4.4, 0.14, 1.65, 4.5, 1.12, -0.4, mats.white, starterVillaRoot);
+box('Starter villa bedroom bed base', 3.6, 0.65, 4.0, -4.2, 0.35, -6.0, mats.bench, starterVillaRoot);
+box('Starter villa bedroom mattress', 3.45, 0.28, 3.8, -4.2, 0.78, -6.0, mats.white, starterVillaRoot);
+box('Starter villa bedroom blanket', 3.5, 0.12, 2.0, -4.2, 0.97, -6.8, mats.outfitMint, starterVillaRoot);
+box('Starter villa bedroom headboard', 3.7, 1.4, 0.22, -4.2, 1.0, -8.0, mats.wallGold, starterVillaRoot);
+box('Starter villa wardrobe', 2.0, 2.6, 0.8, 1.0, 1.3, -8.5, mats.bench, starterVillaRoot);
+box('Starter villa bath tub', 3.0, 0.65, 1.6, 6.2, 0.38, -6.4, mats.white, starterVillaRoot);
+box('Starter villa bathroom mirror', 2.0, 1.3, 0.12, 6.2, 2.0, -9.65, mats.window, starterVillaRoot);
+starterVillaRoot.enabled = false;
+
+const luxuryVillaRoot = new Entity('Wonder Luxury Villa Interior');
+app.root.addChild(luxuryVillaRoot);
+box('Luxury villa polished floor', 22, 0.22, 22, 0, -0.16, 0, mats.path, luxuryVillaRoot);
+box('Luxury villa back wall', 22, 5.2, 0.28, 0, 2.45, -11, mats.wallPink, luxuryVillaRoot);
+box('Luxury villa left wall', 0.28, 5.2, 22, -11, 2.45, 0, mats.white, luxuryVillaRoot);
+box('Luxury villa right wall', 0.28, 5.2, 22, 11, 2.45, 0, mats.white, luxuryVillaRoot);
+box('Luxury villa living sofa', 5.0, 1.0, 1.5, -5.8, 0.6, 4.4, mats.outfitBlue, luxuryVillaRoot);
+box('Luxury villa loveseat', 3.0, 0.9, 1.3, -2.5, 0.55, 1.7, mats.flower, luxuryVillaRoot);
+box('Luxury villa glass coffee table', 2.8, 0.18, 1.8, -5.0, 0.62, 1.8, mats.window, luxuryVillaRoot);
+box('Luxury villa chandelier', 0.6, 1.4, 0.6, 0, 3.7, 1.0, mats.npcGold, luxuryVillaRoot);
+box('Luxury villa dining table', 4.0, 0.22, 2.0, 5.0, 1.0, 4.0, mats.bench, luxuryVillaRoot);
+for (const [x,z] of [[3.5,4.0],[6.5,4.0],[5.0,2.6],[5.0,5.5]]) box('Luxury villa dining chair '+x+' '+z,0.7,0.9,0.7,x,0.45,z,mats.npcGold,luxuryVillaRoot);
+box('Luxury villa kitchen island', 5.0, 1.0, 1.7, 5.0, 0.6, -0.3, mats.white, luxuryVillaRoot);
+box('Luxury villa kitchen hob', 1.5, 0.08, 1.1, 5.0, 1.15, -0.3, mats.tvFrame, luxuryVillaRoot);
+box('Luxury villa bedroom bed base', 4.0, 0.7, 4.2, -5.0, 0.38, -6.2, mats.bench, luxuryVillaRoot);
+box('Luxury villa bedroom mattress', 3.85, 0.28, 4.0, -5.0, 0.85, -6.2, mats.white, luxuryVillaRoot);
+box('Luxury villa silk blanket', 3.9, 0.14, 2.1, -5.0, 1.04, -7.0, mats.flower, luxuryVillaRoot);
+box('Luxury villa headboard', 4.2, 1.7, 0.22, -5.0, 1.15, -8.3, mats.npcGold, luxuryVillaRoot);
+box('Luxury villa wardrobe', 2.2, 3.0, 0.9, -0.8, 1.5, -9.2, mats.wallPink, luxuryVillaRoot);
+box('Luxury villa spa bath', 3.8, 0.72, 2.0, 6.4, 0.42, -6.8, mats.white, luxuryVillaRoot);
+box('Luxury villa spa water', 3.2, 0.12, 1.4, 6.4, 0.83, -6.8, mats.window, luxuryVillaRoot);
+box('Luxury villa vanity', 3.2, 1.0, 0.9, 6.0, 0.55, -9.2, mats.bench, luxuryVillaRoot);
+box('Luxury villa vanity mirror', 2.6, 1.5, 0.12, 6.0, 2.1, -10.0, mats.npcGold, luxuryVillaRoot);
+luxuryVillaRoot.enabled = false;
+
 
 let activeInteriorRoot = interiorRoot;
 let activeIndoorAction = null;
@@ -919,6 +973,7 @@ const todayQuestKey = localDateKey();
 let questDate = todayQuestKey;
 const equippedItems = { outfit: 'default-outfit', hair: 'default-hair' };
 let loadedProgress = null;
+const ownedHomes = new Set(['starter-villa']);
 function say(text) { message.textContent = text; status.textContent = text; }
 function logAdventure(text) {
  adventureLog.unshift({text:String(text).slice(0,120),date:new Date().toLocaleString('ar-EG',{dateStyle:'short',timeStyle:'short'})}); adventureLog=adventureLog.slice(0,30); saveProgress(); renderJournal();
@@ -1036,8 +1091,8 @@ function endSharedWalk(reason='انتهت التمشية بناءً على طل�
 }
 function renderNeighborhoodMap() {
  const list=document.getElementById('map-destinations');if(!list)return;list.replaceChildren();
- const destinations=[{name:'نافورة الساحة',emoji:'⛲',x:0,z:3},{name:'حديقة الأصدقاء',emoji:'🌳',x:-11,z:5.5},{name:'متجر Wonder',emoji:'🛍️',x:10,z:4.5},{name:'كافيه Wonder',emoji:'☕',x:15,z:-4},{name:'مكتب الحي',emoji:'💼',x:0,z:-20},{name:'Wonder Fitness',emoji:'🏋️',x:15,z:-19},{name:'مطار Wonder Air',emoji:'✈️',x:34,z:-28},{name:'محطة Wonder Central',emoji:'🚆',x:-30,z:-20},{name:'منصة عروض الأزياء',emoji:'👗',x:25,z:15},{name:'البيت الأول',emoji:'🏡',x:-10,z:-6.2},{name:'البيت العائلي',emoji:'🏠',x:10,z:-6.2},{name:'رحلة إلى مصر — الأهرامات',emoji:'🇪🇬',x:30,z:5},{name:'رحلة إلى باريس — البرج',emoji:'🇫🇷',x:-30,z:5},{name:'رحلة إلى طوكيو — حديقة الساكورا',emoji:'🇯🇵',x:0,z:35}];
- for(const d of destinations){const b=document.createElement('button');b.type='button';b.className='map-destination';b.textContent=d.emoji+' '+d.name;b.addEventListener('click',()=>{if(indoors){document.getElementById('map-feedback').textContent='اخرجي للحي الأول قبل التنقّل السريع.';return;}player.setPosition(d.x,0,d.z);cameraX=d.x;cameraZ=d.z+cameraOffsetZ;camera.setPosition(cameraX,cameraHeight,cameraZ);camera.lookAt(d.x,1,d.z);document.getElementById('map-panel').hidden=true;logAdventure('وصلت إلى '+d.name);if(activeWalkNpc){walkVisitedDestinations.add(d.name);if(walkVisitedDestinations.size>=3&&walkRewardDate!==localDateKey()){walkRewardDate=localDateKey();try{localStorage.setItem('wonderworld-shared-walk-reward-day',walkRewardDate);}catch{}happiness=Math.min(100,happiness+8);coins+=5;updateStats();awardXP(12);logAdventure('مغامرة تمشية مكتملة مع '+activeWalkNpc.name+' — زرت 3 أماكن مختلفة');say('🌟 مغامرة مشتركة رائعة! زرتوا 3 أماكن مع '+activeWalkNpc.name+'؛ +8 سعادة و+5 عملات و+12 XP. المكافأة مرة واحدة يوميًا.');}else{say('🗺️ وصلتي إلى '+d.name+' مع '+activeWalkNpc.name+'! زارتم '+walkVisitedDestinations.size+' من 3 أماكن للمغامرة المشتركة.');}}else{say('🗺️ وصلتي إلى '+d.name+'!');}});list.appendChild(b);}
+ const destinations=[{name:'نافورة الساحة',emoji:'⛲',x:0,z:3},{name:'حديقة الأصدقاء',emoji:'🌳',x:-11,z:5.5},{name:'متجر Wonder',emoji:'🛍️',x:10,z:4.5},{name:'كافيه Wonder',emoji:'☕',x:15,z:-4},{name:'مكتب الحي',emoji:'💼',x:0,z:-20},{name:'Wonder Fitness',emoji:'🏋️',x:15,z:-19},{name:'مطار Wonder Air',emoji:'✈️',x:34,z:-28},{name:'محطة Wonder Central',emoji:'🚆',x:-30,z:-20},{name:'منصة عروض الأزياء',emoji:'👗',x:25,z:15},{name:'البيت الأول',emoji:'🏡',x:-10,z:-6.2},{name:'البيت العائلي',emoji:'🏠',x:10,z:-6.2},{name:'فيلا Wonder الجاهزة (مجانية)',emoji:'🏡',x:-24,z:-8,homeId:'starter-villa',price:0},{name:'فيلا Wonder الفاخرة (250 عملة)',emoji:'💎',x:24,z:-8,homeId:'luxury-villa',price:250},{name:'رحلة إلى مصر — الأهرامات',emoji:'🇪🇬',x:30,z:5},{name:'رحلة إلى باريس — البرج',emoji:'🇫🇷',x:-30,z:5},{name:'رحلة إلى طوكيو — حديقة الساكورا',emoji:'🇯🇵',x:0,z:35}];
+ for(const d of destinations){const b=document.createElement('button');b.type='button';b.className='map-destination';b.textContent=d.emoji+' '+d.name;b.addEventListener('click',()=>{if(indoors){document.getElementById('map-feedback').textContent='اخرجي للحي الأول قبل التنقّل السريع.';return;}if(d.homeId&&!ownedHomes.has(d.homeId)){if(coins<d.price){document.getElementById('map-feedback').textContent='تحتاجي '+d.price+' عملة افتراضية لشراء الفيلا دي. رصيدك '+coins+'.';return;}if(d.price>0){coins-=d.price;updateStats();}ownedHomes.add(d.homeId);saveProgress();document.getElementById('map-feedback').textContent=d.price===0?'الفيلا الجاهزة بقت ملكك، اضغطي عليها مرة تانية للانتقال إليها.':'مبروك! الفيلا الفاخرة بقت ملكك، اضغطي عليها مرة تانية للانتقال إليها.';renderNeighborhoodMap();return;}player.setPosition(d.x,0,d.z);cameraX=d.x;cameraZ=d.z+cameraOffsetZ;camera.setPosition(cameraX,cameraHeight,cameraZ);camera.lookAt(d.x,1,d.z);document.getElementById('map-panel').hidden=true;logAdventure('وصلت إلى '+d.name);if(activeWalkNpc){walkVisitedDestinations.add(d.name);if(walkVisitedDestinations.size>=3&&walkRewardDate!==localDateKey()){walkRewardDate=localDateKey();try{localStorage.setItem('wonderworld-shared-walk-reward-day',walkRewardDate);}catch{}happiness=Math.min(100,happiness+8);coins+=5;updateStats();awardXP(12);logAdventure('مغامرة تمشية مكتملة مع '+activeWalkNpc.name+' — زرت 3 أماكن مختلفة');say('🌟 مغامرة مشتركة رائعة! زرتوا 3 أماكن مع '+activeWalkNpc.name+'؛ +8 سعادة و+5 عملات و+12 XP. المكافأة مرة واحدة يوميًا.');}else{say('🗺️ وصلتي إلى '+d.name+' مع '+activeWalkNpc.name+'! زارتم '+walkVisitedDestinations.size+' من 3 أماكن للمغامرة المشتركة.');}}else{say('🗺️ وصلتي إلى '+d.name+'!');}});list.appendChild(b);}
 }
 
 function renderAchievementPanel() {
@@ -1130,7 +1185,7 @@ function buildProgressSnapshot() {
     dailyQuests: { ...dailyQuests }, ownedItems: [...ownedItems],
     relationships: Object.fromEntries(npcs.map(npc => [npc.name, npc.relation])),
     npcInteractionDates: { ...npcInteractionDates }, npcGiftDates: { ...npcGiftDates },
-    equippedItems: { ...equippedItems }, ownedPets: [...ownedPets], activePetId,
+    equippedItems: { ...equippedItems }, ownedHomes: [...ownedHomes], ownedPets: [...ownedPets], activePetId,
     petCareState: { ...petCareState }, petSupplies: { ...petSupplies }, petNames: { ...petNames },
     deviceRecords: readGameRecords()
   };
@@ -1174,6 +1229,7 @@ try {
     if (typeof loadedProgress.lastPhotoDay === 'string') lastPhotoDay = loadedProgress.lastPhotoDay;
     if (Array.isArray(loadedProgress.adventureLog)) adventureLog = loadedProgress.adventureLog.filter(item => item && typeof item.text === 'string' && typeof item.date === 'string').slice(-30);
     if (Array.isArray(loadedProgress.ownedItems)) loadedProgress.ownedItems.forEach(id => ownedItems.add(id));
+    if (Array.isArray(loadedProgress.ownedHomes)) loadedProgress.ownedHomes.filter(id => ['starter-villa','luxury-villa'].includes(id)).forEach(id => ownedHomes.add(id));
     if (loadedProgress.dailyQuests && typeof loadedProgress.dailyQuests === 'object') {
       for (const key of Object.keys(dailyQuests)) {
         if (typeof loadedProgress.dailyQuests[key] === 'boolean') dailyQuests[key] = loadedProgress.dailyQuests[key];
@@ -1635,6 +1691,8 @@ document.getElementById('shop-products').addEventListener('click', event => {
 const places = [
   { name: 'بيتك', x: -10, z: -7.4, radius: 3.2, action: () => enterHome('بيتك') },
   { name: 'بيت العائلة', x: 10, z: -7.4, radius: 3.2, action: () => enterHome('بيت العائلة') },
+  { name: 'فيلا Wonder الجاهزة', x: -24, z: -10, radius: 5.5, action: () => enterHome('فيلا Wonder الجاهزة', starterVillaRoot) },
+  { name: 'فيلا Wonder الفاخرة', x: 24, z: -10, radius: 5.5, action: () => { if (!ownedHomes.has('luxury-villa')) { if (coins < 250) { say('الفيلا الفاخرة متاحة للشراء مقابل 250 عملة افتراضية. رصيدك الحالي '+coins+' عملة.'); return; } coins -= 250; ownedHomes.add('luxury-villa'); updateStats(); saveProgress(); say('مبروك! اشتريتي فيلا Wonder الفاخرة بـ250 عملة افتراضية. تفاعلي مع الفيلا مرة ثانية للدخول.'); return; } enterHome('فيلا Wonder الفاخرة', luxuryVillaRoot); } },
   { name: 'مسبح البيت 🏊', x: -16.1, z: -10.0, radius: 3.7, action: () => {
     if (indoors) { say('اخرجي من البيت الأول عشان تروحي للمسبح.'); return; }
     energy = Math.max(0, energy - 8); happiness = Math.min(100, happiness + 15); awardXP(5); updateStats(); saveProgress();
