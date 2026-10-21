@@ -122,7 +122,9 @@ async function refreshPlayer(user) {
     summary.appendChild(note);
   }
 }
+let accountSwitching = false;
 async function syncSession(session) {
+  if (accountSwitching) return;
   const signedInUserId = session?.user?.id || null;
   // Keep browser-local prototype saves isolated when a different account signs in.
   // The first account adopts existing local progress; switching accounts clears local game state
@@ -132,6 +134,7 @@ async function syncSession(session) {
     let previousOwner = null;
     try { previousOwner = localStorage.getItem(ownerKey); } catch (_) {}
     if (previousOwner && previousOwner !== signedInUserId) {
+      accountSwitching = true;
       try {
         for (let i = localStorage.length - 1; i >= 0; i--) {
           const key = localStorage.key(i);
