@@ -141,10 +141,28 @@ try {
   assert.equal(await page.locator('#ww-memory-grid .ww-memory-card').count(), 12, 'memory pairs should render six matching pairs');
   await page.locator('#wwa-memory-reset').click();
   assert.equal(await page.locator('#ww-memory-grid .ww-memory-card').count(), 12, 'memory game restart should keep a full shuffled board');
+  let memoryPairFound = false;
+  for (let candidate = 1; candidate < 12; candidate++) {
+    const cards = page.locator('#ww-memory-grid .ww-memory-card');
+    await cards.nth(0).click();
+    const firstSymbol = (await page.locator('#ww-memory-grid .ww-memory-card').nth(0).innerText()).trim();
+    await page.locator('#ww-memory-grid .ww-memory-card').nth(candidate).click();
+    const secondSymbol = (await page.locator('#ww-memory-grid .ww-memory-card').nth(candidate).innerText()).trim();
+    if (firstSymbol === secondSymbol) {
+      assert.equal(await page.locator('#ww-memory-grid .ww-memory-card.matched').count(), 2, 'matching symbols should stay revealed as a completed pair');
+      memoryPairFound = true;
+      break;
+    }
+    await page.waitForTimeout(900);
+  }
+  assert.ok(memoryPairFound, 'memory game should allow a real matching pair to be completed');
+  await page.locator('#wwa-memory-reset').click();
+  assert.equal(await page.locator('#ww-memory-grid .ww-memory-card').count(), 12, 'memory restart should rebuild the board after a successful match');
   await page.locator('#wwa-cups-open').click();
   await page.locator('#ww-cups .ww-cup').first().click();
   assert.match(await page.locator('#wwa-cups-status').innerText(), /النجمة/, 'cup guessing should reveal a result and identify the hidden star');
   assert.equal(await page.locator('#ww-cups .ww-cup:disabled').count(), 3, 'cup round should prevent repeated guesses after revealing the result');
+  assert.equal(await page.locator('#ww-cups .ww-cup').filter({ hasText: '⭐' }).count(), 1, 'cup round should reveal exactly one hidden star');
   await page.locator('#wwa-cups-reset').click();
   assert.equal(await page.locator('#ww-cups .ww-cup:disabled').count(), 0, 'cup restart should enable all three cups again');
   await page.locator('#ww-arcade-panel').getByRole('button', { name: 'إغلاق' }).click();
