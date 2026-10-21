@@ -48,15 +48,15 @@ Keep the prototype status visible until all credentialed and device-specific che
 - Added static regression checks and mobile-browser smoke coverage for the Ludo panel and chess move/undo/reset flow.
 - The chess activity remains a move-practice prototype and does not implement complete tournament rules such as check/checkmate, castling, or en passant.
 
-## Water Sort integration batch — 2026-10-21
+## Water Sort regression coverage — 2026-10-21
 
-- Added a Water Sort mode to the existing board-games panel on the feature branch, with six tubes, randomized color distribution, valid pour rules, move count, undo, restart, and win detection.
-- Refreshed the board-games module and page cache-busting versions, and corrected the static regression check to assert the exact module URL.
-- [x] GitHub Actions pull-request workflow run `39620196354` passed on commit `648cbe258004e4db34a9d49940ff65392e3a2797`, including syntax, gameplay regression, asset/integration, and Chromium browser smoke checks.
-- [ ] Play through valid/invalid pours, undo, restart, and win completion in a real browser and on a physical Android device.
-- [ ] Merge and verify the deployed GitHub Pages build only after checks pass.
+- Water Sort already exists in `main.js`; its puzzle generator starts from a solved board and scrambles via reversible moves.
+- The duplicate experimental Water Sort implementation was removed from `board-games.js` to avoid showing two versions of the same game.
+- Static checks now assert that the original panel and reversible-scramble generator remain wired, and that the board-games module does not contain a duplicate.
+- [ ] Confirm CI passes on the latest branch commit after removing the duplicate implementation.
+- [ ] Play through valid/invalid pours, undo, restart, and win completion on a real Android device.
 
-**Scope note:** this is a small playable puzzle slice, not completion of the full puzzle catalogue or of the broader WonderWorld requirements. This branch is not yet merged or deployed.
+**Scope note:** automated browser checks cover a legal move, undo, restart, and the solvable-puzzle message; they do not replace full manual device testing.
 
 ## Casual arcade batch — 2026-10-21
 
@@ -65,6 +65,6 @@ Keep the prototype status visible until all credentialed and device-specific che
 - [x] Pull-request workflow run `39620196354` passed syntax, static regression, and Chromium browser smoke checks.
 - [x] Browser smoke tests verify actual pair matching, one-star reveal, restart behavior, and keyboard focus restoration on Escape.
 
-- Updated the Pages workflow to run build/regression/browser checks on pull requests and prevent pull-request events from deploying to Pages. Added syntax, static, and browser smoke coverage for the new arcade module; the resulting workflow run must still be inspected before merge.
+- Updated the Pages workflow to run build/regression/browser checks on pull requests and prevent pull-request events from deploying to Pages. Added syntax, static, and browser smoke coverage for the arcade module. The final workflow run after the latest cleanup must pass before merge.
 - [ ] Test on narrow mobile screens and a real Android device, including repeated restarts and rapid card taps.
 - [ ] Keep the broader game catalogue, secure cloud persistence, multiplayer consent flows, full football/action modes, production 3D characters, and owner-controlled Supabase security settings marked incomplete until implemented and verified.
