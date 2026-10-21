@@ -597,7 +597,7 @@ footballPanel.id = 'football-panel';
 footballPanel.className = 'wonder-overlay';
 footballPanel.hidden = true;
 footballPanel.setAttribute('aria-label', 'تحدي كرة القدم');
-footballPanel.innerHTML = '<div class="shop-heading"><strong>⚽ تحدّي كرة القدم</strong><button id="close-football" type="button" aria-label="إغلاق كرة القدم">✕</button></div><p class="shop-intro">حرّكي اللاعبة ناحية الكرة، قرّبي منها، ثم سدّدي نحو المرمى. دي مرحلة لعب أولية قابلة للتحكم؛ مباريات الفرق الكاملة ولسه حركات التمرير والتدخل والحارس المتقدم ضمن التطوير.</p><div class="football-scorebar"><span>الأهداف: <b id="football-score">0</b></span><span>التسديدات: <b id="football-shots">0 / 5</b></span><span>أفضل نتيجة: <b id="football-best">0</b></span></div><div id="football-pitch" role="application" aria-label="ملعب كرة قدم"><div class="football-goal"></div><div class="football-midline"></div><div class="football-circle"></div><div id="football-keeper" class="football-player keeper" aria-label="حارسة المرمى">🧤</div><div id="football-avatar" class="football-player avatar" aria-label="لاعبة">👟</div><div id="football-ball" aria-label="الكرة">⚽</div></div><div class="football-controls"><div class="football-pad"><button data-foot-dir="up" aria-label="تحركي للأعلى">▲</button><button data-foot-dir="left" aria-label="تحركي لليسار">◀</button><button data-foot-dir="down" aria-label="تحركي للأسفل">▼</button><button data-foot-dir="right" aria-label="تحركي لليمين">▶</button></div><button id="football-shoot">🥅 تسديد!</button></div><p id="football-feedback" role="status">ابدئي بتحريك اللاعبة نحو الكرة.</p><button id="football-restart" type="button">🔄 مباراة تدريبية جديدة</button>';
+footballPanel.innerHTML = '<div class="shop-heading"><strong>⚽ تحدّي كرة القدم</strong><button id="close-football" type="button" aria-label="إغلاق كرة القدم">✕</button></div><p class="shop-intro">حرّكي اللاعبة ناحية الكرة، قرّبي منها، ثم سدّدي نحو المرمى. دي مرحلة لعب أولية قابلة للتحكم؛ مباريات الفرق الكاملة ولسه حركات التمرير والتدخل والحارس المتقدم ضمن التطوير.</p><div class="football-scorebar"><span>الأهداف: <b id="football-score">0</b></span><span>التسديدات: <b id="football-shots">0 / 5</b></span><span>أفضل نتيجة: <b id="football-best">0</b></span></div><div id="football-pitch" role="application" aria-label="ملعب كرة قدم"><div class="football-goal"><span id="football-target" aria-hidden="true"></span></div><div class="football-midline"></div><div class="football-circle"></div><div id="football-keeper" class="football-player keeper" aria-label="حارسة المرمى">🧤</div><div id="football-avatar" class="football-player avatar" aria-label="لاعبة">👟</div><div id="football-ball" aria-label="الكرة">⚽</div></div><div class="football-controls"><div class="football-pad"><button data-foot-dir="up" aria-label="تحركي للأعلى">▲</button><button data-foot-dir="left" aria-label="تحركي لليسار">◀</button><button data-foot-dir="down" aria-label="تحركي للأسفل">▼</button><button data-foot-dir="right" aria-label="تحركي لليمين">▶</button></div><div class="football-aim-controls" role="group" aria-label="اختيار اتجاه التسديد"><button type="button" data-foot-aim="24" aria-pressed="false">↖️ يسار</button><button type="button" data-foot-aim="50" aria-pressed="true">⬆️ وسط</button><button type="button" data-foot-aim="76" aria-pressed="false">↗️ يمين</button></div><button id="football-shoot">🥅 تسديد!</button></div><p id="football-feedback" role="status">ابدئي بتحريك اللاعبة نحو الكرة.</p><button id="football-restart" type="button">🔄 مباراة تدريبية جديدة</button>';
 document.getElementById('game').appendChild(footballPanel);
 
 
@@ -630,7 +630,7 @@ const interactButton = document.getElementById('interact');
 document.getElementById('open-football').addEventListener('click', () => { footballPanel.hidden = false; resetFootballGame(); });
 document.getElementById('close-football').addEventListener('click', () => { footballPanel.hidden = true; });
 document.getElementById('football-restart').addEventListener('click', resetFootballGame);
-let football = { playerX: 50, playerY: 76, ballX: 50, ballY: 64, keeperX: 50, score: 0, shots: 0 };
+let football = { playerX: 50, playerY: 76, ballX: 50, ballY: 64, keeperX: 50, aimX: 50, score: 0, shots: 0 };
 let footballBest = 0;
 try { footballBest = Number(localStorage.getItem('wonderworld-football-best')) || 0; } catch (_) {}
 function renderFootball() {
@@ -639,12 +639,14 @@ function renderFootball() {
   document.getElementById('football-ball').style.left = football.ballX + '%';
   document.getElementById('football-ball').style.top = football.ballY + '%';
   document.getElementById('football-keeper').style.left = football.keeperX + '%';
+  document.getElementById('football-target').style.left = football.aimX + '%';
+  document.querySelectorAll('[data-foot-aim]').forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.footAim) === football.aimX)));
   document.getElementById('football-score').textContent = football.score;
   document.getElementById('football-shots').textContent = football.shots + ' / 5';
   document.getElementById('football-best').textContent = footballBest;
 }
 function resetFootballGame() {
-  football = { playerX: 50, playerY: 76, ballX: 50, ballY: 64, keeperX: 50, score: 0, shots: 0 };
+  football = { playerX: 50, playerY: 76, ballX: 50, ballY: 64, keeperX: 50, aimX: 50, score: 0, shots: 0 };
   renderFootball();
   document.getElementById('football-feedback').textContent = 'ابدئي بتحريك اللاعبة نحو الكرة، ثم سدّدي قبل انتهاء المحاولات الخمس.';
   document.getElementById('football-shoot').disabled = false;
@@ -669,9 +671,12 @@ function shootFootball() {
     return;
   }
   football.shots += 1;
-  const lane = Math.max(12, Math.min(88, football.ballX + (Math.random() * 26 - 13)));
-  football.keeperX = 50 + (Math.random() * 44 - 22);
-  const scored = Math.abs(lane - football.keeperX) > 13 && Math.random() > 0.16;
+  // Aim is player-controlled. The keeper follows a predictable training pattern,
+  // so goals depend on reading the keeper and choosing a different lane, not luck.
+  const lane = football.aimX;
+  const keeperPattern = [50, 24, 76, 50, 76];
+  football.keeperX = keeperPattern[football.shots - 1];
+  const scored = Math.abs(lane - football.keeperX) >= 20;
   if (scored) {
     football.score += 1;
     happiness = Math.min(100, happiness + 2);
@@ -679,7 +684,7 @@ function shootFootball() {
     logAdventure('سجّلت هدفًا في تحدّي كرة القدم');
     document.getElementById('football-feedback').textContent = 'جوووول! ⚽🥳 هدف جميل!';
   } else {
-    document.getElementById('football-feedback').textContent = 'الحارسة صدّت الكرة! جرّبي تغيّري اتجاه التسديد. 🧤';
+    document.getElementById('football-feedback').textContent = 'الحارسة صدّت الكرة! شوفي مكانها واختاري الجهة الأبعد في التسديدة الجاية. 🧤';
   }
   football.ballX = lane;
   football.ballY = 18;
@@ -697,6 +702,12 @@ function shootFootball() {
   renderFootball();
 }
 document.querySelectorAll('[data-foot-dir]').forEach(button => button.addEventListener('click', () => moveFootball(button.dataset.footDir)));
+document.querySelectorAll('[data-foot-aim]').forEach(button => button.addEventListener('click', () => {
+  if (football.shots >= 5) return;
+  football.aimX = Number(button.dataset.footAim);
+  renderFootball();
+  document.getElementById('football-feedback').textContent = 'اتجاه التسديد اتحدد: ' + (football.aimX < 40 ? 'الزاوية اليسرى' : football.aimX > 60 ? 'الزاوية اليمنى' : 'منتصف المرمى') + '. راقبي الحارسة ثم سدّدي!';
+}));
 document.getElementById('football-shoot').addEventListener('click', shootFootball);
 
 const outfitOptions = [mats.player, mats.outfitMint, mats.outfitCoral, mats.outfitBlue, mats.outfitGold];
