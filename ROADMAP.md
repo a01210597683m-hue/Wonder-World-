@@ -480,7 +480,7 @@ This plan separates verified prototype functionality from production features. A
 - [x] Verify the page mounts the PlayCanvas canvas and mobile touch controls.
 - [x] Exercise the careers/business dialog, a football shot, memory-match board rendering, and account dialog open/close.
 - [x] Fail the build on uncaught browser JavaScript exceptions during the smoke flow.
-- [ ] Confirm the new browser job passes in GitHub Actions after this commit.
+- [x] Confirmed the new browser job passes in GitHub Actions (run 254: https://github.com/a01210597683m-hue/Wonder-World-/actions/runs/39528034220).
 - [ ] Perform real Android-device checks for touch responsiveness, frame rate, cloud-save round trips, and account switching.
 
 This adds a basic runtime regression gate; it does not mark the full product vision complete. Production character models, full football/action modes, transport and country travel, building/swimming, social visits and parties, AI chat safeguards, secure server-authoritative economy, monetization, and store release work remain distinct acceptance items in the master vision.
