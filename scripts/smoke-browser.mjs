@@ -61,6 +61,11 @@ try {
   assert.equal(await page.locator('[data-dir="up"]').count(), 1, 'mobile movement controls should be present');
   await page.locator('#toggle-actions').click();
   assert.equal(await page.locator('#toggle-actions').getAttribute('aria-expanded'), 'true', 'activity dock should expand');
+  await page.locator('#toggle-vehicle').click();
+  assert.equal(await page.locator('#toggle-vehicle').getAttribute('aria-pressed'), 'true', 'vehicle button should enter driving mode');
+  assert.match(await page.locator('#toggle-vehicle').innerText(), /النزول من العربية/);
+  await page.locator('#toggle-vehicle').click();
+  assert.equal(await page.locator('#toggle-vehicle').getAttribute('aria-pressed'), 'false', 'vehicle button should return to walking mode');
 
   await page.locator('#open-careers').click();
   await page.locator('#career-panel').waitFor({ state: 'visible' });
