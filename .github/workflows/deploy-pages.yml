@@ -31,6 +31,8 @@ jobs:
           node --check mini-games.js
           node --check scripts/check-game.mjs
           node --check scripts/check-assets.mjs
+      - name: Check activity module JavaScript syntax
+        run: node --check wonderworld-activities.js
       - name: Run gameplay regression checks
         run: node scripts/check-game.mjs
       - name: Run asset and integration checks
