@@ -85,7 +85,7 @@ const sun = new Entity('Sun');
 sun.addComponent('light', { type: 'directional', color: new Color(1, 0.94, 0.82), intensity: 1.55, castShadows: true });
 sun.setEulerAngles(45, 25, 0);
 app.root.addChild(sun);
-box('Town green', 48, 0.4, 48, 0, -0.25, 0, mats.grass);
+box('Town green', 100, 0.4, 100, 0, -0.25, 0, mats.grass);
 box('Main street', 5.5, 0.06, 42, 0, 0.0, 0, mats.road);
 box('Cross street', 42, 0.06, 5.5, 0, 0.01, 0, mats.road);
 box('North sidewalk', 7, 0.08, 42, -6.2, 0.03, 0, mats.path);
@@ -183,6 +183,48 @@ box('Wonder Fitness sign', 4.0, 0.55, 0.18, 15, 2.75, -17.48, mats.npcGold);
 cylinder('Fitness weight left', 0.22, 0.55, 0.22, 13.0, 0.35, -12.0, mats.road);
 cylinder('Fitness weight right', 0.22, 0.55, 0.22, 13.8, 0.35, -12.0, mats.road);
 box('Fitness weight bar', 1.3, 0.12, 0.12, 13.4, 0.38, -12.0, mats.bench);
+
+/*
+ * First cross-country travel slice. These are original low-poly landmarks built
+ * from engine primitives, not finished country-scale worlds or real transport.
+ * The destination menu moves the player between these clearly separated areas.
+ */
+// Egypt: sandy arrival plaza, stepped pyramids and a small sphinx silhouette.
+box('Egypt travel plaza', 17, 0.28, 17, 30, -0.02, 0, mats.path);
+for (const [index, width] of [5.6, 4.4, 3.2, 2.0, 0.9].entries()) {
+  const tier = box('Egypt stepped pyramid tier ' + index, width, 1.05, width, 30, 0.5 + index * 0.92, -1.2, mats.wall);
+  tier.setEulerAngles(0, 45, 0);
+}
+box('Egypt pyramid entry', 1.0, 1.5, 0.45, 30, 1.0, 2.9, mats.door);
+sphere('Egypt sphinx body', 1.15, 25.9, 0.58, 2.7, mats.wallPink);
+box('Egypt sphinx head', 0.8, 1.2, 0.8, 25.3, 1.2, 2.7, mats.wall);
+box('Egypt arrival marker', 4.2, 0.8, 0.2, 30, 1.2, 7.1, mats.npcGold);
+
+// Paris: a compact Eiffel-inspired landmark with a broad base and cross-braces.
+box('Paris travel plaza', 17, 0.28, 17, -30, -0.02, 0, mats.white);
+box('Paris tower left leg', 0.45, 7.2, 0.55, -31.3, 3.6, -0.6, mats.road);
+box('Paris tower right leg', 0.45, 7.2, 0.55, -28.7, 3.6, -0.6, mats.road);
+box('Paris tower first deck', 4.4, 0.28, 1.1, -30, 2.1, -0.6, mats.npcBlue);
+box('Paris tower second deck', 2.8, 0.24, 0.9, -30, 4.25, -0.6, mats.npcBlue);
+box('Paris tower crown', 0.65, 1.3, 0.65, -30, 7.4, -0.6, mats.road);
+box('Paris tower crossbar lower', 2.0, 0.22, 0.28, -30, 3.1, -0.6, mats.road);
+box('Paris tower crossbar upper', 1.4, 0.2, 0.25, -30, 5.1, -0.6, mats.road);
+box('Paris arrival marker', 4.4, 0.8, 0.2, -30, 1.2, 7.1, mats.npcPink);
+
+// Tokyo: a red torii gate, cherry blossoms and a small lantern path.
+box('Tokyo travel garden', 17, 0.28, 17, 0, -0.02, 30, mats.leaf);
+box('Tokyo torii left post', 0.42, 3.8, 0.42, -2.2, 1.9, 27.8, mats.npcPink);
+box('Tokyo torii right post', 0.42, 3.8, 0.42, 2.2, 1.9, 27.8, mats.npcPink);
+box('Tokyo torii lintel', 5.6, 0.45, 0.65, 0, 3.7, 27.8, mats.npcPink);
+box('Tokyo torii upper lintel', 6.2, 0.32, 0.7, 0, 4.08, 27.8, mats.roof);
+for (const [x, z] of [[-5, 26], [5, 26], [-5, 34], [5, 34]]) {
+  cylinder('Tokyo cherry tree trunk', 0.3, 1.5, 0.3, x, 0.75, z, mats.trunk);
+  sphere('Tokyo cherry blossoms', 1.9, x, 2.0, z, mats.flower);
+}
+for (const [x, z] of [[-3.4, 31], [3.4, 31], [-3.4, 33], [3.4, 33]]) {
+  box('Tokyo garden stepping stone', 0.9, 0.12, 0.9, x, 0.18, z, mats.white);
+}
+box('Tokyo arrival marker', 4.4, 0.8, 0.2, 0, 1.2, 37.1, mats.npcGold);
 
 // Park, trees, flowers and benches.
 box('Park lawn', 12, 0.12, 12, -11, 0.05, 10, mats.leaf);
@@ -851,7 +893,7 @@ function endSharedWalk(reason='انتهت التمشية بناءً على طل�
 }
 function renderNeighborhoodMap() {
  const list=document.getElementById('map-destinations');if(!list)return;list.replaceChildren();
- const destinations=[{name:'نافورة الساحة',emoji:'⛲',x:0,z:3},{name:'حديقة الأصدقاء',emoji:'🌳',x:-11,z:5.5},{name:'متجر Wonder',emoji:'🛍️',x:10,z:4.5},{name:'كافيه Wonder',emoji:'☕',x:15,z:-4},{name:'مكتب الحي',emoji:'💼',x:0,z:-20},{name:'Wonder Fitness',emoji:'🏋️',x:15,z:-19},{name:'البيت الأول',emoji:'🏡',x:-10,z:-6.2},{name:'البيت العائلي',emoji:'🏠',x:10,z:-6.2}];
+ const destinations=[{name:'نافورة الساحة',emoji:'⛲',x:0,z:3},{name:'حديقة الأصدقاء',emoji:'🌳',x:-11,z:5.5},{name:'متجر Wonder',emoji:'🛍️',x:10,z:4.5},{name:'كافيه Wonder',emoji:'☕',x:15,z:-4},{name:'مكتب الحي',emoji:'💼',x:0,z:-20},{name:'Wonder Fitness',emoji:'🏋️',x:15,z:-19},{name:'البيت الأول',emoji:'🏡',x:-10,z:-6.2},{name:'البيت العائلي',emoji:'🏠',x:10,z:-6.2},{name:'رحلة إلى مصر — الأهرامات',emoji:'🇪🇬',x:30,z:5},{name:'رحلة إلى باريس — البرج',emoji:'🇫🇷',x:-30,z:5},{name:'رحلة إلى طوكيو — حديقة الساكورا',emoji:'🇯🇵',x:0,z:35}];
  for(const d of destinations){const b=document.createElement('button');b.type='button';b.className='map-destination';b.textContent=d.emoji+' '+d.name;b.addEventListener('click',()=>{if(indoors){document.getElementById('map-feedback').textContent='اخرجي للحي الأول قبل التنقّل السريع.';return;}player.setPosition(d.x,0,d.z);cameraX=d.x;cameraZ=d.z+cameraOffsetZ;camera.setPosition(cameraX,cameraHeight,cameraZ);camera.lookAt(d.x,1,d.z);document.getElementById('map-panel').hidden=true;logAdventure('وصلت إلى '+d.name);if(activeWalkNpc){walkVisitedDestinations.add(d.name);if(walkVisitedDestinations.size>=3&&walkRewardDate!==localDateKey()){walkRewardDate=localDateKey();try{localStorage.setItem('wonderworld-shared-walk-reward-day',walkRewardDate);}catch{}happiness=Math.min(100,happiness+8);coins+=5;updateStats();awardXP(12);logAdventure('مغامرة تمشية مكتملة مع '+activeWalkNpc.name+' — زرت 3 أماكن مختلفة');say('🌟 مغامرة مشتركة رائعة! زرتوا 3 أماكن مع '+activeWalkNpc.name+'؛ +8 سعادة و+5 عملات و+12 XP. المكافأة مرة واحدة يوميًا.');}else{say('🗺️ وصلتي إلى '+d.name+' مع '+activeWalkNpc.name+'! زارتم '+walkVisitedDestinations.size+' من 3 أماكن للمغامرة المشتركة.');}}else{say('🗺️ وصلتي إلى '+d.name+'!');}});list.appendChild(b);}
 }
 
@@ -2166,8 +2208,8 @@ app.on('update', dt => {
 
   const p = player.getPosition();
   if(activeWalkNpc && !indoors){const friendPos=activeWalkNpc.entity.getPosition();const dx=p.x-friendPos.x,dz=p.z-friendPos.z,dist=Math.hypot(dx,dz);if(dist>1.65){const step=Math.min(dist-1.1,moveSpeed*dt*0.92);activeWalkNpc.entity.setPosition(friendPos.x+dx/dist*step,0,friendPos.z+dz/dist*step);activeWalkNpc.entity.setEulerAngles(0,Math.atan2(dx,dz)*180/Math.PI,0);}}
-  p.x = Math.max(-21, Math.min(21, p.x));
-  p.z = Math.max(-21, Math.min(21, p.z));
+  p.x = Math.max(-42, Math.min(42, p.x));
+  p.z = Math.max(-42, Math.min(42, p.z));
   player.setPosition(p);
   if (vehicleMode) {
     playerCar.setPosition(p.x, 0, p.z);
