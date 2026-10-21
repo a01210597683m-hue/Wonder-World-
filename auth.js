@@ -58,6 +58,7 @@ overlay.innerHTML = `
       <button id="ww-signup" class="ww-secondary" type="button">إنشاء حساب</button>
       <button id="ww-forgot-password" type="button">نسيت كلمة المرور؟</button>
       <button id="ww-password-toggle" class="ww-secondary" type="button" aria-pressed="false">إظهار كلمة المرور</button>
+      <button id="ww-save-new-password" class="ww-primary" type="button" hidden>حفظ كلمة المرور الجديدة</button>
     </div>
   </div>
   <div id="ww-auth-summary" hidden></div>
@@ -80,7 +81,7 @@ overlay.addEventListener('click', (event) => { if (event.target === overlay) clo
 document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !overlay.hidden) close(); });
 
 function setBusy(busy) {
-  for (const id of ['ww-signin', 'ww-signup', 'ww-forgot-password']) byId(id).disabled = busy;
+  for (const id of ['ww-signin', 'ww-signup', 'ww-forgot-password', 'ww-save-new-password']) byId(id).disabled = busy;
 }
 function friendlyAuthError(error) {
   const raw = String(error?.message || '').toLowerCase();
@@ -103,6 +104,27 @@ function validateCredentials(forSignup = false) {
   if (forSignup && password.split('').every((char) => char === password[0])) { message('اختاري كلمة مرور متنوعة، مش نفس الحرف مكرر.'); byId('ww-password').focus(); return false; }
   if (forSignup && /(?:0123456789|1234567890|0987654321|qwertyuiop)/i.test(password)) { message('اختاري كلمة مرور أقوى وفريدة لحساب WonderWorld.'); byId('ww-password').focus(); return false; }
   return true;
+}
+let recoveryMode = false;
+function setRecoveryMode(active, email = '') {
+  recoveryMode = active;
+  byId('ww-auth-title').textContent = active ? 'تعيين كلمة مرور جديدة' : 'حساب WonderWorld';
+  byId('ww-auth-intro').textContent = active
+    ? 'اكتبي كلمة مرور جديدة من 12 حرفًا على الأقل لحماية حسابك.'
+    : 'سجّلي الدخول لحسابك أو أنشئي حسابًا جديدًا لحفظ هوية اللاعب في Supabase.';
+  byId('ww-display-name').hidden = active;
+  byId('ww-auth-card').querySelector('label[for="ww-display-name"]').hidden = active;
+  byId('ww-signin').hidden = active;
+  byId('ww-signup').hidden = active;
+  byId('ww-forgot-password').hidden = active;
+  byId('ww-save-new-password').hidden = !active;
+  byId('ww-password').value = '';
+  byId('ww-password').autocomplete = active ? 'new-password' : 'current-password';
+  if (email) byId('ww-email').value = email;
+  byId('ww-email').readOnly = active && Boolean(email);
+  overlay.hidden = false;
+  message(active ? 'رابط الاستعادة صالح. اختاري كلمة مرور جديدة.' : '');
+  byId('ww-password').focus();
 }
 function showSignedOut() {
   launch.textContent = '👤 حساب اللاعب';
@@ -236,6 +258,26 @@ byId('ww-forgot-password').addEventListener('click', async () => {
   } catch (error) { message(friendlyAuthError(error)); }
   finally { setBusy(false); }
 });
+byId('ww-save-new-password').addEventListener('click', async () => {
+  const password = byId('ww-password').value;
+  if (password.length < 12) { message('اختاري كلمة مرور من 12 حرفًا على الأقل.'); byId('ww-password').focus(); return; }
+  if (password.split('').every((char) => char === password[0]) ||
+      /(?:0123456789|1234567890|0987654321|qwertyuiop)/i.test(password)) {
+    message('اختاري كلمة مرور أقوى ومتنوعة.'); byId('ww-password').focus(); return;
+  }
+  setBusy(true); message('جاري تحديث كلمة المرور…');
+  try {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) throw error;
+    setRecoveryMode(false);
+    message('اتغيّرت كلمة المرور بنجاح. حسابك جاهز للاستخدام.');
+  } catch (error) {
+    const raw = String(error?.message || '').toLowerCase();
+    message(raw.includes('expired') || raw.includes('invalid') || raw.includes('session')
+      ? 'رابط الاستعادة انتهت صلاحيته أو لم يعد صالحًا. اطلبي رابطًا جديدًا.'
+      : friendlyAuthError(error));
+  } finally { setBusy(false); }
+});
 byId('ww-password-toggle').addEventListener('click', () => {
   const password = byId('ww-password');
   const showing = password.type === 'text';
@@ -261,7 +303,10 @@ byId('ww-signout').addEventListener('click', async () => {
   if (error) { message(error.message || 'تعذّر تسجيل الخروج.'); return; }
   showSignedOut(); message('تم تسجيل الخروج.');
 });
-supabase.auth.onAuthStateChange((_event, session) => { void syncSession(session); });
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'PASSWORD_RECOVERY') setRecoveryMode(true, session?.user?.email || '');
+  void syncSession(session);
+});
 supabase.auth.getSession().then(({ data, error }) => {
   if (error) { message('تعذّر التحقق من جلسة الحساب.'); return; }
   void syncSession(data.session);
