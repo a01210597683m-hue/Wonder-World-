@@ -95,17 +95,19 @@ box('East sidewalk', 42, 0.08, 7, 0, 0.03, 6.2, mats.path);
 
 // Houses with doors, windows, roofs and little gardens.
 function house(name, x, z, wallMaterial, width = 5) {
-  box(name + ' walls', width, 3.1, 4.2, x, 1.55, z, wallMaterial);
-  box(name + ' roof', width + 0.55, 0.38, 4.7, x, 3.28, z, mats.roof);
+  const walls = box(name + ' walls', width, 3.1, 4.2, x, 1.55, z, wallMaterial);
+  const roof = box(name + ' roof', width + 0.55, 0.38, 4.7, x, 3.28, z, mats.roof);
   box(name + ' door', 0.95, 1.9, 0.16, x, 0.98, z - 2.17, mats.door);
   box(name + ' window left', 0.95, 0.85, 0.13, x - width * 0.29, 1.95, z - 2.18, mats.window);
   box(name + ' window right', 0.95, 0.85, 0.13, x + width * 0.29, 1.95, z - 2.18, mats.window);
   box(name + ' step', 1.5, 0.18, 0.65, x, 0.1, z - 2.45, mats.path);
+  const bushes = [];
   for (let i = 0; i < 3; i++) {
-    sphere(name + ' garden bush ' + i, 0.65, x - width / 2 + i * 0.65, 0.42, z - 2.9, mats.leaf);
+    bushes.push(sphere(name + ' garden bush ' + i, 0.65, x - width / 2 + i * 0.65, 0.42, z - 2.9, mats.leaf));
   }
+  return { walls, roof, bushes };
 }
-house('Home', -10, -10, mats.wall, 5);
+const playerHomeBuild = house('Home', -10, -10, mats.wall, 5);
 house('Family home', 10, -10, mats.wallPink, 5);
 
 // A first backyard/pool activity slice: a visible pool beside the player's home.
@@ -380,6 +382,7 @@ ui.innerHTML = `
   <button id="open-pets" type="button">🐾 حيواناتي الأليفة</button>
   <button id="open-achievements" type="button">🏅 إنجازاتي وتقدمي</button>
   <button id="open-map" type="button">🗺️ خريطة الحي والتنقّل</button>
+  <button id="open-home-build" type="button">🏡 تخصيص البيت والحديقة</button>
   <button id="open-walks" type="button">🚶 تمشية مع صديق</button>
   <button id="open-football" type="button">⚽ كرة القدم — تحدّي التسديد</button>
   <button id="open-journal" type="button">📔 سجل مغامراتي</button>
@@ -415,6 +418,13 @@ ui.innerHTML = `
   <section id="achievement-panel" hidden aria-label="إنجازاتي في WonderWorld">
     <div class="shop-heading"><strong>🏅 إنجازاتي وتقدمي</strong><button id="close-achievements" type="button" aria-label="إغلاق الإنجازات">✕</button></div>
     <p id="achievement-summary" role="status"></p><div id="achievement-list"></div>
+  </section>
+  <section id="home-build-panel" hidden aria-label="تخصيص البيت">
+    <div class="shop-heading"><strong>🏡 ورشة تصميم البيت</strong><button id="close-home-build" type="button" aria-label="إغلاق">✕</button></div>
+    <p class="shop-intro">غيّري ألوان واجهة بيتك والسقف، واظهري أو اخفي الشجيرات. التصميم يُحفظ على هذا الجهاز في النسخة التجريبية.</p>
+    <h4>لون الواجهة</h4><div class="avatar-tools"><button type="button" data-home-wall="cream">🤍 كريمي</button><button type="button" data-home-wall="pink">🌸 وردي</button><button type="button" data-home-wall="mint">🌿 نعناعي</button></div>
+    <h4>لون السقف</h4><div class="avatar-tools"><button type="button" data-home-roof="terracotta">🧱 طوبي</button><button type="button" data-home-roof="blue">💙 أزرق</button><button type="button" data-home-roof="gold">✨ ذهبي</button></div>
+    <button id="toggle-home-garden" type="button" aria-pressed="true">🌳 إخفاء شجيرات الحديقة</button><p id="home-build-feedback" role="status"></p>
   </section>
   <section id="map-panel" hidden aria-label="خريطة الحي">
     <div class="shop-heading"><strong>🗺️ خريطة WonderWorld</strong><button id="close-map" type="button" aria-label="إغلاق الخريطة">✕</button></div>
@@ -469,6 +479,41 @@ ui.innerHTML = `
   <div id="life-goal">مهمتك: تعرّفي على شخص، ثم زوري المتجر والحديقة.</div>
 `;
 document.getElementById('game').appendChild(ui);
+document.getElementById('open-home-build').addEventListener('click', () => { document.getElementById('home-build-panel').hidden = false; });
+document.getElementById('close-home-build').addEventListener('click', () => { document.getElementById('home-build-panel').hidden = true; });
+const homeDesignDefaults = { wall: 'cream', roof: 'terracotta', garden: true };
+let homeDesign = { ...homeDesignDefaults };
+try { const savedDesign = JSON.parse(localStorage.getItem('wonderworld-home-design-v1') || 'null'); if (savedDesign && typeof savedDesign === 'object') homeDesign = { ...homeDesignDefaults, ...savedDesign }; } catch (_) {}
+const homeWallMaterials = { cream: mats.wall, pink: mats.wallPink, mint: mats.outfitMint };
+const homeRoofMaterials = { terracotta: mats.roof, blue: mats.npcBlue, gold: mats.outfitGold };
+function applyHomeDesign() {
+  playerHomeBuild.walls.render.material = homeWallMaterials[homeDesign.wall] || mats.wall;
+  playerHomeBuild.roof.render.material = homeRoofMaterials[homeDesign.roof] || mats.roof;
+  playerHomeBuild.bushes.forEach(bush => { bush.enabled = Boolean(homeDesign.garden); });
+  const gardenButton = document.getElementById('toggle-home-garden');
+  gardenButton.setAttribute('aria-pressed', String(Boolean(homeDesign.garden)));
+  gardenButton.textContent = homeDesign.garden ? '🌳 إخفاء شجيرات الحديقة' : '🌱 إظهار شجيرات الحديقة';
+}
+function saveHomeDesign(message) {
+  try { localStorage.setItem('wonderworld-home-design-v1', JSON.stringify(homeDesign)); } catch (_) {}
+  applyHomeDesign();
+  document.getElementById('home-build-feedback').textContent = message + ' تم حفظ تصميمك على الجهاز.';
+}
+document.querySelectorAll('[data-home-wall]').forEach(button => button.addEventListener('click', () => {
+  homeDesign.wall = button.dataset.homeWall;
+  const labels = { cream: 'الكريمي', pink: 'الوردي', mint: 'النعناعي' };
+  saveHomeDesign('اتغير لون واجهة البيت إلى ' + labels[homeDesign.wall] + '.');
+}));
+document.querySelectorAll('[data-home-roof]').forEach(button => button.addEventListener('click', () => {
+  homeDesign.roof = button.dataset.homeRoof;
+  const labels = { terracotta: 'الطوبي', blue: 'الأزرق', gold: 'الذهبي' };
+  saveHomeDesign('اتغير لون السقف إلى ' + labels[homeDesign.roof] + '.');
+}));
+document.getElementById('toggle-home-garden').addEventListener('click', () => {
+  homeDesign.garden = !homeDesign.garden;
+  saveHomeDesign(homeDesign.garden ? 'رجّعنا شجيرات الحديقة.' : 'اتشالت شجيرات الحديقة من العرض.');
+});
+applyHomeDesign();
 document.getElementById('toggle-vehicle').addEventListener('click', () => { toggleVehicleMode(); document.getElementById('toggle-vehicle').setAttribute('aria-pressed', String(vehicleMode)); });
 
  // Playable memory-match activity: eight pairs, tap-to-flip, move counter and restart.
