@@ -36,7 +36,7 @@ check('Water Sort puzzle generation uses reversible moves from a solved board',
 check('Water Sort is not duplicated in the board-games panel',
   !/bg-open-water-sort/.test(boardGames) && !/function initWaterSort/.test(boardGames));
 check('Casual arcade module is loaded and both mini-games are wired',
-  html.includes('mini-games.js?v=20261021-1') && /wwa-memory-open/.test(miniGames) && /wwa-cups-open/.test(miniGames));
+  html.includes('mini-games.js?v=20261021-1') && /wwa-color-open/.test(miniGames) && /wwa-cups-open/.test(miniGames));
 check('Casual arcade source includes color matching and cup-guess outcomes',
   /function chooseColor/.test(miniGames) && /function newColorRound/.test(miniGames) && /function newCups/.test(miniGames) && /لقيتي النجمة/.test(miniGames));
 check('Core game and account modules are wired into the HTML',
