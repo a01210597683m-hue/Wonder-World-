@@ -228,7 +228,7 @@ byId('ww-forgot-password').addEventListener('click', async () => {
   if (!email.checkValidity()) { message('اكتبي بريدًا إلكترونيًا صحيحًا.'); email.focus(); return; }
   setBusy(true); message('جاري إرسال طلب استعادة كلمة المرور…');
   try {
-    const { error } = await supabase.auth.resetPasswordForEmail(email.value);
+    const { error } = await supabase.auth.resetPasswordForEmail(email.value, { redirectTo: window.location.href.split('#')[0] });
     if (error) throw error;
     message('لو البريد مسجّل، هتوصلك رسالة فيها خطوات استعادة كلمة المرور. راجعي الوارد والرسائل غير المرغوب فيها.');
   } catch (error) { message(friendlyAuthError(error)); }
