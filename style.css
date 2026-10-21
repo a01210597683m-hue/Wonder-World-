@@ -250,7 +250,7 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 
 
 /* Enterable home interior controls — additive to the outdoor HUD */
-#exit-home {
+#exit-home, #indoor-place-action {
   pointer-events: auto;
   justify-self: start;
   border: 1px solid #ffffffd6;
@@ -565,7 +565,8 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 #life-ui.actions-collapsed #open-shop,
 #life-ui.actions-collapsed #life-message,
 #life-ui.actions-collapsed #life-goal,
-#life-ui.actions-collapsed #exit-home{display:none!important}
+#life-ui.actions-collapsed #exit-home,
+#life-ui.actions-collapsed #indoor-place-action{display:none!important}
 #life-ui .avatar-tools{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px!important}
 #life-ui .avatar-tools button,#life-ui #open-shop,#life-ui #interact,#life-ui #exit-home{
  width:100%;min-width:0;min-height:36px;justify-self:stretch;margin:0;padding:7px 6px;

@@ -240,7 +240,7 @@
       draw();msg('جاوبي على الأسئلة المتنوعة واجمعي النقاط. لا يوجد دردشة بين اللاعبين.');
     }
     launch.addEventListener('click',()=>{panel.hidden=false;$('#wwa-home',panel).focus();});
-    $('#wwa-home',panel).addEventListener('click',()=>{panel.hidden=true;stopLoop();launch.focus();});
+    $('#wwa-home',panel).addEventListener('click',()=>{stopLoop();game.hidden=true;menu.hidden=false;active='';panel.hidden=true;launch.focus();});
     $('#wwa-back',panel).addEventListener('click',()=>{stopLoop();game.hidden=true;menu.hidden=false;active='';});
     $('#wwa-reset',panel).addEventListener('click',renderGame);
     menu.addEventListener('click',e=>{const b=e.target.closest('[data-game]');if(b)start(b.dataset.game);});
@@ -248,4 +248,15 @@
     return true;
   }
   if(!boot()){const observer=new MutationObserver(()=>{if(boot())observer.disconnect();});observer.observe(document.documentElement,{childList:true,subtree:true});}
+  window.addEventListener('wonderworld:open-activity', event => {
+    const requestedId = event.detail && event.detail.id;
+    if (!activities.some(([id]) => id === requestedId)) return;
+    const launchButton = $('#ww-activities-launch');
+    const panel = $('#ww-activities');
+    if (!launchButton || !panel) return;
+    if (panel.hidden) launchButton.click();
+    if (!$('#wwa-game', panel).hidden) $('#wwa-back', panel).click();
+    const tile = $('#wwa-menu [data-game="' + requestedId + '"]', panel);
+    if (tile) tile.click();
+  });
 })();

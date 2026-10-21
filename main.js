@@ -24,6 +24,9 @@ const mats = {
   road: mat(new Color(0.27, 0.31, 0.36)),
   path: mat(new Color(0.82, 0.78, 0.66)),
   wall: mat(new Color(0.94, 0.83, 0.66)),
+  wallBrick: mat(new Color(0.67, 0.31, 0.20)),
+  wallGold: mat(new Color(0.88, 0.61, 0.16)),
+  wallYellow: mat(new Color(0.96, 0.79, 0.29)),
   wallPink: mat(new Color(0.89, 0.63, 0.62)),
   roof: mat(new Color(0.55, 0.24, 0.21)),
   white: mat(new Color(0.97, 0.96, 0.88)),
@@ -193,6 +196,35 @@ box('Wonder Fitness sign', 4.0, 0.55, 0.18, 15, 2.75, -17.48, mats.npcGold);
 cylinder('Fitness weight left', 0.22, 0.55, 0.22, 13.0, 0.35, -12.0, mats.road);
 cylinder('Fitness weight right', 0.22, 0.55, 0.22, 13.8, 0.35, -12.0, mats.road);
 box('Fitness weight bar', 1.3, 0.12, 0.12, 13.4, 0.38, -12.0, mats.bench);
+
+// Visible low-poly transport landmarks connected to the existing playable flight/train activities.
+box('Wonder Air runway', 14, 0.12, 30, 34, 0.03, -28, mats.road);
+for (let z = -40; z <= -16; z += 4) box('Airport runway marking ' + z, 0.18, 0.025, 1.8, 34, 0.105, z, mats.white);
+box('Airport terminal', 8, 3.2, 5, 34, 1.6, -47, mats.white);
+box('Airport terminal roof', 8.5, 0.3, 5.5, 34, 3.35, -47, mats.npcBlue);
+box('Airport terminal sign', 4.8, 0.7, 0.16, 34, 2.8, -44.35, mats.npcGold);
+box('Wonder Air aircraft fuselage', 1.05, 0.78, 8.4, 34, 1.55, -28, mats.white);
+box('Wonder Air aircraft wings', 10.2, 0.2, 1.55, 34, 1.65, -28, mats.npcBlue);
+box('Wonder Air aircraft tail wing', 3.1, 0.16, 1.05, 34, 2.0, -24.8, mats.npcBlue);
+box('Wonder Air aircraft tail fin', 0.22, 1.45, 1.15, 34, 2.35, -24.8, mats.npcPink);
+sphere('Wonder Air aircraft nose', 0.72, 34, 1.58, -32.2, mats.tvFrame);
+for (const [side, x] of [['left', 31.5], ['right', 36.5]]) {
+  box('Aircraft cabin window ' + side, 0.12, 0.28, 0.55, x, 1.8, -29.0, mats.window);
+  sphere('Aircraft landing wheel ' + side, 0.32, x, 0.45, -27.5, mats.tvFrame);
+}
+box('Wonder Central station platform', 18, 0.18, 4.2, -30, 0.08, -20, mats.path);
+box('Wonder Central station sign', 6.2, 1.0, 0.18, -30, 3.0, -17.2, mats.npcGold);
+box('Railway track left rail', 34, 0.12, 0.16, -30, 0.18, -21.0, mats.tvFrame);
+box('Railway track right rail', 34, 0.12, 0.16, -30, 0.18, -19.0, mats.tvFrame);
+for (let x = -46; x <= -14; x += 2) box('Railway sleeper ' + x, 0.22, 0.12, 2.8, x, 0.12, -20, mats.bench);
+box('Wonder train locomotive body', 4.4, 1.55, 1.7, -30, 1.2, -20, mats.outfitBlue);
+box('Wonder train locomotive front', 1.0, 1.0, 1.75, -32.5, 1.0, -20, mats.npcGold);
+box('Wonder train locomotive cabin', 1.8, 1.4, 1.55, -28.8, 2.55, -20, mats.white);
+for (const [index, x] of [[1, -35.2], [2, -39.2], [3, -43.2]]) {
+  box('Wonder train passenger car ' + index, 3.6, 1.55, 1.65, x, 1.15, -20, index % 2 ? mats.wallPink : mats.outfitMint);
+  box('Wonder train passenger windows ' + index, 2.8, 0.42, 0.08, x, 1.55, -19.12, mats.window);
+}
+for (const x of [-32, -29, -35, -38, -42, -45]) for (const z of [-20.8, -19.2]) sphere('Wonder train wheel ' + x + ' ' + z, 0.38, x, 0.52, z, mats.tvFrame);
 
 /*
  * First cross-country travel slice. These are original low-poly landmarks built
@@ -377,10 +409,47 @@ box('Living room TV frame', 2.15, 1.3, 0.16, 2.35, 1.9, -6.38, mats.tvFrame, int
 box('Living room TV screen', 1.9, 1.05, 0.035, 2.35, 1.92, -6.275, mats.tvScreen, interiorRoot);
 box('TV stand', 2.35, 0.35, 0.55, 2.35, 0.28, -5.95, mats.bench, interiorRoot);
 interiorRoot.enabled = false;
+
+// Dedicated furnished interiors for the neighborhood's public businesses.
+const shopInteriorRoot = new Entity('Wonder Shop Interior');
+app.root.addChild(shopInteriorRoot);
+box('Shop interior floor', 14, 0.22, 14, 0, -0.16, 0, mats.white, shopInteriorRoot);
+box('Shop interior back wall', 14, 4.6, 0.28, 0, 2.2, -7, mats.wallPink, shopInteriorRoot);
+box('Shop interior left wall', 0.28, 4.6, 14, -7, 2.2, 0, mats.white, shopInteriorRoot);
+box('Shop interior right wall', 0.28, 4.6, 14, 7, 2.2, 0, mats.white, shopInteriorRoot);
+box('Shop clothing rack 1', 4.8, 0.16, 0.18, -3.5, 2.2, -3.0, mats.tvFrame, shopInteriorRoot);
+box('Shop clothing rack 2', 4.8, 0.16, 0.18, 3.3, 2.2, -3.0, mats.tvFrame, shopInteriorRoot);
+for (const [x, material] of [[-5, mats.outfitCoral], [-3.5, mats.outfitGold], [-2, mats.outfitMint], [1.8, mats.outfitBlue], [3.3, mats.flower], [4.8, mats.outfitCoral]]) {
+  box('Shop displayed outfit ' + x, 0.8, 1.2, 0.22, x, 1.45, -3.0, material, shopInteriorRoot);
+}
+box('Shop checkout counter', 4.4, 1.0, 1.1, 0, 0.55, -5.0, mats.bench, shopInteriorRoot);
+box('Shop checkout top', 4.6, 0.14, 1.2, 0, 1.12, -5.0, mats.outfitGold, shopInteriorRoot);
+box('Shop welcome sign', 4.2, 0.8, 0.18, 0, 3.2, -6.7, mats.npcPink, shopInteriorRoot);
+shopInteriorRoot.enabled = false;
+
+const cafeInteriorRoot = new Entity('Wonder Cafe Interior');
+app.root.addChild(cafeInteriorRoot);
+box('Cafe interior floor', 14, 0.22, 14, 0, -0.16, 0, mats.path, cafeInteriorRoot);
+box('Cafe interior back wall', 14, 4.6, 0.28, 0, 2.2, -7, mats.wallPink, cafeInteriorRoot);
+box('Cafe interior left wall', 0.28, 4.6, 14, -7, 2.2, 0, mats.white, cafeInteriorRoot);
+box('Cafe interior right wall', 0.28, 4.6, 14, 7, 2.2, 0, mats.white, cafeInteriorRoot);
+box('Cafe service counter', 5.0, 1.0, 1.2, 0, 0.55, -5.0, mats.bench, cafeInteriorRoot);
+box('Cafe counter top', 5.2, 0.14, 1.35, 0, 1.12, -5.0, mats.white, cafeInteriorRoot);
+box('Cafe espresso machine', 1.0, 1.15, 0.8, -1.0, 1.75, -5.0, mats.tvFrame, cafeInteriorRoot);
+box('Cafe menu board', 3.6, 1.0, 0.16, 2.7, 3.0, -6.7, mats.npcGold, cafeInteriorRoot);
+for (const [x, z] of [[-4, 1.5], [3.5, 1.5], [-4, -1.8], [3.5, -1.8]]) {
+  box('Cafe table top ' + x + ' ' + z, 2.0, 0.16, 1.5, x, 0.9, z, mats.bench, cafeInteriorRoot);
+  for (const dx of [-0.7, 0.7]) box('Cafe table leg ' + x + ' ' + z + ' ' + dx, 0.14, 0.8, 0.14, x + dx, 0.42, z, mats.tvFrame, cafeInteriorRoot);
+  box('Cafe chair ' + x + ' ' + z, 0.8, 0.65, 0.75, x, 0.38, z + 1.25, mats.outfitMint, cafeInteriorRoot);
+}
+cafeInteriorRoot.enabled = false;
+
+let activeInteriorRoot = interiorRoot;
+let activeIndoorAction = null;
 let indoors = false;
 let indoorReturnPosition = null;
 let outdoorEnabledStates = new Map();
-function enterHome(homeName) {
+function enterHome(homeName, targetInteriorRoot = interiorRoot, indoorAction = null) {
   if (indoors) return;
   if (vehicleMode) toggleVehicleMode(false);
   if (activeWalkNpc) endSharedWalk('انتهت التمشية لأنك دخلتي البيت. تقدري تبدأي تمشية جديدة بعد الخروج.');
@@ -388,11 +457,16 @@ function enterHome(homeName) {
   indoorReturnPosition = new Vec3(position.x, position.y, position.z);
   outdoorEnabledStates = new Map();
   for (const entity of app.root.children) {
-    if (entity === player || entity === camera || entity === sun || entity === interiorRoot) continue;
+    if (entity === player || entity === camera || entity === sun || entity === targetInteriorRoot) continue;
     outdoorEnabledStates.set(entity, entity.enabled);
     entity.enabled = false;
   }
-  interiorRoot.enabled = true;
+  activeInteriorRoot = targetInteriorRoot;
+  activeIndoorAction = indoorAction;
+  activeInteriorRoot.enabled = true;
+  const indoorActionButton = document.getElementById('indoor-place-action');
+  indoorActionButton.hidden = !activeIndoorAction;
+  if (activeIndoorAction) indoorActionButton.textContent = activeIndoorAction.label;
   indoors = true;
   player.setPosition(0, 0, 2.0);
   player.setEulerAngles(0, 180, 0);
@@ -403,11 +477,12 @@ function enterHome(homeName) {
   camera.setPosition(cameraX, cameraHeight, cameraZ);
   camera.lookAt(0, 1, 2);
   document.getElementById('exit-home').hidden = false;
-  say('دخلتي ' + homeName + ' 🏡 استكشفي الصالة وغرفة النوم والمطبخ. تقدري ترجعي للحي من زر الخروج.');
+  if (activeIndoorAction) say('دخلتي ' + homeName + ' ✨ استكشفي المكان، واستخدمي زر النشاط لتجربة خدماته. تقدري ترجعي للحي من زر الخروج.');
+  else say('دخلتي ' + homeName + ' 🏡 استكشفي الصالة وغرفة النوم والمطبخ. تقدري ترجعي للحي من زر الخروج.');
 }
 function exitHome() {
   if (!indoors) return;
-  interiorRoot.enabled = false;
+  activeInteriorRoot.enabled = false;
   for (const [entity, enabled] of outdoorEnabledStates) entity.enabled = enabled;
   outdoorEnabledStates.clear();
   indoors = false;
@@ -420,6 +495,8 @@ function exitHome() {
   camera.setPosition(cameraX, cameraHeight, cameraZ);
   camera.lookAt(p.x, 1, p.z);
   document.getElementById('exit-home').hidden = true;
+  document.getElementById('indoor-place-action').hidden = true;
+  activeIndoorAction = null;
   say('رجعتي للحي 🌳 كل الأماكن والأنشطة الخارجية رجعت زي ما كانت.');
 }
 
@@ -449,7 +526,7 @@ ui.innerHTML = `
   <div class="avatar-tools"><button id="toggle-vehicle" type="button" aria-pressed="false">🚗 ركوب العربية</button><span id="vehicle-hint" role="status">قيادة تجريبية داخل الحي، والتحكم بنفس أزرار الحركة.</span></div>
   <div id="world-clock" role="status">🕒 نهار هادئ</div>
   <button id="interact" type="button">تفاعل / استكشاف</button>
-  <button id="exit-home" type="button" hidden>🚪 الخروج للحي</button>
+  <button id="exit-home" type="button" hidden>🚪 الخروج للحي</button>\n  <button id="indoor-place-action" type="button" hidden>تنفيذ نشاط المكان</button>
   <section id="shop-panel" hidden aria-label="متجر Wonder">
     <div class="shop-heading"><strong>🛍️ متجر Wonder</strong><button id="close-shop" type="button" aria-label="إغلاق المتجر">✕</button></div>
     <p class="shop-intro">اختاري قطعة، واشتريها بعملاتك، وبعدها تقدري تلبسيها في أي وقت. كل فئة مستقلة، وتقدري تغيّري إطلالتك من غير ما تخسري القطع القديمة.</p>
@@ -475,7 +552,7 @@ ui.innerHTML = `
   <section id="home-build-panel" class="wonder-overlay" hidden aria-label="تخصيص البيت">
     <div class="shop-heading"><strong>🏡 ورشة تصميم البيت</strong><button id="close-home-build" type="button" aria-label="إغلاق">✕</button></div>
     <p class="shop-intro">غيّري ألوان واجهة بيتك والسقف، واظهري أو اخفي الشجيرات. التصميم يُحفظ على هذا الجهاز في النسخة التجريبية.</p>
-    <h4>لون الواجهة</h4><div class="avatar-tools"><button type="button" data-home-wall="cream">🤍 كريمي</button><button type="button" data-home-wall="pink">🌸 وردي</button><button type="button" data-home-wall="mint">🌿 نعناعي</button></div>
+    <h4>لون وخامة الواجهة</h4><div class="avatar-tools"><button type="button" data-home-wall="brick">🧱 طوب أحمر</button><button type="button" data-home-wall="gold">✨ دهبي</button><button type="button" data-home-wall="yellow">🌞 أصفر دافئ</button><button type="button" data-home-wall="cream">🤍 كريمي</button><button type="button" data-home-wall="pink">🌸 وردي</button><button type="button" data-home-wall="mint">🌿 نعناعي</button></div>
     <h4>لون السقف</h4><div class="avatar-tools"><button type="button" data-home-roof="terracotta">🧱 طوبي</button><button type="button" data-home-roof="blue">💙 أزرق</button><button type="button" data-home-roof="gold">✨ ذهبي</button></div>
     <button id="toggle-home-garden" type="button" aria-pressed="true">🌳 إخفاء شجيرات الحديقة</button><p id="home-build-feedback" role="status"></p>
   </section>
@@ -558,10 +635,10 @@ wonderGuideTopics.forEach(topic => {
 });
 document.getElementById('open-home-build').addEventListener('click', () => { document.getElementById('home-build-panel').hidden = false; });
 document.getElementById('close-home-build').addEventListener('click', () => { document.getElementById('home-build-panel').hidden = true; });
-const homeDesignDefaults = { wall: 'cream', roof: 'terracotta', garden: true };
+const homeDesignDefaults = { wall: 'brick', roof: 'terracotta', garden: true };
 let homeDesign = { ...homeDesignDefaults };
 try { const savedDesign = JSON.parse(localStorage.getItem('wonderworld-home-design-v1') || 'null'); if (savedDesign && typeof savedDesign === 'object') homeDesign = { ...homeDesignDefaults, ...savedDesign }; } catch (_) {}
-const homeWallMaterials = { cream: mats.wall, pink: mats.wallPink, mint: mats.outfitMint };
+const homeWallMaterials = { cream: mats.wall, brick: mats.wallBrick, gold: mats.wallGold, yellow: mats.wallYellow, pink: mats.wallPink, mint: mats.outfitMint };
 const homeRoofMaterials = { terracotta: mats.roof, blue: mats.npcBlue, gold: mats.outfitGold };
 function applyHomeDesign() {
   playerHomeBuild.walls.render.material = homeWallMaterials[homeDesign.wall] || mats.wall;
@@ -578,7 +655,7 @@ function saveHomeDesign(message) {
 }
 document.querySelectorAll('[data-home-wall]').forEach(button => button.addEventListener('click', () => {
   homeDesign.wall = button.dataset.homeWall;
-  const labels = { cream: 'الكريمي', pink: 'الوردي', mint: 'النعناعي' };
+  const labels = { cream: 'الكريمي', brick: 'الطوبي', gold: 'الذهبي', yellow: 'الأصفر', pink: 'الوردي', mint: 'النعناعي' };
   saveHomeDesign('اتغير لون واجهة البيت إلى ' + labels[homeDesign.wall] + '.');
 }));
 document.querySelectorAll('[data-home-roof]').forEach(button => button.addEventListener('click', () => {
@@ -943,7 +1020,7 @@ function endSharedWalk(reason='انتهت التمشية بناءً على طل�
 }
 function renderNeighborhoodMap() {
  const list=document.getElementById('map-destinations');if(!list)return;list.replaceChildren();
- const destinations=[{name:'نافورة الساحة',emoji:'⛲',x:0,z:3},{name:'حديقة الأصدقاء',emoji:'🌳',x:-11,z:5.5},{name:'متجر Wonder',emoji:'🛍️',x:10,z:4.5},{name:'كافيه Wonder',emoji:'☕',x:15,z:-4},{name:'مكتب الحي',emoji:'💼',x:0,z:-20},{name:'Wonder Fitness',emoji:'🏋️',x:15,z:-19},{name:'البيت الأول',emoji:'🏡',x:-10,z:-6.2},{name:'البيت العائلي',emoji:'🏠',x:10,z:-6.2},{name:'رحلة إلى مصر — الأهرامات',emoji:'🇪🇬',x:30,z:5},{name:'رحلة إلى باريس — البرج',emoji:'🇫🇷',x:-30,z:5},{name:'رحلة إلى طوكيو — حديقة الساكورا',emoji:'🇯🇵',x:0,z:35}];
+ const destinations=[{name:'نافورة الساحة',emoji:'⛲',x:0,z:3},{name:'حديقة الأصدقاء',emoji:'🌳',x:-11,z:5.5},{name:'متجر Wonder',emoji:'🛍️',x:10,z:4.5},{name:'كافيه Wonder',emoji:'☕',x:15,z:-4},{name:'مكتب الحي',emoji:'💼',x:0,z:-20},{name:'Wonder Fitness',emoji:'🏋️',x:15,z:-19},{name:'مطار Wonder Air',emoji:'✈️',x:34,z:-28},{name:'محطة Wonder Central',emoji:'🚆',x:-30,z:-20},{name:'البيت الأول',emoji:'🏡',x:-10,z:-6.2},{name:'البيت العائلي',emoji:'🏠',x:10,z:-6.2},{name:'رحلة إلى مصر — الأهرامات',emoji:'🇪🇬',x:30,z:5},{name:'رحلة إلى باريس — البرج',emoji:'🇫🇷',x:-30,z:5},{name:'رحلة إلى طوكيو — حديقة الساكورا',emoji:'🇯🇵',x:0,z:35}];
  for(const d of destinations){const b=document.createElement('button');b.type='button';b.className='map-destination';b.textContent=d.emoji+' '+d.name;b.addEventListener('click',()=>{if(indoors){document.getElementById('map-feedback').textContent='اخرجي للحي الأول قبل التنقّل السريع.';return;}player.setPosition(d.x,0,d.z);cameraX=d.x;cameraZ=d.z+cameraOffsetZ;camera.setPosition(cameraX,cameraHeight,cameraZ);camera.lookAt(d.x,1,d.z);document.getElementById('map-panel').hidden=true;logAdventure('وصلت إلى '+d.name);if(activeWalkNpc){walkVisitedDestinations.add(d.name);if(walkVisitedDestinations.size>=3&&walkRewardDate!==localDateKey()){walkRewardDate=localDateKey();try{localStorage.setItem('wonderworld-shared-walk-reward-day',walkRewardDate);}catch{}happiness=Math.min(100,happiness+8);coins+=5;updateStats();awardXP(12);logAdventure('مغامرة تمشية مكتملة مع '+activeWalkNpc.name+' — زرت 3 أماكن مختلفة');say('🌟 مغامرة مشتركة رائعة! زرتوا 3 أماكن مع '+activeWalkNpc.name+'؛ +8 سعادة و+5 عملات و+12 XP. المكافأة مرة واحدة يوميًا.');}else{say('🗺️ وصلتي إلى '+d.name+' مع '+activeWalkNpc.name+'! زارتم '+walkVisitedDestinations.size+' من 3 أماكن للمغامرة المشتركة.');}}else{say('🗺️ وصلتي إلى '+d.name+'!');}});list.appendChild(b);}
 }
 
@@ -1547,10 +1624,12 @@ const places = [
     energy = Math.max(0, energy - 8); happiness = Math.min(100, happiness + 15); awardXP(5); updateStats(); saveProgress();
     say('قضيتي وقت لطيف في مسبح البيت 🏊 السعادة +15، والطاقة -8. تقدري ترجعي تستريحي في البيت.');
   }},
-  { name: 'متجر Wonder', x: 10, z: 7.1, radius: 3.5, action: openShop },
-  { name: 'كافيه Wonder', x: 15, z: -3.2, radius: 4.0, action: orderCafe },
+  { name: 'متجر Wonder', x: 10, z: 7.1, radius: 3.5, action: () => enterHome('متجر Wonder', shopInteriorRoot, { label: '🛍️ تصفح المنتجات', run: openShop }) },
+  { name: 'كافيه Wonder', x: 15, z: -3.2, radius: 4.0, action: () => enterHome('كافيه Wonder', cafeInteriorRoot, { label: '☕ طلب من الكافيه', run: orderCafe }) },
   { name: 'مكتب الحي', x: 0, z: -18.3, radius: 4.0, action: doQuickWork },
   { name: 'Wonder Fitness', x: 15, z: -18, radius: 4.5, action: doWorkout },
+  { name: 'مطار Wonder Air', x: 34, z: -28, radius: 8, action: () => window.dispatchEvent(new CustomEvent('wonderworld:open-activity', { detail: { id: 'plane' } })) },
+  { name: 'محطة Wonder Central', x: -30, z: -20, radius: 6, action: () => window.dispatchEvent(new CustomEvent('wonderworld:open-activity', { detail: { id: 'train' } })) },
   { name: 'حديقة الأصدقاء', x: -11, z: 6.5, radius: 4.2, action: () => {
     happiness = Math.min(100, happiness + 12); updateStats(); awardXP(8); completeQuest('park'); saveProgress(); say('قضيتي وقتًا لطيفًا في الحديقة! السعادة +12 🌷');
   }},
@@ -2185,6 +2264,7 @@ function nearestTarget() {
   return best;
 }
 document.getElementById('exit-home').addEventListener('click', exitHome);
+document.getElementById('indoor-place-action').addEventListener('click', () => { if (activeIndoorAction) activeIndoorAction.run(); });
 
 interactButton.addEventListener('click', () => {
   const target = nearestTarget();
