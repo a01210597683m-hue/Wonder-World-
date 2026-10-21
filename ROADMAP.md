@@ -520,3 +520,31 @@ This adds a basic runtime regression gate; it does not mark the full product vis
 - [ ] Replace instant map teleportation with transport selection, routes, fares, and aircraft/train/car travel.
 - [ ] Replace primitive landmarks with detailed, optimized country environments and mobile-device performance testing.
 - Note: this is a local prototype travel layer. It does not yet simulate real country-scale maps, actual vehicles between countries, or persistent multiplayer travel.
+
+
+## 2026-10-22 — Explicit mode identity and delivery gates (additive)
+
+The full requirements are in [Master Game Vision](./WONDERWORLD_DESIGN_BRIEF.md), including the new per-mode specification. This roadmap is a delivery plan, not a claim that listed future systems are already playable.
+
+### Required implementation order
+1. **Verify the current build and account isolation:** confirm the latest password-recovery deployment, then test that sign-in/sign-out/account switching cannot mix local and cloud progress. Preserve the existing local save and private per-player cloud save behavior.
+2. **Build a reliable playable foundation:** character controller, camera, interactions, scene loading, input abstraction for touch/keyboard/gamepad, save/load boundaries and performance budgets on Android.
+3. **Character and context-specific wardrobe:** replace the temporary placeholder with rigged, animated characters grounded in the user's original references; preserve separate semi-realistic and anime styles and ages 5–65. Implement wardrobe presets per activity and age-safe restrictions.
+4. **Complete one signature mode at a time:** first football match loop (teams, pitch, ball physics, controls, clock, score, goals, keeper/opponents, result/rematch); separately plan the battle-royale mode with original WonderWorld assets and its own controls/HUD/map. A football shooting drill is not a complete match; a combat panel is not a battle-royale game.
+5. **Fashion and makeup competition loop:** theme/brief, wardrobe/makeup, runway, judging, scoring, rewards and replay.
+6. **Independent casual-game catalogue:** implement and test Block Blast, Water Sort, Space Shooter, memory cards, quiz/party, chess, Ludo, dominoes, billiards, arrows, rope untangling, cup games, UNO-style and standard-card games. Preserve no-player-chat rules for every mode.
+7. **World life systems:** swimming, usable gym equipment, optional pet care, homes/building, employer jobs and optional businesses; ensure each system has its own environment and loop.
+8. **Transport and travel:** owned vehicles and aircraft separate from on-demand rides; airport booking/packing/check-in/boarding/travel/arrival; expand destinations and transport routes beyond teleportation.
+9. **Stories, consensual social activities and drawing garden:** branch choices and outcomes across life venues; bilateral consent for visits/walks/group activities; solo/collaborative drawing with moderation and no chat side channel.
+10. **AI and language learning:** only after server-side integration, privacy controls and moderation tests; protected age-appropriate AI companion plus a separate multilingual learning flow.
+11. **Secure economy and owner monetization:** server-authoritative virtual balances/inventory, audited transactions, approved real-money billing and receipt validation, ads/rewarded ads with provider consent and child/privacy safeguards. Keep group/party games free of monetization placements as requested.
+12. **Release readiness:** regression suite, Android device tests, localization, accessibility, security/RLS checks, app-store/legal compliance and transparent disclosure of incomplete features.
+
+### Acceptance gate for every mode
+- It has a unique, appropriate scene/interface/controls/art and a complete playable loop.
+- Core rules and outcomes work; touch controls and small-screen layouts are tested.
+- Persistence and account separation are tested where applicable.
+- Safety, age suitability, consent, privacy and no-player-chat rules are verified.
+- Any rewards or purchases are server-validated; real-money and ad flows use approved providers.
+- The original character/logo/reference assets remain unchanged and are used as the source of truth.
+- Mark a milestone complete only after working code and repeatable tests support it. Documentation, a button, a placeholder or a static mockup is not completion.
