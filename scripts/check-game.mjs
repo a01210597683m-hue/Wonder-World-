@@ -7,6 +7,7 @@ const game = read('../main.js');
 const careers = read('../careers.js');
 const boardGames = read('../board-games.js');
 const gameSaveMigration = read('../supabase/migrations/202610210006_add_private_player_game_saves.sql');
+const economyMigration = read('../supabase/migrations/202610210007_secure_virtual_economy.sql');
 const css = read('../style.css');
 const careerCss = read('../career.css');
 
@@ -19,6 +20,10 @@ const checks = [
   ['Game-save status is visible in the HUD', /game-cloud-status/.test(game)],
   ['Game-save migration enables RLS and owner-scoped policies', gameSaveMigration.includes('enable row level security') && gameSaveMigration.includes('Players can read their own game save') && gameSaveMigration.includes('Players can update their own game save') && gameSaveMigration.includes('with check ((select auth.uid()) = player_id)')],
   ['Daily objective completion rewards XP', game.includes('awardXP(10);') && game.includes('خلّصتي كل مهام اليوم')],
+  ['Secure cloud wallet uses authenticated RPCs for signed-in purchases', /ww_purchase_game_item/.test(game) && /ww_ensure_wallet/.test(game) && /cloudOwnedItemIds/.test(game)],
+  ['Signed-in wardrobe purchases cannot fall back to local-only checkout', /if \(gameCloudUserId\) \{[\s\S]*?محفظة الحساب الآمن/.test(game)],
+  ['Economy migration has owner-only transaction reads and daily-claim uniqueness', economyMigration.includes('enable row level security') && economyMigration.includes('Players can view their own economy transactions') && economyMigration.includes('primary key(player_id,reward_code,claim_date)')],
+  ['Economy RPCs require authenticated users and restrict anonymous execution', economyMigration.includes('auth.uid()') && economyMigration.includes('revoke all on function public.ww_purchase_game_item(text) from public,anon') && economyMigration.includes('grant execute on function public.ww_purchase_game_item(text) to authenticated')],
   ['Mobile viewport allows user zoom', /viewport-fit=cover/.test(html) && !/user-scalable=no|max(?:imum)?-scale=1/i.test(html)],
 
   ['Ludo and chess activities are dynamically wired', /import\(['"]\.\/board-games\.js\?v=/.test(game)],
