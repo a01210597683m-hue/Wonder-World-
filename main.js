@@ -199,6 +199,44 @@ function makePerson(name, x, z, shirtMaterial, isPlayer = false) {
   return person;
 }
 const player = makePerson('Player', 0, 1.5, mats.player, true);
+
+// First playable vehicle slice: a low-poly car that follows the avatar and uses the same touch/keyboard controls.
+const playerCar = new Entity('WonderWorld compact car');
+app.root.addChild(playerCar);
+box('Car lower chassis', 1.9, 0.42, 3.15, 0, 0.52, 0, mats.outfitBlue, playerCar);
+box('Car hood', 1.75, 0.22, 0.82, 0, 0.78, -0.95, mats.outfitBlue, playerCar);
+box('Car cabin', 1.35, 0.62, 1.42, 0, 1.02, 0.05, mats.window, playerCar);
+box('Car roof', 1.25, 0.13, 0.85, 0, 1.39, 0.03, mats.outfitBlue, playerCar);
+box('Car front bumper', 1.75, 0.18, 0.14, 0, 0.34, -1.57, mats.white, playerCar);
+box('Car rear bumper', 1.75, 0.18, 0.14, 0, 0.34, 1.57, mats.white, playerCar);
+for (const [side, x] of [['left', -0.94], ['right', 0.94]]) {
+  for (const [axle, z] of [['front', -1.02], ['rear', 1.02]]) {
+    sphere('Car wheel ' + side + ' ' + axle, 0.46, x, 0.38, z, mats.tvFrame, playerCar);
+    box('Car headlight ' + side, 0.3, 0.13, 0.08, x * 0.7, 0.72, -1.62, mats.white, playerCar);
+  }
+}
+playerCar.enabled = false;
+let vehicleMode = false;
+function toggleVehicleMode(forceState) {
+  const next = typeof forceState === 'boolean' ? forceState : !vehicleMode;
+  if (next === vehicleMode) return;
+  if (next && indoors) { say('اخرجي للحي الأول عشان تركبي العربية 🚗'); return; }
+  vehicleMode = next;
+  const p = player.getPosition();
+  if (vehicleMode) {
+    playerCar.setPosition(p.x, 0, p.z);
+    playerCar.setEulerAngles(0, player.getEulerAngles().y, 0);
+    playerCar.enabled = true;
+    player.enabled = false;
+    document.getElementById('toggle-vehicle').textContent = '🚶 النزول من العربية';
+    say('ركبتي عربية WonderWorld 🚗 استخدمي الأسهم أو أزرار الشاشة للقيادة. تقدري تنزلي في أي وقت.');
+  } else {
+    player.enabled = true;
+    playerCar.enabled = false;
+    document.getElementById('toggle-vehicle').textContent = '🚗 ركوب العربية';
+    say('نزلتي من العربية. رجع التحكم بالمشي الطبيعي.');
+  }
+}
 const npcs = [
   { name: 'ليلى', role: 'جارة', personality: 'اجتماعية وبتحب مساعدة الجيران', favorite: 'الحديقة والزهور', greeting: 'أهلًا! أنا ليلى، بحب أتعرف على جيراني وأساعدهم.', topics: [
     { label: '🌼 نخطط لزيارة الحديقة', reply: 'فكرة جميلة! ممكن نتمشى بين الزهور ونختار ركننا المفضل.', relation: 1, joy: 4, parkTip: true },
@@ -258,6 +296,7 @@ let indoorReturnPosition = null;
 let outdoorEnabledStates = new Map();
 function enterHome(homeName) {
   if (indoors) return;
+  if (vehicleMode) toggleVehicleMode(false);
   if (activeWalkNpc) endSharedWalk('انتهت التمشية لأنك دخلتي البيت. تقدري تبدأي تمشية جديدة بعد الخروج.');
   const position = player.getPosition();
   indoorReturnPosition = new Vec3(position.x, position.y, position.z);
@@ -319,6 +358,7 @@ ui.innerHTML = `
   <div class="avatar-tools"><button id="quick-work" type="button">💼 شغل سريع</button><button id="quick-rest" type="button">🛋️ استراحة</button><button id="quick-cafe" type="button">☕ طلب كافيه</button></div>
   <div class="avatar-tools"><button id="quick-gym" type="button">🏋️ تمرين</button><button id="quick-garden" type="button">🌷 جمع زهور</button></div>
   <div class="avatar-tools"><button id="quick-photo" type="button">📸 تصوير ذكرى</button><button id="quick-weather" type="button">🌤️ تغيير الطقس</button></div>
+  <div class="avatar-tools"><button id="toggle-vehicle" type="button" aria-pressed="false">🚗 ركوب العربية</button><span id="vehicle-hint" role="status">قيادة تجريبية داخل الحي، والتحكم بنفس أزرار الحركة.</span></div>
   <div id="world-clock" role="status">🕒 نهار هادئ</div>
   <button id="interact" type="button">تفاعل / استكشاف</button>
   <button id="exit-home" type="button" hidden>🚪 الخروج للحي</button>
@@ -397,6 +437,7 @@ ui.innerHTML = `
   <div id="life-goal">مهمتك: تعرّفي على شخص، ثم زوري المتجر والحديقة.</div>
 `;
 document.getElementById('game').appendChild(ui);
+document.getElementById('toggle-vehicle').addEventListener('click', () => { toggleVehicleMode(); document.getElementById('toggle-vehicle').setAttribute('aria-pressed', String(vehicleMode)); });
 
  // Playable memory-match activity: eight pairs, tap-to-flip, move counter and restart.
  const memoryPanel = document.createElement('section');
@@ -1994,7 +2035,8 @@ app.on('update', dt => {
   const moving = length > 0;
   if (moving) {
     x /= length; z /= length;
-    player.translate(x * moveSpeed * dt, 0, z * moveSpeed * dt);
+    const activeSpeed = moveSpeed * (vehicleMode ? 2.6 : 1);
+    player.translate(x * activeSpeed * dt, 0, z * activeSpeed * dt);
     walkClock += dt * 9;
     player.setEulerAngles(0, Math.atan2(x, z) * 180 / Math.PI, 0);
     const swing = Math.sin(walkClock) * 24;
@@ -2012,6 +2054,10 @@ app.on('update', dt => {
   p.x = Math.max(-21, Math.min(21, p.x));
   p.z = Math.max(-21, Math.min(21, p.z));
   player.setPosition(p);
+  if (vehicleMode) {
+    playerCar.setPosition(p.x, 0, p.z);
+    playerCar.setEulerAngles(0, player.getEulerAngles().y, 0);
+  }
 
   // Ease the camera toward the player instead of snapping on every frame.
   const follow = 1 - Math.exp(-5 * dt);
