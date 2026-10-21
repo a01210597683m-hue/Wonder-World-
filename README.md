@@ -44,7 +44,9 @@ Career and business progress is stored locally and, when signed in, synchronized
 
 
 ## 2026-10-21 development note
-The next integration pass is to connect the player-owned storefront to proximity interactions and add it as a navigation destination. The current storefront, career balances, and progression remain local prototype state until authenticated persistence is integrated and tested.
+- Connected the purchased player-owned storefront to a proximity interaction at its in-world entrance; activating it opens the existing careers/business management panel.
+- Added a static regression assertion to guard this world-to-business interaction wiring.
+- Remaining validation: run the GitHub Actions checks, then verify the interaction in a real browser and on Android. Career balances and business progression remain prototype state, not server-authoritative multiplayer economy.
 
 
 ## Static regression checks
