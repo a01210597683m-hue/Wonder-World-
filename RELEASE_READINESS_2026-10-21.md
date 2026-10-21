@@ -6,11 +6,11 @@ This checklist separates automated checks from tasks that require a real account
 
 ## Automated browser coverage
 
-The CI smoke suite verifies the 3D canvas and mobile controls, travel to Egypt/Paris/Tokyo, home customization persistence, the curated Wonder guide, careers, a football practice shot, the memory board, signed-out cloud-wallet guidance, account form validation, and absence of uncaught browser exceptions.
+The CI smoke suite verifies the 3D canvas and mobile controls, travel to Egypt/Paris/Tokyo, home customization persistence, the curated Wonder guide, careers, a football practice round, Ludo/chess interactions, Block Blast, Water Sort legal moves/undo/restart, arcade color matching, cup-star reveal, arcade keyboard focus, signed-out cloud-wallet guidance, account form validation, and absence of uncaught browser exceptions.
 
 ## Must be verified with real credentials / owner access
 
-- [ ] Enable Supabase Auth leaked-password protection in the Dashboard's password security settings.
+- [x] Documented Supabase Free-plan limitation: native leaked-password protection is not available on this plan. The signup UI's 12-character and weak-pattern checks are only a fallback, not breached-password screening; enable native protection only if the project moves to a plan that includes it.
 - [ ] Re-run the Supabase Security Advisor and review each remaining warning; do not disable required authenticated RPC access without a replacement design.
 - [ ] Add `https://a01210597683m-hue.github.io/Wonder-World-/` to Supabase Auth's allowed redirect URLs and verify password-recovery emails return to the game.
 - [ ] Sign up with a real test mailbox and verify confirmation, sign-in, sign-out, and session restoration.
@@ -47,3 +47,24 @@ Keep the prototype status visible until all credentialed and device-specific che
 - Chess practice now supports undoing the most recent move, including restoring the prior board, turn, promotion/capture state, and finished-state snapshot; starting a new board clears undo history.
 - Added static regression checks and mobile-browser smoke coverage for the Ludo panel and chess move/undo/reset flow.
 - The chess activity remains a move-practice prototype and does not implement complete tournament rules such as check/checkmate, castling, or en passant.
+
+## Water Sort regression coverage — 2026-10-21
+
+- Water Sort already exists in `main.js`; its puzzle generator starts from a solved board and scrambles via reversible moves.
+- The duplicate experimental Water Sort implementation was removed from `board-games.js` to avoid showing two versions of the same game.
+- Static checks now assert that the original panel and reversible-scramble generator remain wired, and that the board-games module does not contain a duplicate.
+- [x] GitHub Actions run [39621652958](https://github.com/a01210597683m-hue/Wonder-World-/actions/runs/39621652958) passed on commit `402bb0efa1e53c8137293f6566a69f39b182e0fc` after removing the duplicate implementation.
+- [ ] Play through valid/invalid pours, undo, restart, and win completion on a real Android device.
+
+**Scope note:** automated browser checks cover a legal move, undo, restart, and the solvable-puzzle message; they do not replace full manual device testing.
+
+## Casual arcade batch — 2026-10-21
+
+- Added a separate casual arcade panel with a color-matching game (target color, scoring, feedback, next round, restart) and a three-cup hidden-star guessing game. The existing 8-pair memory game remains in the main game panel, so the arcade avoids duplicating it.
+- Loaded the arcade module from `index.html` and added static regression checks for module wiring and both activities.
+- [x] Pull-request workflow run `39621652958` passed JavaScript syntax, gameplay regression, asset/integration, and Chromium browser smoke checks.
+- [x] Browser smoke tests verify color-match scoring, one-star reveal, restart behavior, and keyboard focus restoration on Escape.
+
+- Updated the Pages workflow to run build/regression/browser checks on pull requests and prevent pull-request events from deploying to Pages. Added syntax, static, and browser smoke coverage for the arcade module. The final workflow run after the latest cleanup must pass before merge.
+- [ ] Test on narrow mobile screens and a real Android device, including repeated restarts and rapid card taps.
+- [ ] Keep the broader game catalogue, secure cloud persistence, multiplayer consent flows, full football/action modes, production 3D characters, and owner-controlled Supabase security settings marked incomplete until implemented and verified.

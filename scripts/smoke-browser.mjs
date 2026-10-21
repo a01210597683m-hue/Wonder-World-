@@ -135,6 +135,35 @@ try {
   await page.locator('#bg-close').click();
   await page.locator('#board-games-panel').waitFor({ state: 'hidden' });
 
+  await page.locator('#ww-arcade-launch').click();
+  await page.locator('#ww-arcade-panel').waitFor({ state: 'visible' });
+  assert.equal(await page.evaluate(() => document.activeElement?.id), 'wwa-close', 'opening the arcade dialog should move keyboard focus inside it');
+  await page.keyboard.press('Escape');
+  await page.locator('#ww-arcade-panel').waitFor({ state: 'hidden' });
+  assert.equal(await page.evaluate(() => document.activeElement?.id), 'ww-arcade-launch', 'Escape should close the arcade dialog and restore focus to its launcher');
+  await page.locator('#ww-arcade-launch').click();
+  await page.locator('#ww-arcade-panel').waitFor({ state: 'visible' });
+  await page.locator('#wwa-color-open').click();
+  const targetColor = await page.locator('#wwa-color-target').getAttribute('data-target');
+  assert.ok(['mint', 'coral', 'blue', 'violet'].includes(targetColor), 'color matching should select a known target color');
+  await page.locator('.wwa-color-choice[data-color="' + targetColor + '"]').click();
+  assert.equal(await page.locator('#wwa-color-score').innerText(), '1', 'choosing the target color should increment the score');
+  assert.match(await page.locator('#wwa-color-status').innerText(), /صح/, 'correct color choice should show positive feedback');
+  assert.equal(await page.locator('#wwa-color-options .wwa-color-choice:disabled').count(), 4, 'color round should lock answers after one choice');
+  await page.locator('#wwa-color-next').click();
+  assert.equal(await page.locator('#wwa-color-options .wwa-color-choice:disabled').count(), 0, 'next color round should enable all answer choices');
+  await page.locator('#wwa-color-reset').click();
+  assert.equal(await page.locator('#wwa-color-score').innerText(), '0', 'color game restart should reset the score');
+  await page.locator('#wwa-cups-open').click();
+  await page.locator('#ww-cups .ww-cup').first().click();
+  assert.match(await page.locator('#wwa-cups-status').innerText(), /النجمة/, 'cup guessing should reveal a result and identify the hidden star');
+  assert.equal(await page.locator('#ww-cups .ww-cup:disabled').count(), 3, 'cup round should prevent repeated guesses after revealing the result');
+  assert.equal(await page.locator('#ww-cups .ww-cup').filter({ hasText: '⭐' }).count(), 1, 'cup round should reveal exactly one hidden star');
+  await page.locator('#wwa-cups-reset').click();
+  assert.equal(await page.locator('#ww-cups .ww-cup:disabled').count(), 0, 'cup restart should enable all three cups again');
+  await page.locator('#ww-arcade-panel').getByRole('button', { name: 'إغلاق' }).click();
+  await page.locator('#ww-arcade-panel').waitFor({ state: 'hidden' });
+
   await page.locator('#open-football').click();
   await page.locator('#football-panel').waitFor({ state: 'visible' });
   await page.locator('[data-foot-aim="40"]').click();
@@ -233,7 +262,13 @@ try {
   assert.match(await page.locator('#ww-auth-message').innerText(), /بريدًا إلكترونيًا صحيحًا/, 'malformed email should be rejected before contacting auth');
   await page.locator('#ww-email').fill('player@example.com');
   await page.locator('#ww-signup').click();
-  assert.match(await page.locator('#ww-auth-message').innerText(), /8 أحرف على الأقل/, 'short passwords should be rejected before contacting auth');
+  assert.match(await page.locator('#ww-auth-message').innerText(), /12 حرفًا على الأقل/, 'short passwords should be rejected before contacting auth');
+  await page.locator('#ww-password').fill('aaaaaaaaaaaa');
+  await page.locator('#ww-signup').click();
+  assert.match(await page.locator('#ww-auth-message').innerText(), /نفس الحرف مكرر/, 'repeated-character passwords should be rejected');
+  await page.locator('#ww-password').fill('qwertyuiop12');
+  await page.locator('#ww-signup').click();
+  assert.match(await page.locator('#ww-auth-message').innerText(), /كلمة مرور أقوى وفريدة/, 'common keyboard sequences should be rejected');
   await page.locator('#ww-password-toggle').click();
   assert.equal(await page.locator('#ww-password').getAttribute('type'), 'text', 'password visibility control should reveal the password');
   assert.equal(await page.locator('#ww-password-toggle').getAttribute('aria-pressed'), 'true', 'password visibility state should be accessible');
@@ -252,6 +287,37 @@ try {
   await page.locator('#ww-auth-close').click();
   await page.locator('#ww-auth-overlay').waitFor({ state: 'hidden' });
   assert.equal(await page.evaluate(() => document.activeElement?.id), 'ww-auth-launch', 'closing the account dialog should restore keyboard focus');
+
+
+  // Exercise the eleven additional activity prototypes without duplicating existing gym and cup modes.
+  await page.locator('#ww-activities-launch').click();
+  await page.locator('#ww-activities').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#wwa-menu [data-game]').count(), 11, 'activity hub should expose eleven additional activities without duplicating gym and cup modes');
+  for (const id of ['battle','football','ropes','fashion','plane','train','arrows','stocks','space','candy','party']) {
+    await page.locator('#wwa-menu [data-game="' + id + '"]').click();
+    await page.locator('#wwa-game').waitFor({ state: 'visible' });
+    assert.notEqual((await page.locator('#wwa-title').innerText()).trim(), '', id + ' should open with a title');
+    if (id === 'battle') {
+      await page.locator('[data-act="fire"]').click();
+      await page.locator('[data-act="fire"]').click();
+      assert.equal(await page.locator('#wwa-ammo').innerText(), '10', 'battle training should consume one round per shot');
+      assert.equal(await page.locator('#wwa-bscore').innerText(), '1', 'two accurate shots should complete one two-hit target');
+      await page.locator('[data-act="reload"]').click();
+      assert.equal(await page.locator('#wwa-ammo').innerText(), '12', 'battle reload should refill the training magazine');
+    }
+    if (id === 'football') { await page.locator('[data-f="pass"]').click(); await page.locator('[data-f="shoot"]').click(); }
+    if (id === 'ropes') { await page.locator('#wwa-rope-nodes button').nth(0).click(); await page.locator('#wwa-rope-nodes button').nth(1).click(); }
+    if (id === 'fashion') { await page.locator('#wwa-looks button').first().click(); await page.locator('#wwa-runway-go').click(); }
+    if (id === 'plane') { await page.locator('#wwa-thrust-up').click(); await page.locator('#wwa-thrust-up').click(); await page.locator('#wwa-thrust-up').click(); await page.locator('#wwa-takeoff').click(); await page.locator('#wwa-level').click(); await page.locator('#wwa-level').click(); await page.locator('#wwa-land').click(); }
+    if (id === 'train') { await page.locator('#wwa-train-accelerate').click(); await page.locator('#wwa-train-accelerate').click(); await page.locator('#wwa-train-accelerate').click(); await page.locator('#wwa-train-brake').click(); await page.locator('#wwa-train-brake').click(); await page.locator('#wwa-train-open').click(); }
+    if (id === 'arrows') await page.locator('#wwa-arrow-board button:enabled').first().click();
+    if (id === 'stocks') await page.locator('#wwa-stock-list article button').first().click();
+    if (id === 'space') await page.locator('[data-s="fire"]').click();
+    if (id === 'candy') { await page.locator('#wwa-candy-board button').nth(0).click(); await page.locator('#wwa-candy-board button').nth(1).click(); }
+    if (id === 'party') await page.locator('#wwa-party-answers button').first().click();
+    await page.locator('#wwa-back').click();
+  }
+  await page.locator('#wwa-home').click();
 
   assert.deepEqual(pageErrors, [], 'browser should not raise uncaught JavaScript exceptions');
   process.stdout.write('PASS — mobile browser smoke tests: 3D canvas, touch controls, Egypt/Paris/Tokyo travel, home customization persistence, bounded guide, careers, Ludo board and persistent record, chess move/undo/reset, football keyboard controls and full five-shot scoring/persistence, Block Blast scoring and persistence, solvable Water Sort, undo, move and reset behavior, memory board, signed-out cloud-wallet guidance, account email/password validation, password visibility, recovery validation, keyboard submission/focus restoration, and no uncaught page errors.\n');

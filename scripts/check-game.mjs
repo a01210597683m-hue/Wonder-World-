@@ -6,6 +6,8 @@ const html = read('../index.html');
 const game = read('../main.js');
 const careers = read('../careers.js');
 const boardGames = read('../board-games.js');
+const miniGames = read('../mini-games.js');
+const activities = read('../wonderworld-activities.js');
 const gameSaveMigration = read('../supabase/migrations/202610210006_add_private_player_game_saves.sql');
 const economyMigration = read('../supabase/migrations/202610210007_secure_virtual_economy.sql');
 const welcomeMigration = read('../supabase/migrations/202610210010_wallet_welcome_bonus.sql');
@@ -17,7 +19,7 @@ const checks = [
   ['Career persistence function exists', /function save\s*\(/.test(careers)],
   ['Auth exposes the configured client to game modules', /window\.wonderWorldSupabase = supabase/.test(read('../auth.js'))],
   ['Password recovery uses Supabase reset flow and returns to the current game URL', /resetPasswordForEmail\(email\.value, \{ redirectTo: window\.location\.href\.split\('\#'\)\[0\] \}\)/.test(read('../auth.js'))],
-  ['Account forms validate email format and minimum signup password length', /email\.checkValidity\(\)/.test(read('../auth.js')) && /forSignup && password\.length < 8/.test(read('../auth.js'))],
+  ['Account forms validate email format and stronger signup password rules', /email\.checkValidity\(\)/.test(read('../auth.js')) && /forSignup && password\.length < 12/.test(read('../auth.js')) && /0123456789/.test(read('../auth.js')) && /password\.split\(''\)\.every/.test(read('../auth.js'))],
   ['Password visibility control updates accessible pressed state', /ww-password-toggle/.test(read('../auth.js')) && /setAttribute\('aria-pressed', String\(!showing\)\)/.test(read('../auth.js'))],
   ['Account dialog supports keyboard focus trapping and restores launcher focus', /event\.key !== 'Tab'/.test(read('../auth.js')) && /launch\.focus\(\)/.test(read('../auth.js'))],
   ['Stale profile requests cannot overwrite a newer account state', /playerRefreshToken/.test(read('../auth.js')) && /refreshToken !== playerRefreshToken/.test(read('../auth.js'))],
@@ -39,6 +41,18 @@ const checks = [
   ['Mobile viewport allows user zoom', /viewport-fit=cover/.test(html) && !/user-scalable=no|max(?:imum)?-scale=1/i.test(html)],
 
   ['Ludo and chess activities are dynamically wired', /import\(['"]\.\/board-games\.js\?v=/.test(game)],
+  ['Casual arcade module is loaded by the page', /mini-games\.js\?v=/.test(html) && /function boot\(\)/.test(miniGames)],
+  ['Activity hub adds only missing modes and avoids duplicate gym/cup entries', /wonderworld-activities\.js\?v=/.test(html) && ['battle','football','ropes','fashion','plane','train','arrows','stocks','space','candy','party'].every(id => activities.includes("'" + id + "'")) && !activities.includes("['gym','🏋️'") && !activities.includes("['cups','🥤'") && /quick-gym/.test(game) && /wwa-cups-open/.test(miniGames)],
+  ['Battle prototype includes health, ammunition, aim and training targets', /hp:100,ammo:12/.test(activities) && /state\.aimX/.test(activities) && /targets:/.test(activities)],
+  ['Football prototype includes movement, passing, shooting, keeper and scoring', /function renderFootball/.test(activities) && /const pass=\(\)/.test(activities) && /const shoot=\(\)/.test(activities) && /keeperX/.test(activities)],
+  ['Rope puzzle supports node swaps and tracks puzzle progress', /function renderRopes/.test(activities) && /wwa-rope-nodes/.test(activities) && /wwa-crossings/.test(activities)],
+  ['Fashion show has themed outfits and a judging score', /function renderFashion/.test(activities) && /تقييم لجنة التحكيم/.test(activities)],
+  ['Plane and train activities require safe sequence of controls', /function renderPlane/.test(activities) && /زودي قوة المحرك/.test(activities) && /function renderTrain/.test(activities) && /أوقفي القطار تمامًا/.test(activities)],
+  ['Arrow escape puzzle tracks cleared arrows and blocks obstructed paths', /function renderArrows/.test(activities) && /function canExit\(a\)/.test(activities) && /wwa-arrow-cleared/.test(activities)],
+  ['Gym progression and stock market use local virtual counters only', /function renderGym/.test(activities) && /function renderStocks/.test(activities) && /لا يوجد تداول حقيقي/.test(activities)],
+  ['Cup guessing, space shooter, Candy Crush and Sparkle Party are playable', /function renderCups/.test(activities) && /function renderSpace/.test(activities) && /function renderCandy/.test(activities) && /function renderParty/.test(activities)],
+  ['Color-matching arcade game scores correct choices and supports restart', /function chooseColor/.test(miniGames) && /function newColorRound/.test(miniGames) && /wwa-color-reset/.test(miniGames)],
+  ['Cup guessing game reveals the hidden star and can restart', /function newCups/.test(miniGames) && /ww-cup/.test(miniGames) && /wwa-cups-reset/.test(miniGames)],
   ['Board-game module contains Ludo and chess activities', /function initLudo\(/.test(boardGames) && /function initChess\(/.test(boardGames) && /cpuTurn/.test(boardGames)],
   ['Ludo home pieces are rendered and selectable before launch', /homeSlots=\{/.test(boardGames) && /data-ludo-home/.test(boardGames) && /moveLudo\(slot\[0\],slot\[1\]\)/.test(boardGames)],
   ['Static houses and pool are re-enabled independently of account state', /staticHouseStructures/.test(game) && /staticPoolStructures/.test(game) && /ensureStaticWorldVisible\(\)/.test(game)],

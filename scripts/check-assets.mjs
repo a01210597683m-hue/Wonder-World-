@@ -18,6 +18,8 @@ const readme = read('../README.md');
 const main = read('../main.js');
 const auth = read('../auth.js');
 const careers = read('../careers.js');
+const boardGames = read('../board-games.js');
+const miniGames = read('../mini-games.js');
 
 check('Official branding reference is stored in App-Branding', exists('App-Branding/1792530004270.jpg'));
 check('Character reference folder exists', exists('assets/characters'));
@@ -27,6 +29,16 @@ check('Game-design reference folder contains multiple original references',
   files('game-design-references').filter(entry => entry.isFile() && /\.(avif|gif|jpe?g|png|webp|bmp)$/i.test(entry.name)).length >= 4);
 check('Reference panel targets the configured Supabase Storage bucket',
   /const BUCKET = 'Wonder World Game'/.test(html) && /prefix: 'characters'/.test(html));
+check('Existing Water Sort game remains wired through the main game panel',
+  /id="open-watersort"/.test(main) && /function waterSortReset/.test(main) && /function waterSortTap/.test(main) && /waterSortHistory/.test(main));
+check('Water Sort puzzle generation uses reversible moves from a solved board',
+  /scramble only with reversible reverse-moves/.test(main) && /لغز جديد قابل للحل/.test(main));
+check('Water Sort is not duplicated in the board-games panel',
+  !/bg-open-water-sort/.test(boardGames) && !/function initWaterSort/.test(boardGames));
+check('Casual arcade module is loaded and both mini-games are wired',
+  html.includes('mini-games.js?v=20261021-1') && /wwa-color-open/.test(miniGames) && /wwa-cups-open/.test(miniGames));
+check('Casual arcade source includes color matching and cup-guess outcomes',
+  /function chooseColor/.test(miniGames) && /function newColorRound/.test(miniGames) && /function newCups/.test(miniGames) && /لقيتي النجمة/.test(miniGames));
 check('Core game and account modules are wired into the HTML',
   /main\.js\?v=/.test(html) && /auth\.js\?v=/.test(html) && /careers\.js\?v=/.test(html));
 check('Core game files exist and are non-empty',
