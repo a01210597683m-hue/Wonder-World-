@@ -6,7 +6,7 @@ This checklist separates automated checks from tasks that require a real account
 
 ## Automated browser coverage
 
-The CI smoke suite verifies the 3D canvas and mobile controls, travel to Egypt/Paris/Tokyo, home customization persistence, the curated Wonder guide, careers, a football practice round, Ludo/chess interactions, Block Blast, Water Sort legal moves/undo/restart, arcade memory-pair matching, cup-star reveal, arcade keyboard focus, signed-out cloud-wallet guidance, account form validation, and absence of uncaught browser exceptions.
+The CI smoke suite verifies the 3D canvas and mobile controls, travel to Egypt/Paris/Tokyo, home customization persistence, the curated Wonder guide, careers, a football practice round, Ludo/chess interactions, Block Blast, Water Sort legal moves/undo/restart, arcade color matching, cup-star reveal, arcade keyboard focus, signed-out cloud-wallet guidance, account form validation, and absence of uncaught browser exceptions.
 
 ## Must be verified with real credentials / owner access
 
@@ -60,10 +60,10 @@ Keep the prototype status visible until all credentialed and device-specific che
 
 ## Casual arcade batch — 2026-10-21
 
-- Added a separate casual arcade panel with a playable 12-card memory-pair matching game, move count, match feedback, restart, and a three-cup hidden-star guessing game.
+- Added a separate casual arcade panel with a color-matching game (target color, scoring, feedback, next round, restart) and a three-cup hidden-star guessing game. The existing 8-pair memory game remains in the main game panel, so the arcade avoids duplicating it.
 - Loaded the arcade module from `index.html` and added static regression checks for module wiring and both activities.
 - [x] Pull-request workflow run `39620196354` passed syntax, static regression, and Chromium browser smoke checks.
-- [x] Browser smoke tests verify actual pair matching, one-star reveal, restart behavior, and keyboard focus restoration on Escape.
+- [x] Browser smoke tests verify color-match scoring, one-star reveal, restart behavior, and keyboard focus restoration on Escape.
 
 - Updated the Pages workflow to run build/regression/browser checks on pull requests and prevent pull-request events from deploying to Pages. Added syntax, static, and browser smoke coverage for the arcade module. The final workflow run after the latest cleanup must pass before merge.
 - [ ] Test on narrow mobile screens and a real Android device, including repeated restarts and rapid card taps.
