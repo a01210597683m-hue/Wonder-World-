@@ -438,3 +438,38 @@ The deployed browser build is an early PlayCanvas neighborhood prototype. It has
 - [ ] Validate the updated deployed build and all touch controls on the target Android phone.
 
 **Scope note:** cloud saves preserve prototype progress but do not make client-controlled currency or rewards cheat-proof. The full football match, action mode, vehicles, multiplayer, final 3D characters, Android package, ads, and purchases remain separate unfinished milestones.
+
+
+## 2026-10-21 — Release completion plan (honest feature gates)
+
+This plan separates verified prototype functionality from production features. A checkbox may be marked complete only after implementation and a relevant test.
+
+### Gate A — Stabilize the playable browser build
+- [x] Keep the GitHub Pages deployment workflow enabled and confirm a successful deployment run.
+- [x] Run static gameplay and asset integration checks during each deployment.
+- [x] Preserve local progress and provide account-scoped cloud-save storage with row-level security.
+- [ ] Exercise signed-in save/load, offline fallback, account switching, and save restoration in a real browser session.
+- [ ] Complete an Android touch-control and layout pass; fix all critical runtime errors and document any unsupported device/browser.
+- [ ] Verify that character-reference images load from the expected Supabase Storage paths on the deployed domain.
+
+### Gate B — Finish one complete gameplay loop before expanding the catalogue
+- [ ] Add a proper new-player onboarding flow, controls/help, pause/resume, settings, and a reliable return-to-world path.
+- [ ] Complete one end-to-end football match mode: teams, kickoff, player switching, passing, shooting, goalkeeper/opponent AI, timer, scoreline, match end, rewards, and restart.
+- [ ] Complete one polished social/life loop from quest acceptance through interaction, reward, save, reload, and reward-history verification.
+- [ ] Add repeatable automated tests for progression rewards, duplicate-claim prevention, invalid state, and interrupted sessions.
+
+### Gate C — Expand content and production systems
+- [ ] Build the action mode as its own complete game loop, with age-appropriate content and responsive touch controls.
+- [ ] Implement vehicles and travel with actual movement, destinations, transitions, and collision handling.
+- [ ] Implement player visits and shared activities with authenticated sessions, server validation, moderation/reporting, and disconnect handling.
+- [ ] Finish homes/interiors, business simulation, fashion, sports, puzzle and party-game catalogue with complete controls, scoring, results, and persistence.
+- [ ] Replace placeholder 3D assets with properly licensed, rigged and optimized character/environment assets guided by the supplied reference images.
+
+### Gate D — Production release and safety
+- [ ] Make inventory, rewards, progression and currency-changing actions server-authoritative before competitive multiplayer or purchases.
+- [ ] Complete Supabase security/performance review, backup/restore testing, rate limits, and privacy/retention controls.
+- [ ] Run browser/device compatibility, accessibility, performance, and regression suites; test on a physical Android device.
+- [ ] Prepare Android packaging, application ID, signing, store listing, privacy disclosures and release testing.
+- [ ] Add ads or in-app purchases only after provider setup; verify purchases server-side and keep them disabled until compliance checks pass.
+
+**Release rule:** the game is not considered finished until each required gate has implementation evidence and runtime test results. GitHub Actions success verifies the configured build/static checks and deployment steps; it does not prove every gameplay feature works or that cloud synchronization has passed live end-to-end tests.
