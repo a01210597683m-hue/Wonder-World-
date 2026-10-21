@@ -1111,6 +1111,7 @@ function renderShop() {
 let cloudWalletBalance = null;
 let cloudEconomyBusy = false;
 let cloudOwnedItemIds = new Set();
+let cloudPanelRefreshToken = 0;
 async function purchaseCloudItem(item, triggerButton = null) {
   const client = window.wonderWorldSupabase;
   const feedback = document.getElementById('shop-feedback');
@@ -1182,6 +1183,7 @@ function ensureCloudEconomyPanel() {
   return panel;
 }
 async function refreshCloudEconomyPanel(messageText = '') {
+  const refreshToken = ++cloudPanelRefreshToken;
   const panel = ensureCloudEconomyPanel();
   const client = window.wonderWorldSupabase;
   if (!client || !gameCloudUserId) {
@@ -1213,6 +1215,7 @@ async function refreshCloudEconomyPanel(messageText = '') {
       client.rpc('ww_ensure_wallet'),
       client.from('player_inventory').select('item_id').eq('player_id',gameCloudUserId)
     ]);
+    if (refreshToken !== cloudPanelRefreshToken || !gameCloudUserId) return;
     if(walletError)throw walletError;
     if(inventoryError)throw inventoryError;
     cloudWalletBalance=Number(wallet);
@@ -1232,6 +1235,7 @@ async function refreshCloudEconomyPanel(messageText = '') {
   }
 }
 window.addEventListener('wonderworld:auth-state',event=>{
+  cloudPanelRefreshToken += 1;
   gameCloudUserId=event.detail?.user?.id||null; cloudWalletBalance=null; cloudOwnedItemIds=new Set();
   if(!document.getElementById('shop-panel').hidden) void refreshCloudEconomyPanel();
 });
@@ -1249,7 +1253,7 @@ document.getElementById('shop-products').addEventListener('click', event => {
   const item = shopProducts.find(product => product.id === button.dataset.shopItem);
   if (!item) return;
   if (gameCloudUserId) {
-    if (cloudOwnedItemIds.has(item.id) || ownedItems.has(item.id) && cloudWalletBalance !== null) {
+    if (cloudOwnedItemIds.has(item.id)) {
       ownedItems.add(item.id);
       equipItem(item);
       renderShop();
