@@ -41,7 +41,7 @@ const checks = [
 
   ['Ludo and chess activities are dynamically wired', /import\(['"]\.\/board-games\.js\?v=/.test(game)],
   ['Casual arcade module is loaded by the page', /mini-games\.js\?v=/.test(html) && /function boot\(\)/.test(miniGames)],
-  ['Memory-pair game supports matching, move counting, and restart', /function flipMemory/.test(miniGames) && /memory\.matched\.add/.test(miniGames) && /memory\.moves\+\+/.test(miniGames) && /wwa-memory-reset/.test(miniGames)],
+  ['Color-matching arcade game scores correct choices and supports restart', /function chooseColor/.test(miniGames) && /function newColorRound/.test(miniGames) && /wwa-color-reset/.test(miniGames)],
   ['Cup guessing game reveals the hidden star and can restart', /function newCups/.test(miniGames) && /ww-cup/.test(miniGames) && /wwa-cups-reset/.test(miniGames)],
   ['Board-game module contains Ludo and chess activities', /function initLudo\(/.test(boardGames) && /function initChess\(/.test(boardGames) && /cpuTurn/.test(boardGames)],
   ['Ludo home pieces are rendered and selectable before launch', /homeSlots=\{/.test(boardGames) && /data-ludo-home/.test(boardGames) && /moveLudo\(slot\[0\],slot\[1\]\)/.test(boardGames)],
