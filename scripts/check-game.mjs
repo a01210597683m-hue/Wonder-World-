@@ -38,6 +38,7 @@ const checks = [
   ['3D avatars have facial features, legs, shoes, hair recoloring and walk animation', /name \+ ' left pupil'/.test(game) && /name \+ ' left leg'/.test(game) && /person\.hairParts = \[hair, hairFront\]/.test(game) && /player\.leftLeg\.setLocalEulerAngles/.test(game)],
   ['Home swimming pool is a real 3D destination with a gameplay interaction', /Home pool water/.test(game) && /name: 'مسبح البيت/.test(game) && /السعادة \+15/.test(game)],
   ['Home builder changes and persists facade, roof and garden design', /open-home-build/.test(game) && /wonderworld-home-design-v1/.test(game) && /data-home-wall/.test(game) && /data-home-roof/.test(game)],
+  ['Wonder guide offers bounded, prewritten safety guidance without free-form chat', /wonderGuideTopics = \[/.test(game) && /wonder-guide-choices/.test(game) && /لا تستقبل رسائل حرة/.test(game) && !/textarea[^>]*wonder-guide/i.test(game)],
   ['Career system is loaded', /careers\.js\?v=/.test(html)],
   ['Mobile touch controls exist', /data-dir="up"/.test(html) && /data-dir="left"/.test(html)],
   ['World interaction control exists', /id="interact"/.test(game)],
