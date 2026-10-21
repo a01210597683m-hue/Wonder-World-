@@ -1108,10 +1108,93 @@ function renderShop() {
     }
   }
 }
+let cloudWalletBalance = null;
+let cloudEconomyBusy = false;
+let cloudOwnedItemIds = new Set();
+function ensureCloudEconomyPanel() {
+  let panel = document.getElementById('cloud-economy-panel');
+  if (panel) return panel;
+  panel = document.createElement('section');
+  panel.id = 'cloud-economy-panel';
+  panel.className = 'cloud-economy-panel';
+  const products = document.getElementById('shop-products');
+  products.before(panel);
+  return panel;
+}
+async function refreshCloudEconomyPanel(messageText = '') {
+  const panel = ensureCloudEconomyPanel();
+  const client = window.wonderWorldSupabase;
+  if (!client || !gameCloudUserId) {
+    panel.replaceChildren();
+    const title = document.createElement('strong'); title.textContent = '☁️ متجر الحساب الآمن';
+    const note = document.createElement('p'); note.textContent = 'سجّلي الدخول من زر «حساب اللاعب» عشان تستخدمي المحفظة السحابية. من غير حساب، المتجر الحالي بيشتغل كتجربة محلية على الجهاز.';
+    panel.append(title,note); return;
+  }
+  panel.replaceChildren();
+  const title = document.createElement('strong'); title.textContent = '☁️ محفظة الحساب — رصيد موثّق من الخادم';
+  const balance = document.createElement('p'); balance.textContent = cloudWalletBalance === null ? 'جاري تحميل الرصيد…' : 'الرصيد السحابي: ' + cloudWalletBalance + ' عملة';
+  const feedback = document.createElement('p'); feedback.className='cloud-economy-feedback'; feedback.setAttribute('role','status'); feedback.textContent=messageText;
+  const daily = document.createElement('button'); daily.type='button'; daily.textContent='🎁 استلام مكافأة اليوم (+10)';
+  daily.disabled=cloudEconomyBusy;
+  daily.addEventListener('click',async()=>{
+    if(cloudEconomyBusy)return; cloudEconomyBusy=true; daily.disabled=true; feedback.textContent='جاري التحقق من مكافأة اليوم…';
+    try{
+      const {data,error}=await client.rpc('ww_claim_daily_wallet_reward'); if(error)throw error;
+      cloudWalletBalance=Number(data.coins);
+      feedback.textContent=data.ok?'🎉 اتضافت 10 عملات لمحفظتك السحابية!':(data.reason==='already_claimed'?'استلمتي مكافأة اليوم بالفعل. ارجعي بكرة!':'تعذّر استلام المكافأة.');
+      balance.textContent='الرصيد السحابي: '+cloudWalletBalance+' عملة';
+    }catch(error){feedback.textContent='تعذّر التحقق من المكافأة. جرّبي تاني بعد قليل.';console.error('Cloud daily reward failed',error);}
+    finally{cloudEconomyBusy=false;daily.disabled=false;}
+  });
+  const catalogTitle=document.createElement('p');catalogTitle.textContent='مشتريات الحساب تُخصم من المحفظة على الخادم وتُسجّل في مقتنيات الحساب.';
+  panel.append(title,balance,daily,catalogTitle,feedback);
+  try{
+    const [{data:wallet,error:walletError},{data:inventory,error:inventoryError}]=await Promise.all([
+      client.rpc('ww_ensure_wallet'),
+      client.from('player_inventory').select('item_id').eq('player_id',gameCloudUserId)
+    ]);
+    if(walletError)throw walletError;
+    if(inventoryError)throw inventoryError;
+    cloudWalletBalance=Number(wallet);
+    cloudOwnedItemIds=new Set((inventory||[]).map(row=>row.item_id));
+    for(const id of cloudOwnedItemIds) ownedItems.add(id);
+    balance.textContent='الرصيد السحابي: '+cloudWalletBalance+' عملة';
+    if(panel.isConnected) renderShop();
+  }catch(error){feedback.textContent='تعذّر تحميل المحفظة أو المقتنيات. تأكدي من الاتصال ثم افتحي المتجر مجددًا.';console.error('Cloud economy read failed',error);}
+  for(const item of shopProducts){
+    const buy=document.createElement('button'); buy.type='button'; buy.dataset.cloudBuyItem=item.id;
+    buy.textContent=cloudOwnedItemIds.has(item.id)?'☑️ مشتراة على الحساب':'شراء من المحفظة السحابية — '+item.price+' عملة';
+    buy.disabled=cloudEconomyBusy||cloudOwnedItemIds.has(item.id);
+    buy.addEventListener('click',async()=>{
+      if(cloudEconomyBusy)return;
+      cloudEconomyBusy=true; buy.disabled=true; feedback.textContent='جاري التحقق من الرصيد والشراء بأمان…';
+      try{
+        const {data,error}=await client.rpc('ww_purchase_game_item',{p_item_id:item.id}); if(error)throw error;
+        cloudWalletBalance=Number(data.coins);
+        balance.textContent='الرصيد السحابي: '+cloudWalletBalance+' عملة';
+        if(data.ok){
+          cloudOwnedItemIds.add(item.id); ownedItems.add(item.id); equipItem(item); renderShop();
+          feedback.textContent='🎉 تم شراء '+item.name+' وتسجيلها في مقتنيات حسابك. الرصيد السحابي: '+cloudWalletBalance+' عملة.';
+        }else if(data.reason==='insufficient_funds'){
+          feedback.textContent='رصيد الحساب غير كافٍ. سعر القطعة '+data.price+' عملة.';
+        }else if(data.reason==='already_owned'){
+          cloudOwnedItemIds.add(item.id); ownedItems.add(item.id); feedback.textContent='القطعة دي موجودة بالفعل في مقتنيات حسابك.';
+        }else{feedback.textContent='لم يكتمل الشراء. حدّثي المتجر وحاولي مجددًا.';}
+      }catch(error){feedback.textContent='الشراء لم يكتمل، ولم نعرضه كعملية ناجحة. جرّبي تاني.';console.error('Cloud item purchase failed',error);}
+      finally{cloudEconomyBusy=false;refreshCloudEconomyPanel(feedback.textContent);renderShop();}
+    });
+    panel.appendChild(buy);
+  }
+}
+window.addEventListener('wonderworld:auth-state',event=>{
+  gameCloudUserId=event.detail?.user?.id||null; cloudWalletBalance=null; cloudOwnedItemIds=new Set();
+  if(!document.getElementById('shop-panel').hidden) void refreshCloudEconomyPanel();
+});
 function openShop() {
   document.getElementById('shop-panel').hidden = false;
   renderShop();
   document.getElementById('shop-feedback').textContent = 'رصيدك الحالي: ' + coins + ' عملة.';
+  void refreshCloudEconomyPanel();
 }
 document.getElementById('open-shop').addEventListener('click', openShop);
 document.getElementById('close-shop').addEventListener('click', () => { document.getElementById('shop-panel').hidden = true; });
