@@ -12,6 +12,7 @@ The CI smoke suite verifies the 3D canvas and mobile controls, travel to Egypt/P
 
 - [ ] Enable Supabase Auth leaked-password protection in the Dashboard's password security settings.
 - [ ] Re-run the Supabase Security Advisor and review each remaining warning; do not disable required authenticated RPC access without a replacement design.
+- [ ] Add `https://a01210597683m-hue.github.io/Wonder-World-/` to Supabase Auth's allowed redirect URLs and verify password-recovery emails return to the game.
 - [ ] Sign up with a real test mailbox and verify confirmation, sign-in, sign-out, and session restoration.
 - [ ] Confirm game-save and career-save cloud round trips across reloads and fresh sessions.
 - [ ] Test with two disposable accounts and verify that each account can access only its own save, wallet, inventory, and career data.
@@ -30,3 +31,11 @@ The CI smoke suite verifies the 3D canvas and mobile controls, travel to Egypt/P
 ## Release rule
 
 Keep the prototype status visible until all credentialed and device-specific checks above have passed. Never put service-role keys, database passwords, or other secrets in client files or the repository.
+
+
+## Account UX batch — 2026-10-21
+
+- Added password recovery requests with a redirect back to the current game URL and a generic success message that avoids confirming whether an email is registered.
+- Added client-side email validation, minimum signup password validation, Arabic-friendly authentication errors, password visibility toggle, Enter-to-submit, keyboard focus trapping, and focus restoration when closing the account dialog.
+- Guarded profile refreshes so a slower response from an earlier session cannot overwrite the currently active account view.
+- Added browser smoke coverage and static regression checks for these UI flows. The automated suite does not send real recovery email or validate Supabase's dashboard redirect allowlist; these remain owner-controlled checks.
