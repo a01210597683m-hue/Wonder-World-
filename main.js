@@ -1210,7 +1210,7 @@ async function refreshCloudEconomyPanel(messageText = '') {
     }catch(error){feedback.textContent='تعذّر التحقق من المكافأة. جرّبي تاني بعد قليل.';console.error('Cloud daily reward failed',error);}
     finally{cloudEconomyBusy=false;daily.disabled=false;}
   });
-  const catalogTitle=document.createElement('p');catalogTitle.textContent='مشتريات الحساب تُخصم من المحفظة على الخادم وتُسجّل في مقتنيات الحساب.';
+  const catalogTitle=document.createElement('p');catalogTitle.textContent='محفظتك بتبدأ بـ20 عملة ترحيب، وتقدري تستلمي +10 عملات مرة كل يوم. مشتريات الشعر والهدوم بتتراجع على الخادم وتتسجل في مقتنيات حسابك.';
   panel.append(title,balance,daily,catalogTitle,feedback);
   try{
     const [{data:wallet,error:walletError},{data:inventory,error:inventoryError}]=await Promise.all([
