@@ -292,8 +292,8 @@ try {
   // Exercise all twelve requested activity prototypes on the mobile viewport.
   await page.locator('#ww-activities-launch').click();
   await page.locator('#ww-activities').waitFor({ state: 'visible' });
-  assert.equal(await page.locator('#wwa-menu [data-game]').count(), 12, 'activity hub should expose all twelve requested activities');
-  for (const id of ['battle','football','ropes','fashion','plane','gym','train','stocks','cups','space','candy','party']) {
+  assert.equal(await page.locator('#wwa-menu [data-game]').count(), 13, 'activity hub should expose all twelve requested activities');
+  for (const id of ['battle','football','ropes','fashion','plane','gym','train','arrows','stocks','cups','space','candy','party']) {
     await page.locator('#wwa-menu [data-game="' + id + '"]').click();
     await page.locator('#wwa-game').waitFor({ state: 'visible' });
     assert.notEqual((await page.locator('#wwa-title').innerText()).trim(), '', id + ' should open with a title');
@@ -304,6 +304,7 @@ try {
     if (id === 'plane') { await page.locator('#wwa-thrust-up').click(); await page.locator('#wwa-thrust-up').click(); await page.locator('#wwa-thrust-up').click(); await page.locator('#wwa-takeoff').click(); await page.locator('#wwa-level').click(); await page.locator('#wwa-level').click(); await page.locator('#wwa-land').click(); }
     if (id === 'gym') await page.locator('#wwa-lift').click();
     if (id === 'train') { await page.locator('#wwa-train-accelerate').click(); await page.locator('#wwa-train-accelerate').click(); await page.locator('#wwa-train-accelerate').click(); await page.locator('#wwa-train-brake').click(); await page.locator('#wwa-train-brake').click(); await page.locator('#wwa-train-open').click(); }
+    if (id === 'arrows') await page.locator('#wwa-arrow-board button:enabled').first().click();
     if (id === 'stocks') await page.locator('#wwa-stock-list article button').first().click();
     if (id === 'cups') await page.locator('#wwa-cup-grid [data-cup="0"]').click();
     if (id === 'space') await page.locator('[data-s="fire"]').click();
