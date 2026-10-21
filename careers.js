@@ -78,7 +78,7 @@
     heading.append(el('strong', { id: 'career-title' }, '💼 الوظائف ومشروعي الخاص'));
     const close = el('button', { type: 'button', 'aria-label': 'إغلاق لوحة العمل' }, '✕');
     heading.appendChild(close);
-    const note = el('p', { class: 'career-note' }, 'نموذج تجريبي: الأرصدة افتراضية وليست أموالًا حقيقية. الحفظ السحابي يحفظ حالة هذا النموذج فقط، وليس رصيد المحفظة الرسمي.');
+    const note = el('p', { class: 'career-note' }, 'أجور الورديات للحساب المسجّل تُضاف أيضًا إلى محفظة العملات السحابية بعد التحقق من الخادم. رصيد المحل ومصروفاته ما زالا نموذجًا محليًا تجريبيًا، وليسا رصيدًا سحابيًا موثوقًا. كل الأرصدة افتراضية وليست أموالًا حقيقية.');
     const cloudStatus = el('p', { id: 'career-cloud-status', class: 'career-subtle', role: 'status' }, '☁️ يمكنك اللعب محليًا، وسيتفعّل الحفظ السحابي بعد تسجيل الدخول.');
     const stats = el('div', { id: 'career-stats', class: 'career-stats', 'aria-live': 'polite' });
     const feedback = el('p', { id: 'career-feedback', role: 'status', class: 'career-feedback' }, 'اختاري وظيفة، أو طوّري مشروعك الخاص خطوة بخطوة.');
@@ -191,6 +191,24 @@
         reputation: state.reputation
       }}));
     }
+    async function claimCloudCareerShift(job) {
+      if (!cloudUserId || !window.wonderWorldSupabase) return;
+      try {
+        const { data, error } = await window.wonderWorldSupabase.rpc('ww_claim_career_shift', { p_job_code: job.id });
+        if (error) throw error;
+        if (data?.ok) {
+          cloudStatus.textContent = '☁️ أجر وردية ' + job.title + ' اتضاف للمحفظة السحابية: +' + data.reward + ' عملة. باقي اليوم ' + data.remaining_shifts + ' ورديات سحابية.';
+          window.dispatchEvent(new CustomEvent('wonderworld:cloud-wallet-updated', { detail: data }));
+        } else if (data?.reason === 'daily_limit') {
+          cloudStatus.textContent = 'وصلتي للحد اليومي لأجور الوظائف السحابية. تقدري تكملي التجربة المحلية، لكن مش هيتضاف أجر سحابي آخر النهارده.';
+        } else {
+          cloudStatus.textContent = 'الخادم لم يؤكد أجر الوردية؛ لم تُضف عملات سحابية.';
+        }
+      } catch (error) {
+        cloudStatus.textContent = 'تعذّر تأكيد أجر الوردية السحابي؛ رصيد الوظائف المحلي يظل تجريبيًا فقط.';
+        console.warn('WonderWorld career reward failed:', error);
+      }
+    }
     shift.addEventListener('click', () => {
       const now = Date.now();
       if (now - lastShiftAt < 2500) return tell('خدي نفسًا قصيرًا قبل الوردية التالية.');
@@ -200,7 +218,8 @@
       state.workCredits += job.wage;
       state.jobExperience += 5;
       if (state.shifts % 3 === 0) state.reputation += 1;
-      tell('أحسنتِ! أنهيتِ وردية ' + job.title + ' وحصلتِ على ' + job.wage + ' رصيد وخبرة عمل +5.');
+      tell('أحسنتِ! أنهيتِ وردية ' + job.title + ' وحصلتِ على ' + job.wage + ' رصيد تجريبي وخبرة عمل +5.');
+      void claimCloudCareerShift(job);
     });
     buy.addEventListener('click', () => {
       if (state.hasPremises || !canAfford(50)) return tell('تحتاجين إلى 50 رصيدًا افتراضيًا لشراء المحل.');
