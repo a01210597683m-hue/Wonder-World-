@@ -197,6 +197,35 @@ cylinder('Fitness weight left', 0.22, 0.55, 0.22, 13.0, 0.35, -12.0, mats.road);
 cylinder('Fitness weight right', 0.22, 0.55, 0.22, 13.8, 0.35, -12.0, mats.road);
 box('Fitness weight bar', 1.3, 0.12, 0.12, 13.4, 0.38, -12.0, mats.bench);
 
+// Visible low-poly transport landmarks connected to the existing playable flight/train activities.
+box('Wonder Air runway', 14, 0.12, 30, 34, 0.03, -28, mats.road);
+for (let z = -40; z <= -16; z += 4) box('Airport runway marking ' + z, 0.18, 0.025, 1.8, 34, 0.105, z, mats.white);
+box('Airport terminal', 8, 3.2, 5, 34, 1.6, -47, mats.white);
+box('Airport terminal roof', 8.5, 0.3, 5.5, 34, 3.35, -47, mats.npcBlue);
+box('Airport terminal sign', 4.8, 0.7, 0.16, 34, 2.8, -44.35, mats.npcGold);
+box('Wonder Air aircraft fuselage', 1.05, 0.78, 8.4, 34, 1.55, -28, mats.white);
+box('Wonder Air aircraft wings', 10.2, 0.2, 1.55, 34, 1.65, -28, mats.npcBlue);
+box('Wonder Air aircraft tail wing', 3.1, 0.16, 1.05, 34, 2.0, -24.8, mats.npcBlue);
+box('Wonder Air aircraft tail fin', 0.22, 1.45, 1.15, 34, 2.35, -24.8, mats.npcPink);
+sphere('Wonder Air aircraft nose', 0.72, 34, 1.58, -32.2, mats.tvFrame);
+for (const [side, x] of [['left', 31.5], ['right', 36.5]]) {
+  box('Aircraft cabin window ' + side, 0.12, 0.28, 0.55, x, 1.8, -29.0, mats.window);
+  sphere('Aircraft landing wheel ' + side, 0.32, x, 0.45, -27.5, mats.tvFrame);
+}
+box('Wonder Central station platform', 18, 0.18, 4.2, -30, 0.08, -20, mats.path);
+box('Wonder Central station sign', 6.2, 1.0, 0.18, -30, 3.0, -17.2, mats.npcGold);
+box('Railway track left rail', 34, 0.12, 0.16, -30, 0.18, -21.0, mats.tvFrame);
+box('Railway track right rail', 34, 0.12, 0.16, -30, 0.18, -19.0, mats.tvFrame);
+for (let x = -46; x <= -14; x += 2) box('Railway sleeper ' + x, 0.22, 0.12, 2.8, x, 0.12, -20, mats.bench);
+box('Wonder train locomotive body', 4.4, 1.55, 1.7, -30, 1.2, -20, mats.outfitBlue);
+box('Wonder train locomotive front', 1.0, 1.0, 1.75, -32.5, 1.0, -20, mats.npcGold);
+box('Wonder train locomotive cabin', 1.8, 1.4, 1.55, -28.8, 2.55, -20, mats.white);
+for (const [index, x] of [[1, -35.2], [2, -39.2], [3, -43.2]]) {
+  box('Wonder train passenger car ' + index, 3.6, 1.55, 1.65, x, 1.15, -20, index % 2 ? mats.wallPink : mats.outfitMint);
+  box('Wonder train passenger windows ' + index, 2.8, 0.42, 0.08, x, 1.55, -19.12, mats.window);
+}
+for (const x of [-32, -29, -35, -38, -42, -45]) for (const z of [-20.8, -19.2]) sphere('Wonder train wheel ' + x + ' ' + z, 0.38, x, 0.52, z, mats.tvFrame);
+
 /*
  * First cross-country travel slice. These are original low-poly landmarks built
  * from engine primitives, not finished country-scale worlds or real transport.
@@ -991,7 +1020,7 @@ function endSharedWalk(reason='انتهت التمشية بناءً على طل�
 }
 function renderNeighborhoodMap() {
  const list=document.getElementById('map-destinations');if(!list)return;list.replaceChildren();
- const destinations=[{name:'نافورة الساحة',emoji:'⛲',x:0,z:3},{name:'حديقة الأصدقاء',emoji:'🌳',x:-11,z:5.5},{name:'متجر Wonder',emoji:'🛍️',x:10,z:4.5},{name:'كافيه Wonder',emoji:'☕',x:15,z:-4},{name:'مكتب الحي',emoji:'💼',x:0,z:-20},{name:'Wonder Fitness',emoji:'🏋️',x:15,z:-19},{name:'البيت الأول',emoji:'🏡',x:-10,z:-6.2},{name:'البيت العائلي',emoji:'🏠',x:10,z:-6.2},{name:'رحلة إلى مصر — الأهرامات',emoji:'🇪🇬',x:30,z:5},{name:'رحلة إلى باريس — البرج',emoji:'🇫🇷',x:-30,z:5},{name:'رحلة إلى طوكيو — حديقة الساكورا',emoji:'🇯🇵',x:0,z:35}];
+ const destinations=[{name:'نافورة الساحة',emoji:'⛲',x:0,z:3},{name:'حديقة الأصدقاء',emoji:'🌳',x:-11,z:5.5},{name:'متجر Wonder',emoji:'🛍️',x:10,z:4.5},{name:'كافيه Wonder',emoji:'☕',x:15,z:-4},{name:'مكتب الحي',emoji:'💼',x:0,z:-20},{name:'Wonder Fitness',emoji:'🏋️',x:15,z:-19},{name:'مطار Wonder Air',emoji:'✈️',x:34,z:-28},{name:'محطة Wonder Central',emoji:'🚆',x:-30,z:-20},{name:'البيت الأول',emoji:'🏡',x:-10,z:-6.2},{name:'البيت العائلي',emoji:'🏠',x:10,z:-6.2},{name:'رحلة إلى مصر — الأهرامات',emoji:'🇪🇬',x:30,z:5},{name:'رحلة إلى باريس — البرج',emoji:'🇫🇷',x:-30,z:5},{name:'رحلة إلى طوكيو — حديقة الساكورا',emoji:'🇯🇵',x:0,z:35}];
  for(const d of destinations){const b=document.createElement('button');b.type='button';b.className='map-destination';b.textContent=d.emoji+' '+d.name;b.addEventListener('click',()=>{if(indoors){document.getElementById('map-feedback').textContent='اخرجي للحي الأول قبل التنقّل السريع.';return;}player.setPosition(d.x,0,d.z);cameraX=d.x;cameraZ=d.z+cameraOffsetZ;camera.setPosition(cameraX,cameraHeight,cameraZ);camera.lookAt(d.x,1,d.z);document.getElementById('map-panel').hidden=true;logAdventure('وصلت إلى '+d.name);if(activeWalkNpc){walkVisitedDestinations.add(d.name);if(walkVisitedDestinations.size>=3&&walkRewardDate!==localDateKey()){walkRewardDate=localDateKey();try{localStorage.setItem('wonderworld-shared-walk-reward-day',walkRewardDate);}catch{}happiness=Math.min(100,happiness+8);coins+=5;updateStats();awardXP(12);logAdventure('مغامرة تمشية مكتملة مع '+activeWalkNpc.name+' — زرت 3 أماكن مختلفة');say('🌟 مغامرة مشتركة رائعة! زرتوا 3 أماكن مع '+activeWalkNpc.name+'؛ +8 سعادة و+5 عملات و+12 XP. المكافأة مرة واحدة يوميًا.');}else{say('🗺️ وصلتي إلى '+d.name+' مع '+activeWalkNpc.name+'! زارتم '+walkVisitedDestinations.size+' من 3 أماكن للمغامرة المشتركة.');}}else{say('🗺️ وصلتي إلى '+d.name+'!');}});list.appendChild(b);}
 }
 
@@ -1599,6 +1628,8 @@ const places = [
   { name: 'كافيه Wonder', x: 15, z: -3.2, radius: 4.0, action: () => enterHome('كافيه Wonder', cafeInteriorRoot, { label: '☕ طلب من الكافيه', run: orderCafe }) },
   { name: 'مكتب الحي', x: 0, z: -18.3, radius: 4.0, action: doQuickWork },
   { name: 'Wonder Fitness', x: 15, z: -18, radius: 4.5, action: doWorkout },
+  { name: 'مطار Wonder Air', x: 34, z: -28, radius: 8, action: () => window.dispatchEvent(new CustomEvent('wonderworld:open-activity', { detail: { id: 'plane' } })) },
+  { name: 'محطة Wonder Central', x: -30, z: -20, radius: 6, action: () => window.dispatchEvent(new CustomEvent('wonderworld:open-activity', { detail: { id: 'train' } })) },
   { name: 'حديقة الأصدقاء', x: -11, z: 6.5, radius: 4.2, action: () => {
     happiness = Math.min(100, happiness + 12); updateStats(); awardXP(8); completeQuest('park'); saveProgress(); say('قضيتي وقتًا لطيفًا في الحديقة! السعادة +12 🌷');
   }},
