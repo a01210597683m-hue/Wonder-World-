@@ -597,6 +597,7 @@ footballPanel.id = 'football-panel';
 footballPanel.className = 'wonder-overlay';
 footballPanel.hidden = true;
 footballPanel.setAttribute('aria-label', 'تحدي كرة القدم');
+footballPanel.tabIndex = -1;
 footballPanel.innerHTML = '<div class="shop-heading"><strong>⚽ تحدّي كرة القدم</strong><button id="close-football" type="button" aria-label="إغلاق كرة القدم">✕</button></div><p class="shop-intro">حرّكي اللاعبة ناحية الكرة، قرّبي منها، ثم سدّدي نحو المرمى. دي مرحلة لعب أولية قابلة للتحكم؛ مباريات الفرق الكاملة ولسه حركات التمرير والتدخل والحارس المتقدم ضمن التطوير.</p><div class="football-scorebar"><span>الأهداف: <b id="football-score">0</b></span><span>التسديدات: <b id="football-shots">0 / 5</b></span><span>أفضل نتيجة: <b id="football-best">0</b></span></div><div id="football-pitch" role="application" aria-label="ملعب كرة قدم"><div class="football-goal"><span id="football-target" aria-hidden="true"></span></div><div class="football-midline"></div><div class="football-circle"></div><div id="football-keeper" class="football-player keeper" aria-label="حارسة المرمى">🧤</div><div id="football-avatar" class="football-player avatar" aria-label="لاعبة">👟</div><div id="football-ball" aria-label="الكرة">⚽</div></div><div class="football-controls"><div class="football-pad"><button data-foot-dir="up" aria-label="تحركي للأعلى">▲</button><button data-foot-dir="left" aria-label="تحركي لليسار">◀</button><button data-foot-dir="down" aria-label="تحركي للأسفل">▼</button><button data-foot-dir="right" aria-label="تحركي لليمين">▶</button></div><div class="football-aim-controls" role="group" aria-label="اختيار اتجاه التسديد"><button type="button" data-foot-aim="40" aria-pressed="false">↖️ يسار</button><button type="button" data-foot-aim="50" aria-pressed="true">⬆️ وسط</button><button type="button" data-foot-aim="60" aria-pressed="false">↗️ يمين</button></div><button id="football-shoot">🥅 تسديد!</button></div><p id="football-feedback" role="status">ابدئي بتحريك اللاعبة نحو الكرة.</p><button id="football-restart" type="button">🔄 مباراة تدريبية جديدة</button>';
 document.getElementById('game').appendChild(footballPanel);
 
@@ -627,7 +628,7 @@ actionToggle.addEventListener('click', () => {
 });
 const interactButton = document.getElementById('interact');
 
-document.getElementById('open-football').addEventListener('click', () => { footballPanel.hidden = false; resetFootballGame(); });
+document.getElementById('open-football').addEventListener('click', () => { footballPanel.hidden = false; resetFootballGame(); footballPanel.focus(); });
 document.getElementById('close-football').addEventListener('click', () => { footballPanel.hidden = true; });
 document.getElementById('football-restart').addEventListener('click', resetFootballGame);
 let football = { playerX: 50, playerY: 76, ballX: 50, ballY: 64, keeperX: 50, aimX: 50, score: 0, shots: 0 };
@@ -709,6 +710,34 @@ document.querySelectorAll('[data-foot-aim]').forEach(button => button.addEventLi
   document.getElementById('football-feedback').textContent = 'اتجاه التسديد اتحدد: ' + (football.aimX < 45 ? 'الزاوية اليسرى' : football.aimX > 55 ? 'الزاوية اليمنى' : 'منتصف المرمى') + '. راقبي الحارسة ثم سدّدي!';
 }));
 document.getElementById('football-shoot').addEventListener('click', shootFootball);
+
+// Keyboard support for the football mini-game. Focus stays inside the game controls,
+// and movement keys won't accidentally trigger the world interaction behind the panel.
+footballPanel.addEventListener('keydown', event => {
+  if (footballPanel.hidden) return;
+  const target = event.target;
+  if (target instanceof HTMLElement && target.matches('input, textarea, select, [contenteditable="true"]')) return;
+  if (event.code === 'ArrowLeft' || event.code === 'ArrowRight') {
+    const lanes = [40, 50, 60];
+    const current = Math.max(0, lanes.indexOf(football.aimX));
+    const next = event.code === 'ArrowLeft' ? Math.max(0, current - 1) : Math.min(lanes.length - 1, current + 1);
+    football.aimX = lanes[next];
+    renderFootball();
+    document.getElementById('football-feedback').textContent = 'اتجاه التسديد اتحدد من لوحة المفاتيح. اضغطي Enter للتسديد.';
+    event.preventDefault();
+    event.stopPropagation();
+  } else if (event.code === 'Space' || event.code === 'Enter') {
+    // Let native button activation work when a real button has focus.
+    if (target instanceof HTMLElement && target.closest('button')) return;
+    shootFootball();
+    event.preventDefault();
+    event.stopPropagation();
+  } else if (event.code === 'KeyR') {
+    resetFootballGame();
+    event.preventDefault();
+    event.stopPropagation();
+  }
+});
 
 const outfitOptions = [mats.player, mats.outfitMint, mats.outfitCoral, mats.outfitBlue, mats.outfitGold];
 const hairOptions = [mats.player, mats.hairBrown, mats.hairBlack, mats.hairRose];
@@ -2112,6 +2141,9 @@ const keyMap = {
   ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right'
 };
 window.addEventListener('keydown', e => {
+  const target = e.target;
+  // Don't hijack typing, form submission, or native keyboard activation of UI controls.
+  if (target instanceof HTMLElement && (target.matches('input, textarea, select, button, a, [role="button"], [contenteditable="true"]') || target.isContentEditable)) return;
   if (keyMap[e.code]) { pressed.add(keyMap[e.code]); e.preventDefault(); }
   if (e.code === 'Space' || e.code === 'Enter') { interactButton.click(); e.preventDefault(); }
 });
