@@ -34,6 +34,7 @@ const checks = [
   ['Board-game module contains Ludo and chess activities', /function initLudo\(/.test(boardGames) && /function initChess\(/.test(boardGames) && /cpuTurn/.test(boardGames)],
 
   ['PlayCanvas scene entry is loaded', /main\.js\?v=/.test(html)],
+  ['Controllable car model is wired to player movement and touch controls', /const playerCar = new Entity/.test(game) && /toggleVehicleMode/.test(game) && /vehicleMode \? 2\.6/.test(game) && /playerCar\.setPosition\(p\.x, 0, p\.z\)/.test(game)],
   ['Career system is loaded', /careers\.js\?v=/.test(html)],
   ['Mobile touch controls exist', /data-dir="up"/.test(html) && /data-dir="left"/.test(html)],
   ['World interaction control exists', /id="interact"/.test(game)],
