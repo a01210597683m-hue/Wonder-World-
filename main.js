@@ -583,6 +583,7 @@ ui.innerHTML = `
   <button id="open-map" type="button">🗺️ خريطة الحي والتنقّل</button>
   <button id="open-home-build" type="button">🏡 تخصيص البيت والحديقة</button>
   <button id="open-walks" type="button">🚶 تمشية مع صديق</button>
+  <button id="open-gathering" type="button">🎉 تجمعات العيلة والأصحاب</button>
   <button id="open-wonder-guide" type="button">🤖 مساعد Wonder الإرشادي</button>
   <button id="open-football" type="button">⚽ كرة القدم — تحدّي التسديد</button>
   <button id="open-journal" type="button">📔 سجل مغامراتي</button>
@@ -636,6 +637,22 @@ ui.innerHTML = `
     <p id="walk-consent-status" role="status">مفيش تمشية نشطة. اختاري صديقًا لإرسال طلب.</p><div id="walk-friends"></div>
     <div id="walk-active-tools" hidden><p id="walk-active-text"></p><div class="walk-activity-actions"><button id="walk-picnic" type="button">🧺 نزهة في الحديقة (4 عملات)</button><button id="walk-cafe" type="button">☕ خروجة كافيه (5 عملات)</button><button id="walk-photo" type="button">📸 ذكرى سوا عند النافورة</button><button id="walk-challenge" type="button">🧠 تحدّي تعاون سريع</button></div><p id="walk-activity-feedback" role="status">اختاري نشاطًا لما توصلي للمكان المناسب.</p><button id="end-shared-walk" type="button">👋 إنهاء التمشية</button></div>
     <p class="walk-prototype-note">الشخصيات المتاحة هنا شخصيات NPC داخل النموذج. الموافقة الحقيقية بين لاعبين مختلفين تحتاج حسابات وخادمًا مشتركًا، وده مش متفعّل في النسخة دي.</p>
+  </section>
+  <section id="gathering-panel" hidden aria-label="تجمعات عائلية وأصدقاء">
+    <div class="shop-heading"><strong>🎉 تجمعات العيلة والأصحاب</strong><button id="close-gathering" type="button" aria-label="إغلاق التجمعات">✕</button></div>
+    <p class="shop-intro">اختاري تجمعًا ومكانًا، وادعي حتى 3 شخصيات من سكان WonderWorld. كل التفاعل باختيارات جاهزة وردود مناسبة للموقف، من غير دردشة حرة.</p>
+    <div class="gathering-controls">
+      <label for="gathering-location">📍 مكان التجمع
+        <select id="gathering-location"><option value="home">البيت — تجمع عائلي</option><option value="park">حديقة الأصدقاء — نزهة جماعية</option><option value="cafe">كافيه Wonder — خروجة</option></select>
+      </label>
+      <label for="gathering-event">🎈 المناسبة
+        <select id="gathering-event"><option value="lunch">غداء عائلي</option><option value="birthday">عيد ميلاد</option><option value="games">ليلة ألعاب وضحك</option></select>
+      </label>
+    </div>
+    <p><strong>اختاري المشاركين (حتى 3):</strong></p><div id="gathering-invites"></div>
+    <button id="start-gathering" type="button">💌 ابدئي التجمع</button>
+    <div id="gathering-active" hidden><p id="gathering-status" role="status"></p><div id="gathering-choices"></div><button id="finish-gathering" type="button" hidden>✨ إنهاء التجمع وحفظ الذكرى</button></div>
+    <p class="walk-prototype-note">المشاركون حاليًا شخصيات NPC داخل النموذج، وليسوا لاعبين حقيقيين. لا يوجد شات بين اللاعبين أو إدخال رسائل حرة.</p>
   </section>
   <section id="wonder-guide-panel" class="wonder-overlay" hidden aria-label="مساعد Wonder الإرشادي">
     <div class="shop-heading"><strong>🤖 مساعد Wonder</strong><button id="close-wonder-guide" type="button" aria-label="إغلاق">✕</button></div>
@@ -1424,6 +1441,113 @@ document.getElementById('save-pet-name').addEventListener('click',()=>{
 document.getElementById('open-achievements').addEventListener('click',()=>{renderAchievementPanel();document.getElementById('achievement-panel').hidden=false});
 document.getElementById('open-map').addEventListener('click',()=>{renderNeighborhoodMap();document.getElementById('map-feedback').textContent='اختاري وجهتك من القائمة.';document.getElementById('map-panel').hidden=false});
 document.getElementById('open-walks').addEventListener('click',()=>{renderWalkPanel();document.getElementById('social-walk-panel').hidden=false});
+
+let activeGathering = null;
+const gatheringEvents = {
+ lunch: { title: 'غداء عائلي', choices: [
+   { label: '🍽️ أساعد في تجهيز السفرة', reply: 'الكل انبسط من روح التعاون!' },
+   { label: '😂 أحكي موقفًا مضحكًا', reply: 'ضحكتم سوا والجو بقى ألطف!' },
+   { label: '💗 أشكر كل الموجودين', reply: 'الكلمة الحلوة قرّبتكم من بعض!' }
+ ]},
+ birthday: { title: 'عيد ميلاد', choices: [
+   { label: '🎂 أغني مع الكل', reply: 'احتفلتوا سوا وصنعتوا ذكرى جميلة!' },
+   { label: '🎁 أقدم هدية رمزية', reply: 'الهدية اللطيفة فرّحت صاحب المناسبة!' },
+   { label: '🎲 أختار لعبة جماعية', reply: 'اللعبة جمعت الكل في لحظة ممتعة!' }
+ ]},
+ games: { title: 'ليلة ألعاب وضحك', choices: [
+   { label: '🧩 أختار لغزًا لطيفًا', reply: 'فكرتوا سوا وشجعتوا بعض!' },
+   { label: '🎉 أشجع كل المشاركين', reply: 'التشجيع خلّى الجو مرح من غير ضغط!' },
+   { label: '🤝 أبدّل اللعبة عشان الكل يشارك', reply: 'كل شخص لقى طريقة يشارك بيها!' }
+ ]}
+};
+function renderGatheringInvites() {
+ const list=document.getElementById('gathering-invites');list.replaceChildren();
+ npcs.forEach((npc,index)=>{
+  const label=document.createElement('label');label.className='gathering-invite';
+  const input=document.createElement('input');input.type='checkbox';input.value=npc.name;input.checked=index<2;
+  input.addEventListener('change',()=>{
+   const chosen=list.querySelectorAll('input[type="checkbox"]:checked');
+   if(chosen.length>3){input.checked=false;document.getElementById('gathering-status').textContent='مسموح بدعوة 3 شخصيات بحد أقصى.';}
+  });
+  const name=document.createElement('span');name.textContent=npc.name+' — '+npc.role+' · صداقة '+npc.relation+'/10';
+  label.append(input,name);list.append(label);
+ });
+}
+function moveToGatheringPlace(location) {
+ if(location==='home'){
+  if(indoors) exitHome();
+  enterHome('تجمع عائلي في البيت',interiorRoot);
+  return 'البيت';
+ }
+ if(location==='cafe'){
+  if(indoors) exitHome();
+  enterHome('خروجة جماعية في كافيه Wonder',cafeInteriorRoot,{label:'☕ طلب من الكافيه',run:orderCafe});
+  return 'كافيه Wonder';
+ }
+ if(indoors) exitHome();
+ player.setPosition(-11,0,6.5);cameraX=-11;cameraZ=6.5+cameraOffsetZ;
+ camera.setPosition(cameraX,cameraHeight,cameraZ);camera.lookAt(-11,1,6.5);
+ return 'حديقة الأصدقاء';
+}
+function renderGatheringChoices() {
+ const wrap=document.getElementById('gathering-choices');wrap.replaceChildren();
+ const event=gatheringEvents[activeGathering.event];
+ for(const npc of activeGathering.participants){
+  const card=document.createElement('article');card.className='walk-friend-card gathering-person';
+  const title=document.createElement('strong');title.textContent='💬 '+npc.name+' — '+event.title;
+  const reaction=document.createElement('p');reaction.className='gathering-reaction';reaction.textContent=activeGathering.responded.has(npc.name)?'شاركتي مع '+npc.name+' بالفعل.':'اختاري رد فعلك في الموقف:';
+  const row=document.createElement('div');row.className='walk-gift-actions';
+  event.choices.forEach(choice=>{
+   const b=document.createElement('button');b.type='button';b.textContent=choice.label;b.disabled=activeGathering.responded.has(npc.name);
+   b.addEventListener('click',()=>{
+    if(!activeGathering||activeGathering.responded.has(npc.name))return;
+    activeGathering.responded.add(npc.name);
+    npc.relation=Math.min(10,npc.relation+1);
+    happiness=Math.min(100,happiness+3);energy=Math.max(0,energy-1);
+    awardXP(4);updateStats();saveProgress();
+    reaction.textContent=npc.name+': '+choice.reply+' 💖';
+    row.querySelectorAll('button').forEach(button=>button.disabled=true);
+    const completed=activeGathering.responded.size===activeGathering.participants.length;
+    document.getElementById('gathering-status').textContent=completed?'كل المشاركين تفاعلوا! السعادة زادت والصداقة اتحسنت. تقدري تحفظي الذكرى دلوقتي.':'تفاعل لطيف! اختاري ردًا لكل شخصية من المشاركين.';
+    document.getElementById('finish-gathering').hidden=!completed;
+    logAdventure('تجمع '+event.title+' في '+activeGathering.place+' مع '+npc.name);
+   });
+   row.append(b);
+  });
+  card.append(title,reaction,row);wrap.append(card);
+ }
+}
+document.getElementById('open-gathering').addEventListener('click',()=>{
+ renderGatheringInvites();
+ document.getElementById('gathering-active').hidden=true;
+ document.getElementById('gathering-status').textContent='';
+ document.getElementById('finish-gathering').hidden=true;
+ document.getElementById('gathering-panel').hidden=false;
+});
+document.getElementById('close-gathering').addEventListener('click',()=>{document.getElementById('gathering-panel').hidden=true;});
+document.getElementById('start-gathering').addEventListener('click',()=>{
+ const list=document.getElementById('gathering-invites');
+ const names=[...list.querySelectorAll('input[type="checkbox"]:checked')].map(input=>input.value).slice(0,3);
+ const status=document.getElementById('gathering-status');
+ if(!names.length){status.textContent='اختاري شخصية واحدة على الأقل عشان يبدأ التجمع.';document.getElementById('gathering-active').hidden=false;return;}
+ const event=document.getElementById('gathering-event').value;
+ const location=document.getElementById('gathering-location').value;
+ const place=moveToGatheringPlace(location);
+ activeGathering={participants:npcs.filter(npc=>names.includes(npc.name)),event,place,responded:new Set()};
+ document.getElementById('gathering-active').hidden=false;
+ document.getElementById('finish-gathering').hidden=true;
+ status.textContent='بدأ '+gatheringEvents[event].title+' في '+place+' 🎉 اختاري ردًا لكل مشارك.';
+ renderGatheringChoices();
+});
+document.getElementById('finish-gathering').addEventListener('click',()=>{
+ if(!activeGathering||activeGathering.responded.size!==activeGathering.participants.length)return;
+ happiness=Math.min(100,happiness+4);awardXP(5);updateStats();saveProgress();
+ say('📸 اتحفظت ذكرى '+gatheringEvents[activeGathering.event].title+' في '+activeGathering.place+'. تقدري تعملي تجمعًا جديدًا وقت ما تحبي.');
+ activeGathering=null;
+ document.getElementById('gathering-active').hidden=true;
+ document.getElementById('finish-gathering').hidden=true;
+});
+
 document.getElementById('close-walks').addEventListener('click',()=>{document.getElementById('social-walk-panel').hidden=true});
 document.getElementById('end-shared-walk').addEventListener('click',()=>endSharedWalk());
 document.getElementById('walk-picnic').addEventListener('click',()=>doSharedWalkActivity('picnic'));
