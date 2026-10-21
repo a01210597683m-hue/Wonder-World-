@@ -288,6 +288,31 @@ try {
   await page.locator('#ww-auth-overlay').waitFor({ state: 'hidden' });
   assert.equal(await page.evaluate(() => document.activeElement?.id), 'ww-auth-launch', 'closing the account dialog should restore keyboard focus');
 
+
+  // Exercise all twelve requested activity prototypes on the mobile viewport.
+  await page.locator('#ww-activities-launch').click();
+  await page.locator('#ww-activities').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#wwa-menu [data-game]').count(), 12, 'activity hub should expose all twelve requested activities');
+  for (const id of ['battle','football','ropes','fashion','plane','gym','train','stocks','cups','space','candy','party']) {
+    await page.locator('#wwa-menu [data-game="' + id + '"]').click();
+    await page.locator('#wwa-game').waitFor({ state: 'visible' });
+    assert.notEqual((await page.locator('#wwa-title').innerText()).trim(), '', id + ' should open with a title');
+    if (id === 'battle') await page.locator('[data-act="fire"]').click();
+    if (id === 'football') { await page.locator('[data-f="pass"]').click(); await page.locator('[data-f="shoot"]').click(); }
+    if (id === 'ropes') { await page.locator('#wwa-rope-nodes button').nth(0).click(); await page.locator('#wwa-rope-nodes button').nth(1).click(); }
+    if (id === 'fashion') { await page.locator('#wwa-looks button').first().click(); await page.locator('#wwa-runway-go').click(); }
+    if (id === 'plane') { await page.locator('#wwa-thrust-up').click(); await page.locator('#wwa-thrust-up').click(); await page.locator('#wwa-thrust-up').click(); await page.locator('#wwa-takeoff').click(); await page.locator('#wwa-level').click(); await page.locator('#wwa-level').click(); await page.locator('#wwa-land').click(); }
+    if (id === 'gym') await page.locator('#wwa-lift').click();
+    if (id === 'train') { await page.locator('#wwa-train-accelerate').click(); await page.locator('#wwa-train-accelerate').click(); await page.locator('#wwa-train-accelerate').click(); await page.locator('#wwa-train-brake').click(); await page.locator('#wwa-train-brake').click(); await page.locator('#wwa-train-open').click(); }
+    if (id === 'stocks') await page.locator('#wwa-stock-list article button').first().click();
+    if (id === 'cups') await page.locator('#wwa-cup-grid [data-cup="0"]').click();
+    if (id === 'space') await page.locator('[data-s="fire"]').click();
+    if (id === 'candy') { await page.locator('#wwa-candy-board button').nth(0).click(); await page.locator('#wwa-candy-board button').nth(1).click(); }
+    if (id === 'party') await page.locator('#wwa-party-answers button').first().click();
+    await page.locator('#wwa-back').click();
+  }
+  await page.locator('#wwa-home').click();
+
   assert.deepEqual(pageErrors, [], 'browser should not raise uncaught JavaScript exceptions');
   process.stdout.write('PASS — mobile browser smoke tests: 3D canvas, touch controls, Egypt/Paris/Tokyo travel, home customization persistence, bounded guide, careers, Ludo board and persistent record, chess move/undo/reset, football keyboard controls and full five-shot scoring/persistence, Block Blast scoring and persistence, solvable Water Sort, undo, move and reset behavior, memory board, signed-out cloud-wallet guidance, account email/password validation, password visibility, recovery validation, keyboard submission/focus restoration, and no uncaught page errors.\n');
 } finally {
