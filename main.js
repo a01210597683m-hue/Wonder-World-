@@ -303,6 +303,7 @@ ui.id = 'life-ui';
 ui.innerHTML = `
   <div class="life-stats"><span>💛 السعادة: <b id="happiness">60</b></span><span>⚡ الطاقة: <b id="energy">80</b></span><span>🪙 العملات: <b id="coins">20</b></span><span>🌷 الزهور: <b id="flowers">0</b></span><span>📸 الذكريات: <b id="photo-memories">0</b></span><span>⭐ المستوى: <b id="player-level">1</b></span></div>
   <div id="xp-panel" aria-label="تقدم الخبرة"><div class="xp-label"><span>خبرة اللاعب</span><span id="xp-count">0 / 100 XP</span></div><div id="xp-track" role="progressbar" aria-label="التقدم للمستوى التالي" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="xp-fill"></span></div></div>
+  <p id="game-cloud-status" role="status">💾 التقدم محفوظ على هذا الجهاز. سجّلي الدخول لتفعيل النسخة السحابية.</p>
   <div class="avatar-tools"><button id="change-outfit" type="button">👕 تغيير الملابس</button><button id="change-hair" type="button">💇 تغيير لون الشعر</button></div>
   <button id="open-shop" type="button">🛍️ افتحي متجر Wonder</button>
   <button id="open-pets" type="button">🐾 حيواناتي الأليفة</button>
@@ -758,7 +759,8 @@ function updateQuestUI() {
     coins += 15;
     happiness = Math.min(100, happiness + 10);
     updateStats();
-    say('برافو! خلّصتي كل مهام اليوم 🎉 مكافأة: 15 عملة و+10 سعادة.');
+    awardXP(10);
+    say('برافو! خلّصتي كل مهام اليوم 🎉 مكافأة: 15 عملة و+10 سعادة و+10 XP.');
   }
 }
 function completeQuest(key) {
@@ -776,15 +778,46 @@ const shopProducts = [
   { id: 'black-hair', name: 'شعر أسود', category: 'hair', price: 8, material: mats.hairBlack, emoji: '🖤' },
   { id: 'rose-hair', name: 'شعر وردي غامق', category: 'hair', price: 10, material: mats.hairRose, emoji: '🌸' }
 ];
+const GAME_SAVE_KEY = 'wonderworld-save-v1';
+let gameCloudUserId = null;
+let gameCloudReady = false;
+let gameCloudTimer = null;
+let gameCloudSyncToken = 0;
+function buildProgressSnapshot() {
+  return {
+    coins, happiness, energy, playerLevel, playerXP, gardenFlowers, lastFlowerDay,
+    photoMemories, lastPhotoDay, adventureLog: adventureLog.slice(-30), questDate,
+    dailyQuests: { ...dailyQuests }, ownedItems: [...ownedItems],
+    relationships: Object.fromEntries(npcs.map(npc => [npc.name, npc.relation])),
+    npcInteractionDates: { ...npcInteractionDates }, npcGiftDates: { ...npcGiftDates },
+    equippedItems: { ...equippedItems }, ownedPets: [...ownedPets], activePetId,
+    petCareState: { ...petCareState }, petSupplies: { ...petSupplies }, petNames: { ...petNames }
+  };
+}
+function stableJSON(value) {
+  if (Array.isArray(value)) return '[' + value.map(stableJSON).join(',') + ']';
+  if (value && typeof value === 'object') return '{' + Object.keys(value).sort().map(key => JSON.stringify(key) + ':' + stableJSON(value[key])).join(',') + '}';
+  return JSON.stringify(value);
+}
 const saveProgress = () => {
-  try {
-    localStorage.setItem('wonderworld-save-v1', JSON.stringify({
-      coins, happiness, energy, playerLevel, playerXP, gardenFlowers, lastFlowerDay, photoMemories, lastPhotoDay, adventureLog: adventureLog.slice(-30), questDate, dailyQuests: { ...dailyQuests }, ownedItems: [...ownedItems],
-      relationships: Object.fromEntries(npcs.map(npc => [npc.name, npc.relation])),
-      npcInteractionDates, npcGiftDates,
-      equippedItems, ownedPets:[...ownedPets], activePetId, petCareState, petSupplies, petNames
-    }));
-  } catch (_) {}
+  const snapshot = buildProgressSnapshot();
+  try { localStorage.setItem(GAME_SAVE_KEY, JSON.stringify(snapshot)); } catch (_) {}
+  if (!gameCloudReady || !gameCloudUserId || !window.wonderWorldSupabase) return;
+  if (gameCloudTimer) window.clearTimeout(gameCloudTimer);
+  gameCloudTimer = window.setTimeout(async () => {
+    const userId = gameCloudUserId;
+    const status = document.getElementById('game-cloud-status');
+    try {
+      const { error } = await window.wonderWorldSupabase.from('player_game_saves').upsert({
+        player_id: userId, save_data: buildProgressSnapshot(), updated_at: new Date().toISOString()
+      }, { onConflict: 'player_id' });
+      if (error) throw error;
+      if (gameCloudUserId === userId && status) status.textContent = '☁️ تقدم العالم والمهام والملابس والحيوانات محفوظ على حسابك.';
+    } catch (error) {
+      console.warn('WonderWorld game cloud save failed:', error);
+      if (gameCloudUserId === userId && status) status.textContent = '⚠️ التقدم محفوظ على الجهاز؛ تعذّرت المزامنة السحابية الآن.';
+    }
+  }, 650);
 };
 try {
   loadedProgress = JSON.parse(localStorage.getItem('wonderworld-save-v1') || 'null');
@@ -845,6 +878,68 @@ try {
   }
 } catch (_) { loadedProgress = null; }
 function clampPetValue(v,f){return Number.isFinite(v)?Math.max(0,Math.min(100,Math.round(v))):f}
+
+// Sync the complete browser-game progression to a private row belonging to the signed-in player.
+// A cloud import is applied before gameplay state is uploaded; client-side coins remain prototype-only.
+window.addEventListener('wonderworld:auth-state', async event => {
+  const userId = event.detail?.user?.id || null;
+  gameCloudUserId = userId;
+  gameCloudReady = false;
+  gameCloudSyncToken += 1;
+  const token = gameCloudSyncToken;
+  if (gameCloudTimer) window.clearTimeout(gameCloudTimer);
+  const status = document.getElementById('game-cloud-status');
+  if (!userId || !window.wonderWorldSupabase) {
+    if (status) status.textContent = '💾 التقدم محفوظ على هذا الجهاز. سجّلي الدخول لتفعيل النسخة السحابية.';
+    return;
+  }
+  if (status) status.textContent = '☁️ جاري فحص الحفظ السحابي…';
+  try {
+    const client = window.wonderWorldSupabase;
+    const { data, error } = await client.from('player_game_saves')
+      .select('save_data,updated_at').eq('player_id', userId).maybeSingle();
+    if (error) throw error;
+    if (token !== gameCloudSyncToken || gameCloudUserId !== userId) return;
+    if (!data?.save_data || typeof data.save_data !== 'object' || Array.isArray(data.save_data)) {
+      gameCloudReady = true;
+      if (status) status.textContent = '☁️ الحساب جاهز؛ جاري حفظ تقدم اللعبة عليه.';
+      saveProgress();
+      return;
+    }
+    let cloudSave = data.save_data;
+    if (cloudSave.questDate !== todayQuestKey) {
+      cloudSave = { ...cloudSave, questDate: todayQuestKey, dailyQuests: { friend:false, park:false, shop:false, flowers:false, rewarded:false } };
+    }
+    let localSave = null;
+    try { localSave = JSON.parse(localStorage.getItem(GAME_SAVE_KEY) || 'null'); } catch (_) {}
+    const differs = stableJSON(localSave) !== stableJSON(cloudSave);
+    const importMarker = 'wonderworld-cloud-import-' + userId;
+    let priorImport = '';
+    try { priorImport = localStorage.getItem(importMarker) || ''; } catch (_) {}
+    if (differs && priorImport !== stableJSON(data.save_data)) {
+      try {
+        localStorage.setItem(GAME_SAVE_KEY, JSON.stringify(cloudSave));
+        localStorage.setItem(importMarker, stableJSON(data.save_data));
+      } catch (_) {}
+      if (status) status.textContent = '☁️ تم العثور على تقدمك السحابي؛ جاري تحميله…';
+      window.location.reload();
+      return;
+    }
+    gameCloudReady = true;
+    if (stableJSON(cloudSave) !== stableJSON(data.save_data)) {
+      const { error: normalizeError } = await client.from('player_game_saves').upsert({
+        player_id: userId, save_data: cloudSave, updated_at: new Date().toISOString()
+      }, { onConflict: 'player_id' });
+      if (normalizeError) throw normalizeError;
+    }
+    if (status) status.textContent = '☁️ الحساب متصل؛ مزامنة تقدم العالم مفعّلة.';
+    if (differs) saveProgress();
+  } catch (error) {
+    console.warn('WonderWorld game cloud load failed:', error);
+    if (token === gameCloudSyncToken && status) status.textContent = '⚠️ تعذّرت المزامنة السحابية؛ الحفظ المحلي مستمر.';
+  }
+});
+
 function ensurePetCare(id){if(!petCareState[id])petCareState[id]={hunger:60,thirst:60,joy:50,cleanliness:70,bond:0};return petCareState[id]}
 function syncPetCompanion(){
  const pet=petCatalog.find(p=>p.id===activePetId&&ownedPets.includes(p.id));
