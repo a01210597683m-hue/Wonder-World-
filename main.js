@@ -1094,7 +1094,7 @@ function renderShop() {
       const name = document.createElement('strong');
       name.textContent = item.emoji + ' ' + item.name;
       const price = document.createElement('span');
-      const isOwned = ownedItems.has(item.id);
+      const isOwned = gameCloudUserId ? cloudOwnedItemIds.has(item.id) : ownedItems.has(item.id);
       const isEquipped = equippedItems[category.id] === item.id;
       price.textContent = isEquipped ? '✨ مرتداة الآن' : isOwned ? 'موجودة في مقتنياتك' : '🪙 ' + item.price;
       info.append(name, price);
@@ -1203,6 +1203,17 @@ document.getElementById('shop-products').addEventListener('click', event => {
   if (!button) return;
   const item = shopProducts.find(product => product.id === button.dataset.shopItem);
   if (!item) return;
+  if (gameCloudUserId) {
+    if (cloudOwnedItemIds.has(item.id)) {
+      ownedItems.add(item.id);
+      equipItem(item);
+      renderShop();
+      document.getElementById('shop-feedback').textContent = 'تم ارتداء ' + item.name + ' من مقتنيات حسابك السحابية ✨';
+    } else {
+      document.getElementById('shop-feedback').textContent = 'حسابك مسجّل: اشتري القطعة من قسم «محفظة الحساب الآمن» عشان يتسجل الشراء على الخادم.';
+    }
+    return;
+  }
   if (ownedItems.has(item.id)) {
     equipItem(item);
     renderShop();
