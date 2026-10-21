@@ -240,7 +240,7 @@
       draw();msg('جاوبي على الأسئلة المتنوعة واجمعي النقاط. لا يوجد دردشة بين اللاعبين.');
     }
     launch.addEventListener('click',()=>{panel.hidden=false;$('#wwa-home',panel).focus();});
-    $('#wwa-home',panel).addEventListener('click',()=>{panel.hidden=true;stopLoop();launch.focus();});
+    $('#wwa-home',panel).addEventListener('click',()=>{stopLoop();game.hidden=true;menu.hidden=false;active='';panel.hidden=true;launch.focus();});
     $('#wwa-back',panel).addEventListener('click',()=>{stopLoop();game.hidden=true;menu.hidden=false;active='';});
     $('#wwa-reset',panel).addEventListener('click',renderGame);
     menu.addEventListener('click',e=>{const b=e.target.closest('[data-game]');if(b)start(b.dataset.game);});
