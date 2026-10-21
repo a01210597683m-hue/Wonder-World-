@@ -822,3 +822,42 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 #avatar-creator-feedback{padding:10px;border-radius:12px;background:#fcecf5;color:#623251}
 #avatar-creator-panel button:focus-visible,#avatar-creator-panel select:focus-visible,#avatar-creator-panel input:focus-visible{outline:3px solid #d9a12d;outline-offset:2px}
 @media(max-width:480px){.avatar-creator-grid{grid-template-columns:1fr}.avatar-creator-grid label{padding:10px}}
+
+
+/* Clear, touch-friendly state for the home-design controls. */
+#home-build-panel .avatar-tools button[data-home-wall],
+#home-build-panel .avatar-tools button[data-home-roof] {
+  min-height: 42px;
+  border: 2px solid #d8c8e8;
+  transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+  touch-action: manipulation;
+}
+#home-build-panel .avatar-tools button[data-home-wall].is-selected,
+#home-build-panel .avatar-tools button[data-home-roof].is-selected {
+  border-color: #ffd66b;
+  background: #214f49;
+  box-shadow: 0 0 0 2px #214f4940, 0 4px 12px #10263c38;
+  outline: 2px solid #fff;
+  outline-offset: 1px;
+}
+#home-build-panel .avatar-tools button[data-home-wall]:focus-visible,
+#home-build-panel .avatar-tools button[data-home-roof]:focus-visible,
+#home-build-panel #reset-home-design:focus-visible {
+  outline: 3px solid #e5a900;
+  outline-offset: 3px;
+}
+#home-build-panel #reset-home-design {
+  display: block;
+  width: 100%;
+  min-height: 42px;
+  margin-top: 10px;
+  border: 1px solid #c9a96b;
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: #46331c;
+  background: #fff0ca;
+  font: inherit;
+  font-weight: 800;
+  touch-action: manipulation;
+}
+#home-build-panel #home-build-feedback { min-height: 1.5em; line-height: 1.5; }
