@@ -100,7 +100,7 @@ function validateCredentials(forSignup = false) {
   const password = byId('ww-password').value;
   if (!password) { message('اكتبي كلمة المرور.'); byId('ww-password').focus(); return false; }
   if (forSignup && password.length < 12) { message('لأمان حسابك، اختاري كلمة مرور من 12 حرفًا على الأقل.'); byId('ww-password').focus(); return false; }
-  if (forSignup && /^(.)\\1+$/.test(password)) { message('اختاري كلمة مرور متنوعة، مش نفس الحرف مكرر.'); byId('ww-password').focus(); return false; }
+  if (forSignup && password.split('').every((char) => char === password[0])) { message('اختاري كلمة مرور متنوعة، مش نفس الحرف مكرر.'); byId('ww-password').focus(); return false; }
   if (forSignup && /(?:0123456789|1234567890|0987654321|qwertyuiop)/i.test(password)) { message('اختاري كلمة مرور أقوى وفريدة لحساب WonderWorld.'); byId('ww-password').focus(); return false; }
   return true;
 }
