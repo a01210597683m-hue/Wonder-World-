@@ -62,6 +62,7 @@ const checks = [
 
   ['PlayCanvas scene entry is loaded', /main\.js\?v=/.test(html)],
   ['Fashion Week has a visible 3D runway destination connected to the visual outfit and judging activity', /Fashion runway stage/.test(game) && /منصة WonderWorld Fashion Week/.test(game) && /wwa-fashion-stage/.test(activities) && /wwa-fashion-clothes/.test(activities)],
+  ['Activity switching clears stale click handlers instead of stacking duplicate game actions', /content\.replaceWith\(next\)/.test(activities) && /content = next/.test(activities)],
   ['3D airport aircraft and railway train are visible and launch playable plane/train activities', /Wonder Air aircraft fuselage/.test(game) && /Wonder train locomotive body/.test(game) && /مطار Wonder Air/.test(game) && /محطة Wonder Central/.test(game) && /wonderworld:open-activity/.test(game) && /wonderworld:open-activity/.test(activities)],
   ['Cross-country destinations include Egypt, Paris and Tokyo with separate 3D landmark areas', /رحلة إلى مصر — الأهرامات/.test(game) && /رحلة إلى باريس — البرج/.test(game) && /رحلة إلى طوكيو — حديقة الساكورا/.test(game) && /Egypt stepped pyramid tier/.test(game) && /Paris tower left leg/.test(game) && /Tokyo torii lintel/.test(game) && /Math\.min\(42, p\.[xz]\)/.test(game)],
   ['Controllable car model is wired to player movement and touch controls', /const playerCar = new Entity/.test(game) && /toggleVehicleMode/.test(game) && /vehicleMode \? 2\.6/.test(game) && /playerCar\.setPosition\(p\.x, 0, p\.z\)/.test(game)],
