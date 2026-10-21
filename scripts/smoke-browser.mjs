@@ -174,7 +174,7 @@ try {
 
   await page.locator('#open-avatar-creator').click();
   await page.locator('#avatar-creator-panel').waitFor({ state: 'visible' });
-  await page.locator('#avatar-age').fill('65');
+  await page.locator('#avatar-age').evaluate(el => { el.value = '65'; el.dispatchEvent(new Event('input', { bubbles: true })); });
   await page.locator('#avatar-presentation').selectOption('masculine');
   await page.locator('#avatar-skin').selectOption('deep');
   await page.locator('#avatar-hair-style').selectOption('curly');
