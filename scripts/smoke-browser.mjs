@@ -87,6 +87,8 @@ try {
   await page.locator('#open-careers').click();
   await page.locator('#career-panel').waitFor({ state: 'visible' });
   assert.match(await page.locator('#career-title').innerText(), /الوظائف/);
+  await page.locator('#career-shift').click();
+  assert.match(await page.locator('#career-feedback').innerText(), /وردية/, 'career shift should respond in the local prototype');
   await page.locator('#career-panel .career-heading button').click();
   await page.locator('#career-panel').waitFor({ state: 'hidden' });
 
