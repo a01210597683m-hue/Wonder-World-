@@ -123,6 +123,9 @@ async function refreshPlayer(user) {
   }
 }
 let accountSwitching = false;
+try {
+  if (localStorage.getItem('wonderworld-account-switching') === '1') localStorage.removeItem('wonderworld-account-switching');
+} catch (_) {}
 async function syncSession(session) {
   if (accountSwitching) return;
   const signedInUserId = session?.user?.id || null;
@@ -135,6 +138,7 @@ async function syncSession(session) {
     try { previousOwner = localStorage.getItem(ownerKey); } catch (_) {}
     if (previousOwner && previousOwner !== signedInUserId) {
       accountSwitching = true;
+      try { localStorage.setItem('wonderworld-account-switching', '1'); } catch (_) {}
       try {
         for (let i = localStorage.length - 1; i >= 0; i--) {
           const key = localStorage.key(i);
