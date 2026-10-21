@@ -68,3 +68,7 @@ The game now includes a local Ludo-vs-CPU prototype and a two-side chess move-pr
 - The game syncs levels and XP, prototype coins, happiness/energy, daily quests, wardrobe ownership/equipment, NPC relationships, pet ownership/care/names/supplies, adventure history, and selected mini-game records/login streaks. Local storage remains the fallback when signed out or when the network is unavailable.
 - Completing all four daily objectives now also grants 10 XP, in addition to the existing coin and happiness reward.
 - Cloud saves are persistence, not anti-cheat protection: prototype currency and progress are still client-controlled. The cloud round-trip and cross-account isolation still need real signed-in browser testing.
+
+
+## Automated browser smoke tests
+GitHub Actions now installs a pinned Playwright version and runs Chromium with software WebGL before deployment. The smoke suite opens the mobile viewport and exercises the 3D canvas, touch controls, careers/business panel, a football shot, the 16-card memory board, and the account dialog. These checks catch basic runtime/UI regressions; they do not replace real-device Android testing, visual QA, secure purchase testing, or full production gameplay acceptance.

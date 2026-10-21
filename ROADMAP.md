@@ -473,3 +473,14 @@ This plan separates verified prototype functionality from production features. A
 - [ ] Add ads or in-app purchases only after provider setup; verify purchases server-side and keep them disabled until compliance checks pass.
 
 **Release rule:** the game is not considered finished until each required gate has implementation evidence and runtime test results. GitHub Actions success verifies the configured build/static checks and deployment steps; it does not prove every gameplay feature works or that cloud synchronization has passed live end-to-end tests.
+
+
+## 2026-10-21 — Browser runtime regression gate
+- [x] Added a Playwright Chromium smoke test using software WebGL in GitHub Actions.
+- [x] Verify the page mounts the PlayCanvas canvas and mobile touch controls.
+- [x] Exercise the careers/business dialog, a football shot, memory-match board rendering, and account dialog open/close.
+- [x] Fail the build on uncaught browser JavaScript exceptions during the smoke flow.
+- [ ] Confirm the new browser job passes in GitHub Actions after this commit.
+- [ ] Perform real Android-device checks for touch responsiveness, frame rate, cloud-save round trips, and account switching.
+
+This adds a basic runtime regression gate; it does not mark the full product vision complete. Production character models, full football/action modes, transport and country travel, building/swimming, social visits and parties, AI chat safeguards, secure server-authoritative economy, monetization, and store release work remain distinct acceptance items in the master vision.

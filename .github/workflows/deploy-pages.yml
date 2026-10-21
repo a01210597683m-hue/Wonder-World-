@@ -32,6 +32,12 @@ jobs:
         run: node scripts/check-game.mjs
       - name: Run asset and integration checks
         run: node scripts/check-assets.mjs
+      - name: Install browser smoke-test dependencies
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Install Chromium for browser smoke tests
+        run: npx playwright install --with-deps chromium
+      - name: Run browser gameplay smoke tests
+        run: node scripts/smoke-browser.mjs
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
         with:
