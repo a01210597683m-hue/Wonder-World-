@@ -16,6 +16,11 @@ const careerCss = read('../career.css');
 const checks = [
   ['Career persistence function exists', /function save\s*\(/.test(careers)],
   ['Auth exposes the configured client to game modules', /window\.wonderWorldSupabase = supabase/.test(read('../auth.js'))],
+  ['Password recovery uses Supabase reset flow and returns to the current game URL', /resetPasswordForEmail\(email\.value, \{ redirectTo: window\.location\.href\.split\('\#'\)\[0\] \}\)/.test(read('../auth.js'))],
+  ['Account forms validate email format and minimum signup password length', /email\.checkValidity\(\)/.test(read('../auth.js')) && /forSignup && password\.length < 8/.test(read('../auth.js'))],
+  ['Password visibility control updates accessible pressed state', /ww-password-toggle/.test(read('../auth.js')) && /setAttribute\('aria-pressed', String\(!showing\)\)/.test(read('../auth.js'))],
+  ['Account dialog supports keyboard focus trapping and restores launcher focus', /event\.key !== 'Tab'/.test(read('../auth.js')) && /launch\.focus\(\)/.test(read('../auth.js'))],
+  ['Stale profile requests cannot overwrite a newer account state', /playerRefreshToken/.test(read('../auth.js')) && /refreshToken !== playerRefreshToken/.test(read('../auth.js'))],
   ['Account switching isolates local progression before cloud sync', /wonderworld-local-owner/.test(read('../auth.js')) && /wonderworld-account-switching/.test(read('../auth.js')) && /wonderworld-account-switching/.test(careers)],
   ['Career state supports private Supabase cloud saves', /player_career_saves/.test(careers) && /wonderworld:auth-state/.test(careers)],
   ['Full game progression has private cloud-save sync', /player_game_saves/.test(game) && /buildProgressSnapshot/.test(game) && /deviceRecords/.test(game)],
