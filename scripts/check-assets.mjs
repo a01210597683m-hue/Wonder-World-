@@ -31,7 +31,7 @@ check('Reference panel targets the configured Supabase Storage bucket',
 check('Water Sort is wired into the board-games module',
   /bg-open-water-sort/.test(boardGames) && /function initWaterSort/.test(boardGames) && /water-sort-undo/.test(boardGames));
 check('Board-games module cache version is refreshed after feature addition',
-  /board-games\\.js\\?v=20261021-4/.test(main));
+  main.includes('board-games.js?v=20261021-4'));
 check('Core game and account modules are wired into the HTML',
   /main\.js\?v=/.test(html) && /auth\.js\?v=/.test(html) && /careers\.js\?v=/.test(html));
 check('Core game files exist and are non-empty',
