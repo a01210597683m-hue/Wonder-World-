@@ -47,3 +47,13 @@ Keep the prototype status visible until all credentialed and device-specific che
 - Chess practice now supports undoing the most recent move, including restoring the prior board, turn, promotion/capture state, and finished-state snapshot; starting a new board clears undo history.
 - Added static regression checks and mobile-browser smoke coverage for the Ludo panel and chess move/undo/reset flow.
 - The chess activity remains a move-practice prototype and does not implement complete tournament rules such as check/checkmate, castling, or en passant.
+
+## Water Sort integration batch — 2026-10-21
+
+- Added a Water Sort mode to the existing board-games panel on the feature branch, with six tubes, randomized color distribution, valid pour rules, move count, undo, restart, and win detection.
+- Refreshed the board-games module and page cache-busting versions, and corrected the static regression check to assert the exact module URL.
+- [ ] Run the repository's automated checks and inspect their results; no successful workflow run is confirmed for this branch yet.
+- [ ] Play through valid/invalid pours, undo, restart, and win completion in a real browser and on a physical Android device.
+- [ ] Merge and verify the deployed GitHub Pages build only after checks pass.
+
+**Scope note:** this is a small playable puzzle slice, not completion of the full puzzle catalogue or of the broader WonderWorld requirements. This branch is not yet merged or deployed.
