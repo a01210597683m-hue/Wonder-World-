@@ -29,6 +29,7 @@ const checks = [
   ['Mobile touch controls exist', /data-dir="up"/.test(html) && /data-dir="left"/.test(html)],
   ['World interaction control exists', /id="interact"/.test(game)],
   ['Neighborhood destinations exist', /const places = \[/.test(game)],
+  ['Purchased player-owned shop is reachable and opens business management', /if \(playerBusiness\.enabled\)/.test(game) && /مشروعي الخاص — إدارة المحل/.test(game) && /careerButton\.click\(\)/.test(game)],
   ['Social walk requires explicit consent', /موافقة/.test(game) && /accept\.addEventListener/.test(game)],
   ['Pet care system exists', /function careForActivePet/.test(game)],
   ['Career progression has a daily contract', /dailyOrderCount/.test(careers) && /contractClaimedDate/.test(careers)],
