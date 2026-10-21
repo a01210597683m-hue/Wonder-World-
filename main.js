@@ -93,34 +93,44 @@ box('South sidewalk', 7, 0.08, 42, 6.2, 0.03, 0, mats.path);
 box('West sidewalk', 42, 0.08, 7, 0, 0.03, -6.2, mats.path);
 box('East sidewalk', 42, 0.08, 7, 0, 0.03, 6.2, mats.path);
 
+// Fixed neighborhood structures are world content, never per-account save data.
+const staticHouseStructures = [];
+const staticPoolStructures = [];
 // Houses with doors, windows, roofs and little gardens.
 function house(name, x, z, wallMaterial, width = 5) {
   const walls = box(name + ' walls', width, 3.1, 4.2, x, 1.55, z, wallMaterial);
   const roof = box(name + ' roof', width + 0.55, 0.38, 4.7, x, 3.28, z, mats.roof);
-  box(name + ' door', 0.95, 1.9, 0.16, x, 0.98, z - 2.17, mats.door);
-  box(name + ' window left', 0.95, 0.85, 0.13, x - width * 0.29, 1.95, z - 2.18, mats.window);
-  box(name + ' window right', 0.95, 0.85, 0.13, x + width * 0.29, 1.95, z - 2.18, mats.window);
-  box(name + ' step', 1.5, 0.18, 0.65, x, 0.1, z - 2.45, mats.path);
+  const door = box(name + ' door', 0.95, 1.9, 0.16, x, 0.98, z - 2.17, mats.door);
+  const windowLeft = box(name + ' window left', 0.95, 0.85, 0.13, x - width * 0.29, 1.95, z - 2.18, mats.window);
+  const windowRight = box(name + ' window right', 0.95, 0.85, 0.13, x + width * 0.29, 1.95, z - 2.18, mats.window);
+  const step = box(name + ' step', 1.5, 0.18, 0.65, x, 0.1, z - 2.45, mats.path);
+  staticHouseStructures.push(walls, roof, door, windowLeft, windowRight, step);
   const bushes = [];
   for (let i = 0; i < 3; i++) {
     bushes.push(sphere(name + ' garden bush ' + i, 0.65, x - width / 2 + i * 0.65, 0.42, z - 2.9, mats.leaf));
   }
   return { walls, roof, bushes };
 }
+function ensureStaticWorldVisible() {
+  for (const structure of [...staticHouseStructures, ...staticPoolStructures]) {
+    if (structure && structure.enabled !== true) structure.enabled = true;
+    if (structure?.render) structure.render.enabled = true;
+  }
+}
 const playerHomeBuild = house('Home', -10, -10, mats.wall, 5);
 house('Family home', 10, -10, mats.wallPink, 5);
 
 // A first backyard/pool activity slice: a visible pool beside the player's home.
-box('Home pool deck', 6.4, 0.18, 5.2, -16.1, 0.08, -10.0, mats.path);
-box('Home pool basin', 5.0, 0.22, 3.8, -16.1, 0.15, -10.0, mats.road);
-box('Home pool water', 4.55, 0.06, 3.35, -16.1, 0.29, -10.0, mats.window);
-box('Pool edge front', 5.35, 0.22, 0.22, -16.1, 0.29, -11.95, mats.white);
-box('Pool edge back', 5.35, 0.22, 0.22, -16.1, 0.29, -8.05, mats.white);
-box('Pool edge left', 0.22, 0.22, 3.8, -18.65, 0.29, -10.0, mats.white);
-box('Pool edge right', 0.22, 0.22, 3.8, -13.55, 0.29, -10.0, mats.white);
-box('Pool ladder rail left', 0.08, 0.95, 0.08, -15.55, 0.55, -8.25, mats.tvFrame);
-box('Pool ladder rail right', 0.08, 0.95, 0.08, -14.85, 0.55, -8.25, mats.tvFrame);
-box('Pool ladder step', 0.78, 0.08, 0.08, -15.2, 0.35, -8.25, mats.white);
+staticPoolStructures.push(box('Home pool deck', 6.4, 0.18, 5.2, -16.1, 0.08, -10.0, mats.path));
+staticPoolStructures.push(box('Home pool basin', 5.0, 0.22, 3.8, -16.1, 0.15, -10.0, mats.road));
+staticPoolStructures.push(box('Home pool water', 4.55, 0.06, 3.35, -16.1, 0.29, -10.0, mats.window));
+staticPoolStructures.push(box('Pool edge front', 5.35, 0.22, 0.22, -16.1, 0.29, -11.95, mats.white));
+staticPoolStructures.push(box('Pool edge back', 5.35, 0.22, 0.22, -16.1, 0.29, -8.05, mats.white));
+staticPoolStructures.push(box('Pool edge left', 0.22, 0.22, 3.8, -18.65, 0.29, -10.0, mats.white));
+staticPoolStructures.push(box('Pool edge right', 0.22, 0.22, 3.8, -13.55, 0.29, -10.0, mats.white));
+staticPoolStructures.push(box('Pool ladder rail left', 0.08, 0.95, 0.08, -15.55, 0.55, -8.25, mats.tvFrame));
+staticPoolStructures.push(box('Pool ladder rail right', 0.08, 0.95, 0.08, -14.85, 0.55, -8.25, mats.tvFrame));
+staticPoolStructures.push(box('Pool ladder step', 0.78, 0.08, 0.08, -15.2, 0.35, -8.25, mats.white));
 
 // Shop, sign and colorful awning.
 box('Wonder Shop building', 6, 3.5, 4.5, 10, 1.75, 10, mats.white);
@@ -1004,6 +1014,7 @@ const shopProducts = [
   { id: 'rose-hair', name: 'شعر وردي غامق', category: 'hair', price: 10, material: mats.hairRose, emoji: '🌸' }
 ];
 const GAME_SAVE_KEY = 'wonderworld-save-v1';
+const ACTIVE_CLOUD_USER_KEY = 'wonderworld-active-cloud-user-v1';
 let gameCloudUserId = null;
 let gameCloudReady = false;
 let gameCloudTimer = null;
@@ -1119,6 +1130,7 @@ function clampPetValue(v,f){return Number.isFinite(v)?Math.max(0,Math.min(100,Ma
 // Sync the complete browser-game progression to a private row belonging to the signed-in player.
 // A cloud import is applied before gameplay state is uploaded; client-side coins remain prototype-only.
 window.addEventListener('wonderworld:auth-state', async event => {
+  ensureStaticWorldVisible();
   const userId = event.detail?.user?.id || null;
   gameCloudUserId = userId;
   gameCloudReady = false;
@@ -1138,6 +1150,18 @@ window.addEventListener('wonderworld:auth-state', async event => {
     if (error) throw error;
     if (token !== gameCloudSyncToken || gameCloudUserId !== userId) return;
     if (!data?.save_data || typeof data.save_data !== 'object' || Array.isArray(data.save_data)) {
+      let priorCloudUser = '';
+      try { priorCloudUser = localStorage.getItem(ACTIVE_CLOUD_USER_KEY) || ''; } catch (_) {}
+      if (priorCloudUser && priorCloudUser !== userId) {
+        try {
+          localStorage.removeItem(GAME_SAVE_KEY);
+          for (const key of GAME_RECORD_KEYS) localStorage.removeItem(key);
+          localStorage.setItem(ACTIVE_CLOUD_USER_KEY, userId);
+        } catch (_) {}
+        window.location.reload();
+        return;
+      }
+      try { localStorage.setItem(ACTIVE_CLOUD_USER_KEY, userId); } catch (_) {}
       gameCloudReady = true;
       if (status) status.textContent = '☁️ الحساب جاهز؛ جاري حفظ تقدم اللعبة عليه.';
       saveProgress();
@@ -1150,10 +1174,7 @@ window.addEventListener('wonderworld:auth-state', async event => {
     let localSave = null;
     try { localSave = JSON.parse(localStorage.getItem(GAME_SAVE_KEY) || 'null'); } catch (_) {}
     const differs = stableJSON(localSave) !== stableJSON(cloudSave);
-    const importMarker = 'wonderworld-cloud-import-' + userId;
-    let priorImport = '';
-    try { priorImport = localStorage.getItem(importMarker) || ''; } catch (_) {}
-    if (differs && priorImport !== stableJSON(data.save_data)) {
+    if (differs) {
       try {
         localStorage.setItem(GAME_SAVE_KEY, JSON.stringify(cloudSave));
         if (cloudSave.deviceRecords && typeof cloudSave.deviceRecords === 'object') {
@@ -1162,12 +1183,13 @@ window.addEventListener('wonderworld:auth-state', async event => {
             else localStorage.removeItem(key);
           }
         }
-        localStorage.setItem(importMarker, stableJSON(data.save_data));
+        localStorage.setItem(ACTIVE_CLOUD_USER_KEY, userId);
       } catch (_) {}
       if (status) status.textContent = '☁️ تم العثور على تقدمك السحابي؛ جاري تحميله…';
       window.location.reload();
       return;
     }
+    try { localStorage.setItem(ACTIVE_CLOUD_USER_KEY, userId); } catch (_) {}
     gameCloudReady = true;
     if (stableJSON(cloudSave) !== stableJSON(data.save_data)) {
       const { error: normalizeError } = await client.from('player_game_saves').upsert({
