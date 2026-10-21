@@ -419,7 +419,7 @@ ui.innerHTML = `
     <div class="shop-heading"><strong>🏅 إنجازاتي وتقدمي</strong><button id="close-achievements" type="button" aria-label="إغلاق الإنجازات">✕</button></div>
     <p id="achievement-summary" role="status"></p><div id="achievement-list"></div>
   </section>
-  <section id="home-build-panel" hidden aria-label="تخصيص البيت">
+  <section id="home-build-panel" class="wonder-overlay" hidden aria-label="تخصيص البيت">
     <div class="shop-heading"><strong>🏡 ورشة تصميم البيت</strong><button id="close-home-build" type="button" aria-label="إغلاق">✕</button></div>
     <p class="shop-intro">غيّري ألوان واجهة بيتك والسقف، واظهري أو اخفي الشجيرات. التصميم يُحفظ على هذا الجهاز في النسخة التجريبية.</p>
     <h4>لون الواجهة</h4><div class="avatar-tools"><button type="button" data-home-wall="cream">🤍 كريمي</button><button type="button" data-home-wall="pink">🌸 وردي</button><button type="button" data-home-wall="mint">🌿 نعناعي</button></div>
