@@ -108,6 +108,9 @@ function validateCredentials(forSignup = false) {
 let recoveryMode = false;
 function setRecoveryMode(active, email = '') {
   recoveryMode = active;
+  byId('ww-auth-form').hidden = false;
+  byId('ww-auth-summary').hidden = true;
+  byId('ww-signout').hidden = true;
   byId('ww-auth-title').textContent = active ? 'تعيين كلمة مرور جديدة' : 'حساب WonderWorld';
   byId('ww-auth-intro').textContent = active
     ? 'اكتبي كلمة مرور جديدة من 12 حرفًا على الأقل لحماية حسابك.'
