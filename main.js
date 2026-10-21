@@ -597,7 +597,7 @@ footballPanel.id = 'football-panel';
 footballPanel.className = 'wonder-overlay';
 footballPanel.hidden = true;
 footballPanel.setAttribute('aria-label', 'تحدي كرة القدم');
-footballPanel.innerHTML = '<div class="shop-heading"><strong>⚽ تحدّي كرة القدم</strong><button id="close-football" type="button" aria-label="إغلاق كرة القدم">✕</button></div><p class="shop-intro">حرّكي اللاعبة ناحية الكرة، قرّبي منها، ثم سدّدي نحو المرمى. دي مرحلة لعب أولية قابلة للتحكم؛ مباريات الفرق الكاملة ولسه حركات التمرير والتدخل والحارس المتقدم ضمن التطوير.</p><div class="football-scorebar"><span>الأهداف: <b id="football-score">0</b></span><span>التسديدات: <b id="football-shots">0 / 5</b></span><span>أفضل نتيجة: <b id="football-best">0</b></span></div><div id="football-pitch" role="application" aria-label="ملعب كرة قدم"><div class="football-goal"><span id="football-target" aria-hidden="true"></span></div><div class="football-midline"></div><div class="football-circle"></div><div id="football-keeper" class="football-player keeper" aria-label="حارسة المرمى">🧤</div><div id="football-avatar" class="football-player avatar" aria-label="لاعبة">👟</div><div id="football-ball" aria-label="الكرة">⚽</div></div><div class="football-controls"><div class="football-pad"><button data-foot-dir="up" aria-label="تحركي للأعلى">▲</button><button data-foot-dir="left" aria-label="تحركي لليسار">◀</button><button data-foot-dir="down" aria-label="تحركي للأسفل">▼</button><button data-foot-dir="right" aria-label="تحركي لليمين">▶</button></div><div class="football-aim-controls" role="group" aria-label="اختيار اتجاه التسديد"><button type="button" data-foot-aim="24" aria-pressed="false">↖️ يسار</button><button type="button" data-foot-aim="50" aria-pressed="true">⬆️ وسط</button><button type="button" data-foot-aim="76" aria-pressed="false">↗️ يمين</button></div><button id="football-shoot">🥅 تسديد!</button></div><p id="football-feedback" role="status">ابدئي بتحريك اللاعبة نحو الكرة.</p><button id="football-restart" type="button">🔄 مباراة تدريبية جديدة</button>';
+footballPanel.innerHTML = '<div class="shop-heading"><strong>⚽ تحدّي كرة القدم</strong><button id="close-football" type="button" aria-label="إغلاق كرة القدم">✕</button></div><p class="shop-intro">حرّكي اللاعبة ناحية الكرة، قرّبي منها، ثم سدّدي نحو المرمى. دي مرحلة لعب أولية قابلة للتحكم؛ مباريات الفرق الكاملة ولسه حركات التمرير والتدخل والحارس المتقدم ضمن التطوير.</p><div class="football-scorebar"><span>الأهداف: <b id="football-score">0</b></span><span>التسديدات: <b id="football-shots">0 / 5</b></span><span>أفضل نتيجة: <b id="football-best">0</b></span></div><div id="football-pitch" role="application" aria-label="ملعب كرة قدم"><div class="football-goal"><span id="football-target" aria-hidden="true"></span></div><div class="football-midline"></div><div class="football-circle"></div><div id="football-keeper" class="football-player keeper" aria-label="حارسة المرمى">🧤</div><div id="football-avatar" class="football-player avatar" aria-label="لاعبة">👟</div><div id="football-ball" aria-label="الكرة">⚽</div></div><div class="football-controls"><div class="football-pad"><button data-foot-dir="up" aria-label="تحركي للأعلى">▲</button><button data-foot-dir="left" aria-label="تحركي لليسار">◀</button><button data-foot-dir="down" aria-label="تحركي للأسفل">▼</button><button data-foot-dir="right" aria-label="تحركي لليمين">▶</button></div><div class="football-aim-controls" role="group" aria-label="اختيار اتجاه التسديد"><button type="button" data-foot-aim="40" aria-pressed="false">↖️ يسار</button><button type="button" data-foot-aim="50" aria-pressed="true">⬆️ وسط</button><button type="button" data-foot-aim="60" aria-pressed="false">↗️ يمين</button></div><button id="football-shoot">🥅 تسديد!</button></div><p id="football-feedback" role="status">ابدئي بتحريك اللاعبة نحو الكرة.</p><button id="football-restart" type="button">🔄 مباراة تدريبية جديدة</button>';
 document.getElementById('game').appendChild(footballPanel);
 
 
@@ -639,7 +639,7 @@ function renderFootball() {
   document.getElementById('football-ball').style.left = football.ballX + '%';
   document.getElementById('football-ball').style.top = football.ballY + '%';
   document.getElementById('football-keeper').style.left = football.keeperX + '%';
-  document.getElementById('football-target').style.left = football.aimX + '%';
+  document.getElementById('football-target').style.left = Math.max(0, Math.min(100, ((football.aimX - 35) / 30) * 100)) + '%';
   document.querySelectorAll('[data-foot-aim]').forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.footAim) === football.aimX)));
   document.getElementById('football-score').textContent = football.score;
   document.getElementById('football-shots').textContent = football.shots + ' / 5';
@@ -674,9 +674,9 @@ function shootFootball() {
   // Aim is player-controlled. The keeper follows a predictable training pattern,
   // so goals depend on reading the keeper and choosing a different lane, not luck.
   const lane = football.aimX;
-  const keeperPattern = [50, 24, 76, 50, 76];
+  const keeperPattern = [50, 40, 60, 50, 60];
   football.keeperX = keeperPattern[football.shots - 1];
-  const scored = Math.abs(lane - football.keeperX) >= 20;
+  const scored = Math.abs(lane - football.keeperX) >= 9;
   if (scored) {
     football.score += 1;
     happiness = Math.min(100, happiness + 2);
@@ -706,7 +706,7 @@ document.querySelectorAll('[data-foot-aim]').forEach(button => button.addEventLi
   if (football.shots >= 5) return;
   football.aimX = Number(button.dataset.footAim);
   renderFootball();
-  document.getElementById('football-feedback').textContent = 'اتجاه التسديد اتحدد: ' + (football.aimX < 40 ? 'الزاوية اليسرى' : football.aimX > 60 ? 'الزاوية اليمنى' : 'منتصف المرمى') + '. راقبي الحارسة ثم سدّدي!';
+  document.getElementById('football-feedback').textContent = 'اتجاه التسديد اتحدد: ' + (football.aimX < 45 ? 'الزاوية اليسرى' : football.aimX > 55 ? 'الزاوية اليمنى' : 'منتصف المرمى') + '. راقبي الحارسة ثم سدّدي!';
 }));
 document.getElementById('football-shoot').addEventListener('click', shootFootball);
 
