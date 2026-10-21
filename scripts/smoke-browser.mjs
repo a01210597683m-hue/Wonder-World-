@@ -125,7 +125,7 @@ try {
   assert.equal(await page.locator('#football-best').innerText(), '5', 'resetting a round should preserve the best score');
   await page.keyboard.press('ArrowRight');
   assert.equal(await page.locator('[data-foot-aim="60"]').getAttribute('aria-pressed'), 'true', 'keyboard arrows should change the football aim lane');
-  await page.keyboard.press('KeyR');
+  await page.keyboard.press('r');
   assert.equal(await page.locator('#football-shots').innerText(), '0 / 5', 'R should restart the football training round');
   await page.locator('#close-football').click();
   await page.locator('#football-panel').waitFor({ state: 'hidden' });
