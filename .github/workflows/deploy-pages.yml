@@ -3,6 +3,8 @@ name: Deploy WonderWorld to GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -26,6 +28,7 @@ jobs:
           node --input-type=module --check < auth.js
           node --check careers.js
           node --check board-games.js
+          node --check mini-games.js
           node --check scripts/check-game.mjs
           node --check scripts/check-assets.mjs
       - name: Run gameplay regression checks
@@ -47,6 +50,7 @@ jobs:
         with:
           path: .
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
