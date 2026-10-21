@@ -808,3 +808,17 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 .gathering-reaction{padding:8px;border-radius:10px;background:#fff0f7;color:#6d315a}
 #gathering-panel button{pointer-events:auto}
 @media(max-width:520px){.gathering-controls,#gathering-invites{grid-template-columns:1fr}.gathering-controls label{font-size:14px}}
+
+/* Character creator: age, presentation, skin tone and hairstyle, touch-friendly. */
+#avatar-creator-panel{position:fixed;z-index:78;inset:12px 12px 84px;max-width:620px;margin:auto;overflow:auto;padding:16px;border:1px solid #ead4e6;border-radius:20px;background:linear-gradient(145deg,#fffafc,#f2f7ff);color:#35243d;box-shadow:0 18px 52px #160d2a45;pointer-events:auto}
+#avatar-creator-panel[hidden]{display:none!important}
+#avatar-creator-panel p{line-height:1.65}
+.avatar-creator-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.avatar-creator-grid label{display:grid;align-content:start;gap:8px;padding:12px;border:1px solid #e6d9e8;border-radius:14px;background:#fff;font-weight:800}
+.avatar-creator-grid select,.avatar-creator-grid input{width:100%;min-width:0;min-height:44px;font:inherit}
+.avatar-creator-grid select{padding:9px;border:1px solid #d8c8df;border-radius:10px;background:#fff;color:#35243d}
+#avatar-age{accent-color:#b83280}
+#save-avatar-profile{width:100%;min-height:46px;border:0;border-radius:12px;background:#763f8c;color:#fff;font:inherit;font-weight:900}
+#avatar-creator-feedback{padding:10px;border-radius:12px;background:#fcecf5;color:#623251}
+#avatar-creator-panel button:focus-visible,#avatar-creator-panel select:focus-visible,#avatar-creator-panel input:focus-visible{outline:3px solid #d9a12d;outline-offset:2px}
+@media(max-width:480px){.avatar-creator-grid{grid-template-columns:1fr}.avatar-creator-grid label{padding:10px}}
