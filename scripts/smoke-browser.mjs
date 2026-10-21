@@ -76,6 +76,13 @@ try {
   assert.match(await page.evaluate(() => localStorage.getItem('wonderworld-home-design-v1')), /"wall":"mint"/, 'home design should persist locally');
   await page.locator('#close-home-build').click();
   await page.locator('#home-build-panel').waitFor({ state: 'hidden' });
+  await page.locator('#open-wonder-guide').click();
+  await page.locator('#wonder-guide-panel').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('.wonder-guide-choice').count(), 5, 'Wonder guide should expose only bounded preset questions');
+  await page.locator('.wonder-guide-choice').filter({ hasText: 'إزاي أبدأ اللعب؟' }).click();
+  assert.match(await page.locator('#wonder-guide-answer').innerText(), /أزرار الحركة/);
+  await page.locator('#close-wonder-guide').click();
+  await page.locator('#wonder-guide-panel').waitFor({ state: 'hidden' });
 
   await page.locator('#open-careers').click();
   await page.locator('#career-panel').waitFor({ state: 'visible' });
