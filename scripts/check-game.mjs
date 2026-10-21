@@ -44,7 +44,7 @@ const checks = [
   ['Casual arcade module is loaded by the page', /mini-games\.js\?v=/.test(html) && /function boot\(\)/.test(miniGames)],
   ['All twelve requested activity prototypes are available in the activity hub', /wonderworld-activities\.js\?v=/.test(html) && ['battle','football','ropes','fashion','plane','gym','train','stocks','cups','space','candy','party'].every(id => activities.includes("'" + id + "'"))],
   ['Battle prototype includes health, ammunition, aim and training targets', /hp:100,ammo:12/.test(activities) && /state\.aimX/.test(activities) && /targets:/.test(activities)],
-  ['Football prototype includes movement, passing, shooting, keeper and scoring', /function renderFootball/.test(activities) && /function pass\(\)/.test(activities) && /function shoot\(\)/.test(activities) && /keeperX/.test(activities)],
+  ['Football prototype includes movement, passing, shooting, keeper and scoring', /function renderFootball/.test(activities) && /const pass=\(\)/.test(activities) && /const shoot=\(\)/.test(activities) && /keeperX/.test(activities)],
   ['Rope puzzle supports node swaps and tracks puzzle progress', /function renderRopes/.test(activities) && /wwa-rope-nodes/.test(activities) && /wwa-crossings/.test(activities)],
   ['Fashion show has themed outfits and a judging score', /function renderFashion/.test(activities) && /تقييم لجنة التحكيم/.test(activities)],
   ['Plane and train activities require safe sequence of controls', /function renderPlane/.test(activities) && /زودي قوة المحرك/.test(activities) && /function renderTrain/.test(activities) && /أوقفي القطار تمامًا/.test(activities)],
