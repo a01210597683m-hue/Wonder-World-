@@ -115,6 +115,23 @@ try {
   await page.locator('#exit-home').click();
   await page.locator('#exit-home').waitFor({ state: 'hidden' });
 
+  // The visible aircraft and train station should launch their playable activities.
+  await page.locator('#open-map').click();
+  await page.locator('.map-destination').filter({ hasText: 'مطار Wonder Air' }).click();
+  await page.locator('#interact').click();
+  await page.locator('#ww-activities').waitFor({ state: 'visible' });
+  assert.match(await page.locator('#wwa-title').innerText(), /الطيران/);
+  await page.locator('#wwa-home').click();
+  await page.locator('#ww-activities').waitFor({ state: 'hidden' });
+
+  await page.locator('#open-map').click();
+  await page.locator('.map-destination').filter({ hasText: 'محطة Wonder Central' }).click();
+  await page.locator('#interact').click();
+  await page.locator('#ww-activities').waitFor({ state: 'visible' });
+  assert.match(await page.locator('#wwa-title').innerText(), /القطارات/);
+  await page.locator('#wwa-home').click();
+  await page.locator('#ww-activities').waitFor({ state: 'hidden' });
+
   await page.locator('#open-wonder-guide').click();
   await page.locator('#wonder-guide-panel').waitFor({ state: 'visible' });
   assert.equal(await page.locator('.wonder-guide-choice').count(), 5, 'Wonder guide should expose only bounded preset questions');
