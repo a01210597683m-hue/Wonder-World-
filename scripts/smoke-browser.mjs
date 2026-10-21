@@ -135,6 +135,21 @@ try {
   await page.locator('#bg-close').click();
   await page.locator('#board-games-panel').waitFor({ state: 'hidden' });
 
+  await page.locator('#ww-arcade-launch').click();
+  await page.locator('#ww-arcade-panel').waitFor({ state: 'visible' });
+  await page.locator('#wwa-memory-open').click();
+  assert.equal(await page.locator('#ww-memory-grid .ww-memory-card').count(), 12, 'memory pairs should render six matching pairs');
+  await page.locator('#wwa-memory-reset').click();
+  assert.equal(await page.locator('#ww-memory-grid .ww-memory-card').count(), 12, 'memory game restart should keep a full shuffled board');
+  await page.locator('#wwa-cups-open').click();
+  await page.locator('#ww-cups .ww-cup').first().click();
+  assert.match(await page.locator('#wwa-cups-status').innerText(), /النجمة/, 'cup guessing should reveal a result and identify the hidden star');
+  assert.equal(await page.locator('#ww-cups .ww-cup:disabled').count(), 3, 'cup round should prevent repeated guesses after revealing the result');
+  await page.locator('#wwa-cups-reset').click();
+  assert.equal(await page.locator('#ww-cups .ww-cup:disabled').count(), 0, 'cup restart should enable all three cups again');
+  await page.locator('#ww-arcade-panel').getByRole('button', { name: 'إغلاق' }).click();
+  await page.locator('#ww-arcade-panel').waitFor({ state: 'hidden' });
+
   await page.locator('#open-football').click();
   await page.locator('#football-panel').waitFor({ state: 'visible' });
   await page.locator('[data-foot-aim="40"]').click();
