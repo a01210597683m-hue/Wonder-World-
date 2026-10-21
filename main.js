@@ -105,6 +105,18 @@ function house(name, x, z, wallMaterial, width = 5) {
 house('Home', -10, -10, mats.wall, 5);
 house('Family home', 10, -10, mats.wallPink, 5);
 
+// A first backyard/pool activity slice: a visible pool beside the player's home.
+box('Home pool deck', 6.4, 0.18, 5.2, -16.1, 0.08, -10.0, mats.path);
+box('Home pool basin', 5.0, 0.22, 3.8, -16.1, 0.15, -10.0, mats.road);
+box('Home pool water', 4.55, 0.06, 3.35, -16.1, 0.29, -10.0, mats.window);
+box('Pool edge front', 5.35, 0.22, 0.22, -16.1, 0.29, -11.95, mats.white);
+box('Pool edge back', 5.35, 0.22, 0.22, -16.1, 0.29, -8.05, mats.white);
+box('Pool edge left', 0.22, 0.22, 3.8, -18.65, 0.29, -10.0, mats.white);
+box('Pool edge right', 0.22, 0.22, 3.8, -13.55, 0.29, -10.0, mats.white);
+box('Pool ladder rail left', 0.08, 0.95, 0.08, -15.55, 0.55, -8.25, mats.tvFrame);
+box('Pool ladder rail right', 0.08, 0.95, 0.08, -14.85, 0.55, -8.25, mats.tvFrame);
+box('Pool ladder step', 0.78, 0.08, 0.08, -15.2, 0.35, -8.25, mats.white);
+
 // Shop, sign and colorful awning.
 box('Wonder Shop building', 6, 3.5, 4.5, 10, 1.75, 10, mats.white);
 box('Shop roof', 6.5, 0.35, 5, 10, 3.7, 10, mats.npcBlue);
@@ -1334,6 +1346,11 @@ document.getElementById('shop-products').addEventListener('click', event => {
 const places = [
   { name: 'بيتك', x: -10, z: -7.4, radius: 3.2, action: () => enterHome('بيتك') },
   { name: 'بيت العائلة', x: 10, z: -7.4, radius: 3.2, action: () => enterHome('بيت العائلة') },
+  { name: 'مسبح البيت 🏊', x: -16.1, z: -10.0, radius: 3.7, action: () => {
+    if (indoors) { say('اخرجي من البيت الأول عشان تروحي للمسبح.'); return; }
+    energy = Math.max(0, energy - 8); happiness = Math.min(100, happiness + 15); awardXP(5); updateStats(); saveProgress();
+    say('قضيتي وقت لطيف في مسبح البيت 🏊 السعادة +15، والطاقة -8. تقدري ترجعي تستريحي في البيت.');
+  }},
   { name: 'متجر Wonder', x: 10, z: 7.1, radius: 3.5, action: openShop },
   { name: 'كافيه Wonder', x: 15, z: -3.2, radius: 4.0, action: orderCafe },
   { name: 'مكتب الحي', x: 0, z: -18.3, radius: 4.0, action: doQuickWork },
