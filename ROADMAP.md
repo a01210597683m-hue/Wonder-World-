@@ -505,3 +505,9 @@ This adds a basic runtime regression gate; it does not mark the full product vis
 - [x] Added static regression checks and mobile-browser interaction coverage for the car and home builder.
 - [ ] These are prototype slices, not final licensed rigged character models, a complete vehicle fleet, country travel, full house construction/interior editing, or multiplayer swimming.
 - [ ] Validate the new interactions on a physical Android device and review actual reference images side-by-side before claiming visual parity.
+
+
+## 2026-10-21 — Server-authoritative career rewards
+- [x] Added server-priced cloud-wallet career shift rewards for the three known job types, with authenticated RPC access, a daily cap of 10 claims, and a transaction ledger entry per accepted shift.
+- [ ] Extend server-authoritative accounting to business premises, stock, expenses, order payouts and business daily contracts; the shop/business simulation's workCredits still remain local prototype data.
+- [ ] Run live authenticated tests for shift reward caps, account isolation, wallet refresh and failed-network behavior.
