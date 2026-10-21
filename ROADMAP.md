@@ -484,3 +484,14 @@ This plan separates verified prototype functionality from production features. A
 - [ ] Perform real Android-device checks for touch responsiveness, frame rate, cloud-save round trips, and account switching.
 
 This adds a basic runtime regression gate; it does not mark the full product vision complete. Production character models, full football/action modes, transport and country travel, building/swimming, social visits and parties, AI chat safeguards, secure server-authoritative economy, monetization, and store release work remain distinct acceptance items in the master vision.
+
+
+## 2026-10-21 — Secure wardrobe economy slice
+- [x] Added server-side wallet initialization for the authenticated player.
+- [x] Added a once-per-UTC-day +10 virtual-coin claim protected by a unique player/date claim key.
+- [x] Added a database-transactional wardrobe purchase RPC: server-side price lookup, row-locked balance check/deduction, owned-item insert, and transaction ledger entry.
+- [x] Added owner-scoped RLS for transaction history and daily claims; anonymous users cannot execute the economy RPCs.
+- [x] Connected the signed-in wardrobe UI to the cloud wallet and catalog, and blocked its signed-in local-only checkout fallback.
+- [x] Seeded the seven existing wardrobe items into the catalog and added regression checks.
+- [ ] Verify real signed-in account purchase, insufficient-funds, duplicate-purchase, daily-claim-once, and cross-account isolation flows in browser tests.
+- [ ] Apply the same server-authoritative design to career income, other gameplay rewards, business balances, and any future real-money purchases. These are not covered by the wardrobe economy slice.
