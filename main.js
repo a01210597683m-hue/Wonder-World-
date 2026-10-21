@@ -1725,6 +1725,20 @@ function nearestTarget() {
     const d = Math.hypot(p.x - place.x, p.z - place.z);
     if (d < place.radius && d < bestDistance) { best = { ...place, distance: d }; bestDistance = d; }
   }
+  // The player's purchased business is a real world destination, not just scenery.
+  // The building faces negative Z, so interaction is targeted at its front entrance.
+  if (playerBusiness.enabled) {
+    const businessTarget = { name: 'مشروعي الخاص — إدارة المحل', x: -18, z: -12.35, radius: 4.5, action: () => {
+      const careerButton = document.getElementById('open-careers');
+      if (careerButton) careerButton.click();
+      else say('لوحة الوظائف والمشروع الخاص لسه بتحمّل. جرّبي بعد لحظة.');
+    }};
+    const d = Math.hypot(p.x - businessTarget.x, p.z - businessTarget.z);
+    if (d < businessTarget.radius && d < bestDistance) {
+      best = { ...businessTarget, distance: d };
+      bestDistance = d;
+    }
+  }
   for (const npc of npcs) {
     const d = Math.hypot(p.x - npc.x, p.z - npc.z);
     if (d < 2.7 && d < bestDistance) {
