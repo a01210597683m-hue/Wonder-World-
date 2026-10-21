@@ -262,7 +262,13 @@ try {
   assert.match(await page.locator('#ww-auth-message').innerText(), /بريدًا إلكترونيًا صحيحًا/, 'malformed email should be rejected before contacting auth');
   await page.locator('#ww-email').fill('player@example.com');
   await page.locator('#ww-signup').click();
-  assert.match(await page.locator('#ww-auth-message').innerText(), /8 أحرف على الأقل/, 'short passwords should be rejected before contacting auth');
+  assert.match(await page.locator('#ww-auth-message').innerText(), /12 حرفًا على الأقل/, 'short passwords should be rejected before contacting auth');
+  await page.locator('#ww-password').fill('aaaaaaaaaaaa');
+  await page.locator('#ww-signup').click();
+  assert.match(await page.locator('#ww-auth-message').innerText(), /نفس الحرف مكرر/, 'repeated-character passwords should be rejected');
+  await page.locator('#ww-password').fill('qwertyuiop12');
+  await page.locator('#ww-signup').click();
+  assert.match(await page.locator('#ww-auth-message').innerText(), /كلمة مرور أقوى وفريدة/, 'common keyboard sequences should be rejected');
   await page.locator('#ww-password-toggle').click();
   assert.equal(await page.locator('#ww-password').getAttribute('type'), 'text', 'password visibility control should reveal the password');
   assert.equal(await page.locator('#ww-password-toggle').getAttribute('aria-pressed'), 'true', 'password visibility state should be accessible');
