@@ -37,6 +37,7 @@ const checks = [
   ['Board-game module contains Ludo and chess activities', /function initLudo\(/.test(boardGames) && /function initChess\(/.test(boardGames) && /cpuTurn/.test(boardGames)],
 
   ['PlayCanvas scene entry is loaded', /main\.js\?v=/.test(html)],
+  ['Cross-country destinations include Egypt, Paris and Tokyo with separate 3D landmark areas', /رحلة إلى مصر — الأهرامات/.test(game) && /رحلة إلى باريس — البرج/.test(game) && /رحلة إلى طوكيو — حديقة الساكورا/.test(game) && /Egypt stepped pyramid tier/.test(game) && /Paris tower left leg/.test(game) && /Tokyo torii lintel/.test(game) && /Math\.min\(42, p\.[xz]\)/.test(game)],
   ['Controllable car model is wired to player movement and touch controls', /const playerCar = new Entity/.test(game) && /toggleVehicleMode/.test(game) && /vehicleMode \? 2\.6/.test(game) && /playerCar\.setPosition\(p\.x, 0, p\.z\)/.test(game)],
   ['3D avatars have facial features, legs, shoes, hair recoloring and walk animation', /name \+ ' left pupil'/.test(game) && /name \+ ' left leg'/.test(game) && /person\.hairParts = \[hair, hairFront\]/.test(game) && /player\.leftLeg\.setLocalEulerAngles/.test(game)],
   ['Home swimming pool is a real 3D destination with a gameplay interaction', /Home pool water/.test(game) && /name: 'مسبح البيت/.test(game) && /السعادة \+15/.test(game)],
