@@ -13,6 +13,7 @@ const careerCss = read('../career.css');
 const checks = [
   ['Career persistence function exists', /function save\s*\(/.test(careers)],
   ['Auth exposes the configured client to game modules', /window\.wonderWorldSupabase = supabase/.test(read('../auth.js'))],
+  ['Account switching isolates local progression before cloud sync', /wonderworld-local-owner/.test(read('../auth.js')) && /wonderworld-account-switching/.test(read('../auth.js')) && /wonderworld-account-switching/.test(careers)],
   ['Career state supports private Supabase cloud saves', /player_career_saves/.test(careers) && /wonderworld:auth-state/.test(careers)],
   ['Full game progression has private cloud-save sync', /player_game_saves/.test(game) && /buildProgressSnapshot/.test(game) && /deviceRecords/.test(game)],
   ['Game-save status is visible in the HUD', /game-cloud-status/.test(game)],
