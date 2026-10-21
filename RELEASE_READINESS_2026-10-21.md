@@ -39,3 +39,11 @@ Keep the prototype status visible until all credentialed and device-specific che
 - Added client-side email validation, minimum signup password validation, Arabic-friendly authentication errors, password visibility toggle, Enter-to-submit, keyboard focus trapping, and focus restoration when closing the account dialog.
 - Guarded profile refreshes so a slower response from an earlier session cannot overwrite the currently active account view.
 - Added browser smoke coverage and static regression checks for these UI flows. The automated suite does not send real recovery email or validate Supabase's dashboard redirect allowlist; these remain owner-controlled checks.
+
+
+## Board games batch — 2026-10-21
+
+- Ludo now keeps a local win/loss record and records each completed match once. This is local-device progress, not cloud-synced or tamper-proof.
+- Chess practice now supports undoing the most recent move, including restoring the prior board, turn, promotion/capture state, and finished-state snapshot; starting a new board clears undo history.
+- Added static regression checks and mobile-browser smoke coverage for the Ludo panel and chess move/undo/reset flow.
+- The chess activity remains a move-practice prototype and does not implement complete tournament rules such as check/checkmate, castling, or en passant.
