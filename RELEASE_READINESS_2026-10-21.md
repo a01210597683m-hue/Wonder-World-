@@ -53,7 +53,7 @@ Keep the prototype status visible until all credentialed and device-specific che
 - Water Sort already exists in `main.js`; its puzzle generator starts from a solved board and scrambles via reversible moves.
 - The duplicate experimental Water Sort implementation was removed from `board-games.js` to avoid showing two versions of the same game.
 - Static checks now assert that the original panel and reversible-scramble generator remain wired, and that the board-games module does not contain a duplicate.
-- [ ] Confirm CI passes on the latest branch commit after removing the duplicate implementation.
+- [x] GitHub Actions run [39621652958](https://github.com/a01210597683m-hue/Wonder-World-/actions/runs/39621652958) passed on commit `402bb0efa1e53c8137293f6566a69f39b182e0fc` after removing the duplicate implementation.
 - [ ] Play through valid/invalid pours, undo, restart, and win completion on a real Android device.
 
 **Scope note:** automated browser checks cover a legal move, undo, restart, and the solvable-puzzle message; they do not replace full manual device testing.
@@ -62,7 +62,7 @@ Keep the prototype status visible until all credentialed and device-specific che
 
 - Added a separate casual arcade panel with a color-matching game (target color, scoring, feedback, next round, restart) and a three-cup hidden-star guessing game. The existing 8-pair memory game remains in the main game panel, so the arcade avoids duplicating it.
 - Loaded the arcade module from `index.html` and added static regression checks for module wiring and both activities.
-- [x] Pull-request workflow run `39620196354` passed syntax, static regression, and Chromium browser smoke checks.
+- [x] Pull-request workflow run `39621652958` passed JavaScript syntax, gameplay regression, asset/integration, and Chromium browser smoke checks.
 - [x] Browser smoke tests verify color-match scoring, one-star reveal, restart behavior, and keyboard focus restoration on Escape.
 
 - Updated the Pages workflow to run build/regression/browser checks on pull requests and prevent pull-request events from deploying to Pages. Added syntax, static, and browser smoke coverage for the arcade module. The final workflow run after the latest cleanup must pass before merge.
