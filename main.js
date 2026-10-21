@@ -229,11 +229,13 @@ function toggleVehicleMode(forceState) {
     playerCar.enabled = true;
     player.enabled = false;
     document.getElementById('toggle-vehicle').textContent = '🚶 النزول من العربية';
+    document.getElementById('toggle-vehicle').setAttribute('aria-pressed', 'true');
     say('ركبتي عربية WonderWorld 🚗 استخدمي الأسهم أو أزرار الشاشة للقيادة. تقدري تنزلي في أي وقت.');
   } else {
     player.enabled = true;
     playerCar.enabled = false;
     document.getElementById('toggle-vehicle').textContent = '🚗 ركوب العربية';
+    document.getElementById('toggle-vehicle').setAttribute('aria-pressed', 'false');
     say('نزلتي من العربية. رجع التحكم بالمشي الطبيعي.');
   }
 }
