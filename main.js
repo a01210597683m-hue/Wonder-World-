@@ -783,6 +783,17 @@ let gameCloudUserId = null;
 let gameCloudReady = false;
 let gameCloudTimer = null;
 let gameCloudSyncToken = 0;
+const GAME_RECORD_KEYS = [
+  'wonderworld-football-best', 'wonderworld-blockblast-best',
+  'wonderworld-memory-best', 'wonderworld-memory-best-moves',
+  'wonderworld-login-streak', 'wonderworld-last-daily-reward',
+  'wonderworld-shared-walk-reward-day'
+];
+function readGameRecords() {
+  const records = {};
+  try { for (const key of GAME_RECORD_KEYS) { const value = localStorage.getItem(key); if (value !== null) records[key] = value; } } catch (_) {}
+  return records;
+}
 function buildProgressSnapshot() {
   return {
     coins, happiness, energy, playerLevel, playerXP, gardenFlowers, lastFlowerDay,
@@ -791,7 +802,8 @@ function buildProgressSnapshot() {
     relationships: Object.fromEntries(npcs.map(npc => [npc.name, npc.relation])),
     npcInteractionDates: { ...npcInteractionDates }, npcGiftDates: { ...npcGiftDates },
     equippedItems: { ...equippedItems }, ownedPets: [...ownedPets], activePetId,
-    petCareState: { ...petCareState }, petSupplies: { ...petSupplies }, petNames: { ...petNames }
+    petCareState: { ...petCareState }, petSupplies: { ...petSupplies }, petNames: { ...petNames },
+    deviceRecords: readGameRecords()
   };
 }
 function stableJSON(value) {
@@ -919,6 +931,12 @@ window.addEventListener('wonderworld:auth-state', async event => {
     if (differs && priorImport !== stableJSON(data.save_data)) {
       try {
         localStorage.setItem(GAME_SAVE_KEY, JSON.stringify(cloudSave));
+        if (cloudSave.deviceRecords && typeof cloudSave.deviceRecords === 'object') {
+          for (const key of GAME_RECORD_KEYS) {
+            if (typeof cloudSave.deviceRecords[key] === 'string') localStorage.setItem(key, cloudSave.deviceRecords[key]);
+            else localStorage.removeItem(key);
+          }
+        }
         localStorage.setItem(importMarker, stableJSON(data.save_data));
       } catch (_) {}
       if (status) status.textContent = '☁️ تم العثور على تقدمك السحابي؛ جاري تحميله…';
