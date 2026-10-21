@@ -137,6 +137,12 @@ try {
 
   await page.locator('#ww-arcade-launch').click();
   await page.locator('#ww-arcade-panel').waitFor({ state: 'visible' });
+  assert.equal(await page.evaluate(() => document.activeElement?.id), 'wwa-close', 'opening the arcade dialog should move keyboard focus inside it');
+  await page.keyboard.press('Escape');
+  await page.locator('#ww-arcade-panel').waitFor({ state: 'hidden' });
+  assert.equal(await page.evaluate(() => document.activeElement?.id), 'ww-arcade-launch', 'Escape should close the arcade dialog and restore focus to its launcher');
+  await page.locator('#ww-arcade-launch').click();
+  await page.locator('#ww-arcade-panel').waitFor({ state: 'visible' });
   await page.locator('#wwa-memory-open').click();
   assert.equal(await page.locator('#ww-memory-grid .ww-memory-card').count(), 12, 'memory pairs should render six matching pairs');
   await page.locator('#wwa-memory-reset').click();
