@@ -376,6 +376,13 @@ try {
   assert.equal(await page.locator('#ww-password-toggle').getAttribute('aria-pressed'), 'true', 'password visibility state should be accessible');
   await page.locator('#ww-password-toggle').click();
   assert.equal(await page.locator('#ww-password').getAttribute('type'), 'password', 'password visibility control should hide the password again');
+  assert.equal(await page.locator('#ww-save-new-password').isHidden(), true, 'new-password action should stay hidden outside recovery mode');
+  await page.locator('#ww-save-new-password').evaluate(el => { el.hidden = false; });
+  await page.locator('#ww-password').fill('short');
+  await page.locator('#ww-save-new-password').click();
+  assert.match(await page.locator('#ww-auth-message').innerText(), /12 حرفًا على الأقل/, 'new password should enforce a 12-character minimum');
+  await page.locator('#ww-save-new-password').evaluate(el => { el.hidden = true; });
+  await page.locator('#ww-password').fill('');
   await page.locator('#ww-email').fill('');
   await page.locator('#ww-forgot-password').click();
   assert.match(await page.locator('#ww-auth-message').innerText(), /البريد الإلكتروني/, 'password recovery should require an email address');
