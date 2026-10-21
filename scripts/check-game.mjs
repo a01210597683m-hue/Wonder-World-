@@ -70,7 +70,7 @@ const checks = [
   ['Career system is loaded', /careers\.js\?v=/.test(html)],
   ['Mobile touch controls exist', /data-dir="up"/.test(html) && /data-dir="left"/.test(html)],
   ['World interaction control exists', /id="interact"/.test(game)],
-  ['Neighborhood destinations include enterable furnished shop and cafe interiors with context actions', /const shopInteriorRoot = new Entity\('Wonder Shop Interior'\)/.test(game) && /const cafeInteriorRoot = new Entity\('Wonder Cafe Interior'\)/.test(game) && /activeIndoorAction\.run\(\)/.test(game) && /متجر Wonder', shopInteriorRoot/.test(game) && /كافيه Wonder', cafeInteriorRoot/.test(game)],
+  ['Neighborhood destinations include enterable furnished shop and cafe interiors with clickable context actions', /const shopInteriorRoot = new Entity\('Wonder Shop Interior'\)/.test(game) && /const cafeInteriorRoot = new Entity\('Wonder Cafe Interior'\)/.test(game) && /activeIndoorAction\.run\(\)/.test(game) && /متجر Wonder', shopInteriorRoot/.test(game) && /كافيه Wonder', cafeInteriorRoot/.test(game) && /#exit-home, #indoor-place-action\s*\{\s*pointer-events: auto/.test(css)],
   ['Neighborhood destinations exist', /const places = \[/.test(game)],
   ['Purchased player-owned shop is reachable and opens business management', /if \(playerBusiness\.enabled\)/.test(game) && /مشروعي الخاص — إدارة المحل/.test(game) && /careerButton\.click\(\)/.test(game)],
   ['Social walk requires explicit consent', /موافقة/.test(game) && /accept\.addEventListener/.test(game)],
