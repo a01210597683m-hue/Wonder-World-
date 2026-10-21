@@ -80,13 +80,20 @@ try {
   assert.equal(await page.locator('#memory-board button').count(), 16, 'memory game should render eight playable pairs');
   await page.locator('#close-memory-match').click();
 
+  await page.locator('#open-shop').click();
+  await page.locator('#shop-panel').waitFor({ state: 'visible' });
+  await page.locator('#cloud-economy-panel').waitFor({ state: 'visible' });
+  assert.match(await page.locator('#cloud-economy-panel').innerText(), /سجّلي الدخول/, 'signed-out players should see clear cloud-wallet account guidance');
+  await page.locator('#close-shop').click();
+  await page.locator('#shop-panel').waitFor({ state: 'hidden' });
+
   await page.locator('#ww-auth-launch').click();
   await page.locator('#ww-auth-overlay').waitFor({ state: 'visible' });
   await page.locator('#ww-auth-close').click();
   await page.locator('#ww-auth-overlay').waitFor({ state: 'hidden' });
 
   assert.deepEqual(pageErrors, [], 'browser should not raise uncaught JavaScript exceptions');
-  process.stdout.write('PASS — mobile browser smoke tests: 3D canvas, touch controls, career panel, football shot, memory board, account dialog, and no uncaught page errors.\n');
+  process.stdout.write('PASS — mobile browser smoke tests: 3D canvas, touch controls, career panel, football shot, memory board, account dialog, signed-out cloud-wallet guidance, and no uncaught page errors.\n');
 } finally {
   if (browser) await browser.close();
   await new Promise(resolveClose => server.close(resolveClose));
