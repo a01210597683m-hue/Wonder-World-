@@ -62,6 +62,8 @@ Keep the prototype status visible until all credentialed and device-specific che
 
 - Added a separate casual arcade panel with a playable 12-card memory-pair matching game, move count, match feedback, restart, and a three-cup hidden-star guessing game.
 - Loaded the arcade module from `index.html` and added static regression checks for module wiring and both activities.
-- [ ] Run the repository checks and browser smoke suite; source edits alone do not prove they pass.
+- [ ] Inspect the pull-request workflow run and confirm syntax, static regression, and browser smoke checks pass; source edits alone do not prove they pass.
+
+- Updated the Pages workflow to run build/regression/browser checks on pull requests and prevent pull-request events from deploying to Pages. Added syntax, static, and browser smoke coverage for the new arcade module; the resulting workflow run must still be inspected before merge.
 - [ ] Test on narrow mobile screens and a real Android device, including repeated restarts and rapid card taps.
 - [ ] Keep the broader game catalogue, secure cloud persistence, multiplayer consent flows, full football/action modes, production 3D characters, and owner-controlled Supabase security settings marked incomplete until implemented and verified.
