@@ -10,7 +10,7 @@ The CI smoke suite verifies the 3D canvas and mobile controls, travel to Egypt/P
 
 ## Must be verified with real credentials / owner access
 
-- [ ] Enable Supabase Auth leaked-password protection in the Dashboard's password security settings.
+- [x] Documented Supabase Free-plan limitation: native leaked-password protection is not available on this plan. The signup UI's 12-character and weak-pattern checks are only a fallback, not breached-password screening; enable native protection only if the project moves to a plan that includes it.
 - [ ] Re-run the Supabase Security Advisor and review each remaining warning; do not disable required authenticated RPC access without a replacement design.
 - [ ] Add `https://a01210597683m-hue.github.io/Wonder-World-/` to Supabase Auth's allowed redirect URLs and verify password-recovery emails return to the game.
 - [ ] Sign up with a real test mailbox and verify confirmation, sign-in, sign-out, and session restoration.
