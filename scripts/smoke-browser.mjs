@@ -146,8 +146,26 @@ try {
   await page.locator('#watersort-panel').waitFor({ state: 'visible' });
   assert.equal(await page.locator('#watersort-tubes .watersort-tube').count(), 6, 'Water Sort should render four color tubes and two empty tubes');
   assert.match(await page.locator('#watersort-feedback').innerText(), /قابل للحل/, 'new Water Sort puzzles should advertise a solvable scramble');
-  await page.locator('#watersort-tubes .watersort-tube').nth(0).click();
-  await page.locator('#watersort-tubes .watersort-tube').nth(4).click();
+  const waterSortPair = await page.locator('#watersort-tubes .watersort-tube').evaluateAll(tubes => {
+    const states = tubes.map((tube, index) => ({
+      index,
+      layers: [...tube.querySelectorAll('.watersort-layer')].map(layer => layer.style.background).filter(Boolean)
+    }));
+    for (const source of states) {
+      if (!source.layers.length) continue;
+      const topColor = source.layers[source.layers.length - 1];
+      for (const target of states) {
+        if (target.index !== source.index && target.layers.length < 4 &&
+            (!target.layers.length || target.layers[target.layers.length - 1] === topColor)) {
+          return { source: source.index, target: target.index };
+        }
+      }
+    }
+    return null;
+  });
+  assert.ok(waterSortPair, 'Water Sort should always expose at least one legal move');
+  await page.locator('#watersort-tubes .watersort-tube').nth(waterSortPair.source).click();
+  await page.locator('#watersort-tubes .watersort-tube').nth(waterSortPair.target).click();
   assert.equal(await page.locator('#watersort-moves').innerText(), '1', 'a valid Water Sort pour should increment the move counter');
   await page.locator('#watersort-restart').click();
   assert.equal(await page.locator('#watersort-moves').innerText(), '0', 'Water Sort restart should reset the move counter');
