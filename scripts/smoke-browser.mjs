@@ -84,6 +84,8 @@ try {
   await page.locator('#shop-panel').waitFor({ state: 'visible' });
   await page.locator('#cloud-economy-panel').waitFor({ state: 'visible' });
   assert.match(await page.locator('#cloud-economy-panel').innerText(), /سجّلي الدخول/, 'signed-out players should see clear cloud-wallet account guidance');
+  await page.locator('#shop-products button[data-shop-item="mint-outfit"]').click();
+  assert.match(await page.locator('#shop-feedback').innerText(), /اشتريتي طقم نعناعي/, 'the main wardrobe purchase button should perform a purchase for signed-out prototype mode');
   await page.locator('#close-shop').click();
   await page.locator('#shop-panel').waitFor({ state: 'hidden' });
 
