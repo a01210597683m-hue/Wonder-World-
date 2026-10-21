@@ -226,6 +226,22 @@ for (const [index, x] of [[1, -35.2], [2, -39.2], [3, -43.2]]) {
 }
 for (const x of [-32, -29, -35, -38, -42, -45]) for (const z of [-20.8, -19.2]) sphere('Wonder train wheel ' + x + ' ' + z, 0.38, x, 0.52, z, mats.tvFrame);
 
+ // WonderWorld Fashion Week stage: a visible, enterable 3D runway landmark.
+box('Fashion Week plaza', 20, 0.2, 16, 25, 0.04, 16, mats.path);
+box('Fashion runway stage', 8.0, 0.55, 13, 25, 0.38, 16, mats.flower);
+box('Fashion runway carpet', 3.0, 0.08, 10, 25, 0.7, 15, mats.outfitGold);
+box('Fashion runway backdrop', 10, 4.8, 0.35, 25, 2.65, 23, mats.npcPink);
+box('Fashion Week sign', 7.2, 1.0, 0.18, 25, 4.1, 22.75, mats.outfitGold);
+for (const [x, z] of [[20, 20], [30, 20], [20, 17], [30, 17], [20, 14], [30, 14]]) {
+  box('Fashion audience seat ' + x + ' ' + z, 1.4, 0.75, 1.0, x, 0.45, z, mats.outfitBlue);
+  box('Fashion audience seat back ' + x + ' ' + z, 1.4, 0.9, 0.18, x, 1.0, z + 0.38, mats.npcGold);
+}
+for (const x of [19, 31]) {
+  box('Fashion spotlight stand ' + x, 0.22, 3.0, 0.22, x, 1.5, 22, mats.tvFrame);
+  sphere('Fashion spotlight ' + x, 0.55, x, 3.2, 22, mats.white);
+}
+
+
 /*
  * First cross-country travel slice. These are original low-poly landmarks built
  * from engine primitives, not finished country-scale worlds or real transport.
@@ -1020,7 +1036,7 @@ function endSharedWalk(reason='انتهت التمشية بناءً على طل�
 }
 function renderNeighborhoodMap() {
  const list=document.getElementById('map-destinations');if(!list)return;list.replaceChildren();
- const destinations=[{name:'نافورة الساحة',emoji:'⛲',x:0,z:3},{name:'حديقة الأصدقاء',emoji:'🌳',x:-11,z:5.5},{name:'متجر Wonder',emoji:'🛍️',x:10,z:4.5},{name:'كافيه Wonder',emoji:'☕',x:15,z:-4},{name:'مكتب الحي',emoji:'💼',x:0,z:-20},{name:'Wonder Fitness',emoji:'🏋️',x:15,z:-19},{name:'مطار Wonder Air',emoji:'✈️',x:34,z:-28},{name:'محطة Wonder Central',emoji:'🚆',x:-30,z:-20},{name:'البيت الأول',emoji:'🏡',x:-10,z:-6.2},{name:'البيت العائلي',emoji:'🏠',x:10,z:-6.2},{name:'رحلة إلى مصر — الأهرامات',emoji:'🇪🇬',x:30,z:5},{name:'رحلة إلى باريس — البرج',emoji:'🇫🇷',x:-30,z:5},{name:'رحلة إلى طوكيو — حديقة الساكورا',emoji:'🇯🇵',x:0,z:35}];
+ const destinations=[{name:'نافورة الساحة',emoji:'⛲',x:0,z:3},{name:'حديقة الأصدقاء',emoji:'🌳',x:-11,z:5.5},{name:'متجر Wonder',emoji:'🛍️',x:10,z:4.5},{name:'كافيه Wonder',emoji:'☕',x:15,z:-4},{name:'مكتب الحي',emoji:'💼',x:0,z:-20},{name:'Wonder Fitness',emoji:'🏋️',x:15,z:-19},{name:'مطار Wonder Air',emoji:'✈️',x:34,z:-28},{name:'محطة Wonder Central',emoji:'🚆',x:-30,z:-20},{name:'منصة عروض الأزياء',emoji:'👗',x:25,z:15},{name:'البيت الأول',emoji:'🏡',x:-10,z:-6.2},{name:'البيت العائلي',emoji:'🏠',x:10,z:-6.2},{name:'رحلة إلى مصر — الأهرامات',emoji:'🇪🇬',x:30,z:5},{name:'رحلة إلى باريس — البرج',emoji:'🇫🇷',x:-30,z:5},{name:'رحلة إلى طوكيو — حديقة الساكورا',emoji:'🇯🇵',x:0,z:35}];
  for(const d of destinations){const b=document.createElement('button');b.type='button';b.className='map-destination';b.textContent=d.emoji+' '+d.name;b.addEventListener('click',()=>{if(indoors){document.getElementById('map-feedback').textContent='اخرجي للحي الأول قبل التنقّل السريع.';return;}player.setPosition(d.x,0,d.z);cameraX=d.x;cameraZ=d.z+cameraOffsetZ;camera.setPosition(cameraX,cameraHeight,cameraZ);camera.lookAt(d.x,1,d.z);document.getElementById('map-panel').hidden=true;logAdventure('وصلت إلى '+d.name);if(activeWalkNpc){walkVisitedDestinations.add(d.name);if(walkVisitedDestinations.size>=3&&walkRewardDate!==localDateKey()){walkRewardDate=localDateKey();try{localStorage.setItem('wonderworld-shared-walk-reward-day',walkRewardDate);}catch{}happiness=Math.min(100,happiness+8);coins+=5;updateStats();awardXP(12);logAdventure('مغامرة تمشية مكتملة مع '+activeWalkNpc.name+' — زرت 3 أماكن مختلفة');say('🌟 مغامرة مشتركة رائعة! زرتوا 3 أماكن مع '+activeWalkNpc.name+'؛ +8 سعادة و+5 عملات و+12 XP. المكافأة مرة واحدة يوميًا.');}else{say('🗺️ وصلتي إلى '+d.name+' مع '+activeWalkNpc.name+'! زارتم '+walkVisitedDestinations.size+' من 3 أماكن للمغامرة المشتركة.');}}else{say('🗺️ وصلتي إلى '+d.name+'!');}});list.appendChild(b);}
 }
 
@@ -1630,6 +1646,7 @@ const places = [
   { name: 'Wonder Fitness', x: 15, z: -18, radius: 4.5, action: doWorkout },
   { name: 'مطار Wonder Air', x: 34, z: -28, radius: 8, action: () => window.dispatchEvent(new CustomEvent('wonderworld:open-activity', { detail: { id: 'plane' } })) },
   { name: 'محطة Wonder Central', x: -30, z: -20, radius: 6, action: () => window.dispatchEvent(new CustomEvent('wonderworld:open-activity', { detail: { id: 'train' } })) },
+  { name: 'منصة WonderWorld Fashion Week', x: 25, z: 15, radius: 8, action: () => window.dispatchEvent(new CustomEvent('wonderworld:open-activity', { detail: { id: 'fashion' } })) },
   { name: 'حديقة الأصدقاء', x: -11, z: 6.5, radius: 4.2, action: () => {
     happiness = Math.min(100, happiness + 12); updateStats(); awardXP(8); completeQuest('park'); saveProgress(); say('قضيتي وقتًا لطيفًا في الحديقة! السعادة +12 🌷');
   }},
