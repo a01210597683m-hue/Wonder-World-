@@ -21,7 +21,7 @@ const checks = [
   ['Game-save migration enables RLS and owner-scoped policies', gameSaveMigration.includes('enable row level security') && gameSaveMigration.includes('Players can read their own game save') && gameSaveMigration.includes('Players can update their own game save') && gameSaveMigration.includes('with check ((select auth.uid()) = player_id)')],
   ['Daily objective completion rewards XP', game.includes('awardXP(10);') && game.includes('خلّصتي كل مهام اليوم')],
   ['Secure cloud wallet uses authenticated RPCs for signed-in purchases', /ww_purchase_game_item/.test(game) && /ww_ensure_wallet/.test(game) && /cloudOwnedItemIds/.test(game)],
-  ['Signed-in wardrobe purchases cannot fall back to local-only checkout', /if \(gameCloudUserId\) \{[\s\S]*?محفظة الحساب الآمن/.test(game)],
+  ['Signed-in wardrobe purchases always use server-validated checkout', /if \(gameCloudUserId\) \{[\s\S]*?void purchaseCloudItem\(item, button\)/.test(game) && /ww_purchase_game_item/.test(game)],
   ['Main wardrobe buy buttons call the authenticated cloud purchase RPC directly', /async function purchaseCloudItem/.test(game) && /void purchaseCloudItem\(item, button\)/.test(game) && /ww_purchase_game_item/.test(game)],
   ['Cloud shop refresh rejects stale results after account changes', /cloudPanelRefreshToken/.test(game) && /refreshToken !== cloudPanelRefreshToken/.test(game)],
   ['Economy migration has owner-only transaction reads and daily-claim uniqueness', economyMigration.includes('enable row level security') && economyMigration.includes('Players can view their own economy transactions') && economyMigration.includes('primary key(player_id,reward_code,claim_date)')],
