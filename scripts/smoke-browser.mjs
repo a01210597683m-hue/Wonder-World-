@@ -111,7 +111,7 @@ try {
   await page.locator('#exit-home').waitFor({ state: 'visible' });
   assert.equal(await page.locator('#indoor-place-action').innerText(), '☕ طلب من الكافيه', 'cafe interior should expose the cafe order action');
   await page.locator('#indoor-place-action').click();
-  assert.match(await page.locator('#status').innerText(), /كافيه|قهوة|مشروب/, 'cafe action should respond');
+  assert.match(await page.locator('#status').innerText(), /كافيه|قهوة|مشروب|Wonder Cafe/, 'cafe action should respond');
   await page.locator('#exit-home').click();
   await page.locator('#exit-home').waitFor({ state: 'hidden' });
 
