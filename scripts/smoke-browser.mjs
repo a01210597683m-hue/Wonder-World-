@@ -66,6 +66,15 @@ try {
   assert.match(await page.locator('#toggle-vehicle').innerText(), /النزول من العربية/);
   await page.locator('#toggle-vehicle').click();
   assert.equal(await page.locator('#toggle-vehicle').getAttribute('aria-pressed'), 'false', 'vehicle button should return to walking mode');
+  await page.locator('#open-map').click();
+  await page.locator('#map-panel').waitFor({ state: 'visible' });
+  await page.locator('.map-destination').filter({ hasText: 'رحلة إلى مصر' }).click();
+  assert.match(await page.locator('#status').innerText(), /وصلتي إلى رحلة إلى مصر/ , 'country travel should report arrival');
+  await page.locator('#open-map').click();
+  await page.locator('.map-destination').filter({ hasText: 'رحلة إلى باريس' }).click();
+  assert.match(await page.locator('#status').innerText(), /وصلتي إلى رحلة إلى باريس/ , 'second country destination should be reachable');
+  await page.locator('#open-map').click();
+  await page.locator('.map-destination').filter({ hasText: 'نافورة الساحة' }).click();
   await page.locator('#open-home-build').click();
   await page.locator('#home-build-panel').waitFor({ state: 'visible' });
   await page.locator('[data-home-wall="mint"]').click();
