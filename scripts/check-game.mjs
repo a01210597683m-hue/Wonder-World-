@@ -51,6 +51,7 @@ const checks = [
   ['Pet care system exists', /function careForActivePet/.test(game)],
   ['Career progression has a daily contract', /dailyOrderCount/.test(careers) && /contractClaimedDate/.test(careers)],
   ['Business level upgrades are bounded in the UI', /businessLevel >= 5/.test(careers)],
+  ['Career panel stacks above HUD controls', careerCss.includes('z-index:150')],
   ['Responsive base styles exist', /@media/.test(css) && /@media/.test(careerCss)],
   ['No service-role credential is hard-coded', !/service_role/i.test(html + game + careers)]
 ];
