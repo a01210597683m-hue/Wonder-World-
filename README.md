@@ -85,3 +85,11 @@ GitHub Actions now installs a pinned Playwright version and runs Chromium with s
 - Added player-selected left/center/right shot lanes with a visible target marker and mobile-friendly controls.
 - Replaced random shot outcomes with a predictable keeper training pattern so goals reward choosing a lane away from the keeper.
 - Browser smoke tests now verify aim selection and a deterministic successful shot. This remains a solo training mini-game, not a full team match or advanced football simulation.
+
+
+## Gameplay polish batch — 2026-10-21
+- Fixed the football browser test selector so it matches the actual left-lane control.
+- Added keyboard accessibility for football aiming (left/right arrows), shooting (Enter/Space when the panel itself has focus), and restarting (R).
+- Prevented global world movement/interact shortcuts from hijacking keyboard activation of buttons and form fields.
+- Expanded mobile smoke coverage to finish a full five-shot round, verify score persistence, restart without losing the best score, and test keyboard aiming.
+- Added visible keyboard focus and tighter small-screen football controls.

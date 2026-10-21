@@ -107,10 +107,26 @@ try {
   await page.locator('#open-football').click();
   await page.locator('#football-panel').waitFor({ state: 'visible' });
   await page.locator('[data-foot-aim="40"]').click();
-  assert.equal(await page.locator('[data-foot-aim="24"]').getAttribute('aria-pressed'), 'true', 'football aim selector should update its selected state');
+  assert.equal(await page.locator('[data-foot-aim="40"]').getAttribute('aria-pressed'), 'true', 'football aim selector should update its selected state');
   await page.locator('#football-shoot').click();
   assert.equal(await page.locator('#football-shots').innerText(), '1 / 5', 'football practice should register a valid first shot');
   assert.equal(await page.locator('#football-score').innerText(), '1', 'a deliberate shot away from the keeper should score deterministically');
+  // Complete a whole training round, verify the persistent best score, then reset.
+  for (const lane of ['50', '50', '40', '40']) {
+    await page.locator('[data-foot-aim="' + lane + '"]').click();
+    await page.locator('#football-shoot').click();
+  }
+  assert.equal(await page.locator('#football-shots').innerText(), '5 / 5', 'football practice should stop after five shots');
+  assert.equal(await page.locator('#football-score').innerText(), '5', 'deliberate aiming should beat the keeper for the full round');
+  assert.equal(await page.locator('#football-best').innerText(), '5', 'football best score should update after the round');
+  assert.equal(await page.evaluate(() => localStorage.getItem('wonderworld-football-best')), '5', 'football best score should persist locally');
+  await page.locator('#football-restart').click();
+  assert.equal(await page.locator('#football-shots').innerText(), '0 / 5', 'new training round should reset the shot counter');
+  assert.equal(await page.locator('#football-best').innerText(), '5', 'resetting a round should preserve the best score');
+  await page.keyboard.press('ArrowRight');
+  assert.equal(await page.locator('[data-foot-aim="60"]').getAttribute('aria-pressed'), 'true', 'keyboard arrows should change the football aim lane');
+  await page.keyboard.press('r');
+  assert.equal(await page.locator('#football-shots').innerText(), '0 / 5', 'R should restart the football training round');
   await page.locator('#close-football').click();
   await page.locator('#football-panel').waitFor({ state: 'hidden' });
 
@@ -138,7 +154,7 @@ try {
   await page.locator('#ww-auth-overlay').waitFor({ state: 'hidden' });
 
   assert.deepEqual(pageErrors, [], 'browser should not raise uncaught JavaScript exceptions');
-  process.stdout.write('PASS — mobile browser smoke tests: 3D canvas, touch controls, Egypt/Paris/Tokyo travel, home customization persistence, bounded guide, careers, football, memory board, signed-out cloud-wallet guidance, account form validation, and no uncaught page errors.\n');
+  process.stdout.write('PASS — mobile browser smoke tests: 3D canvas, touch controls, Egypt/Paris/Tokyo travel, home customization persistence, bounded guide, careers, football keyboard controls and full five-shot scoring/persistence, memory board, signed-out cloud-wallet guidance, account form validation, and no uncaught page errors.\n');
 } finally {
   if (browser) await browser.close();
   await new Promise(resolveClose => server.close(resolveClose));
