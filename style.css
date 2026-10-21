@@ -718,3 +718,7 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 #football-shoot:disabled{opacity:.6}
 #football-feedback{min-height:42px;font-size:12px;line-height:1.5;color:#294760}
 #football-restart{width:100%;padding:10px;border:0;border-radius:10px;background:#e5f1e8;color:#20573b;font:inherit;font-weight:800}
+
+
+/* Full-game progression cloud-save status */
+#life-ui #game-cloud-status{margin:0;padding:6px 8px;border:1px solid #ffffff55;border-radius:9px;background:#10283dcc;color:#eaf7ff;font-size:10px;line-height:1.4;overflow-wrap:anywhere}
