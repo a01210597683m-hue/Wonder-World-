@@ -23,7 +23,7 @@
 - Reference images remain visual references; they are not 3D playable models.
 
 ## Remaining issues and manual checks
-- Supabase Security Advisor previously reported leaked-password protection disabled. This project setting must be enabled in the Supabase Dashboard's Auth/password security settings; the available project/database tools do not expose that Auth setting, so it is not claimed as fixed.
+- Supabase leaked-password screening is a Pro-and-above feature, not available on the current Free plan. This is a known plan limitation, not a user task or a release blocker for continued prototype work. The signup UI now enforces a 12-character minimum and rejects a few trivially weak patterns; this is only a local strength guard, NOT HaveIBeenPwned screening and must never be described as detecting all breached passwords. Keep unique passwords and enable native screening only if the project is upgraded later.
 - `public.design_decisions` client access is explicitly denied by an RLS policy and its privileges are revoked from `anon` and `authenticated`.
 - A real end-to-end sign-up/sign-in/email-confirmation flow still needs testing with a real mailbox and an authenticated test account.
 - Career/business demo state and the broader game progression now have separate per-account cloud-save rows when the player is signed in, plus localStorage fallback. The broader save includes levels/XP, prototype coins, daily quests, wardrobe, relationships, pets/care, and adventure log. Runtime browser round-trip testing is still required. Client-provided balances and progression are not authoritative or anti-cheat-secure.
@@ -31,7 +31,7 @@
 - No real-money purchase, ad network, payout, Android signing, or store distribution integration is complete. Ads and in-app purchases require provider setup and server-side receipt verification.
 
 ## Next engineering steps
-1. Enable leaked-password protection in Supabase Auth settings and re-run the Security Advisor.
+1. Keep the free-tier signup password guard and document that it cannot detect all leaked passwords; enable native leaked-password screening only if the project later moves to a plan that includes it.
 2. Test signup, email confirmation, sign-in/sign-out, and per-user data isolation on the deployed website.
 3. Test game and career cloud-save round trips in a real signed-in browser session, including sign-out/sign-in and isolation between two test accounts.
 4. Add server-authoritative save/load and career/progress operations with ownership checks, rate limits and idempotency.
