@@ -64,14 +64,15 @@
       '<div id="wwa-menu" class="wwa-grid"></div>' +
       '<section id="wwa-game" hidden><h3 id="wwa-title"></h3><p id="wwa-description" class="wwa-note"></p><div id="wwa-content"></div><p id="wwa-feedback" class="wwa-feedback" role="status" aria-live="polite"></p><div class="wwa-actions"><button id="wwa-reset" type="button" class="secondary">🔄 إعادة اللعبة</button><button id="wwa-back" type="button" class="secondary">↩️ كل الألعاب</button></div></section>';
     document.body.appendChild(panel);
-    const menu = $('#wwa-menu',panel), game = $('#wwa-game',panel), content = $('#wwa-content',panel), feedback = $('#wwa-feedback',panel);
+    const menu = $('#wwa-menu',panel), game = $('#wwa-game',panel), feedback = $('#wwa-feedback',panel);
+    let content = $('#wwa-content',panel);
     activities.forEach(([id,emoji,title]) => {
       const b=el('button',{type:'button',class:'wwa-tile','data-game':id});
       b.append(el('span',{},emoji),el('span',{},title));menu.appendChild(b);
     });
     let active='', state={}, frame=0, keys={}, selectedCandy=null;
     const msg = text => { feedback.textContent=text; };
-    const html = value => { content.innerHTML=value; };
+    const html = value => { const next = content.cloneNode(false); content.replaceWith(next); content = next; content.innerHTML = value; };
     const button = (id,label,cls='') => '<button type="button" id="'+id+'" class="wwa-btn '+cls+'">'+label+'</button>';
     const canvas = id => '<canvas id="'+id+'" class="wwa-canvas" width="640" height="400" aria-label="ساحة اللعبة"></canvas>';
     function stopLoop(){if(frame)cancelAnimationFrame(frame);frame=0;keys={};}
