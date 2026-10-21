@@ -21,8 +21,10 @@
     const panel=make('section',{id:'ww-arcade-panel',role:'dialog','aria-modal':'true','aria-label':'ألعاب الأركيد'});panel.hidden=true;
     panel.innerHTML='<div class="wwa-head"><strong>🧠 ركن الأركيد</strong><button id="wwa-close" type="button" aria-label="إغلاق">✕</button></div><p class="wwa-status">لعبتان خفيفتان تشتغلان داخل المتصفح: ذاكرة الأزواج وتخمين الكأس.</p><div class="wwa-modes"><button class="wwa-mode" id="wwa-memory-open" type="button">🧠 ذاكرة الأزواج</button><button class="wwa-mode" id="wwa-cups-open" type="button">🎯 تخمين الكأس</button></div><section id="wwa-memory" hidden><h3>🧠 ذاكرة الأزواج</h3><div class="wwa-status" id="wwa-memory-status" role="status">اكشفي البطاقات وطابقي الأزواج.</div><div class="wwa-actions"><button id="wwa-memory-reset" type="button">🔄 لعبة جديدة</button></div><div id="ww-memory-grid"></div></section><section id="wwa-cups-section" hidden><h3>🎯 أين النجمة؟</h3><div class="wwa-status" id="wwa-cups-status" role="status">اختاري كأسًا واحدًا. النجمة مخبأة تحته!</div><div class="wwa-actions"><button id="wwa-cups-reset" type="button">🔄 خلط من جديد</button></div><div id="ww-cups"><button class="ww-cup" data-cup="0" type="button" aria-label="الكأس الأول">🥤</button><button class="ww-cup" data-cup="1" type="button" aria-label="الكأس الثاني">🥤</button><button class="ww-cup" data-cup="2" type="button" aria-label="الكأس الثالث">🥤</button></div></section>';
     document.body.appendChild(panel);
-    const close=()=>panel.hidden=true;launch.addEventListener('click',()=>panel.hidden=false);document.getElementById('wwa-close').addEventListener('click',close);
-    panel.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+    const close=()=>{panel.hidden=true;launch.focus();};
+    launch.addEventListener('click',()=>{panel.hidden=false;document.getElementById('wwa-close').focus();});
+    document.getElementById('wwa-close').addEventListener('click',close);
+    panel.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close();}});
     const mem=document.getElementById('wwa-memory'),cups=document.getElementById('wwa-cups-section');
     document.getElementById('wwa-memory-open').addEventListener('click',()=>{mem.hidden=false;cups.hidden=true;newMemory();});
     document.getElementById('wwa-cups-open').addEventListener('click',()=>{cups.hidden=false;mem.hidden=true;newCups();});
