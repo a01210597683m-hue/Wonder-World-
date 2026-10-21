@@ -448,7 +448,8 @@ function enterHome(homeName, targetInteriorRoot = interiorRoot, indoorAction = n
   camera.setPosition(cameraX, cameraHeight, cameraZ);
   camera.lookAt(0, 1, 2);
   document.getElementById('exit-home').hidden = false;
-  say('دخلتي ' + homeName + ' 🏡 استكشفي الصالة وغرفة النوم والمطبخ. تقدري ترجعي للحي من زر الخروج.');
+  if (activeIndoorAction) say('دخلتي ' + homeName + ' ✨ استكشفي المكان، واستخدمي زر النشاط لتجربة خدماته. تقدري ترجعي للحي من زر الخروج.');
+  else say('دخلتي ' + homeName + ' 🏡 استكشفي الصالة وغرفة النوم والمطبخ. تقدري ترجعي للحي من زر الخروج.');
 }
 function exitHome() {
   if (!indoors) return;
