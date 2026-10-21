@@ -110,7 +110,7 @@ try {
   await page.locator('#ludo-record').waitFor({ state: 'visible' });
   assert.match(await page.locator('#ludo-record').innerText(), /سجلّك:/, 'Ludo should display the persistent win-loss record');
   await page.locator('#ludo-roll').click();
-  assert.equal(await page.locator('#ludo-board .ludo-cell').count(), 49, 'Ludo should render its 7x7 board');
+  assert.equal(await page.locator('#ludo-board .ludo-cell, #ludo-board .ludo-center').count(), 49, 'Ludo should render its 7x7 board');
   await page.locator('#ludo-reset').click();
   await page.locator('#bg-open-chess').click();
   assert.equal(await page.locator('#chess-board .chess-square').count(), 64, 'chess should render all 64 squares');
