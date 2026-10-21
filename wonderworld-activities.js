@@ -151,7 +151,7 @@
         '<span>🔵 WONDER FC <b id="wwa-blue-score">0</b></span><span id="wwa-match-clock">90:00</span><span>🔴 RIVALS <b id="wwa-red-score">0</b></span></div>'+
         '<canvas id="wwa-football-canvas" class="wwa-canvas" width="640" height="400" tabindex="0" aria-label="ملعب كرة قدم. استخدمي الأسهم أو WASD للحركة"></canvas>'+
         '<div class="wwa-controls">'+
-        '<button data-f="up">▲ للأمام</button><button data-f="pass">تمرير ⚽</button><button data-f="shoot">تسديد 🥅</button>'+
+        '<button data-f="up">▲ للأمام</button><button data-f="pass">تمرير ⚽</button><button data-f="switch">تبديل اللاعبة 🔄</button><button data-f="shoot">تسديد 🥅</button>'+
         '<button data-f="left">◀ يسار</button><button data-f="down">▼ للخلف</button><button data-f="right">يمين ▶</button></div>'+
         '<p class="wwa-note">هدف الشريحة دي: مباراة محلية قابلة للعب، بوقت ونتيجة وفريقين وحارس وخصوم وحركة الكرة. دي نسخة أولية وليست محاكاة FC كاملة أو لعبًا أونلاين.</p>'
       );
@@ -213,6 +213,30 @@
         matchStatus.textContent='تمريرة وصلت لزميلتك! تحرّكي للمساحة وكمّلي الهجمة.';
         draw();
       }
+      function switchPlayer(){
+        if(state.ended)return;
+        if(state.possession!=='teammate'||!state.passTarget){
+          matchStatus.textContent='مرّري الكرة أولًا عشان تقدري تبدّلي التحكم لزميلتك المستلمة.';
+          return;
+        }
+        const mate=state.passTarget;
+        const teammateIndex=state.teammates.indexOf(mate);
+        if(teammateIndex<0){
+          state.passTarget=null;
+          state.possession='none';
+          matchStatus.textContent='التمريرة انتهت؛ تحرّكي لاستعادة الكرة.';
+          return;
+        }
+        const previousPlayer=state.player;
+        state.player=mate;
+        state.teammates[teammateIndex]=previousPlayer;
+        state.possession='player';
+        state.passTarget=null;
+        ball().vx=0;ball().vy=0;
+        ball().x=state.player.x+10;ball().y=state.player.y-7;
+        matchStatus.textContent='بدّلتي التحكم لزميلتك المستلمة! كمّلي الهجمة من مكانها.';
+        draw();
+      }
       function shoot(){
         if(state.ended)return;
         const p=state.player,b=ball();
@@ -254,7 +278,7 @@
         updateScore();draw();if(!state.ended)frame=requestAnimationFrame(tick);
       }
       $('#wwa-content',panel).querySelectorAll('[data-f]').forEach(b=>b.addEventListener('click',()=>{
-        const a=b.dataset.f;if(a==='up')move(0,-18);if(a==='down')move(0,18);if(a==='left')move(-18,0);if(a==='right')move(18,0);if(a==='pass')pass();if(a==='shoot')shoot();
+        const a=b.dataset.f;if(a==='up')move(0,-18);if(a==='down')move(0,18);if(a==='left')move(-18,0);if(a==='right')move(18,0);if(a==='pass')pass();if(a==='switch')switchPlayer();if(a==='shoot')shoot();
       }));
       c.addEventListener('pointerdown',e=>{
         c.focus();if(state.ended)return;
@@ -265,6 +289,7 @@
       c.addEventListener('keydown',e=>{
         const map={ArrowUp:[0,-18],w:[0,-18],W:[0,-18],ArrowDown:[0,18],s:[0,18],S:[0,18],ArrowLeft:[-18,0],a:[-18,0],A:[-18,0],ArrowRight:[18,0],d:[18,0],D:[18,0]};
         if(map[e.key]){e.preventDefault();move(...map[e.key]);}
+        if(e.key==='e'||e.key==='E'){e.preventDefault();switchPlayer();}
         if(e.key===' '){e.preventDefault();shoot();}
       });
       $('#wwa-reset',panel).textContent='🔄 إعادة المباراة';
