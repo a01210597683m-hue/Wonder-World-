@@ -1100,6 +1100,10 @@ window.addEventListener('wonderworld:auth-state', async event => {
     if (token === gameCloudSyncToken && status) status.textContent = '⚠️ تعذّرت المزامنة السحابية؛ الحفظ المحلي مستمر.';
   }
 });
+window.addEventListener('wonderworld:cloud-wallet-updated', () => {
+  const shopPanel = document.getElementById('shop-panel');
+  if (shopPanel && !shopPanel.hidden) void refreshCloudEconomyPanel('تم تحديث الرصيد السحابي من أجر الوظيفة.');
+});
 
 function ensurePetCare(id){if(!petCareState[id])petCareState[id]={hunger:60,thirst:60,joy:50,cleanliness:70,bond:0};return petCareState[id]}
 function syncPetCompanion(){
