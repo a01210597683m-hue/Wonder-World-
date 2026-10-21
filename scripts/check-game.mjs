@@ -7,6 +7,7 @@ const game = read('../main.js');
 const careers = read('../careers.js');
 const boardGames = read('../board-games.js');
 const miniGames = read('../mini-games.js');
+const activities = read('../wonderworld-activities.js');
 const gameSaveMigration = read('../supabase/migrations/202610210006_add_private_player_game_saves.sql');
 const economyMigration = read('../supabase/migrations/202610210007_secure_virtual_economy.sql');
 const welcomeMigration = read('../supabase/migrations/202610210010_wallet_welcome_bonus.sql');
@@ -41,6 +42,14 @@ const checks = [
 
   ['Ludo and chess activities are dynamically wired', /import\(['"]\.\/board-games\.js\?v=/.test(game)],
   ['Casual arcade module is loaded by the page', /mini-games\.js\?v=/.test(html) && /function boot\(\)/.test(miniGames)],
+  ['All twelve requested activity prototypes are available in the activity hub', /wonderworld-activities\.js\?v=/.test(html) && ['battle','football','ropes','fashion','plane','gym','train','stocks','cups','space','candy','party'].every(id => activities.includes("'" + id + "'"))],
+  ['Battle prototype includes health, ammunition, aim and training targets', /hp:100,ammo:12/.test(activities) && /state\.aimX/.test(activities) && /targets:/.test(activities)],
+  ['Football prototype includes movement, passing, shooting, keeper and scoring', /function renderFootball/.test(activities) && /function pass\(\)/.test(activities) && /function shoot\(\)/.test(activities) && /keeperX/.test(activities)],
+  ['Rope puzzle supports node swaps and tracks puzzle progress', /function renderRopes/.test(activities) && /wwa-rope-nodes/.test(activities) && /wwa-crossings/.test(activities)],
+  ['Fashion show has themed outfits and a judging score', /function renderFashion/.test(activities) && /تقييم لجنة التحكيم/.test(activities)],
+  ['Plane and train activities require safe sequence of controls', /function renderPlane/.test(activities) && /زودي قوة المحرك/.test(activities) && /function renderTrain/.test(activities) && /أوقفي القطار تمامًا/.test(activities)],
+  ['Gym progression and stock market use local virtual counters only', /function renderGym/.test(activities) && /function renderStocks/.test(activities) && /لا يوجد تداول حقيقي/.test(activities)],
+  ['Cup guessing, space shooter, Candy Crush and Sparkle Party are playable', /function renderCups/.test(activities) && /function renderSpace/.test(activities) && /function renderCandy/.test(activities) && /function renderParty/.test(activities)],
   ['Color-matching arcade game scores correct choices and supports restart', /function chooseColor/.test(miniGames) && /function newColorRound/.test(miniGames) && /wwa-color-reset/.test(miniGames)],
   ['Cup guessing game reveals the hidden star and can restart', /function newCups/.test(miniGames) && /ww-cup/.test(miniGames) && /wwa-cups-reset/.test(miniGames)],
   ['Board-game module contains Ludo and chess activities', /function initLudo\(/.test(boardGames) && /function initChess\(/.test(boardGames) && /cpuTurn/.test(boardGames)],
