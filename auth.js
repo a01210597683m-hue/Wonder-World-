@@ -304,7 +304,10 @@ byId('ww-signout').addEventListener('click', async () => {
   showSignedOut(); message('تم تسجيل الخروج.');
 });
 supabase.auth.onAuthStateChange((event, session) => {
-  if (event === 'PASSWORD_RECOVERY') setRecoveryMode(true, session?.user?.email || '');
+  if (event === 'PASSWORD_RECOVERY') {
+    void syncSession(session).then(() => setRecoveryMode(true, session?.user?.email || ''));
+    return;
+  }
   void syncSession(session);
 });
 supabase.auth.getSession().then(({ data, error }) => {
