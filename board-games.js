@@ -33,11 +33,14 @@ function boot(){
  function renderLudo(msg){
   const board=document.getElementById('ludo-board');board.replaceChildren();const occupied=new Map();
   for(const color of ['red','blue'])ludo.p[color].forEach((progress,index)=>{if(progress>0&&progress<24){const idx=(progress-1+(color==='red'?0:12))%24,key=path[idx].join(',');if(!occupied.has(key))occupied.set(key,[]);occupied.get(key).push({color,index,progress});}});
+  const homeSlots={'1,1':['red',0],'1,2':['red',1],'5,4':['blue',0],'5,5':['blue',1]};
   for(let r=0;r<7;r++)for(let c=0;c<7;c++){const cell=el('div',{className:'ludo-cell'}),idx=path.findIndex(p=>p[0]===r&&p[1]===c);
    if(idx>=0){cell.classList.add('track');if([0,6,12,18].includes(idx))cell.classList.add('safe');const pieces=occupied.get(r+','+c)||[];
     pieces.forEach(piece=>{const b=el('button',{type:'button',className:piece.color+(ludo.turn===piece.color&&ludo.rolled?' selected':'')},piece.color==='red'?'🔴':'🔵');b.setAttribute('aria-label',(piece.color==='red'?'حمراء':'زرقاء')+' '+(piece.index+1));b.addEventListener('click',()=>moveLudo(piece.color,piece.index));cell.appendChild(b);});
     if(!pieces.length)cell.textContent=[0,6,12,18].includes(idx)?'★':'·';
-   }else if(r>=2&&r<=4&&c>=2&&c<=4){if(r===2&&c===2){cell.className='ludo-center';cell.textContent='🏁 النهاية';}else cell.classList.add('home');}else cell.classList.add('home');board.appendChild(cell);}
+   }else if(r>=2&&r<=4&&c>=2&&c<=4){if(r===2&&c===2){cell.className='ludo-center';cell.textContent='🏁 النهاية';}else cell.classList.add('home');}
+   else {cell.classList.add('home');const slot=homeSlots[r+','+c];if(slot&&ludo.p[slot[0]][slot[1]]===0){const piece=el('button',{type:'button',className:slot[0]+(ludo.turn===slot[0]&&ludo.rolled?' selected':'')},slot[0]==='red'?'🔴':'🔵');piece.setAttribute('aria-label',(slot[0]==='red'?'حمراء':'زرقاء')+' '+(slot[1]+1));piece.setAttribute('data-ludo-home','true');piece.addEventListener('click',()=>moveLudo(slot[0],slot[1]));cell.appendChild(piece);}}
+   board.appendChild(cell);}
   document.getElementById('ludo-roll').disabled=ludo.over||ludo.rolled||ludo.turn!=='red';lstat.textContent=msg;
  }
  function moveLudo(color,i){
@@ -50,7 +53,7 @@ function boot(){
   if(ludo.turn==='blue')window.setTimeout(cpuTurn,600);
  }
  function cpuTurn(){if(ludo.over||ludo.turn!=='blue')return;ludo.dice=1+Math.floor(Math.random()*6);ludo.rolled=true;const legal=ludo.p.blue.map((p,i)=>({p,i})).filter(x=>(x.p>0&&x.p+ludo.dice<=24)||(x.p===0&&ludo.dice===6));if(!legal.length){const n=ludo.dice;ludo.rolled=false;ludo.turn='red';renderLudo('الكمبيوتر رمى '+n+' ولا توجد حركة. دوركِ!');return;}const pick=legal.sort((a,b)=>b.p-a.p)[0];moveLudo('blue',pick.i);}
- document.getElementById('ludo-roll').addEventListener('click',()=>{if(ludo.over||ludo.rolled||ludo.turn!=='red')return;ludo.dice=1+Math.floor(Math.random()*6);ludo.rolled=true;const ok=ludo.p.red.some(p=>(p>0&&p+ludo.dice<=24)||(p===0&&ludo.dice===6));if(!ok){const n=ludo.dice;ludo.rolled=false;ludo.turn='blue';renderLudo('طلع '+n+' ومفيش حركة متاحة؛ الكمبيوتر هيلعب.');window.setTimeout(cpuTurn,600);return;}renderLudo('طلع '+ludo.dice+'! اضغطي على قطعة حمراء لتحريكها.');});
+ document.getElementById('ludo-roll').addEventListener('click',()=>{if(ludo.over||ludo.rolled||ludo.turn!=='red')return;ludo.dice=1+Math.floor(Math.random()*6);ludo.rolled=true;const ok=ludo.p.red.some(p=>(p>0&&p+ludo.dice<=24)||(p===0&&ludo.dice===6));if(!ok){const n=ludo.dice;ludo.rolled=false;ludo.turn='blue';renderLudo('طلع '+n+' ومفيش حركة متاحة؛ الكمبيوتر هيلعب.');window.setTimeout(cpuTurn,600);return;}renderLudo('طلع '+ludo.dice+'! '+(ludo.dice===6?'القطع الحمراء ظاهرة في البيت؛ اضغطي على واحدة لإخراجها.':'اضغطي على قطعة حمراء متحركة لتحريكها.'));});
  document.getElementById('ludo-reset').addEventListener('click',initLudo);
  const glyph={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};let chess;const cstat=document.getElementById('chess-status');
  function initChess(){chess={b:Array.from({length:8},()=>Array(8).fill('')),turn:'w',sel:null,targets:[],flip:false,over:false,history:[],moves:0,captures:0};const back='rnbqkbnr';for(let c=0;c<8;c++){chess.b[0][c]=back[c];chess.b[1][c]='p';chess.b[6][c]='P';chess.b[7][c]=back[c].toUpperCase();}renderChess('دور الأبيض. اختاري قطعة ثم خانة متاحة.');}
