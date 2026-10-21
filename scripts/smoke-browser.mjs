@@ -109,8 +109,14 @@ try {
   await page.locator('#bg-open-ludo').click();
   await page.locator('#ludo-record').waitFor({ state: 'visible' });
   assert.match(await page.locator('#ludo-record').innerText(), /سجلّك:/, 'Ludo should display the persistent win-loss record');
+  await page.evaluate(() => { Math.random = () => 0.9999; });
   await page.locator('#ludo-roll').click();
   assert.equal(await page.locator('#ludo-board .ludo-cell, #ludo-board .ludo-center').count(), 49, 'Ludo should render its 7x7 board');
+  assert.equal(await page.locator('#ludo-board button[data-ludo-home="true"][aria-label="حمراء 1"]').count(), 1, 'red home token should be visible before moving');
+  assert.match(await page.locator('#ludo-status').innerText(), /6/, 'forced roll should show the rolled six');
+  await page.locator('#ludo-board button[data-ludo-home="true"][aria-label="حمراء 1"]').click();
+  assert.equal(await page.locator('#ludo-board .track button[aria-label="حمراء 1"]').count(), 1, 'selecting the home token after a six should move it onto the track');
+  await page.evaluate(() => { Math.random = () => 0.5; });
   await page.locator('#ludo-reset').click();
   await page.locator('#bg-open-chess').click();
   assert.equal(await page.locator('#chess-board .chess-square').count(), 64, 'chess should render all 64 squares');
