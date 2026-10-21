@@ -155,6 +155,8 @@ try {
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'فيلا Wonder الفاخرة' }).click();
   assert.match(await page.locator('#map-feedback').innerText(), /250 عملة/);
+  await page.locator('#close-map').click();
+  await page.locator('#map-panel').waitFor({ state: 'hidden' });
 
   await page.locator('#open-wonder-guide').click();
   await page.locator('#wonder-guide-panel').waitFor({ state: 'visible' });
