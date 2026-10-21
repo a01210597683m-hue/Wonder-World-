@@ -36,11 +36,9 @@
     ['ropes','🪢','فك الحبال — Tangle Master'],
     ['fashion','👗','الموضة وعروض الأزياء'],
     ['plane','✈️','الطيران والإقلاع والهبوط'],
-    ['gym','🏋️','Wonder Gym — التمرين والتقدم'],
     ['train','🚆','القطارات والمحطات'],
     ['arrows','🏹','لعبة الأسهم — افتحي المسارات'],
     ['stocks','📈','سوق الأسهم — محفظة افتراضية'],
-    ['cups','🥤','بكاسة — تحدي الكؤوس'],
     ['space','🚀','صواريخ الفضاء — Space Blaster'],
     ['candy','🍬','Candy Crush — مطابقة الحلوى'],
     ['party','✨','Sparkle Party — مسابقات وأسئلة']
@@ -48,13 +46,13 @@
   function boot() {
     const hud = $('#life-ui');
     if (!hud || $('#ww-activities-launch')) return false;
-    const launch = el('button',{id:'ww-activities-launch',type:'button'},'🌟 كل أنشطة WonderWorld والألعاب الجديدة');
+    const launch = el('button',{id:'ww-activities-launch',type:'button'},'🌟 أنشطة WonderWorld الإضافية');
     hud.appendChild(launch);
     const panel = el('section',{id:'ww-activities',role:'dialog','aria-modal':'true','aria-label':'أنشطة وألعاب WonderWorld'});
     panel.hidden = true;
     panel.innerHTML =
       '<div class="wwa-top"><strong>🌈 عالم الأنشطة والألعاب</strong><button id="wwa-home" type="button">القائمة ✕</button></div>' +
-      '<p class="wwa-note">اختاري لعبة. دي نماذج تفاعلية محلية قابلة للتجربة؛ الأكشن والرياضة هنا نماذج أولية وليست لعبة أونلاين مكتملة.</p>' +
+      '<p class="wwa-note">دي الأنشطة الإضافية. الجيم موجود بالفعل في العالم، وتحدي الكؤوس موجود ضمن الألعاب المصغّرة؛ مش هنكررهم هنا. النماذج دي محلية، والأكشن والرياضة لسه نماذج أولية وليست تجربة أونلاين مكتملة.</p>' +
       '<div id="wwa-menu" class="wwa-grid"></div>' +
       '<section id="wwa-game" hidden><h3 id="wwa-title"></h3><p id="wwa-description" class="wwa-note"></p><div id="wwa-content"></div><p id="wwa-feedback" class="wwa-feedback" role="status" aria-live="polite"></p><div class="wwa-actions"><button id="wwa-reset" type="button" class="secondary">🔄 إعادة اللعبة</button><button id="wwa-back" type="button" class="secondary">↩️ كل الألعاب</button></div></section>';
     document.body.appendChild(panel);
