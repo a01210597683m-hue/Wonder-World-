@@ -92,6 +92,29 @@ try {
   assert.match(await page.evaluate(() => localStorage.getItem('wonderworld-home-design-v1')), /"wall":"mint"/, 'home design should persist locally');
   await page.locator('#close-home-build').click();
   await page.locator('#home-build-panel').waitFor({ state: 'hidden' });
+
+  // Shop and cafe should open separate furnished interiors and expose their own action.
+  await page.locator('#open-map').click();
+  await page.locator('.map-destination').filter({ hasText: 'متجر Wonder' }).click();
+  await page.locator('#interact').click();
+  await page.locator('#exit-home').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#indoor-place-action').isVisible(), true, 'shop interior should expose its shopping action');
+  await page.locator('#indoor-place-action').click();
+  await page.locator('#shop-panel').waitFor({ state: 'visible' });
+  await page.locator('#close-shop').click();
+  await page.locator('#exit-home').click();
+  await page.locator('#exit-home').waitFor({ state: 'hidden' });
+
+  await page.locator('#open-map').click();
+  await page.locator('.map-destination').filter({ hasText: 'كافيه Wonder' }).click();
+  await page.locator('#interact').click();
+  await page.locator('#exit-home').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#indoor-place-action').innerText(), '☕ طلب من الكافيه', 'cafe interior should expose the cafe order action');
+  await page.locator('#indoor-place-action').click();
+  assert.match(await page.locator('#status').innerText(), /كافيه|قهوة|مشروب/, 'cafe action should respond');
+  await page.locator('#exit-home').click();
+  await page.locator('#exit-home').waitFor({ state: 'hidden' });
+
   await page.locator('#open-wonder-guide').click();
   await page.locator('#wonder-guide-panel').waitFor({ state: 'visible' });
   assert.equal(await page.locator('.wonder-guide-choice').count(), 5, 'Wonder guide should expose only bounded preset questions');
