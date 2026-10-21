@@ -851,7 +851,61 @@ actionToggle.addEventListener('click', () => {
   actionToggle.setAttribute('aria-expanded', String(expanded));
   actionToggle.textContent = expanded ? '✕ إخفاء الأنشطة' : '☰ الأنشطة والخيارات';
 });
+
 const interactButton = document.getElementById('interact');
+
+// Quick-travel guide for the growing open world. Destinations are placed at outdoor
+// approach points near existing landmarks; this does not remove or replace world content.
+const worldDestinations = [
+  { label: '⛲ ساحة النافورة', x: 0, z: 4, note: 'ساحة الحي والنافورة' },
+  { label: '🏡 بيت البداية', x: -10, z: -13.5, note: 'بيت البداية والحديقة والمسبح' },
+  { label: '☕ مقهى Wonder', x: 15, z: -4.5, note: 'مقهى الحي' },
+  { label: '🏋️ مركز اللياقة', x: 15, z: -19.5, note: 'مركز Wonder Fitness' },
+  { label: '✈️ المطار', x: 34, z: -39, note: 'مبنى المطار والمدرج' },
+  { label: '🚆 محطة القطار', x: -30, z: -16, note: 'محطة Wonder Central' },
+  { label: '👗 ساحة الأزياء', x: 25, z: 9, note: 'ساحة عروض الأزياء' }
+];
+const worldGuideStyle = document.createElement('style');
+worldGuideStyle.textContent = `
+#ww-world-guide{position:absolute;z-index:35;right:12px;top:68px;width:min(230px,calc(100vw - 24px));direction:rtl;font-family:system-ui,sans-serif;color:#17324c}
+#ww-world-guide-toggle{width:100%;border:1px solid #ffffffc9;border-radius:13px;padding:10px 12px;background:#fff0b8;color:#17324c;font-weight:850;box-shadow:0 4px 14px #10263c33;touch-action:manipulation}
+#ww-world-guide-panel{margin-top:7px;padding:10px;border:1px solid #ffffffb8;border-radius:15px;background:#fffaf0f5;box-shadow:0 10px 28px #10263c40;max-height:55vh;overflow:auto}
+#ww-world-guide-panel[hidden]{display:none}
+#ww-world-guide-panel p{font-size:12px;line-height:1.5;margin:2px 0 8px}
+.ww-world-destination{display:block;width:100%;margin-top:6px;padding:9px;border:1px solid #d7e1eb;border-radius:10px;background:#fff;color:#17324c;text-align:right;font:700 12px system-ui,sans-serif;touch-action:manipulation}
+.ww-world-destination:active{background:#e8f3ff}
+@media(max-width:480px){#ww-world-guide{top:64px;right:8px;width:min(190px,calc(100vw - 16px))}#ww-world-guide-panel{max-height:42vh}}
+`;
+document.head.appendChild(worldGuideStyle);
+const worldGuide = document.createElement('aside');
+worldGuide.id = 'ww-world-guide';
+worldGuide.innerHTML = '<button id="ww-world-guide-toggle" type="button" aria-expanded="false" aria-controls="ww-world-guide-panel">🧭 دليل وجهات العالم</button><section id="ww-world-guide-panel" hidden><p>اختاري مكانًا موجودًا في العالم للانتقال إلى مدخله بسرعة.</p><div id="ww-world-destination-list"></div></section>';
+document.getElementById('game').appendChild(worldGuide);
+const worldGuideToggle = document.getElementById('ww-world-guide-toggle');
+const worldGuidePanel = document.getElementById('ww-world-guide-panel');
+worldGuideToggle.addEventListener('click', () => {
+  const open = worldGuidePanel.hidden;
+  worldGuidePanel.hidden = !open;
+  worldGuideToggle.setAttribute('aria-expanded', String(open));
+});
+const worldDestinationList = document.getElementById('ww-world-destination-list');
+for (const destination of worldDestinations) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'ww-world-destination';
+  button.textContent = destination.label;
+  button.addEventListener('click', () => {
+    if (indoors) exitHome();
+    player.setPosition(destination.x, 0, destination.z);
+    player.setEulerAngles(0, 180, 0);
+    worldGuidePanel.hidden = true;
+    worldGuideToggle.setAttribute('aria-expanded', 'false');
+    say('🧭 وصلتي إلى ' + destination.note + '. استكشفي المكان واستخدمي زر التفاعل للأنشطة القريبة.');
+    logAdventure('زيارة ' + destination.note);
+  });
+  worldDestinationList.appendChild(button);
+}
+
 
 document.getElementById('open-football').addEventListener('click', () => { footballPanel.hidden = false; resetFootballGame(); footballPanel.focus(); });
 document.getElementById('close-football').addEventListener('click', () => { footballPanel.hidden = true; });
