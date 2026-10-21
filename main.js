@@ -380,10 +380,47 @@ box('Living room TV frame', 2.15, 1.3, 0.16, 2.35, 1.9, -6.38, mats.tvFrame, int
 box('Living room TV screen', 1.9, 1.05, 0.035, 2.35, 1.92, -6.275, mats.tvScreen, interiorRoot);
 box('TV stand', 2.35, 0.35, 0.55, 2.35, 0.28, -5.95, mats.bench, interiorRoot);
 interiorRoot.enabled = false;
+
+// Dedicated furnished interiors for the neighborhood's public businesses.
+const shopInteriorRoot = new Entity('Wonder Shop Interior');
+app.root.addChild(shopInteriorRoot);
+box('Shop interior floor', 14, 0.22, 14, 0, -0.16, 0, mats.white, shopInteriorRoot);
+box('Shop interior back wall', 14, 4.6, 0.28, 0, 2.2, -7, mats.wallPink, shopInteriorRoot);
+box('Shop interior left wall', 0.28, 4.6, 14, -7, 2.2, 0, mats.white, shopInteriorRoot);
+box('Shop interior right wall', 0.28, 4.6, 14, 7, 2.2, 0, mats.white, shopInteriorRoot);
+box('Shop clothing rack 1', 4.8, 0.16, 0.18, -3.5, 2.2, -3.0, mats.tvFrame, shopInteriorRoot);
+box('Shop clothing rack 2', 4.8, 0.16, 0.18, 3.3, 2.2, -3.0, mats.tvFrame, shopInteriorRoot);
+for (const [x, material] of [[-5, mats.outfitCoral], [-3.5, mats.outfitGold], [-2, mats.outfitMint], [1.8, mats.outfitBlue], [3.3, mats.flower], [4.8, mats.outfitCoral]]) {
+  box('Shop displayed outfit ' + x, 0.8, 1.2, 0.22, x, 1.45, -3.0, material, shopInteriorRoot);
+}
+box('Shop checkout counter', 4.4, 1.0, 1.1, 0, 0.55, -5.0, mats.bench, shopInteriorRoot);
+box('Shop checkout top', 4.6, 0.14, 1.2, 0, 1.12, -5.0, mats.outfitGold, shopInteriorRoot);
+box('Shop welcome sign', 4.2, 0.8, 0.18, 0, 3.2, -6.7, mats.npcPink, shopInteriorRoot);
+shopInteriorRoot.enabled = false;
+
+const cafeInteriorRoot = new Entity('Wonder Cafe Interior');
+app.root.addChild(cafeInteriorRoot);
+box('Cafe interior floor', 14, 0.22, 14, 0, -0.16, 0, mats.path, cafeInteriorRoot);
+box('Cafe interior back wall', 14, 4.6, 0.28, 0, 2.2, -7, mats.wallPink, cafeInteriorRoot);
+box('Cafe interior left wall', 0.28, 4.6, 14, -7, 2.2, 0, mats.white, cafeInteriorRoot);
+box('Cafe interior right wall', 0.28, 4.6, 14, 7, 2.2, 0, mats.white, cafeInteriorRoot);
+box('Cafe service counter', 5.0, 1.0, 1.2, 0, 0.55, -5.0, mats.bench, cafeInteriorRoot);
+box('Cafe counter top', 5.2, 0.14, 1.35, 0, 1.12, -5.0, mats.white, cafeInteriorRoot);
+box('Cafe espresso machine', 1.0, 1.15, 0.8, -1.0, 1.75, -5.0, mats.tvFrame, cafeInteriorRoot);
+box('Cafe menu board', 3.6, 1.0, 0.16, 2.7, 3.0, -6.7, mats.npcGold, cafeInteriorRoot);
+for (const [x, z] of [[-4, 1.5], [3.5, 1.5], [-4, -1.8], [3.5, -1.8]]) {
+  box('Cafe table top ' + x + ' ' + z, 2.0, 0.16, 1.5, x, 0.9, z, mats.bench, cafeInteriorRoot);
+  for (const dx of [-0.7, 0.7]) box('Cafe table leg ' + x + ' ' + z + ' ' + dx, 0.14, 0.8, 0.14, x + dx, 0.42, z, mats.tvFrame, cafeInteriorRoot);
+  box('Cafe chair ' + x + ' ' + z, 0.8, 0.65, 0.75, x, 0.38, z + 1.25, mats.outfitMint, cafeInteriorRoot);
+}
+cafeInteriorRoot.enabled = false;
+
+let activeInteriorRoot = interiorRoot;
+let activeIndoorAction = null;
 let indoors = false;
 let indoorReturnPosition = null;
 let outdoorEnabledStates = new Map();
-function enterHome(homeName) {
+function enterHome(homeName, targetInteriorRoot = interiorRoot, indoorAction = null) {
   if (indoors) return;
   if (vehicleMode) toggleVehicleMode(false);
   if (activeWalkNpc) endSharedWalk('انتهت التمشية لأنك دخلتي البيت. تقدري تبدأي تمشية جديدة بعد الخروج.');
@@ -391,11 +428,16 @@ function enterHome(homeName) {
   indoorReturnPosition = new Vec3(position.x, position.y, position.z);
   outdoorEnabledStates = new Map();
   for (const entity of app.root.children) {
-    if (entity === player || entity === camera || entity === sun || entity === interiorRoot) continue;
+    if (entity === player || entity === camera || entity === sun || entity === targetInteriorRoot) continue;
     outdoorEnabledStates.set(entity, entity.enabled);
     entity.enabled = false;
   }
-  interiorRoot.enabled = true;
+  activeInteriorRoot = targetInteriorRoot;
+  activeIndoorAction = indoorAction;
+  activeInteriorRoot.enabled = true;
+  const indoorActionButton = document.getElementById('indoor-place-action');
+  indoorActionButton.hidden = !activeIndoorAction;
+  if (activeIndoorAction) indoorActionButton.textContent = activeIndoorAction.label;
   indoors = true;
   player.setPosition(0, 0, 2.0);
   player.setEulerAngles(0, 180, 0);
@@ -410,7 +452,7 @@ function enterHome(homeName) {
 }
 function exitHome() {
   if (!indoors) return;
-  interiorRoot.enabled = false;
+  activeInteriorRoot.enabled = false;
   for (const [entity, enabled] of outdoorEnabledStates) entity.enabled = enabled;
   outdoorEnabledStates.clear();
   indoors = false;
@@ -423,6 +465,8 @@ function exitHome() {
   camera.setPosition(cameraX, cameraHeight, cameraZ);
   camera.lookAt(p.x, 1, p.z);
   document.getElementById('exit-home').hidden = true;
+  document.getElementById('indoor-place-action').hidden = true;
+  activeIndoorAction = null;
   say('رجعتي للحي 🌳 كل الأماكن والأنشطة الخارجية رجعت زي ما كانت.');
 }
 
@@ -452,7 +496,7 @@ ui.innerHTML = `
   <div class="avatar-tools"><button id="toggle-vehicle" type="button" aria-pressed="false">🚗 ركوب العربية</button><span id="vehicle-hint" role="status">قيادة تجريبية داخل الحي، والتحكم بنفس أزرار الحركة.</span></div>
   <div id="world-clock" role="status">🕒 نهار هادئ</div>
   <button id="interact" type="button">تفاعل / استكشاف</button>
-  <button id="exit-home" type="button" hidden>🚪 الخروج للحي</button>
+  <button id="exit-home" type="button" hidden>🚪 الخروج للحي</button>\n  <button id="indoor-place-action" type="button" hidden>تنفيذ نشاط المكان</button>
   <section id="shop-panel" hidden aria-label="متجر Wonder">
     <div class="shop-heading"><strong>🛍️ متجر Wonder</strong><button id="close-shop" type="button" aria-label="إغلاق المتجر">✕</button></div>
     <p class="shop-intro">اختاري قطعة، واشتريها بعملاتك، وبعدها تقدري تلبسيها في أي وقت. كل فئة مستقلة، وتقدري تغيّري إطلالتك من غير ما تخسري القطع القديمة.</p>
@@ -1550,8 +1594,8 @@ const places = [
     energy = Math.max(0, energy - 8); happiness = Math.min(100, happiness + 15); awardXP(5); updateStats(); saveProgress();
     say('قضيتي وقت لطيف في مسبح البيت 🏊 السعادة +15، والطاقة -8. تقدري ترجعي تستريحي في البيت.');
   }},
-  { name: 'متجر Wonder', x: 10, z: 7.1, radius: 3.5, action: openShop },
-  { name: 'كافيه Wonder', x: 15, z: -3.2, radius: 4.0, action: orderCafe },
+  { name: 'متجر Wonder', x: 10, z: 7.1, radius: 3.5, action: () => enterHome('متجر Wonder', shopInteriorRoot, { label: '🛍️ تصفح المنتجات', run: openShop }) },
+  { name: 'كافيه Wonder', x: 15, z: -3.2, radius: 4.0, action: () => enterHome('كافيه Wonder', cafeInteriorRoot, { label: '☕ طلب من الكافيه', run: orderCafe }) },
   { name: 'مكتب الحي', x: 0, z: -18.3, radius: 4.0, action: doQuickWork },
   { name: 'Wonder Fitness', x: 15, z: -18, radius: 4.5, action: doWorkout },
   { name: 'حديقة الأصدقاء', x: -11, z: 6.5, radius: 4.2, action: () => {
@@ -2188,6 +2232,7 @@ function nearestTarget() {
   return best;
 }
 document.getElementById('exit-home').addEventListener('click', exitHome);
+document.getElementById('indoor-place-action').addEventListener('click', () => { if (activeIndoorAction) activeIndoorAction.run(); });
 
 interactButton.addEventListener('click', () => {
   const target = nearestTarget();
