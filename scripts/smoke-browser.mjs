@@ -104,6 +104,31 @@ try {
   await page.locator('#career-panel .career-heading button').click();
   await page.locator('#career-panel').waitFor({ state: 'hidden' });
 
+  await page.locator('#board-games-launch').click();
+  await page.locator('#board-games-panel').waitFor({ state: 'visible' });
+  await page.locator('#bg-open-ludo').click();
+  await page.locator('#ludo-record').waitFor({ state: 'visible' });
+  assert.match(await page.locator('#ludo-record').innerText(), /سجلّك:/, 'Ludo should display the persistent win-loss record');
+  await page.locator('#ludo-roll').click();
+  assert.equal(await page.locator('#ludo-board .ludo-cell').count(), 49, 'Ludo should render its 7x7 board');
+  await page.locator('#ludo-reset').click();
+  await page.locator('#bg-open-chess').click();
+  assert.equal(await page.locator('#chess-board .chess-square').count(), 64, 'chess should render all 64 squares');
+  assert.equal(await page.locator('#chess-undo').isDisabled(), true, 'chess undo should be disabled before any move');
+  await page.locator('#chess-board button[aria-label="خانة e2"]').click();
+  await page.locator('#chess-board button[aria-label="خانة e4"]').click();
+  assert.equal((await page.locator('#chess-board button[aria-label="خانة e4"]').innerText()).trim(), '♙', 'white pawn should move from e2 to e4');
+  assert.equal(await page.locator('#chess-undo').isDisabled(), false, 'chess undo should become available after a move');
+  assert.match(await page.locator('#chess-status').innerText(), /الأسود/, 'chess should switch turns after a valid move');
+  await page.locator('#chess-undo').click();
+  assert.equal((await page.locator('#chess-board button[aria-label="خانة e2"]').innerText()).trim(), '♙', 'undo should restore the pawn to its original square');
+  assert.equal((await page.locator('#chess-board button[aria-label="خانة e4"]').innerText()).trim(), '', 'undo should clear the destination square');
+  assert.match(await page.locator('#chess-status').innerText(), /الأبيض/, 'undo should restore the previous turn');
+  await page.locator('#chess-reset').click();
+  assert.equal(await page.locator('#chess-undo').isDisabled(), true, 'reset should clear chess undo history');
+  await page.locator('#bg-close').click();
+  await page.locator('#board-games-panel').waitFor({ state: 'hidden' });
+
   await page.locator('#open-football').click();
   await page.locator('#football-panel').waitFor({ state: 'visible' });
   await page.locator('[data-foot-aim="40"]').click();
@@ -223,7 +248,7 @@ try {
   assert.equal(await page.evaluate(() => document.activeElement?.id), 'ww-auth-launch', 'closing the account dialog should restore keyboard focus');
 
   assert.deepEqual(pageErrors, [], 'browser should not raise uncaught JavaScript exceptions');
-  process.stdout.write('PASS — mobile browser smoke tests: 3D canvas, touch controls, Egypt/Paris/Tokyo travel, home customization persistence, bounded guide, careers, football keyboard controls and full five-shot scoring/persistence, Block Blast scoring and persistence, solvable Water Sort, undo, move and reset behavior, memory board, signed-out cloud-wallet guidance, account email/password validation, password visibility, recovery validation, keyboard submission/focus restoration, and no uncaught page errors.\n');
+  process.stdout.write('PASS — mobile browser smoke tests: 3D canvas, touch controls, Egypt/Paris/Tokyo travel, home customization persistence, bounded guide, careers, Ludo board and persistent record, chess move/undo/reset, football keyboard controls and full five-shot scoring/persistence, Block Blast scoring and persistence, solvable Water Sort, undo, move and reset behavior, memory board, signed-out cloud-wallet guidance, account email/password validation, password visibility, recovery validation, keyboard submission/focus restoration, and no uncaught page errors.\n');
 } finally {
   if (browser) await browser.close();
   await new Promise(resolveClose => server.close(resolveClose));
