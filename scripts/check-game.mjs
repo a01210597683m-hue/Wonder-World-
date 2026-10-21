@@ -61,6 +61,7 @@ const checks = [
   ['Chess supports undo snapshots and resettable history', /chess\.history\.push/.test(boardGames) && /id="chess-undo"/.test(boardGames) && /chess\.history\.pop\(\)/.test(boardGames) && /chess\.history\.length===0/.test(boardGames)],
 
   ['PlayCanvas scene entry is loaded', /main\.js\?v=/.test(html)],
+  ['3D airport aircraft and railway train are visible and launch playable plane/train activities', /Wonder Air aircraft fuselage/.test(game) && /Wonder train locomotive body/.test(game) && /مطار Wonder Air/.test(game) && /محطة Wonder Central/.test(game) && /wonderworld:open-activity/.test(game) && /wonderworld:open-activity/.test(activities)],
   ['Cross-country destinations include Egypt, Paris and Tokyo with separate 3D landmark areas', /رحلة إلى مصر — الأهرامات/.test(game) && /رحلة إلى باريس — البرج/.test(game) && /رحلة إلى طوكيو — حديقة الساكورا/.test(game) && /Egypt stepped pyramid tier/.test(game) && /Paris tower left leg/.test(game) && /Tokyo torii lintel/.test(game) && /Math\.min\(42, p\.[xz]\)/.test(game)],
   ['Controllable car model is wired to player movement and touch controls', /const playerCar = new Entity/.test(game) && /toggleVehicleMode/.test(game) && /vehicleMode \? 2\.6/.test(game) && /playerCar\.setPosition\(p\.x, 0, p\.z\)/.test(game)],
   ['3D avatars have facial features, legs, shoes, hair recoloring and walk animation', /name \+ ' left pupil'/.test(game) && /name \+ ' left leg'/.test(game) && /person\.hairParts = \[hair, hairFront\]/.test(game) && /player\.leftLeg\.setLocalEulerAngles/.test(game)],
