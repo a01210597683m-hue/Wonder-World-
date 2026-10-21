@@ -425,3 +425,16 @@ The deployed browser build is an early PlayCanvas neighborhood prototype. It has
 - [ ] Continue the independent PUBG-inspired action mode with responsive movement, aiming, shooting, safe age-specific design, maps, opponents, and full round rules; never present the football drill as satisfying this requirement.
 
 **Scope note:** the new drill is playable locally and does not provide full team matches, online multiplayer, realistic animation, or console-grade gameplay yet.
+
+
+## 2026-10-21 — Full progression persistence pass
+
+- [x] Add private per-player `player_game_saves` storage with row-level security and owner-only read/write policies.
+- [x] Sync the existing life-simulation save: XP/level, prototype coins, happiness/energy, daily quests, owned/equipped wardrobe items, NPC relationship values, pets and their care/names/supplies, and the adventure journal.
+- [x] Include selected local records (football, Block Blast, memory-match bests, login streak, daily reward markers, and shared-walk reward marker) in the per-account snapshot.
+- [x] Add a visible cloud-save status in the in-game HUD and preserve local storage as the offline/signed-out fallback.
+- [x] Add 10 XP to the reward for completing all four daily objectives.
+- [ ] Validate cloud save/load, sign-out/sign-in restore, and account isolation in a real browser session.
+- [ ] Validate the updated deployed build and all touch controls on the target Android phone.
+
+**Scope note:** cloud saves preserve prototype progress but do not make client-controlled currency or rewards cheat-proof. The full football match, action mode, vehicles, multiplayer, final 3D characters, Android package, ads, and purchases remain separate unfinished milestones.
