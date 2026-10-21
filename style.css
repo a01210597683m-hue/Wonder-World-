@@ -767,3 +767,11 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 #wonder-guide-choices{display:grid;gap:7px}
 .wonder-guide-choice{min-height:42px;padding:9px 12px;border:1px solid #cbd9e5;border-radius:11px;background:#f4f8fc;color:#1e3850;text-align:right;font:inherit;font-size:12px;font-weight:750;touch-action:manipulation}
 #wonder-guide-answer{padding:10px;border-radius:10px;background:#eef7f3;color:#244b43;font-size:13px;line-height:1.65}
+
+/* Player-controlled football aiming: visible target marker and touch-friendly lane controls. */
+.football-goal{overflow:visible}
+#football-target{position:absolute;top:8%;width:18px;height:18px;border:3px solid #ffe16b;border-radius:50%;background:#ffffff55;transform:translate(-50%,-50%);box-shadow:0 0 0 3px #172b4d66;transition:left .12s ease;pointer-events:none}
+.football-aim-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%;max-width:340px;margin:8px auto}
+.football-aim-controls button{min-height:42px;border:2px solid #d5e4ec;border-radius:10px;background:#f4f8fb;color:#18334a;font:inherit;font-size:13px;font-weight:800;touch-action:manipulation}
+.football-aim-controls button[aria-pressed="true"]{background:#dff5e8;border-color:#27875a;box-shadow:inset 0 0 0 1px #27875a}
+.football-aim-controls button:focus-visible{outline:3px solid #f0b949;outline-offset:2px}
