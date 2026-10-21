@@ -38,7 +38,8 @@
     ['plane','✈️','الطيران والإقلاع والهبوط'],
     ['gym','🏋️','Wonder Gym — التمرين والتقدم'],
     ['train','🚆','القطارات والمحطات'],
-    ['stocks','📈','الأسهم — محفظة افتراضية'],
+    ['arrows','🏹','لعبة الأسهم — افتحي المسارات'],
+    ['stocks','📈','سوق الأسهم — محفظة افتراضية'],
     ['cups','🥤','بكاسة — تحدي الكؤوس'],
     ['space','🚀','صواريخ الفضاء — Space Blaster'],
     ['candy','🍬','Candy Crush — مطابقة الحلوى'],
@@ -79,6 +80,7 @@
         plane:'ارفعي قوة المحرك، اقلعي، حافظي على الارتفاع ثم اهبطي في منطقة المدرج لتحصلي على نتيجة الطيران.',
         gym:'اختاري التمرين وسجلي التكرارات. التقدم افتراضي داخل اللعبة وليس نصيحة طبية.',
         train:'قدمي القطار بين المحطات، توقفي عند العلامات، واجمعي نقاط الالتزام بالجدول.',
+        arrows:'أخرجي الأسهم من اللوحة في اتجاه رؤوسها. السهم لا يقدر يمر من خلال سهم آخر؛ اختاري المسارات المفتوحة أولًا.',
         stocks:'تدريب تعليمي بمحفظة وعملة افتراضية فقط. لا يوجد تداول حقيقي ولا أموال حقيقية.',
         cups:'تابعي مكان النجمة تحت الكؤوس، ثم اختاري الكأس الصحيح. كل جولة تعيد خلط المكان.',
         space:'حركي المركبة يمينًا ويسارًا وأطلقي الليزر على النيازك لتحمي سفينة الفضاء.',
@@ -97,6 +99,7 @@
       else if(active==='plane') renderPlane();
       else if(active==='gym') renderGym();
       else if(active==='train') renderTrain();
+      else if(active==='arrows') renderArrows();
       else if(active==='stocks') renderStocks();
       else if(active==='cups') renderCups();
       else if(active==='space') renderSpace();
@@ -175,6 +178,20 @@
       html('<div class="wwa-look" id="wwa-train-scene">🚆 محطة Wonder Central</div><p>السرعة: <b id="wwa-train-speed">0</b> كم/س | التقدم: <b id="wwa-train-progress">0</b>% | المحطات: <b id="wwa-train-stops">0</b>/3</p><div style="height:18px;border-radius:99px;background:#dce5ef;overflow:hidden"><div id="wwa-track-progress" style="height:100%;width:0;background:#3d8dc3"></div></div><div class="wwa-actions">'+button('wwa-train-accelerate','🚆 تسريع')+button('wwa-train-brake','🛑 فرامل','secondary')+button('wwa-train-open','فتح الأبواب')+'</div>');
       $('#wwa-content',panel).addEventListener('click',e=>{if(e.target.id==='wwa-train-accelerate'){state.speed=Math.min(120,state.speed+20);state.progress=Math.min(100,state.progress+12);msg('القطار يتحرك بسرعة '+state.speed+' كم/س.');}else if(e.target.id==='wwa-train-brake'){state.speed=Math.max(0,state.speed-30);msg('خفّضتي السرعة. استخدمي الفرامل قرب المحطة.');}else if(e.target.id==='wwa-train-open'){if(state.speed>0){msg('أوقفي القطار تمامًا قبل فتح الأبواب!');return;}if(state.progress<(state.station+1)*30){msg('لسه ما وصلتيش للمحطة التالية.');return;}if(state.station<3){state.station++;state.stops++;msg('وصلتي للمحطة '+state.station+' بأمان. أحسنتِ!');}else msg('خلصت الرحلة بنجاح.');}else return;$('#wwa-train-speed',panel).textContent=state.speed;$('#wwa-train-progress',panel).textContent=state.progress;$('#wwa-train-stops',panel).textContent=state.stops;$('#wwa-track-progress',panel).style.width=state.progress+'%';$('#wwa-train-scene',panel).textContent=state.speed?'🚆 القطار على السكة — المحطة التالية':'🚉 '+(state.station>=3?'وصلتي لنهاية الرحلة':'توقّف في المحطة');});
       msg('سرّعي للوصول، افرملي حتى الصفر، ثم افتحي الأبواب في المحطة.');
+    }
+    function renderArrows(){
+      state={arrows:[
+        {id:0,x:0,y:1,d:'←',dx:-1,dy:0},
+        {id:1,x:2,y:0,d:'↑',dx:0,dy:-1},
+        {id:2,x:1,y:3,d:'→',dx:1,dy:0},
+        {id:3,x:4,y:2,d:'↓',dx:0,dy:1},
+        {id:4,x:3,y:4,d:'←',dx:-1,dy:0},
+        {id:5,x:4,y:4,d:'↑',dx:0,dy:-1}
+      ],moves:0,cleared:0};
+      html('<p>الأسهم لازم تخرج من حافة اللوحة في اتجاه رأس السهم. لو فيه سهم في طريقه، المسار مقفول.</p><div id="wwa-arrow-board" class="wwa-board" style="grid-template-columns:repeat(5,minmax(0,1fr))"></div><p>الأسهم الخارجة: <b id="wwa-arrow-cleared">0</b>/6 | الحركات: <b id="wwa-arrow-moves">0</b></p>');
+      function canExit(a){for(let x=a.x+a.dx,y=a.y+a.dy;x>=0&&x<5&&y>=0&&y<5;x+=a.dx,y+=a.dy){if(state.arrows.some(other=>other.id!==a.id&&other.x===x&&other.y===y))return false;}return true;}
+      function draw(){const wrap=$('#wwa-arrow-board',panel);wrap.replaceChildren();for(let y=0;y<5;y++)for(let x=0;x<5;x++){const a=state.arrows.find(v=>v.x===x&&v.y===y);const b=el('button',{type:'button',class:'wwa-candy','aria-label':a?'سهم '+a.d:'خانة فارغة'},a?a.d:'·');b.style.background=a?(canExit(a)?'#d5f4df':'#f9dfe2'):'#edf2f7';b.disabled=!a;b.addEventListener('click',()=>{if(canExit(a)){state.arrows=state.arrows.filter(v=>v.id!==a.id);state.cleared++;msg('السهم خرج من اللوحة بنجاح!');}else msg('المسار مقفول بسهم آخر. اختاري سهمًا بمسار مفتوح.');state.moves++;$('#wwa-arrow-cleared',panel).textContent=state.cleared;$('#wwa-arrow-moves',panel).textContent=state.moves;draw();if(!state.arrows.length)msg('رائع! فضّيتي اللوحة من كل الأسهم. 🏹');});wrap.appendChild(b);}}
+      draw();msg('ابدئي بالأسهم ذات المسار الأخضر، ثم افتحي طريق الأسهم المحجوبة.');
     }
     function renderStocks(){
       state={cash:1000,shares:{WON:0,SKY:0,SPK:0},prices:{WON:20,SKY:35,SPK:15},history:[]};
