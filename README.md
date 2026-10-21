@@ -100,3 +100,11 @@ GitHub Actions now installs a pinned Playwright version and runs Chromium with s
 - Browser smoke coverage now checks Block Blast board size, placement/scoring, best-score persistence and reset behavior.
 - Browser smoke coverage now checks Water Sort tube count, a valid pour, move counter, solvable-scramble guidance and reset behavior.
 - Refreshed asset cache versions for the gameplay changes.
+
+
+## Water Sort usability and controls guide — 2026-10-21
+- Added one-step undo to Water Sort. Every valid pour snapshots the tube state; undo restores the prior state and decrements the move counter.
+- Undo is disabled when no move exists and after a puzzle is completed, preventing reward state from being rolled back independently.
+- Updated the in-game guide with mobile controls, WASD, football aiming shortcuts and mini-game pointers.
+- Added browser coverage for undo availability, state restoration and reset behavior.
+- Refreshed static asset cache versions.

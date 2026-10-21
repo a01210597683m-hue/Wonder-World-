@@ -167,8 +167,12 @@ try {
   await page.locator('#watersort-tubes .watersort-tube').nth(waterSortPair.source).click();
   await page.locator('#watersort-tubes .watersort-tube').nth(waterSortPair.target).click();
   assert.equal(await page.locator('#watersort-moves').innerText(), '1', 'a valid Water Sort pour should increment the move counter');
+  assert.equal(await page.locator('#watersort-undo').isDisabled(), false, 'undo should become available after a valid pour');
+  await page.locator('#watersort-undo').click();
+  assert.equal(await page.locator('#watersort-moves').innerText(), '0', 'Water Sort undo should restore the previous move count');
   await page.locator('#watersort-restart').click();
   assert.equal(await page.locator('#watersort-moves').innerText(), '0', 'Water Sort restart should reset the move counter');
+  assert.equal(await page.locator('#watersort-undo').isDisabled(), true, 'undo should be disabled after starting a new puzzle');
   await page.locator('#close-watersort').click();
   await page.locator('#watersort-panel').waitFor({ state: 'hidden' });
 
@@ -196,7 +200,7 @@ try {
   await page.locator('#ww-auth-overlay').waitFor({ state: 'hidden' });
 
   assert.deepEqual(pageErrors, [], 'browser should not raise uncaught JavaScript exceptions');
-  process.stdout.write('PASS — mobile browser smoke tests: 3D canvas, touch controls, Egypt/Paris/Tokyo travel, home customization persistence, bounded guide, careers, football keyboard controls and full five-shot scoring/persistence, Block Blast scoring and persistence, solvable Water Sort and move/reset behavior, memory board, signed-out cloud-wallet guidance, account form validation, and no uncaught page errors.\n');
+  process.stdout.write('PASS — mobile browser smoke tests: 3D canvas, touch controls, Egypt/Paris/Tokyo travel, home customization persistence, bounded guide, careers, football keyboard controls and full five-shot scoring/persistence, Block Blast scoring and persistence, solvable Water Sort, undo, move and reset behavior, memory board, signed-out cloud-wallet guidance, account form validation, and no uncaught page errors.\n');
 } finally {
   if (browser) await browser.close();
   await new Promise(resolveClose => server.close(resolveClose));
