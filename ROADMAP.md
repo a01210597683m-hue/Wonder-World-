@@ -501,6 +501,7 @@ This adds a basic runtime regression gate; it does not mark the full product vis
 - [x] Added a controllable low-poly car using the same keyboard and touch movement controls, with a clear enter/exit state.
 - [x] Added a visible backyard swimming pool and a pool interaction that adjusts the prototype's happiness/energy and records progression.
 - [x] Added a home exterior design panel for facade color, roof color, and garden shrub visibility; preferences persist locally on the device.
+- [x] Added a bounded Wonder guide with five prewritten, age-safe help topics; free-form chat and external AI inference remain disabled until a moderated server-side AI integration is ready.
 - [x] Added static regression checks and mobile-browser interaction coverage for the car and home builder.
 - [ ] These are prototype slices, not final licensed rigged character models, a complete vehicle fleet, country travel, full house construction/interior editing, or multiplayer swimming.
 - [ ] Validate the new interactions on a physical Android device and review actual reference images side-by-side before claiming visual parity.
