@@ -18,7 +18,7 @@ const checks = [
   ['Career persistence function exists', /function save\s*\(/.test(careers)],
   ['Auth exposes the configured client to game modules', /window\.wonderWorldSupabase = supabase/.test(read('../auth.js'))],
   ['Password recovery uses Supabase reset flow and returns to the current game URL', /resetPasswordForEmail\(email\.value, \{ redirectTo: window\.location\.href\.split\('\#'\)\[0\] \}\)/.test(read('../auth.js'))],
-  ['Account forms validate email format and minimum signup password length', /email\.checkValidity\(\)/.test(read('../auth.js')) && /forSignup && password\.length < 8/.test(read('../auth.js'))],
+  ['Account forms validate email format and stronger signup password rules', /email\.checkValidity\(\)/.test(read('../auth.js')) && /forSignup && password\.length < 12/.test(read('../auth.js')) && /0123456789/.test(read('../auth.js')) && /password\.split\(''\)\.every/.test(read('../auth.js'))],
   ['Password visibility control updates accessible pressed state', /ww-password-toggle/.test(read('../auth.js')) && /setAttribute\('aria-pressed', String\(!showing\)\)/.test(read('../auth.js'))],
   ['Account dialog supports keyboard focus trapping and restores launcher focus', /event\.key !== 'Tab'/.test(read('../auth.js')) && /launch\.focus\(\)/.test(read('../auth.js'))],
   ['Stale profile requests cannot overwrite a newer account state', /playerRefreshToken/.test(read('../auth.js')) && /refreshToken !== playerRefreshToken/.test(read('../auth.js'))],
