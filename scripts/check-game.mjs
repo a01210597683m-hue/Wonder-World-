@@ -35,6 +35,7 @@ const checks = [
 
   ['PlayCanvas scene entry is loaded', /main\.js\?v=/.test(html)],
   ['Controllable car model is wired to player movement and touch controls', /const playerCar = new Entity/.test(game) && /toggleVehicleMode/.test(game) && /vehicleMode \? 2\.6/.test(game) && /playerCar\.setPosition\(p\.x, 0, p\.z\)/.test(game)],
+  ['Home swimming pool is a real 3D destination with a gameplay interaction', /Home pool water/.test(game) && /name: 'مسبح البيت/.test(game) && /السعادة \+15/.test(game)],
   ['Career system is loaded', /careers\.js\?v=/.test(html)],
   ['Mobile touch controls exist', /data-dir="up"/.test(html) && /data-dir="left"/.test(html)],
   ['World interaction control exists', /id="interact"/.test(game)],
