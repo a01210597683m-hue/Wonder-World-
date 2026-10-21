@@ -1189,8 +1189,10 @@ async function refreshCloudEconomyPanel(messageText = '') {
   if (!client || !gameCloudUserId) {
     panel.replaceChildren();
     const title = document.createElement('strong'); title.textContent = '☁️ متجر الحساب الآمن';
-    const note = document.createElement('p'); note.textContent = 'سجّلي الدخول من زر «حساب اللاعب» عشان تستخدمي المحفظة السحابية. من غير حساب، المتجر الحالي بيشتغل كتجربة محلية على الجهاز.';
-    panel.append(title,note); return;
+    const note = document.createElement('p'); note.textContent = 'سجّلي الدخول عشان تستخدمي المحفظة السحابية وتحتفظي بمشتريات الشعر والهدوم على حسابك. من غير حساب، المتجر بيشتغل كتجربة محلية على الجهاز فقط.';
+    const login = document.createElement('button'); login.id = 'cloud-wallet-login'; login.type = 'button'; login.textContent = '👤 تسجيل الدخول لتفعيل المحفظة';
+    login.addEventListener('click', () => { const launch = document.getElementById('ww-auth-launch'); if (launch) launch.click(); else note.textContent = 'افتحي زر «حساب اللاعب» أعلى الشاشة لتسجيل الدخول.'; });
+    panel.append(title,note,login); return;
   }
   panel.replaceChildren();
   const title = document.createElement('strong'); title.textContent = '☁️ محفظة الحساب — رصيد موثّق من الخادم';
