@@ -511,3 +511,12 @@ This adds a basic runtime regression gate; it does not mark the full product vis
 - [x] Added server-priced cloud-wallet career shift rewards for the three known job types, with authenticated RPC access, a daily cap of 10 claims, and a transaction ledger entry per accepted shift.
 - [ ] Extend server-authoritative accounting to business premises, stock, expenses, order payouts and business daily contracts; the shop/business simulation's workCredits still remain local prototype data.
 - [ ] Run live authenticated tests for shift reward caps, account isolation, wallet refresh and failed-network behavior.
+
+
+## 2026-10-21 — First cross-country travel prototype
+- [x] Expanded the explorable ground and movement bounds so destinations can sit beyond the original neighborhood.
+- [x] Added three separated low-poly destination areas: Egypt (stepped pyramids and sphinx silhouette), Paris (Eiffel-inspired tower), and Tokyo (torii gate and cherry-blossom garden).
+- [x] Added the destinations to the in-game fast-travel list and browser smoke coverage for arrival in two countries.
+- [ ] Replace instant map teleportation with transport selection, routes, fares, and aircraft/train/car travel.
+- [ ] Replace primitive landmarks with detailed, optimized country environments and mobile-device performance testing.
+- Note: this is a local prototype travel layer. It does not yet simulate real country-scale maps, actual vehicles between countries, or persistent multiplayer travel.
