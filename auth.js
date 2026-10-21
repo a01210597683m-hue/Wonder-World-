@@ -5,6 +5,8 @@ const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_aOosJXpV_6B_ErSwVFJ1zQ_ZAq_nksS
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
 });
+// Publish the configured client for same-origin game modules; RLS still enforces per-user access.
+window.wonderWorldSupabase = supabase;
 
 const style = document.createElement('style');
 style.textContent = `
@@ -121,6 +123,9 @@ async function refreshPlayer(user) {
   }
 }
 async function syncSession(session) {
+  window.dispatchEvent(new CustomEvent('wonderworld:auth-state', {
+    detail: { user: session?.user ? { id: session.user.id } : null }
+  }));
   if (!session?.user) { showSignedOut(); return; }
   try { await refreshPlayer(session.user); }
   catch (error) { console.error(error); message('تم تسجيل الدخول، لكن تعذّر تحميل بيانات اللاعب.'); }
