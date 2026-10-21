@@ -761,3 +761,9 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 #home-build-panel.wonder-overlay{width:min(440px,calc(100vw - 24px))!important;max-height:min(78dvh,650px)!important;padding:12px;border:1px solid #ffffffb8;border-radius:16px;color:#17324c;background:#fffaf0f7;box-shadow:0 12px 35px #10263c55}
 #home-build-panel h4{margin:10px 0 6px;font-size:13px;color:#304b64}
 #home-build-panel #toggle-home-garden{margin-top:10px;border:1px solid #cbd9e5;border-radius:10px;padding:9px 12px;background:#f2f7fb;color:#29435b;font:inherit;font-size:12px;font-weight:750}
+
+
+#wonder-guide-panel.wonder-overlay{width:min(440px,calc(100vw - 24px))!important;max-height:min(78dvh,650px)!important;padding:12px;border:1px solid #ffffffb8;border-radius:16px;color:#17324c;background:#fffaf0f7;box-shadow:0 12px 35px #10263c55}
+#wonder-guide-choices{display:grid;gap:7px}
+.wonder-guide-choice{min-height:42px;padding:9px 12px;border:1px solid #cbd9e5;border-radius:11px;background:#f4f8fc;color:#1e3850;text-align:right;font:inherit;font-size:12px;font-weight:750;touch-action:manipulation}
+#wonder-guide-answer{padding:10px;border-radius:10px;background:#eef7f3;color:#244b43;font-size:13px;line-height:1.65}
