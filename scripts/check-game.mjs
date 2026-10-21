@@ -8,6 +8,7 @@ const careers = read('../careers.js');
 const boardGames = read('../board-games.js');
 const gameSaveMigration = read('../supabase/migrations/202610210006_add_private_player_game_saves.sql');
 const economyMigration = read('../supabase/migrations/202610210007_secure_virtual_economy.sql');
+const welcomeMigration = read('../supabase/migrations/202610210010_wallet_welcome_bonus.sql');
 const css = read('../style.css');
 const careerCss = read('../career.css');
 
@@ -25,6 +26,7 @@ const checks = [
   ['Main wardrobe buy buttons call the authenticated cloud purchase RPC directly', /async function purchaseCloudItem/.test(game) && /void purchaseCloudItem\(item, button\)/.test(game) && /ww_purchase_game_item/.test(game)],
   ['Cloud shop refresh rejects stale results after account changes', /cloudPanelRefreshToken/.test(game) && /refreshToken !== cloudPanelRefreshToken/.test(game)],
   ['Economy migration has owner-only transaction reads and daily-claim uniqueness', economyMigration.includes('enable row level security') && economyMigration.includes('Players can view their own economy transactions') && economyMigration.includes('primary key(player_id,reward_code,claim_date)')],
+  ['Cloud wallets receive a one-time starter balance with a ledger record', welcomeMigration.includes('values (v_uid, 20)') && welcomeMigration.includes("'welcome_bonus'") && welcomeMigration.includes('where w.coins = 0')],
   ['Economy RPCs require authenticated users and restrict anonymous execution', economyMigration.includes('auth.uid()') && economyMigration.includes('revoke all on function public.ww_purchase_game_item(text) from public,anon') && economyMigration.includes('grant execute on function public.ww_purchase_game_item(text) to authenticated')],
   ['Mobile viewport allows user zoom', /viewport-fit=cover/.test(html) && !/user-scalable=no|max(?:imum)?-scale=1/i.test(html)],
 
