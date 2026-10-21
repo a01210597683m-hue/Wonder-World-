@@ -19,7 +19,7 @@
 - Current player read policies scope profiles, progress, wallet and inventory to the signed-in player's own rows. The game catalog is readable for available items.
 - Migration `lock_down_wonderworld_client_table_writes` has been applied to Supabase. Browser roles no longer need direct table-write permissions for player data; wallet, inventory and progress changes must be server-authoritative.
 - GitHub Actions run for commit `707cb07f85f2e02e68bd1951625f019c6b0b5be9` (run 228) completed successfully: JavaScript syntax, gameplay checks, asset/integration checks, artifact upload and Pages deployment all passed.
-- `player_career_saves` and `player_game_saves` are designed for select/insert/update/delete by `authenticated` only, with RLS owner checks using `(select auth.uid()) = player_id`. The career policies were verified by querying `pg_policies`; the new game-save policies still need a post-migration verification pass.
+- `player_career_saves` and `player_game_saves` are designed for select/insert/update/delete by `authenticated` only, with RLS owner checks using `(select auth.uid()) = player_id`. The career policies were verified by querying `pg_policies`; the `player_game_saves` policies were also verified by querying `pg_policies`; all four operations are limited to `authenticated` and scoped to the matching player ID.
 - Reference images remain visual references; they are not 3D playable models.
 
 ## Remaining issues and manual checks
