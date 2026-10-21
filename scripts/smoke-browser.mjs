@@ -66,6 +66,16 @@ try {
   assert.match(await page.locator('#toggle-vehicle').innerText(), /النزول من العربية/);
   await page.locator('#toggle-vehicle').click();
   assert.equal(await page.locator('#toggle-vehicle').getAttribute('aria-pressed'), 'false', 'vehicle button should return to walking mode');
+  await page.locator('#open-home-build').click();
+  await page.locator('#home-build-panel').waitFor({ state: 'visible' });
+  await page.locator('[data-home-wall="mint"]').click();
+  assert.match(await page.locator('#home-build-feedback').innerText(), /نعناعي/);
+  await page.locator('[data-home-roof="blue"]').click();
+  await page.locator('#toggle-home-garden').click();
+  assert.equal(await page.locator('#toggle-home-garden').getAttribute('aria-pressed'), 'false', 'garden customization should toggle off');
+  assert.match(await page.evaluate(() => localStorage.getItem('wonderworld-home-design-v1')), /"wall":"mint"/, 'home design should persist locally');
+  await page.locator('#close-home-build').click();
+  await page.locator('#home-build-panel').waitFor({ state: 'hidden' });
 
   await page.locator('#open-careers').click();
   await page.locator('#career-panel').waitFor({ state: 'visible' });
