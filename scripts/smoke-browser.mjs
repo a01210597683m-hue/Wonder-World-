@@ -414,7 +414,7 @@ try {
       await page.locator('[data-act="reload"]').click();
       assert.equal(await page.locator('#wwa-ammo').innerText(), '12', 'battle reload should refill the training magazine');
     }
-    if (id === 'football') { await page.locator('[data-f="pass"]').click(); await page.locator('[data-f="shoot"]').click(); }
+    if (id === 'football') { await page.locator('[data-f="pass"]').click(); assert.match(await page.locator('#wwa-match-status').innerText(), /تمريرة وصلت/,'pass should reach a teammate'); await page.locator('[data-f="switch"]').click(); assert.match(await page.locator('#wwa-match-status').innerText(), /بدّلتي التحكم/,'player switch should select the receiving teammate'); await page.locator('[data-f="shoot"]').click(); assert.match(await page.locator('#wwa-match-status').innerText(), /تسديدة/,'the receiving player should be able to shoot'); }
     if (id === 'ropes') { await page.locator('#wwa-rope-nodes button').nth(0).click(); await page.locator('#wwa-rope-nodes button').nth(1).click(); }
     if (id === 'fashion') { await page.locator('#wwa-looks button').first().click(); await page.locator('#wwa-runway-go').click(); }
     if (id === 'plane') { await page.locator('#wwa-thrust-up').click(); await page.locator('#wwa-thrust-up').click(); await page.locator('#wwa-thrust-up').click(); await page.locator('#wwa-takeoff').click(); await page.locator('#wwa-level').click(); await page.locator('#wwa-level').click(); await page.locator('#wwa-land').click(); }
