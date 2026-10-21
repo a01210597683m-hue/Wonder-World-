@@ -40,6 +40,9 @@ const checks = [
 
   ['Ludo and chess activities are dynamically wired', /import\(['"]\.\/board-games\.js\?v=/.test(game)],
   ['Board-game module contains Ludo and chess activities', /function initLudo\(/.test(boardGames) && /function initChess\(/.test(boardGames) && /cpuTurn/.test(boardGames)],
+  ['Ludo home pieces are rendered and selectable before launch', /homeSlots=\{/.test(boardGames) && /data-ludo-home/.test(boardGames) && /moveLudo\(slot\[0\],slot\[1\]\)/.test(boardGames)],
+  ['Static houses and pool are re-enabled independently of account state', /staticHouseStructures/.test(game) && /staticPoolStructures/.test(game) && /ensureStaticWorldVisible\(\)/.test(game)],
+  ['Cloud saves track the active account and clear prior account data for a fresh account', /wonderworld-active-cloud-user-v1/.test(game) && /priorCloudUser !== userId/.test(game) && /localStorage\.removeItem\(GAME_SAVE_KEY\)/.test(game)],
   ['Ludo win-loss record persists locally and only records each finished game once', /wonderworld-ludo-record-v1/.test(boardGames) && /function recordLudoResult/.test(boardGames) && /ludo\.recorded/.test(boardGames)],
   ['Chess supports undo snapshots and resettable history', /chess\.history\.push/.test(boardGames) && /id="chess-undo"/.test(boardGames) && /chess\.history\.pop\(\)/.test(boardGames) && /chess\.history\.length===0/.test(boardGames)],
 
