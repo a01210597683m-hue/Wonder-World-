@@ -254,6 +254,7 @@
     render();
 
     async function syncCareerCloud(user) {
+      try { if (user?.id && localStorage.getItem('wonderworld-account-switching') === '1') return; } catch (_) {}
       const token = ++cloudSyncToken;
       cloudUserId = user?.id || null;
       cloudReady = false;
