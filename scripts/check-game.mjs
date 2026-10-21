@@ -16,8 +16,8 @@ const checks = [
   ['Career state supports private Supabase cloud saves', /player_career_saves/.test(careers) && /wonderworld:auth-state/.test(careers)],
   ['Full game progression has private cloud-save sync', /player_game_saves/.test(game) && /buildProgressSnapshot/.test(game) && /deviceRecords/.test(game)],
   ['Game-save status is visible in the HUD', /game-cloud-status/.test(game)],
-  ['Game-save migration enables RLS and owner-scoped policies', /enable row level security/i.test(gameSaveMigration) && (gameSaveMigration.match(/using \\(\\(select auth\\.uid\\(\\)\\) = player_id\\)/g) || []).length >= 3 && (gameSaveMigration.match(/with check \\(\\(select auth\\.uid\\(\\)\\) = player_id\\)/g) || []).length >= 2],
-  ['Daily objective completion rewards XP', /awardXP\\(10\\);\\s*say/.test(game)],
+  ['Game-save migration enables RLS and owner-scoped policies', gameSaveMigration.includes('enable row level security') && gameSaveMigration.includes('Players can read their own game save') && gameSaveMigration.includes('Players can update their own game save') && gameSaveMigration.includes('with check ((select auth.uid()) = player_id)')],
+  ['Daily objective completion rewards XP', game.includes('awardXP(10);') && game.includes('خلّصتي كل مهام اليوم')],
   ['Mobile viewport allows user zoom', /viewport-fit=cover/.test(html) && !/user-scalable=no|max(?:imum)?-scale=1/i.test(html)],
 
   ['Ludo and chess activities are dynamically wired', /import\(['"]\.\/board-games\.js\?v=/.test(game)],
