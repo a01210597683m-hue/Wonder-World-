@@ -193,7 +193,7 @@
       function resetKickoff(scoringTeam){
         state.player={x:320,y:315};state.teammates=[{x:220,y:255},{x:420,y:255},{x:280,y:190},{x:360,y:190}];
         state.opponents=[{x:250,y:92},{x:390,y:92},{x:320,y:140},{x:205,y:175},{x:435,y:175}];
-        state.keeper={x:320,y:42};state.ball={x:320,y:300,vx:0,vy:0};state.possession='player';
+        state.keeper={x:320,y:42};state.ball={x:320,y:300,vx:0,vy:0};state.possession='player';state.passTarget=null;
         matchStatus.textContent=scoringTeam==='player'?'جوووول لـ Wonder FC! ⚽ استعدي لبدء اللعب من جديد.':'الفريق المنافس سجّل. تقدري ترجعي وتعدّلي النتيجة!';
       }
       function move(dx,dy){
@@ -207,9 +207,9 @@
         if(state.ended)return;
         const p=state.player,b=ball();
         if(state.possession!=='player'&&Math.hypot(p.x-b.x,p.y-b.y)>42){matchStatus.textContent='قرّبي من الكرة الأول عشان تقدري تمرّري.';return;}
-        state.possession='player';state.passes++;
+        state.possession='teammate';state.passTarget=null;state.passes++;
         const mate=state.teammates.reduce((best,t)=>Math.hypot(t.x-p.x,t.y-p.y)<Math.hypot(best.x-p.x,best.y-p.y)?t:best,state.teammates[0]);
-        b.x=mate.x;b.y=mate.y-8;p.x=clamp(p.x+(mate.x-p.x)*.12,32,608);p.y=clamp(p.y+(mate.y-p.y)*.12,35,365);
+        state.passTarget=mate;b.x=mate.x+10;b.y=mate.y-7;
         matchStatus.textContent='تمريرة وصلت لزميلتك! تحرّكي للمساحة وكمّلي الهجمة.';
         draw();
       }
@@ -228,6 +228,7 @@
         const dt=Math.min(.05,(now-state.lastTick)/1000);state.lastTick=now;state.seconds=Math.max(0,state.seconds-dt);
         const p=state.player,b=ball();
         if(state.possession==='player'){b.x=p.x+10;b.y=p.y-7;}
+        else if(state.possession==='teammate'&&state.passTarget){b.x=state.passTarget.x+10;b.y=state.passTarget.y-7;}
         else if(state.possession==='opponent'){
           const carrier=state.opponents[2];carrier.y=clamp(carrier.y+45*dt,45,350);b.x=carrier.x;b.y=carrier.y+8;
           if(carrier.y>300){state.possession='none';b.vx=(320-b.x)*.035;b.vy=7;matchStatus.textContent='الفريق المنافس بيهاجم! اقطعي الكرة.';}
@@ -240,7 +241,7 @@
             else {state.blue++;updateScore();resetKickoff('player');}
           } else if(b.y<25){b.y=25;b.vy=Math.abs(b.vy)*.6;}
           if(b.y>360&&b.x>252&&b.x<388){state.red++;updateScore();resetKickoff('opponent');}
-          if(Math.hypot(p.x-b.x,p.y-b.y)<23){state.possession='player';b.vx=0;b.vy=0;matchStatus.textContent='استحواذ ممتاز! مرّري أو سدّدي.';}
+          if(Math.hypot(p.x-b.x,p.y-b.y)<23){state.possession='player';state.passTarget=null;b.vx=0;b.vy=0;matchStatus.textContent='استحواذ ممتاز! مرّري أو سدّدي.';}
           else {
             const rival=state.opponents.reduce((best,o)=>Math.hypot(o.x-b.x,o.y-b.y)<Math.hypot(best.x-b.x,best.y-b.y)?o:best,state.opponents[0]);
             const d=Math.hypot(rival.x-b.x,rival.y-b.y);
