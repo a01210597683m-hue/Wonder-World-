@@ -10,7 +10,8 @@ const css = read('../style.css');
 const careerCss = read('../career.css');
 
 const checks = [
-  ['Career persistence function exists', /function save\\s*\\(/.test(careers)],
+  ['Career persistence function exists', /function save\s*\(/.test(careers)],
+  ['Auth exposes the configured client to game modules', /window\.wonderWorldSupabase = supabase/.test(read('../auth.js'))],
   ['Career state supports private Supabase cloud saves', /player_career_saves/.test(careers) && /wonderworld:auth-state/.test(careers)],
   ['Mobile viewport allows user zoom', /viewport-fit=cover/.test(html) && !/user-scalable=no|max(?:imum)?-scale=1/i.test(html)],
 
