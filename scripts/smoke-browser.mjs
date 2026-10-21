@@ -148,8 +148,6 @@ try {
   // A free ready-made villa opens a distinct furnished interior; the premium villa is price-gated.
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'فيلا Wonder الجاهزة' }).click();
-  await page.locator('#map-destinations').waitFor({ state: 'visible' });
-  await page.locator('.map-destination').filter({ hasText: 'فيلا Wonder الجاهزة' }).click();
   await page.locator('#interact').click();
   await page.locator('#exit-home').waitFor({ state: 'visible' });
   await page.locator('#exit-home').click();
