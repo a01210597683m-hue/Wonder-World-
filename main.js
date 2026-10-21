@@ -42,6 +42,9 @@ const mats = {
   hairBlack: mat(new Color(0.055, 0.045, 0.07)),
   hairRose: mat(new Color(0.55, 0.19, 0.35)),
   skin: mat(new Color(0.88, 0.63, 0.46)),
+  eyes: mat(new Color(0.98, 0.98, 0.96)),
+  pupil: mat(new Color(0.12, 0.09, 0.18)),
+  shoes: mat(new Color(0.16, 0.18, 0.24)),
   npcBlue: mat(new Color(0.18, 0.53, 0.82)),
   npcPink: mat(new Color(0.89, 0.34, 0.56)),
   npcGold: mat(new Color(0.96, 0.68, 0.19)),
@@ -196,16 +199,31 @@ function makePerson(name, x, z, shirtMaterial, isPlayer = false) {
   const person = new Entity(name);
   person.setPosition(x, 0, z);
   app.root.addChild(person);
-  const body = box(name + ' body', 0.82, 1.35, 0.58, 0, 0.95, 0, shirtMaterial, person);
+  const body = box(name + ' body', 0.82, 1.22, 0.58, 0, 1.02, 0, shirtMaterial, person);
   sphere(name + ' head', 0.78, 0, 1.95, 0, mats.skin, person);
   const hair = sphere(name + ' hair', 0.8, 0, 2.28, -0.04, isPlayer ? mats.player : mats.trunk, person);
-  const leftArm = box(name + ' left arm', 0.22, 0.95, 0.24, -0.54, 1.0, 0, shirtMaterial, person);
-  const rightArm = box(name + ' right arm', 0.22, 0.95, 0.24, 0.54, 1.0, 0, shirtMaterial, person);
-  person.outfitParts = [body, leftArm, rightArm];
+  const hairFront = sphere(name + ' fringe', 0.38, 0, 2.16, 0.31, isPlayer ? mats.player : mats.trunk, person);
+  const leftEye = sphere(name + ' left eye', 0.13, -0.18, 2.00, 0.335, mats.eyes, person);
+  const rightEye = sphere(name + ' right eye', 0.13, 0.18, 2.00, 0.335, mats.eyes, person);
+  sphere(name + ' left pupil', 0.065, -0.18, 2.00, 0.445, mats.pupil, person);
+  sphere(name + ' right pupil', 0.065, 0.18, 2.00, 0.445, mats.pupil, person);
+  sphere(name + ' nose', 0.075, 0, 1.86, 0.37, mats.skin, person);
+  box(name + ' smile', 0.16, 0.035, 0.04, 0, 1.77, 0.36, mats.outfitCoral, person);
+  const leftArm = box(name + ' left arm', 0.22, 0.88, 0.24, -0.54, 1.0, 0, shirtMaterial, person);
+  const rightArm = box(name + ' right arm', 0.22, 0.88, 0.24, 0.54, 1.0, 0, shirtMaterial, person);
+  const leftLeg = box(name + ' left leg', 0.27, 0.68, 0.3, -0.22, 0.39, 0, mats.outfitBlue, person);
+  const rightLeg = box(name + ' right leg', 0.27, 0.68, 0.3, 0.22, 0.39, 0, mats.outfitBlue, person);
+  const leftShoe = box(name + ' left shoe', 0.32, 0.16, 0.48, -0.22, 0.09, 0.08, mats.shoes, person);
+  const rightShoe = box(name + ' right shoe', 0.32, 0.16, 0.48, 0.22, 0.09, 0.08, mats.shoes, person);
+  person.outfitParts = [body, leftArm, rightArm, leftLeg, rightLeg];
   person.hairPart = hair;
+  person.hairParts = [hair, hairFront];
   person.bodyPart = body;
   person.leftArm = leftArm;
   person.rightArm = rightArm;
+  person.leftLeg = leftLeg;
+  person.rightLeg = rightLeg;
+  person.faceParts = [leftEye, rightEye];
   person.baseHeadY = 1.95;
   person.baseHairY = 2.28;
   return person;
@@ -1106,7 +1124,7 @@ function equipItem(item) {
     const index = outfitOptions.indexOf(item.material);
     if (index >= 0) outfitIndex = index;
   } else {
-    player.hairPart.render.material = item.material;
+    (player.hairParts || [player.hairPart]).forEach(part => { part.render.material = item.material; });
     equippedItems.hair = item.id;
     const index = hairOptions.indexOf(item.material);
     if (index >= 0) hairIndex = index;
@@ -2061,11 +2079,15 @@ app.on('update', dt => {
     const swing = Math.sin(walkClock) * 24;
     player.leftArm.setLocalEulerAngles(swing, 0, 0);
     player.rightArm.setLocalEulerAngles(-swing, 0, 0);
-    player.bodyPart.setLocalPosition(0, 0.95 + Math.abs(Math.sin(walkClock * 2)) * 0.055, 0);
+    player.leftLeg.setLocalEulerAngles(-swing * 0.7, 0, 0);
+    player.rightLeg.setLocalEulerAngles(swing * 0.7, 0, 0);
+    player.bodyPart.setLocalPosition(0, 1.02 + Math.abs(Math.sin(walkClock * 2)) * 0.055, 0);
   } else {
     player.leftArm.setLocalEulerAngles(0, 0, 0);
     player.rightArm.setLocalEulerAngles(0, 0, 0);
-    player.bodyPart.setLocalPosition(0, 0.95, 0);
+    player.leftLeg.setLocalEulerAngles(0, 0, 0);
+    player.rightLeg.setLocalEulerAngles(0, 0, 0);
+    player.bodyPart.setLocalPosition(0, 1.02, 0);
   }
 
   const p = player.getPosition();
