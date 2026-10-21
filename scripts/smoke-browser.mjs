@@ -130,6 +130,30 @@ try {
   await page.locator('#close-football').click();
   await page.locator('#football-panel').waitFor({ state: 'hidden' });
 
+  await page.locator('#open-blockblast').click();
+  await page.locator('#blockblast-panel').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#blockblast-board .blockblast-cell').count(), 64, 'Block Blast should render an 8x8 board');
+  await page.locator('#blockblast-pieces button[data-piece="0"]').click();
+  await page.locator('#blockblast-board button[data-row="0"][data-col="0"]').click();
+  assert.ok(Number(await page.locator('#blockblast-score').innerText()) > 0, 'placing a valid Block Blast piece should score points');
+  assert.ok(Number(await page.evaluate(() => localStorage.getItem('wonderworld-blockblast-best'))) > 0, 'Block Blast should persist its best score');
+  await page.locator('#blockblast-restart').click();
+  assert.equal(await page.locator('#blockblast-score').innerText(), '0', 'Block Blast restart should reset the current score');
+  await page.locator('#close-blockblast').click();
+  await page.locator('#blockblast-panel').waitFor({ state: 'hidden' });
+
+  await page.locator('#open-watersort').click();
+  await page.locator('#watersort-panel').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#watersort-tubes .watersort-tube').count(), 6, 'Water Sort should render four color tubes and two empty tubes');
+  assert.match(await page.locator('#watersort-feedback').innerText(), /قابل للحل/, 'new Water Sort puzzles should advertise a solvable scramble');
+  await page.locator('#watersort-tubes .watersort-tube').nth(0).click();
+  await page.locator('#watersort-tubes .watersort-tube').nth(4).click();
+  assert.equal(await page.locator('#watersort-moves').innerText(), '1', 'a valid Water Sort pour should increment the move counter');
+  await page.locator('#watersort-restart').click();
+  assert.equal(await page.locator('#watersort-moves').innerText(), '0', 'Water Sort restart should reset the move counter');
+  await page.locator('#close-watersort').click();
+  await page.locator('#watersort-panel').waitFor({ state: 'hidden' });
+
   await page.locator('#open-memory-match').click();
   await page.locator('#memory-match-panel').waitFor({ state: 'visible' });
   assert.equal(await page.locator('#memory-board button').count(), 16, 'memory game should render eight playable pairs');
@@ -154,7 +178,7 @@ try {
   await page.locator('#ww-auth-overlay').waitFor({ state: 'hidden' });
 
   assert.deepEqual(pageErrors, [], 'browser should not raise uncaught JavaScript exceptions');
-  process.stdout.write('PASS — mobile browser smoke tests: 3D canvas, touch controls, Egypt/Paris/Tokyo travel, home customization persistence, bounded guide, careers, football keyboard controls and full five-shot scoring/persistence, memory board, signed-out cloud-wallet guidance, account form validation, and no uncaught page errors.\n');
+  process.stdout.write('PASS — mobile browser smoke tests: 3D canvas, touch controls, Egypt/Paris/Tokyo travel, home customization persistence, bounded guide, careers, football keyboard controls and full five-shot scoring/persistence, Block Blast scoring and persistence, solvable Water Sort and move/reset behavior, memory board, signed-out cloud-wallet guidance, account form validation, and no uncaught page errors.\n');
 } finally {
   if (browser) await browser.close();
   await new Promise(resolveClose => server.close(resolveClose));
