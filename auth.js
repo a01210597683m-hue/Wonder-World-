@@ -25,6 +25,10 @@ style.textContent = `
 #ww-auth-message{min-height:24px;color:#334155;font-size:13px}
 #ww-auth-summary{background:#f1f5f9;border-radius:12px;padding:12px;margin-top:12px;font-size:14px;line-height:1.8}
 #ww-auth-note{font-size:12px;color:#64748b}
+#ww-auth-card button:focus-visible,#ww-auth-card input:focus-visible{outline:3px solid #8b61c2;outline-offset:2px}
+#ww-auth-card button:disabled{opacity:.6;cursor:wait}
+#ww-password-toggle{margin-top:7px}
+#ww-forgot-password{padding-inline:4px;background:transparent;color:#2357a6;text-decoration:underline}
 `;
 document.head.appendChild(style);
 
@@ -52,6 +56,8 @@ overlay.innerHTML = `
     <div class="ww-actions">
       <button id="ww-signin" class="ww-primary" type="button">تسجيل الدخول</button>
       <button id="ww-signup" class="ww-secondary" type="button">إنشاء حساب</button>
+      <button id="ww-forgot-password" type="button">نسيت كلمة المرور؟</button>
+      <button id="ww-password-toggle" class="ww-secondary" type="button" aria-pressed="false">إظهار كلمة المرور</button>
     </div>
   </div>
   <div id="ww-auth-summary" hidden></div>
@@ -67,15 +73,34 @@ document.body.appendChild(overlay);
 const byId = (id) => document.getElementById(id);
 const message = (text) => { byId('ww-auth-message').textContent = text; };
 const open = () => { overlay.hidden = false; message(''); byId('ww-email').focus(); };
-const close = () => { overlay.hidden = true; };
+const close = () => { overlay.hidden = true; launch.focus(); };
 launch.addEventListener('click', open);
 byId('ww-auth-close').addEventListener('click', close);
 overlay.addEventListener('click', (event) => { if (event.target === overlay) close(); });
 document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !overlay.hidden) close(); });
 
 function setBusy(busy) {
-  byId('ww-signin').disabled = busy;
-  byId('ww-signup').disabled = busy;
+  for (const id of ['ww-signin', 'ww-signup', 'ww-forgot-password']) byId(id).disabled = busy;
+}
+function friendlyAuthError(error) {
+  const raw = String(error?.message || '').toLowerCase();
+  if (raw.includes('invalid login credentials')) return 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+  if (raw.includes('email not confirmed')) return 'أكّدي البريد الإلكتروني أولًا، ثم حاولي تسجيل الدخول.';
+  if (raw.includes('password should be at least') || raw.includes('password is too short')) return 'كلمة المرور لازم تكون 8 أحرف على الأقل.';
+  if (raw.includes('rate limit') || raw.includes('too many requests')) return 'محاولات كتير في وقت قصير. استني شوية وجربي تاني.';
+  if (raw.includes('user already registered')) return 'الحساب موجود بالفعل. جرّبي تسجيل الدخول أو استعادة كلمة المرور.';
+  if (raw.includes('network') || raw.includes('fetch')) return 'تعذّر الاتصال بالخدمة. راجعي الإنترنت وحاولي مرة تانية.';
+  return 'تعذّرت العملية. راجعي البيانات واتأكدي من الاتصال، ثم حاولي مرة تانية.';
+}
+function validateCredentials(forSignup = false) {
+  const email = byId('ww-email');
+  email.value = email.value.trim();
+  if (!email.value) { message('اكتبي البريد الإلكتروني.'); email.focus(); return false; }
+  if (!email.checkValidity()) { message('اكتبي بريدًا إلكترونيًا صحيحًا.'); email.focus(); return false; }
+  const password = byId('ww-password').value;
+  if (!password) { message('اكتبي كلمة المرور.'); byId('ww-password').focus(); return false; }
+  if (forSignup && password.length < 8) { message('كلمة المرور لازم تكون 8 أحرف على الأقل.'); byId('ww-password').focus(); return false; }
+  return true;
 }
 function showSignedOut() {
   launch.textContent = '👤 حساب اللاعب';
@@ -84,7 +109,9 @@ function showSignedOut() {
   byId('ww-signout').hidden = true;
   byId('ww-display-name').disabled = false;
 }
+let playerRefreshToken = 0;
 async function refreshPlayer(user) {
+  const refreshToken = ++playerRefreshToken;
   byId('ww-auth-form').hidden = true;
   byId('ww-auth-summary').hidden = false;
   byId('ww-signout').hidden = false;
@@ -97,6 +124,7 @@ async function refreshPlayer(user) {
     supabase.from('player_progress').select('level,experience,updated_at').eq('player_id', user.id).maybeSingle(),
     supabase.from('player_wallets').select('coins,updated_at').eq('player_id', user.id).maybeSingle()
   ]);
+  if (refreshToken !== playerRefreshToken) return;
   const errors = [profileResult, progressResult, walletResult].filter((r) => r.error);
   summary.replaceChildren();
   const line = (label, value) => {
@@ -154,30 +182,29 @@ async function syncSession(session) {
   window.dispatchEvent(new CustomEvent('wonderworld:auth-state', {
     detail: { user: signedInUserId ? { id: signedInUserId } : null }
   }));
-  if (!session?.user) { showSignedOut(); return; }
+  if (!session?.user) { playerRefreshToken++; showSignedOut(); return; }
   try { await refreshPlayer(session.user); }
   catch (error) { console.error(error); message('تم تسجيل الدخول، لكن تعذّر تحميل بيانات اللاعب.'); }
 }
 
 byId('ww-signin').addEventListener('click', async () => {
+  if (!validateCredentials(false)) return;
   const email = byId('ww-email').value.trim();
   const password = byId('ww-password').value;
-  if (!email || !password) { message('اكتبي البريد الإلكتروني وكلمة المرور.'); return; }
   setBusy(true); message('جاري تسجيل الدخول…');
   try {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     await syncSession(data.session);
     message('تم تسجيل الدخول.');
-  } catch (error) { message(error.message || 'تعذّر تسجيل الدخول.'); }
+  } catch (error) { message(friendlyAuthError(error)); }
   finally { setBusy(false); }
 });
 byId('ww-signup').addEventListener('click', async () => {
+  if (!validateCredentials(true)) return;
   const email = byId('ww-email').value.trim();
   const password = byId('ww-password').value;
   const displayName = byId('ww-display-name').value.trim().slice(0, 40);
-  if (!email || !password) { message('اكتبي البريد الإلكتروني وكلمة المرور.'); return; }
-  if (password.length < 8) { message('كلمة المرور لازم تكون 8 أحرف على الأقل.'); return; }
   setBusy(true); message('جاري إنشاء الحساب…');
   try {
     const { data, error } = await supabase.auth.signUp({
@@ -191,8 +218,39 @@ byId('ww-signup').addEventListener('click', async () => {
     } else {
       message('تم إرسال طلب إنشاء الحساب. لو تأكيد البريد مفعّل، افتحي رسالة التأكيد ثم سجّلي الدخول.');
     }
-  } catch (error) { message(error.message || 'تعذّر إنشاء الحساب.'); }
+  } catch (error) { message(friendlyAuthError(error)); }
   finally { setBusy(false); }
+});
+byId('ww-forgot-password').addEventListener('click', async () => {
+  const email = byId('ww-email');
+  email.value = email.value.trim();
+  if (!email.value) { message('اكتبي البريد الإلكتروني الأول عشان نقدر نرسل رابط الاستعادة.'); email.focus(); return; }
+  if (!email.checkValidity()) { message('اكتبي بريدًا إلكترونيًا صحيحًا.'); email.focus(); return; }
+  setBusy(true); message('جاري إرسال طلب استعادة كلمة المرور…');
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.value);
+    if (error) throw error;
+    message('لو البريد مسجّل، هتوصلك رسالة فيها خطوات استعادة كلمة المرور. راجعي الوارد والرسائل غير المرغوب فيها.');
+  } catch (error) { message(friendlyAuthError(error)); }
+  finally { setBusy(false); }
+});
+byId('ww-password-toggle').addEventListener('click', () => {
+  const password = byId('ww-password');
+  const showing = password.type === 'text';
+  password.type = showing ? 'password' : 'text';
+  byId('ww-password-toggle').textContent = showing ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور';
+  byId('ww-password-toggle').setAttribute('aria-pressed', String(!showing));
+});
+byId('ww-auth-card').addEventListener('keydown', event => {
+  if (event.key !== 'Tab') return;
+  const focusable = [...byId('ww-auth-card').querySelectorAll('button:not([disabled]):not([hidden]),input:not([disabled]):not([hidden])')].filter(node => node.offsetParent !== null);
+  if (!focusable.length) return;
+  const first = focusable[0], last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+});
+byId('ww-password').addEventListener('keydown', event => {
+  if (event.key === 'Enter' && !event.isComposing) { event.preventDefault(); byId('ww-signin').click(); }
 });
 byId('ww-signout').addEventListener('click', async () => {
   byId('ww-signout').disabled = true;
