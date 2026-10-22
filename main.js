@@ -181,7 +181,7 @@ function makeDistrictHome(parent, localX, localZ, seed) {
   }
   box('Home garden rear boundary', width + 4.2, 0.62, 0.12, 0, 0.32, 10.7, mats.white, home);
   for (const [fx,fz] of [[-width/2-1.2,4.3],[width/2+1.2,4.3],[-width/2-1.2,9.0],[width/2+1.2,9.0]]) {
-    cylinder('Home garden tree trunk',0.22,1.0,0.22,fx,0.5,fz,mats.trunk);
+    roomCylinder('Home garden tree trunk',0.22,1.0,0.22,fx,0.5,fz,mats.trunk,home);
     sphere('Home garden tree crown',1.15,fx,1.35,fz,mats.leaf,home);
   }
   for (let flowerIndex=0; flowerIndex<6; flowerIndex++) {
@@ -2464,7 +2464,7 @@ function prepareDistrictInterior(place) {
       box('Gym treadmill base', 1.3, 0.18, 3.2, x, 0.25, -1.0, mats.tvFrame, root);
       box('Gym treadmill console', 0.8, 1.1, 0.2, x, 0.9, -2.4, mats.npcBlue, root);
       box('Gym weight bench', 2.2, 0.25, 0.7, x, 0.55, 3.5, mats.outfitBlue, root);
-      cylinder('Gym dumbbell weight', 0.2, 0.45, 0.2, x-0.5, 0.35, 4.5, mats.tvFrame);
+      roomCylinder('Gym dumbbell weight', 0.2, 0.45, 0.2, x-0.5, 0.35, 4.5, mats.tvFrame, root);
     }
   } else if (kind === 'school') {
     for (const [x,z] of [[-4,-1],[0,-1],[4,-1],[-4,3],[0,3],[4,3]]) {
