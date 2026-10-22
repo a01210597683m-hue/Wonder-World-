@@ -131,7 +131,7 @@ function house(name, x, z, wallMaterial, width = 5) {
 // Procedural mega-world: only the nearby 3x3 district chunks are kept active.
 // Each chunk is deterministic from its coordinates, so the world can expand without
 // loading billions of meshes into memory at once.
-const DISTRICT_CHUNK_SIZE = 48;
+const DISTRICT_CHUNK_SIZE = 64;
 const DISTRICT_STREAM_RADIUS = 1;
 const districtChunks = new Map();
 let streamedDistrictCenter = '';
@@ -166,6 +166,28 @@ function makeDistrictHome(parent, localX, localZ, seed) {
   if (seed % 3 === 0) {
     box('Generated house garage', 2.1, 1.65, 0.12, width * 0.25, 0.85, -depth / 2 - 0.12, mats.tvFrame, home);
   }
+  // A private landscaped lot for every generated home and villa: garden, flowers, path and pool.
+  box('Home private garden lawn', width + 4.2, 0.12, 7.8, 0, 0.02, 6.8, mats.leaf, home);
+  box('Home garden stepping path', 1.25, 0.08, 5.0, 0, 0.12, 4.0, mats.path, home);
+  box('Home pool deck', 4.8, 0.12, 3.8, width * 0.24, 0.12, 8.0, mats.path, home);
+  box('Home pool basin', 4.0, 0.16, 3.0, width * 0.24, 0.19, 8.0, mats.road, home);
+  box('Home pool water', 3.55, 0.06, 2.55, width * 0.24, 0.30, 8.0, mats.window, home);
+  for (const [dx,dz,sx,sz] of [
+    [-2.1,0,0.12,3.2],[2.1,0,0.12,3.2],[0,-1.55,4.2,0.12],[0,1.55,4.2,0.12]
+  ]) box('Home pool coping', sx, 0.12, sz, width * 0.24 + dx, 0.32, 8.0 + dz, mats.white, home);
+  // Low garden edging keeps neighboring plots visually separated without blocking paths.
+  for (const side of [-1,1]) {
+    box('Home garden boundary', 0.12, 0.62, 8.2, side * (width / 2 + 2.1), 0.32, 6.8, mats.white, home);
+  }
+  box('Home garden rear boundary', width + 4.2, 0.62, 0.12, 0, 0.32, 10.7, mats.white, home);
+  for (const [fx,fz] of [[-width/2-1.2,4.3],[width/2+1.2,4.3],[-width/2-1.2,9.0],[width/2+1.2,9.0]]) {
+    cylinder('Home garden tree trunk',0.22,1.0,0.22,fx,0.5,fz,mats.trunk);
+    sphere('Home garden tree crown',1.15,fx,1.35,fz,mats.leaf,home);
+  }
+  for (let flowerIndex=0; flowerIndex<6; flowerIndex++) {
+    const flowerX = -width/2 - 1.3 + flowerIndex * (width + 2.6) / 5;
+    sphere('Home garden flower',0.22,flowerX,0.28,3.9,flowerIndex%2?mats.flower:mats.npcGold,home);
+  }
   return home;
 }
 const districtBusinessTypes = [
@@ -179,9 +201,14 @@ const districtBusinessTypes = [
   { name: 'Arcades', kind: 'arcade', wall: mats.npcBlue }, { name: 'Apartment buildings', kind: 'apartments', wall: mats.wallPink }
 ];
 function makeDistrictBuilding(parent, x, z, seed, type) {
-  if (type.kind === 'home' || type.kind === 'villa') return makeDistrictHome(parent, x, z, seed);
+  if (type.kind === 'home' || type.kind === 'villa') {
+    const home = makeDistrictHome(parent, x, z, seed);
+    home.districtPlace = { name: type.name, kind: type.kind, x: parent.getPosition().x + x, z: parent.getPosition().z + z };
+    return home;
+  }
   const b = new Entity('WonderWorld ' + type.name + ' ' + seed);
   b.setLocalPosition(x, 0, z); parent.addChild(b);
+  b.districtPlace = { name: type.name, kind: type.kind, x: parent.getPosition().x + x, z: parent.getPosition().z + z };
   const width = ['hospital','office','cinema'].includes(type.kind) ? 8.2 : 6.5 + (seed % 3) * 0.45;
   const depth = ['hospital','office'].includes(type.kind) ? 7 : 5.8;
   const floors = seed % 3 === 0 ? 3 : 2;
@@ -200,6 +227,15 @@ function makeDistrictBuilding(parent, x, z, seed, type) {
     box('Hospital cross horizontal '+seed,0.85,0.25,0.12,0,floors*2.55+0.75,-depth/2-0.2,mats.npcPink,b);
   }
   if(type.kind==='fashion'||type.kind==='salon') for(const dx of [-1.25,1.25]) box(type.name+' display '+dx,0.65,0.9,0.14,dx,1.2,-depth/2-0.12,mats.outfitGold,b);
+  // Commercial plots get a front plaza, marked parking, planters and a tree buffer.
+  box(type.name+' landscaped forecourt', width + 4.0, 0.10, 3.0, 0, 0.04, -depth/2 - 2.3, mats.path, b);
+  for (const parkingX of [-width/2, 0, width/2]) {
+    box(type.name+' parking bay', 0.08, 0.025, 2.1, parkingX, 0.11, -depth/2 - 2.25, mats.white, b);
+  }
+  for (const planterX of [-width/2 - 1.25, width/2 + 1.25]) {
+    box(type.name+' entry planter', 1.0, 0.22, 1.0, planterX, 0.14, -depth/2 - 0.9, mats.leaf, b);
+    sphere(type.name+' entry shrub', 0.65, planterX, 0.55, -depth/2 - 0.9, mats.leaf, b);
+  }
   return b;
 }
 function createDistrictChunk(chunkX, chunkZ) {
@@ -208,13 +244,13 @@ function createDistrictChunk(chunkX, chunkZ) {
   root.setPosition(chunkX*DISTRICT_CHUNK_SIZE,0,chunkZ*DISTRICT_CHUNK_SIZE);
   app.root.addChild(root);
   box('District grass '+key,DISTRICT_CHUNK_SIZE,0.16,DISTRICT_CHUNK_SIZE,0,-0.16,0,mats.grass,root);
-  for(const roadOffset of [-22,22]){
+  for(const roadOffset of [-29,29]){
     box('District east-west road '+key+' '+roadOffset,DISTRICT_CHUNK_SIZE,0.08,5.2,0,0.01,roadOffset,mats.road,root);
     box('District north-south road '+key+' '+roadOffset,5.2,0.08,DISTRICT_CHUNK_SIZE,roadOffset,0.01,0,mats.road,root);
   }
   let seed=Math.abs((chunkX*73856093)^(chunkZ*19349663))>>>0;
   // 16 lots per streamed district, with varied residential, retail, health, beauty and leisure buildings.
-  for(const localX of [-15,-5,5,15]) for(const localZ of [-15,-5,5,15]){
+  for(const localX of [-21,-7,7,21]) for(const localZ of [-21,-7,7,21]){
     const worldX=chunkX*DISTRICT_CHUNK_SIZE+localX, worldZ=chunkZ*DISTRICT_CHUNK_SIZE+localZ;
     if(Math.hypot(worldX,worldZ)<44){seed=(seed+1)>>>0;continue;}
     seed=(seed*1664525+1013904223)>>>0;
@@ -2346,6 +2382,143 @@ document.getElementById('shop-products').addEventListener('click', event => {
   renderShop();
   say('مبروك! اشتريتي ' + item.name + ' من متجر Wonder 🛍️');
 });
+
+// Reusable, furnished interiors for procedurally generated district buildings.
+const districtInteriorRoot = new Entity('Procedural District Interior');
+app.root.addChild(districtInteriorRoot);
+districtInteriorRoot.enabled = false;
+let districtInteriorContent = null;
+function prepareDistrictInterior(place) {
+  if (districtInteriorContent) districtInteriorContent.destroy();
+  districtInteriorContent = new Entity('Furnished ' + place.kind + ' interior');
+  districtInteriorRoot.addChild(districtInteriorContent);
+  const root = districtInteriorContent;
+  const kind = place.kind;
+  const wall = kind === 'hospital' || kind === 'pharmacy' ? mats.white :
+    kind === 'salon' || kind === 'fashion' ? mats.wallPink :
+    kind === 'restaurant' || kind === 'market' ? mats.wallGold : mats.wall;
+  box('District interior floor', 18, 0.24, 18, 0, -0.16, 0, mats.path, root);
+  box('District interior back wall', 18, 4.8, 0.28, 0, 2.25, -9, wall, root);
+  box('District interior left wall', 0.28, 4.8, 18, -9, 2.25, 0, mats.white, root);
+  box('District interior right wall', 0.28, 4.8, 18, 9, 2.25, 0, mats.white, root);
+  box('District interior front wall left', 5.5, 4.8, 0.28, -6.25, 2.25, 9, wall, root);
+  box('District interior front wall right', 5.5, 4.8, 0.28, 6.25, 2.25, 9, wall, root);
+  box('District interior entry mat', 2.8, 0.08, 1.1, 0, 0.02, 7.6, mats.white, root);
+  box('District interior reception counter', 4.0, 1.0, 1.0, 0, 0.55, -6.2, mats.bench, root);
+  box('District interior service counter top', 4.2, 0.14, 1.15, 0, 1.12, -6.2, mats.outfitGold, root);
+  box('District interior feature sign', 5.0, 0.8, 0.16, 0, 3.15, -8.75, kind === 'hospital' ? mats.npcPink : mats.npcBlue, root);
+  if (kind === 'home' || kind === 'villa' || kind === 'apartments') {
+    box('District living room sofa', 3.8, 0.7, 1.0, -4.5, 0.45, -1.2, mats.outfitMint, root);
+    box('District sofa back', 3.8, 1.0, 0.3, -4.5, 0.95, -0.75, mats.outfitMint, root);
+    box('District coffee table', 1.8, 0.22, 1.0, -1.6, 0.48, -1.2, mats.bench, root);
+    box('District bedroom bed', 3.2, 0.55, 4.0, 4.4, 0.35, -3.2, mats.outfitBlue, root);
+    box('District bedroom pillow', 2.0, 0.18, 0.65, 4.4, 0.72, -4.45, mats.white, root);
+    box('District kitchen cabinets', 3.0, 0.85, 0.9, -4.7, 0.42, -5.2, mats.outfitMint, root);
+    box('District kitchen counter', 3.2, 0.16, 1.0, -4.7, 0.96, -5.2, mats.white, root);
+    box('District bathroom vanity', 1.3, 0.75, 0.7, 6.7, 0.38, 4.8, mats.white, root);
+    box('District bathroom mirror', 1.1, 1.25, 0.08, 6.7, 1.65, 4.35, mats.window, root);
+    box('District bathroom toilet', 0.75, 0.75, 0.85, 6.3, 0.38, 2.6, mats.white, root);
+    box('District bathroom shower', 1.5, 2.1, 1.5, 6.7, 1.05, 6.2, mats.window, root);
+  } else if (kind === 'hospital') {
+    for (const [x,z] of [[-5,-2.5],[0,-2.5],[5,-2.5],[-5,2.8],[0,2.8],[5,2.8]]) {
+      box('Hospital patient bed', 2.1, 0.42, 3.1, x, 0.35, z, mats.white, root);
+      box('Hospital bed mattress', 1.8, 0.12, 2.7, x, 0.62, z, mats.window, root);
+      box('Hospital bed pillow', 1.2, 0.16, 0.55, x, 0.76, z-0.95, mats.white, root);
+      box('Hospital bed rail', 0.08, 0.35, 2.4, x-0.95, 0.72, z, mats.npcBlue, root);
+    }
+    box('Hospital nurse station', 4.0, 1.0, 1.1, 0, 0.55, -6.0, mats.npcBlue, root);
+    box('Hospital monitor', 0.8, 0.7, 0.12, 0, 1.45, -6.0, mats.tvScreen, root);
+  } else if (kind === 'office') {
+    for (const [x,z] of [[-5,-1],[0,-1],[5,-1],[-5,3],[0,3],[5,3]]) {
+      box('Office workstation desk', 2.2, 0.18, 1.0, x, 0.9, z, mats.bench, root);
+      box('Office workstation monitor', 0.9, 0.7, 0.12, x, 1.35, z-0.25, mats.tvFrame, root);
+      box('Office workstation screen', 0.72, 0.5, 0.04, x, 1.37, z-0.17, mats.window, root);
+      box('Office desk chair', 0.8, 0.85, 0.8, x, 0.42, z+0.9, mats.npcBlue, root);
+    }
+    box('Office filing cabinet', 1.3, 2.0, 0.8, 7.0, 1.0, -5.2, mats.white, root);
+  } else if (kind === 'restaurant' || kind === 'cafe') {
+    for (const [x,z] of [[-5,2.0],[0,2.0],[5,2.0],[-5,-1.8],[0,-1.8],[5,-1.8]]) {
+      box('Dining table', 2.0, 0.16, 1.4, x, 0.9, z, mats.bench, root);
+      for (const dx of [-0.7,0.7]) box('Dining chair', 0.65, 0.65, 0.65, x+dx, 0.38, z+1.0, mats.outfitCoral, root);
+      roomCylinder('Dining plate', 0.34, 0.045, 0.34, x, 1.02, z, mats.white, root);
+    }
+    box('Commercial kitchen island', 4.0, 0.95, 1.2, -4.8, 0.55, -5.0, mats.white, root);
+    box('Commercial kitchen stove', 1.1, 0.95, 0.9, -6.3, 0.5, -5.0, mats.tvFrame, root);
+    box('Commercial kitchen refrigerator', 1.0, 2.0, 0.9, 6.8, 1.0, -5.8, mats.white, root);
+    box('Commercial espresso machine', 0.9, 0.9, 0.65, -2.5, 1.5, -5.0, mats.tvFrame, root);
+  } else if (['fashion','shop','market','pharmacy'].includes(kind)) {
+    for (const x of [-6.5,-3.5,3.5,6.5]) {
+      box('Retail product shelf', 0.8, 2.0, 5.5, x, 1.0, 0.0, mats.bench, root);
+      for (let shelf=0;shelf<4;shelf++) box('Retail shelf stock', 0.6, 0.25, 0.5, x, 0.45+shelf*0.45, 0.0, shelf%2?mats.outfitGold:mats.outfitMint, root);
+    }
+    box('Retail checkout register', 1.0, 0.7, 0.65, 0, 1.35, -5.2, mats.tvFrame, root);
+  } else if (kind === 'salon') {
+    for (const x of [-5,0,5]) {
+      box('Salon styling chair', 1.0, 1.2, 1.0, x, 0.65, 0.5, mats.outfitPink || mats.wallPink, root);
+      box('Salon mirror frame', 1.6, 2.2, 0.12, x, 1.5, -3.2, mats.npcGold, root);
+      box('Salon mirror glass', 1.35, 1.9, 0.05, x, 1.5, -3.1, mats.window, root);
+    }
+    box('Salon wash basin', 1.4, 0.8, 1.0, 6.2, 0.55, -5.0, mats.white, root);
+  } else if (kind === 'gym') {
+    for (const x of [-5,0,5]) {
+      box('Gym treadmill base', 1.3, 0.18, 3.2, x, 0.25, -1.0, mats.tvFrame, root);
+      box('Gym treadmill console', 0.8, 1.1, 0.2, x, 0.9, -2.4, mats.npcBlue, root);
+      box('Gym weight bench', 2.2, 0.25, 0.7, x, 0.55, 3.5, mats.outfitBlue, root);
+      cylinder('Gym dumbbell weight', 0.2, 0.45, 0.2, x-0.5, 0.35, 4.5, mats.tvFrame);
+    }
+  } else if (kind === 'school') {
+    for (const [x,z] of [[-4,-1],[0,-1],[4,-1],[-4,3],[0,3],[4,3]]) {
+      box('Classroom desk', 1.8, 0.18, 0.8, x, 0.8, z, mats.bench, root);
+      box('Classroom chair', 0.65, 0.75, 0.65, x, 0.4, z+0.8, mats.outfitBlue, root);
+    }
+    box('Classroom board', 5.0, 2.0, 0.12, 0, 2.2, -8.6, mats.tvFrame, root);
+  } else if (kind === 'cinema' || kind === 'arcade') {
+    box('Cinema screen', 8.0, 4.0, 0.15, 0, 2.5, -8.5, mats.tvScreen, root);
+    for (const x of [-5,0,5]) for (const z of [-1,1.5,4]) box(kind==='cinema'?'Cinema seat':'Arcade cabinet', 1.1, 1.0, 1.0, x, 0.5, z, kind==='cinema'?mats.outfitCoral:mats.npcBlue, root);
+  } else {
+    for (const [x,z] of [[-4,0],[0,0],[4,0],[-4,3],[0,3],[4,3]]) box('Community service station', 1.6, 1.0, 1.0, x, 0.5, z, mats.white, root);
+  }
+  const actionLabels = {
+    home: '🏡 استكشاف البيت', villa: '💎 استكشاف الفيلا', apartments: '🛋️ استكشاف الشقة',
+    hospital: '🩺 خدمات المستشفى', office: '💼 بدء وردية العمل',
+    cafe: '☕ طلب من الكافيه', restaurant: '🍽️ طلب وجبة',
+    fashion: '👗 تصفح الأزياء', shop: '🛍️ تصفح المتجر',
+    market: '🧺 التسوق من السوبرماركت', pharmacy: '💊 خدمة الصيدلية',
+    salon: '💇 حجز خدمة صالون', gym: '🏋️ بدء التمرين',
+    school: '📚 بدء حصة تعليمية', cinema: '🎬 مشاهدة عرض',
+    arcade: '🕹️ بدء اللعب'
+  };
+  const label = actionLabels[kind] || '✨ استكشاف المكان';
+  const action = { label, run: () => {
+    const messages = {
+      home: 'البيت فيه صالة ومطبخ وغرفة نوم وحمام، تقدري تستكشفيه وتخرجي في أي وقت.',
+      villa: 'الفيلا فيها صالة ومطبخ وغرف نوم وحمام وحديقة ومسبح خاص.',
+      apartments: 'الشقة فيها مساحة معيشة ومطبخ وغرفة نوم وحمام.',
+      hospital: 'استقبلتك المستشفى. تقدري تتخيلي فحصًا طبيًا في غرفة العلاج.',
+      office: 'بدأت وردية العمل في مكتب الحي الافتراضي. دي تجربة لعب وليست وظيفة حقيقية.',
+      cafe: '☕ اتجهز طلبك في الكافيه الافتراضي. بالهنا والشفا!',
+      restaurant: '🍽️ وجبتك الافتراضية اتجهزت. بالهنا والشفا!',
+      fashion: '👗 فتحنا عرض الأزياء. تقدري تختاري ملابس من متجر Wonder.',
+      shop: '🛍️ المتجر جاهز للتصفح؛ افتحي متجر Wonder لاختيار الملابس.',
+      market: '🧺 خلصتي التسوق الافتراضي من السوبرماركت.',
+      pharmacy: '💊 الصيدلية جاهزة لخدمة افتراضية. لا يوجد صرف أدوية حقيقية.',
+      salon: '💇 خلصت جلسة الصالون الافتراضية. اختاري إطلالة جديدة من المتجر.',
+      gym: '🏋️ خلصتي تمرينًا في الجيم الافتراضي!',
+      school: '📚 خلصت الحصة الافتراضية؛ اكتسبتي خبرة جديدة.',
+      cinema: '🎬 استمتعتي بمشاهدة عرض افتراضي.',
+      arcade: '🕹️ بدأ نشاط الأركيد الافتراضي.'
+    };
+    if (kind === 'office') doQuickWork();
+    else if (kind === 'gym') doWorkout();
+    else if (kind === 'cafe') orderCafe();
+    else if (kind === 'restaurant') orderRestaurant();
+    else if (kind === 'shop' || kind === 'fashion' || kind === 'market') openShop();
+    else if (kind === 'school' || kind === 'hospital' || kind === 'pharmacy') { happiness = Math.min(100,happiness+3); awardXP(4); updateStats(); saveProgress(); say(messages[kind]); }
+    else { happiness = Math.min(100,happiness+2); awardXP(3); updateStats(); saveProgress(); say(messages[kind] || '✨ استكشفتي المكان!'); }
+  }};
+  enterHome(place.name, districtInteriorRoot, action);
+}
+
 const places = [
   { name: 'بيتك', x: -10, z: -7.4, radius: 3.2, action: () => enterHome('بيتك') },
   { name: 'بيت العائلة', x: 10, z: -7.4, radius: 3.2, action: () => enterHome('بيت العائلة') },
@@ -3011,6 +3184,18 @@ function nearestTarget() {
   for (const place of places) {
     const d = Math.hypot(p.x - place.x, p.z - place.z);
     if (d < place.radius && d < bestDistance) { best = { ...place, distance: d }; bestDistance = d; }
+  }
+  // Every streamed procedural home, villa, hospital, shop and workplace is enterable.
+  for (const district of districtChunks.values()) {
+    for (const entity of district.children) {
+      const place = entity.districtPlace;
+      if (!place) continue;
+      const d = Math.hypot(p.x - place.x, p.z - place.z);
+      if (d < 4.2 && d < bestDistance) {
+        best = { name: place.name, distance: d, action: () => prepareDistrictInterior(place) };
+        bestDistance = d;
+      }
+    }
   }
   // The player's purchased business is a real world destination, not just scenery.
   // The building faces negative Z, so interaction is targeted at its front entrance.
