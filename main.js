@@ -86,6 +86,15 @@ function cylinder(name, sx, sy, sz, x, y, z, material) {
   app.root.addChild(e);
   return e;
 }
+function roomCylinder(name, sx, sy, sz, x, y, z, material, parent) {
+  const e = new Entity(name);
+  e.addComponent('render', { type: 'cylinder' });
+  e.setLocalScale(sx, sy, sz);
+  e.setLocalPosition(x, y, z);
+  e.render.material = material;
+  parent.addChild(e);
+  return e;
+}
 
 // Lighting and a small neighborhood rather than an empty test island.
 const sun = new Entity('Sun');
@@ -487,7 +496,7 @@ box('Home refrigerator', 1.05, 2.0, 0.9, -5.8, 1.0, -5.4, mats.white, interiorRo
 box('Home refrigerator handle', 0.08, 0.65, 0.08, -5.38, 1.1, -5.0, mats.tvFrame, interiorRoot);
 box('Home stove oven', 1.1, 1.0, 0.85, -2.0, 0.5, -5.4, mats.tvFrame, interiorRoot);
 box('Home stove top', 1.15, 0.1, 0.9, -2.0, 1.05, -5.4, mats.white, interiorRoot);
-for (const [x,z] of [[-2.35,-5.6],[-1.65,-5.6],[-2.35,-5.2],[-1.65,-5.2]]) cylinder('Home stove burner '+x+' '+z, 0.16, 0.05, 0.16, x, 1.13, z, mats.tvFrame);
+for (const [x,z] of [[-2.35,-5.6],[-1.65,-5.6],[-2.35,-5.2],[-1.65,-5.2]]) roomCylinder('Home stove burner '+x+' '+z, 0.16, 0.05, 0.16, x, 1.13, z, mats.tvFrame, interiorRoot);
 box('Home bathroom sink cabinet', 1.25, 0.75, 0.65, 5.5, 0.38, 4.8, mats.white, interiorRoot);
 box('Home bathroom sink bowl', 1.0, 0.12, 0.5, 5.5, 0.8, 4.8, mats.window, interiorRoot);
 box('Home bathroom toilet base', 0.72, 0.55, 0.9, 5.4, 0.28, 2.4, mats.white, interiorRoot);
@@ -554,7 +563,7 @@ for (const [x,z] of [[-4,2.6],[3.8,2.6],[-4,-1.7],[3.8,-1.7]]) {
     box('Restaurant chair seat '+x+' '+z+' '+dz, 0.72, 0.18, 0.72, x, 0.48, z+dz, mats.outfitCoral, restaurantInteriorRoot);
     box('Restaurant chair back '+x+' '+z+' '+dz, 0.72, 0.7, 0.16, x, 0.82, z+dz+(dz<0?-0.28:0.28), mats.outfitCoral, restaurantInteriorRoot);
   }
-  cylinder('Restaurant plate '+x+' '+z, 0.38, 0.045, 0.38, x, 1.03, z, mats.white);
+  roomCylinder('Restaurant plate '+x+' '+z, 0.38, 0.045, 0.38, x, 1.03, z, mats.white, restaurantInteriorRoot);
 }
 box('Restaurant kitchen island', 4.2, 0.95, 1.3, -4.6, 0.55, -5.1, mats.white, restaurantInteriorRoot);
 box('Restaurant commercial stove', 1.2, 1.0, 0.95, -6.1, 0.5, -5.1, mats.tvFrame, restaurantInteriorRoot);
@@ -562,7 +571,7 @@ box('Restaurant oven door', 0.78, 0.5, 0.08, -6.1, 0.42, -4.61, mats.window, res
 box('Restaurant prep counter', 2.2, 0.95, 0.85, 3.8, 0.52, -5.1, mats.outfitMint, restaurantInteriorRoot);
 box('Restaurant refrigerator', 1.1, 2.1, 0.9, 6.1, 1.05, -6.4, mats.white, restaurantInteriorRoot);
 box('Restaurant sink', 1.0, 0.12, 0.7, -3.7, 1.08, -5.1, mats.window, restaurantInteriorRoot);
-for (const [x,z] of [[-5.6,-3.8],[-4.5,-3.8],[-5.6,-2.8],[-4.5,-2.8]]) cylinder('Restaurant cooking hob '+x+' '+z, 0.18, 0.06, 0.18, x, 1.08, z, mats.tvFrame);
+for (const [x,z] of [[-5.6,-3.8],[-4.5,-3.8],[-5.6,-2.8],[-4.5,-2.8]]) roomCylinder('Restaurant cooking hob '+x+' '+z, 0.18, 0.06, 0.18, x, 1.08, z, mats.tvFrame, restaurantInteriorRoot);
 restaurantInteriorRoot.enabled = false;
 
 const officeInteriorRoot = new Entity('Wonder Community Office Interior');
@@ -606,8 +615,8 @@ for (const [x,z] of [[-5,-3.8],[0,-3.8],[5,-3.8]]) {
 box('Fitness weight bench', 2.5, 0.28, 0.85, -4.4, 0.58, 1.2, mats.outfitBlue, fitnessInteriorRoot);
 box('Fitness weight bench back', 1.3, 0.18, 0.8, -4.4, 0.9, 0.8, mats.outfitBlue, fitnessInteriorRoot);
 for (const x of [-5.5,-3.3,2.5,4.7]) {
-  cylinder('Fitness dumbbell weight left '+x, 0.28, 0.42, 0.28, x, 0.34, 3.8, mats.tvFrame);
-  cylinder('Fitness dumbbell weight right '+x, 0.28, 0.42, 0.28, x+0.45, 0.34, 3.8, mats.tvFrame);
+  roomCylinder('Fitness dumbbell weight left '+x, 0.28, 0.42, 0.28, x, 0.34, 3.8, mats.tvFrame, fitnessInteriorRoot);
+  roomCylinder('Fitness dumbbell weight right '+x, 0.28, 0.42, 0.28, x+0.45, 0.34, 3.8, mats.tvFrame, fitnessInteriorRoot);
   box('Fitness dumbbell bar '+x, 0.7, 0.09, 0.09, x+0.22, 0.34, 3.8, mats.white, fitnessInteriorRoot);
 }
 box('Fitness yoga mat 1', 2.4, 0.06, 1.3, 2.7, 0.04, 1.5, mats.flower, fitnessInteriorRoot);
