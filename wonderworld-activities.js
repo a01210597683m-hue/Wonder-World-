@@ -71,19 +71,19 @@
       const b=el('button',{type:'button',class:'wwa-tile','data-game':id});
       b.append(el('span',{},emoji),el('span',{},title));menu.appendChild(b);
     });
-    let active='', state={}, frame=0, keys={}, selectedCandy=null;
+    let active='', state={}, frame=0, battleTimer=0, keys={}, selectedCandy=null;
     const msg = text => { feedback.textContent=text; };
     const html = value => { const next = content.cloneNode(false); content.replaceWith(next); content = next; content.innerHTML = value; };
     const button = (id,label,cls='') => '<button type="button" id="'+id+'" class="wwa-btn '+cls+'">'+label+'</button>';
     const canvas = id => '<canvas id="'+id+'" class="wwa-canvas" width="640" height="400" aria-label="ساحة اللعبة"></canvas>';
-    function stopLoop(){if(frame)cancelAnimationFrame(frame);frame=0;keys={};}
+    function stopLoop(){if(frame)cancelAnimationFrame(frame);frame=0;if(battleTimer){clearInterval(battleTimer);battleTimer=0;}keys={};}
     function start(id){
       stopLoop(); active=id; state={}; selectedCandy=null;
       const item=activities.find(x=>x[0]===id); $('#wwa-title',panel).textContent=item[2];
       $('#wwa-description',panel).textContent=({
-        battle:'تحركي داخل الساحة، صوبّي، أطلقي على أهداف التدريب، وراقبي الصحة والذخيرة. نسخة فردية آمنة بلا دماء أو تواصل بين اللاعبين.',
+        battle:'تحركي وصوّبي على الخصوم الآليين، اجمعي الذخيرة والعلاج، وابقَي داخل المنطقة الآمنة حتى تفوزي بجولة Battle Royale فردية.',
         football:'فريقان مصغران، تحرك وتمرير وتسديد ومرمى وحارس. استخدمي الأزرار أو لوحة المفاتيح وسجلي أهدافًا.',
-        ropes:'اختاري عقدة ثم حركيها. المطلوب فصل الخطوط المتقاطعة حتى تصبح الحبال واضحة.',
+        ropes:'اسحبي أطراف الحبال الملوّنة بإصبعك أو الماوس حتى تختفي كل التقاطعات.',
         fashion:'اختاري إطلالة مناسبة لموضوع العرض، ثم ابدئي العرض واحصلي على تقييم افتراضي مع نقاط أناقة.',
         plane:'ارفعي قوة المحرك، اقلعي، حافظي على الارتفاع ثم اهبطي في منطقة المدرج لتحصلي على نتيجة الطيران.',
         gym:'اختاري التمرين وسجلي التكرارات. التقدم افتراضي داخل اللعبة وليس نصيحة طبية.',
@@ -148,7 +148,7 @@
       $('#wwa-content',panel).querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',()=>{const a=b.dataset.act;if(a==='up')move(0,-22);if(a==='down')move(0,22);if(a==='left')move(-22,0);if(a==='right')move(22,0);if(a==='reload'&&!state.ended){state.ammo=Math.min(30,state.ammo+12);msg('تم جمع ذخيرة إضافية.');update();}if(a==='heal'&&!state.ended&&state.hp>0){state.hp=Math.min(100,state.hp+25);msg('استخدمتي حقيبة علاج.');update();}if(a==='fire')fire();if(a==='restart')restart();}));
       const keydown=e=>{const map={ArrowUp:[0,-18],w:[0,-18],W:[0,-18],ArrowDown:[0,18],s:[0,18],S:[0,18],ArrowLeft:[-18,0],a:[-18,0],A:[-18,0],ArrowRight:[18,0],d:[18,0],D:[18,0]};if(map[e.key]&&panel.contains(c)){e.preventDefault();move(...map[e.key]);}if((e.key===' '||e.key==='Enter')&&panel.contains(c)){e.preventDefault();fire();}};
       c.tabIndex=0;c.addEventListener('keydown',keydown);
-      const timer=setInterval(()=>{if(!panel.isConnected||panel.hidden||!panel.contains(c)){clearInterval(timer);return;}if(state.ended)return;state.elapsed+=0.5;const now=Date.now();for(const t of state.targets){if(t.hp<=0)continue;const dx=state.x-t.x,dy=state.y-t.y,d=Math.hypot(dx,dy)||1;t.x=clamp(t.x+dx/d*t.speed*7,24,616);t.y=clamp(t.y+dy/d*t.speed*7,52,378);if(now>t.fireAt&&d<240){state.hp=Math.max(0,state.hp-5);t.fireAt=now+1400+Math.random()*900;}}const pad=18+Math.min(0.38,state.elapsed/90*0.38)*270;if(state.x<pad||state.x>640-pad||state.y<pad||state.y>400-pad)state.hp=Math.max(0,state.hp-2);update();},500);
+      battleTimer=setInterval(()=>{if(!panel.isConnected||panel.hidden||game.hidden||!panel.contains(c)){clearInterval(battleTimer);battleTimer=0;return;}if(state.ended)return;state.elapsed+=0.5;const now=Date.now();for(const t of state.targets){if(t.hp<=0)continue;const dx=state.x-t.x,dy=state.y-t.y,d=Math.hypot(dx,dy)||1;t.x=clamp(t.x+dx/d*t.speed*7,24,616);t.y=clamp(t.y+dy/d*t.speed*7,52,378);if(now>t.fireAt&&d<240){state.hp=Math.max(0,state.hp-5);t.fireAt=now+1400+Math.random()*900;}}const pad=18+Math.min(0.38,state.elapsed/90*0.38)*270;if(state.x<pad||state.x>640-pad||state.y<pad||state.y>400-pad)state.hp=Math.max(0,state.hp-2);update();},500);
       $('#wwa-reset',panel).textContent='🔄 إعادة الجولة';state.lastAttack=Date.now();update();msg('تحركي، صوبّي باللمس على الخصوم، اجمعي العلاج والذخيرة، وابتعدي عن حدود المنطقة الزرقاء.');
     }
     function renderFootball(){
