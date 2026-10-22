@@ -86,6 +86,15 @@ function cylinder(name, sx, sy, sz, x, y, z, material) {
   app.root.addChild(e);
   return e;
 }
+function roomCylinder(name, sx, sy, sz, x, y, z, material, parent) {
+  const e = new Entity(name);
+  e.addComponent('render', { type: 'cylinder' });
+  e.setLocalScale(sx, sy, sz);
+  e.setLocalPosition(x, y, z);
+  e.render.material = material;
+  parent.addChild(e);
+  return e;
+}
 
 // Lighting and a small neighborhood rather than an empty test island.
 const sun = new Entity('Sun');
@@ -202,6 +211,14 @@ box('Wonder Fitness sign', 4.0, 0.55, 0.18, 15, 2.75, -17.48, mats.npcGold);
 cylinder('Fitness weight left', 0.22, 0.55, 0.22, 13.0, 0.35, -12.0, mats.road);
 cylinder('Fitness weight right', 0.22, 0.55, 0.22, 13.8, 0.35, -12.0, mats.road);
 box('Fitness weight bar', 1.3, 0.12, 0.12, 13.4, 0.38, -12.0, mats.bench);
+// Wonder Restaurant exterior with a visible entrance, windows, awning and sign.
+box('Wonder Restaurant building', 6.2, 3.2, 4.8, 8, 1.6, -24, mats.wallGold);
+box('Wonder Restaurant roof', 6.7, 0.35, 5.2, 8, 3.35, -24, mats.roof);
+box('Wonder Restaurant door', 1.0, 1.95, 0.16, 8, 0.98, -26.48, mats.door);
+box('Wonder Restaurant window left', 1.7, 1.25, 0.14, 5.9, 1.8, -26.45, mats.window);
+box('Wonder Restaurant window right', 1.7, 1.25, 0.14, 10.1, 1.8, -26.45, mats.window);
+box('Wonder Restaurant awning', 5.8, 0.28, 0.65, 8, 2.55, -26.55, mats.npcPink);
+box('Wonder Restaurant sign', 4.6, 0.65, 0.18, 8, 3.0, -26.58, mats.npcGold);
 
 // Visible low-poly transport landmarks connected to the existing playable flight/train activities.
 box('Wonder Air runway', 14, 0.12, 30, 34, 0.03, -28, mats.road);
@@ -465,6 +482,30 @@ box('Wall picture art', 1.25, 0.85, 0.06, 0.0, 2.65, -6.68, mats.flower, interio
 box('Living room TV frame', 2.15, 1.3, 0.16, 2.35, 1.9, -6.38, mats.tvFrame, interiorRoot);
 box('Living room TV screen', 1.9, 1.05, 0.035, 2.35, 1.92, -6.275, mats.tvScreen, interiorRoot);
 box('TV stand', 2.35, 0.35, 0.55, 2.35, 0.28, -5.95, mats.bench, interiorRoot);
+
+// Extra everyday essentials so the starter home feels lived-in, not like an empty shell.
+box('Home writing desk', 2.1, 0.18, 0.9, 0.8, 0.95, 2.6, mats.bench, interiorRoot);
+box('Home desk drawer', 1.8, 0.32, 0.78, 0.8, 0.68, 2.6, mats.outfitMint, interiorRoot);
+box('Home laptop base', 0.72, 0.05, 0.5, 0.8, 1.08, 2.5, mats.tvFrame, interiorRoot);
+box('Home laptop screen', 0.72, 0.48, 0.06, 0.8, 1.33, 2.72, mats.tvScreen, interiorRoot);
+box('Home desk chair seat', 0.8, 0.18, 0.8, 0.8, 0.55, 3.8, mats.outfitBlue, interiorRoot);
+box('Home desk chair back', 0.8, 0.8, 0.18, 0.8, 0.95, 4.12, mats.outfitBlue, interiorRoot);
+box('Home bookshelf', 1.35, 2.35, 0.55, -5.6, 1.18, -1.9, mats.bench, interiorRoot);
+for (const [i, material] of [[0,mats.outfitCoral],[1,mats.outfitGold],[2,mats.outfitMint]]) box('Home bookshelf book '+i, 0.28, 0.7, 0.12, -6.0+i*0.4, 1.35, -1.58, material, interiorRoot);
+box('Home refrigerator', 1.05, 2.0, 0.9, -5.8, 1.0, -5.4, mats.white, interiorRoot);
+box('Home refrigerator handle', 0.08, 0.65, 0.08, -5.38, 1.1, -5.0, mats.tvFrame, interiorRoot);
+box('Home stove oven', 1.1, 1.0, 0.85, -2.0, 0.5, -5.4, mats.tvFrame, interiorRoot);
+box('Home stove top', 1.15, 0.1, 0.9, -2.0, 1.05, -5.4, mats.white, interiorRoot);
+for (const [x,z] of [[-2.35,-5.6],[-1.65,-5.6],[-2.35,-5.2],[-1.65,-5.2]]) roomCylinder('Home stove burner '+x+' '+z, 0.16, 0.05, 0.16, x, 1.13, z, mats.tvFrame, interiorRoot);
+box('Home bathroom sink cabinet', 1.25, 0.75, 0.65, 5.5, 0.38, 4.8, mats.white, interiorRoot);
+box('Home bathroom sink bowl', 1.0, 0.12, 0.5, 5.5, 0.8, 4.8, mats.window, interiorRoot);
+box('Home bathroom toilet base', 0.72, 0.55, 0.9, 5.4, 0.28, 2.4, mats.white, interiorRoot);
+box('Home bathroom toilet tank', 0.7, 0.9, 0.3, 5.4, 0.72, 2.0, mats.white, interiorRoot);
+box('Home bathroom shower tray', 1.45, 0.12, 1.45, 3.8, 0.12, 5.1, mats.white, interiorRoot);
+box('Home bathroom shower glass', 0.08, 2.1, 1.4, 3.1, 1.1, 5.1, mats.window, interiorRoot);
+box('Home dining table', 2.0, 0.16, 1.1, -0.4, 0.8, 4.8, mats.bench, interiorRoot);
+for (const x of [-1.1,0.3]) box('Home dining chair '+x, 0.55, 0.75, 0.55, x, 0.38, 4.8, mats.outfitMint, interiorRoot);
+
 interiorRoot.enabled = false;
 
 // Dedicated furnished interiors for the neighborhood's public businesses.
@@ -482,6 +523,13 @@ for (const [x, material] of [[-5, mats.outfitCoral], [-3.5, mats.outfitGold], [-
 box('Shop checkout counter', 4.4, 1.0, 1.1, 0, 0.55, -5.0, mats.bench, shopInteriorRoot);
 box('Shop checkout top', 4.6, 0.14, 1.2, 0, 1.12, -5.0, mats.outfitGold, shopInteriorRoot);
 box('Shop welcome sign', 4.2, 0.8, 0.18, 0, 3.2, -6.7, mats.npcPink, shopInteriorRoot);
+box('Shop product shelf left', 1.25, 2.0, 0.65, -5.7, 1.0, 1.0, mats.bench, shopInteriorRoot);
+box('Shop product shelf right', 1.25, 2.0, 0.65, 5.7, 1.0, 1.0, mats.bench, shopInteriorRoot);
+for (const [x,z] of [[-5.7,0.7],[-5.7,1.2],[-5.7,1.7],[5.7,0.7],[5.7,1.2],[5.7,1.7]]) box('Shop folded product '+x+' '+z, 0.72, 0.24, 0.42, x, z, 1.0, z<1?mats.outfitMint:z<1.5?mats.outfitCoral:mats.outfitGold, shopInteriorRoot);
+box('Shop fitting mirror frame', 1.35, 2.5, 0.12, -5.8, 1.25, -5.2, mats.npcGold, shopInteriorRoot);
+box('Shop fitting mirror glass', 1.08, 2.2, 0.05, -5.8, 1.25, -5.12, mats.window, shopInteriorRoot);
+box('Shop checkout terminal', 0.72, 0.55, 0.5, 0.9, 1.48, -5.0, mats.tvFrame, shopInteriorRoot);
+box('Shop checkout terminal screen', 0.5, 0.34, 0.05, 0.9, 1.5, -4.72, mats.window, shopInteriorRoot);
 shopInteriorRoot.enabled = false;
 
 const cafeInteriorRoot = new Entity('Wonder Cafe Interior');
@@ -500,7 +548,102 @@ for (const [x, z] of [[-4, 1.5], [3.5, 1.5], [-4, -1.8], [3.5, -1.8]]) {
   box('Cafe chair ' + x + ' ' + z, 0.8, 0.65, 0.75, x, 0.38, z + 1.25, mats.outfitMint, cafeInteriorRoot);
 }
 
+box('Cafe pastry display counter', 1.8, 1.0, 0.9, 4.7, 0.55, -4.9, mats.white, cafeInteriorRoot);
+box('Cafe pastry display glass', 1.75, 0.62, 0.75, 4.7, 1.32, -4.9, mats.window, cafeInteriorRoot);
+for (const [x,z] of [[4.25,-4.8],[4.7,-4.8],[5.15,-4.8]]) sphere('Cafe pastry '+x, 0.18, x, 1.18, z, mats.outfitGold, cafeInteriorRoot);
+box('Cafe refrigerator', 1.0, 1.9, 0.85, -5.7, 0.95, -5.3, mats.white, cafeInteriorRoot);
+box('Cafe refrigerator handle', 0.08, 0.7, 0.08, -5.28, 1.0, -4.9, mats.tvFrame, cafeInteriorRoot);
+box('Cafe coffee grinder', 0.42, 0.62, 0.42, 0.2, 1.48, -5.0, mats.tvFrame, cafeInteriorRoot);
+box('Cafe grinder hopper', 0.34, 0.28, 0.34, 0.2, 1.91, -5.0, mats.window, cafeInteriorRoot);
+for (const [x,z] of [[-1.8,-4.6],[-0.8,-4.6],[0.2,-4.6]]) {
+  roomCylinder('Cafe mug handle '+x, 0.14, 0.06, 0.14, x, 1.22, z, mats.white, cafeInteriorRoot);
+  roomCylinder('Cafe mug '+x, 0.16, 0.22, 0.16, x, 1.2, z, mats.white, cafeInteriorRoot);
+}
+box('Cafe wall art frame', 1.35, 1.1, 0.12, -4.4, 2.75, -6.7, mats.npcGold, cafeInteriorRoot);
+box('Cafe wall art', 1.05, 0.8, 0.06, -4.4, 2.75, -6.61, mats.flower, cafeInteriorRoot);
 cafeInteriorRoot.enabled = false;
+
+// Three more dedicated, furnished destinations: restaurant, workplace and fitness centre.
+// Each is a separate 3D interior and uses the same safe enter/exit flow as homes and shops.
+const restaurantInteriorRoot = new Entity('Wonder Restaurant Interior');
+app.root.addChild(restaurantInteriorRoot);
+box('Restaurant tiled floor', 16, 0.22, 16, 0, -0.16, 0, mats.white, restaurantInteriorRoot);
+box('Restaurant back wall', 16, 4.8, 0.28, 0, 2.25, -8, mats.wallGold, restaurantInteriorRoot);
+box('Restaurant left wall', 0.28, 4.8, 16, -8, 2.25, 0, mats.white, restaurantInteriorRoot);
+box('Restaurant right wall', 0.28, 4.8, 16, 8, 2.25, 0, mats.white, restaurantInteriorRoot);
+box('Restaurant front wall left', 4.5, 4.8, 0.28, -5.5, 2.25, 8, mats.wallPink, restaurantInteriorRoot);
+box('Restaurant front wall right', 4.5, 4.8, 0.28, 5.5, 2.25, 8, mats.wallPink, restaurantInteriorRoot);
+box('Restaurant host counter', 4.2, 1.05, 1.0, 0, 0.55, -6.0, mats.bench, restaurantInteriorRoot);
+box('Restaurant host counter top', 4.4, 0.14, 1.15, 0, 1.12, -6.0, mats.outfitGold, restaurantInteriorRoot);
+box('Restaurant menu sign', 4.2, 0.85, 0.16, 0, 3.0, -7.7, mats.npcPink, restaurantInteriorRoot);
+for (const [x,z] of [[-4,2.6],[3.8,2.6],[-4,-1.7],[3.8,-1.7]]) {
+  box('Restaurant dining table '+x+' '+z, 2.0, 0.16, 1.45, x, 0.92, z, mats.bench, restaurantInteriorRoot);
+  for (const dx of [-0.72,0.72]) box('Restaurant table leg '+x+' '+z+' '+dx, 0.14, 0.82, 0.14, x+dx, 0.42, z, mats.tvFrame, restaurantInteriorRoot);
+  for (const dz of [-1.15,1.15]) {
+    box('Restaurant chair seat '+x+' '+z+' '+dz, 0.72, 0.18, 0.72, x, 0.48, z+dz, mats.outfitCoral, restaurantInteriorRoot);
+    box('Restaurant chair back '+x+' '+z+' '+dz, 0.72, 0.7, 0.16, x, 0.82, z+dz+(dz<0?-0.28:0.28), mats.outfitCoral, restaurantInteriorRoot);
+  }
+  roomCylinder('Restaurant plate '+x+' '+z, 0.38, 0.045, 0.38, x, 1.03, z, mats.white, restaurantInteriorRoot);
+}
+box('Restaurant kitchen island', 4.2, 0.95, 1.3, -4.6, 0.55, -5.1, mats.white, restaurantInteriorRoot);
+box('Restaurant commercial stove', 1.2, 1.0, 0.95, -6.1, 0.5, -5.1, mats.tvFrame, restaurantInteriorRoot);
+box('Restaurant oven door', 0.78, 0.5, 0.08, -6.1, 0.42, -4.61, mats.window, restaurantInteriorRoot);
+box('Restaurant prep counter', 2.2, 0.95, 0.85, 3.8, 0.52, -5.1, mats.outfitMint, restaurantInteriorRoot);
+box('Restaurant refrigerator', 1.1, 2.1, 0.9, 6.1, 1.05, -6.4, mats.white, restaurantInteriorRoot);
+box('Restaurant sink', 1.0, 0.12, 0.7, -3.7, 1.08, -5.1, mats.window, restaurantInteriorRoot);
+for (const [x,z] of [[-5.6,-3.8],[-4.5,-3.8],[-5.6,-2.8],[-4.5,-2.8]]) roomCylinder('Restaurant cooking hob '+x+' '+z, 0.18, 0.06, 0.18, x, 1.08, z, mats.tvFrame, restaurantInteriorRoot);
+restaurantInteriorRoot.enabled = false;
+
+const officeInteriorRoot = new Entity('Wonder Community Office Interior');
+app.root.addChild(officeInteriorRoot);
+box('Office floor', 16, 0.22, 16, 0, -0.16, 0, mats.white, officeInteriorRoot);
+box('Office back wall', 16, 4.8, 0.28, 0, 2.25, -8, mats.white, officeInteriorRoot);
+box('Office left wall', 0.28, 4.8, 16, -8, 2.25, 0, mats.white, officeInteriorRoot);
+box('Office right wall', 0.28, 4.8, 16, 8, 2.25, 0, mats.white, officeInteriorRoot);
+box('Office reception desk', 4.5, 1.1, 1.0, 0, 0.58, -5.8, mats.npcBlue, officeInteriorRoot);
+box('Office reception desktop', 4.7, 0.14, 1.1, 0, 1.18, -5.8, mats.white, officeInteriorRoot);
+box('Office reception monitor', 0.9, 0.72, 0.12, 0, 1.58, -6.05, mats.tvFrame, officeInteriorRoot);
+box('Office reception screen', 0.72, 0.5, 0.04, 0, 1.6, -5.97, mats.window, officeInteriorRoot);
+for (const [x,z] of [[-4,1.7],[3.7,1.7],[-4,-2.2],[3.7,-2.2]]) {
+  box('Office workstation desk '+x+' '+z, 2.4, 0.16, 1.05, x, 0.92, z, mats.bench, officeInteriorRoot);
+  box('Office workstation monitor '+x+' '+z, 0.8, 0.62, 0.12, x, 1.32, z-0.25, mats.tvFrame, officeInteriorRoot);
+  box('Office workstation screen '+x+' '+z, 0.65, 0.45, 0.035, x, 1.34, z-0.17, mats.window, officeInteriorRoot);
+  box('Office keyboard '+x+' '+z, 0.65, 0.05, 0.22, x, 1.04, z+0.18, mats.tvFrame, officeInteriorRoot);
+  box('Office chair '+x+' '+z, 0.78, 0.18, 0.75, x, 0.5, z+1.0, mats.outfitBlue, officeInteriorRoot);
+  box('Office chair back '+x+' '+z, 0.78, 0.75, 0.16, x, 0.86, z+1.3, mats.outfitBlue, officeInteriorRoot);
+}
+box('Office filing cabinet', 1.4, 2.0, 0.8, -6.4, 1.0, -6.2, mats.outfitMint, officeInteriorRoot);
+box('Office printer', 0.85, 0.55, 0.65, 5.9, 1.15, -6.1, mats.white, officeInteriorRoot);
+box('Office notice board', 3.6, 1.4, 0.14, 0, 2.8, -7.75, mats.outfitGold, officeInteriorRoot);
+officeInteriorRoot.enabled = false;
+
+const fitnessInteriorRoot = new Entity('Wonder Fitness Interior');
+app.root.addChild(fitnessInteriorRoot);
+box('Fitness rubber floor', 16, 0.22, 16, 0, -0.16, 0, mats.road, fitnessInteriorRoot);
+box('Fitness back wall', 16, 4.8, 0.28, 0, 2.25, -8, mats.white, fitnessInteriorRoot);
+box('Fitness left wall', 0.28, 4.8, 16, -8, 2.25, 0, mats.white, fitnessInteriorRoot);
+box('Fitness right wall', 0.28, 4.8, 16, 8, 2.25, 0, mats.white, fitnessInteriorRoot);
+box('Fitness welcome desk', 3.2, 0.95, 0.9, 0, 0.55, -6.3, mats.npcBlue, fitnessInteriorRoot);
+box('Fitness wall sign', 4.6, 0.9, 0.16, 0, 3.0, -7.75, mats.npcGold, fitnessInteriorRoot);
+for (const [x,z] of [[-5,-3.8],[0,-3.8],[5,-3.8]]) {
+  box('Fitness treadmill base '+x, 1.3, 0.18, 2.5, x, 0.35, z, mats.tvFrame, fitnessInteriorRoot);
+  box('Fitness treadmill belt '+x, 1.05, 0.06, 1.75, x, 0.47, z, mats.road, fitnessInteriorRoot);
+  box('Fitness treadmill console '+x, 1.0, 0.8, 0.14, x, 1.0, z-1.05, mats.window, fitnessInteriorRoot);
+  box('Fitness treadmill handle '+x, 0.12, 1.0, 0.12, x-0.55, 0.85, z-0.75, mats.tvFrame, fitnessInteriorRoot);
+  box('Fitness treadmill handle '+x+' right', 0.12, 1.0, 0.12, x+0.55, 0.85, z-0.75, mats.tvFrame, fitnessInteriorRoot);
+}
+box('Fitness weight bench', 2.5, 0.28, 0.85, -4.4, 0.58, 1.2, mats.outfitBlue, fitnessInteriorRoot);
+box('Fitness weight bench back', 1.3, 0.18, 0.8, -4.4, 0.9, 0.8, mats.outfitBlue, fitnessInteriorRoot);
+for (const x of [-5.5,-3.3,2.5,4.7]) {
+  roomCylinder('Fitness dumbbell weight left '+x, 0.28, 0.42, 0.28, x, 0.34, 3.8, mats.tvFrame, fitnessInteriorRoot);
+  roomCylinder('Fitness dumbbell weight right '+x, 0.28, 0.42, 0.28, x+0.45, 0.34, 3.8, mats.tvFrame, fitnessInteriorRoot);
+  box('Fitness dumbbell bar '+x, 0.7, 0.09, 0.09, x+0.22, 0.34, 3.8, mats.white, fitnessInteriorRoot);
+}
+box('Fitness yoga mat 1', 2.4, 0.06, 1.3, 2.7, 0.04, 1.5, mats.flower, fitnessInteriorRoot);
+box('Fitness yoga mat 2', 2.4, 0.06, 1.3, 5.2, 0.04, 1.5, mats.outfitMint, fitnessInteriorRoot);
+box('Fitness water dispenser', 0.75, 1.6, 0.75, 6.2, 0.8, -6.1, mats.window, fitnessInteriorRoot);
+fitnessInteriorRoot.enabled = false;
+
 
 // Ready-to-live villas: distinct furnished interiors; construction remains optional.
 const starterVillaRoot = new Entity('Wonder Starter Villa Interior');
@@ -880,6 +1023,7 @@ const worldDestinations = [
   { label: '🏡 بيت البداية', x: -10, z: -13.5, note: 'بيت البداية والحديقة والمسبح' },
   { label: '☕ مقهى Wonder', x: 15, z: -4.5, note: 'مقهى الحي' },
   { label: '🏋️ مركز اللياقة', x: 15, z: -19.5, note: 'مركز Wonder Fitness' },
+  { label: '🍽️ مطعم Wonder', x: 8, z: -27, note: 'مطعم الحي والمطبخ' },
   { label: '✈️ المطار', x: 34, z: -39, note: 'مبنى المطار والمدرج' },
   { label: '🚆 محطة القطار', x: -30, z: -16, note: 'محطة Wonder Central' },
   { label: '👗 ساحة الأزياء', x: 25, z: 9, note: 'ساحة عروض الأزياء' }
@@ -1372,7 +1516,7 @@ function endSharedWalk(reason='انتهت التمشية بناءً على طل�
 }
 function renderNeighborhoodMap() {
  const list=document.getElementById('map-destinations');if(!list)return;list.replaceChildren();
- const destinations=[{name:'نافورة الساحة',emoji:'⛲',x:0,z:3},{name:'حديقة الأصدقاء',emoji:'🌳',x:-11,z:5.5},{name:'متجر Wonder',emoji:'🛍️',x:10,z:4.5},{name:'كافيه Wonder',emoji:'☕',x:15,z:-4},{name:'مكتب الحي',emoji:'💼',x:0,z:-20},{name:'Wonder Fitness',emoji:'🏋️',x:15,z:-19},{name:'مطار Wonder Air',emoji:'✈️',x:34,z:-28},{name:'محطة Wonder Central',emoji:'🚆',x:-30,z:-20},{name:'منصة عروض الأزياء',emoji:'👗',x:25,z:15},{name:'البيت الأول',emoji:'🏡',x:-10,z:-6.2},{name:'البيت العائلي',emoji:'🏠',x:10,z:-6.2},{name:'فيلا Wonder الجاهزة (مجانية)',emoji:'🏡',x:-24,z:-8,homeId:'starter-villa',price:0},{name:'فيلا Wonder الفاخرة (250 عملة)',emoji:'💎',x:24,z:-8,homeId:'luxury-villa',price:250},{name:'رحلة إلى مصر — الأهرامات',emoji:'🇪🇬',x:30,z:5},{name:'رحلة إلى باريس — البرج',emoji:'🇫🇷',x:-30,z:5},{name:'رحلة إلى طوكيو — حديقة الساكورا',emoji:'🇯🇵',x:0,z:35}];
+ const destinations=[{name:'نافورة الساحة',emoji:'⛲',x:0,z:3},{name:'حديقة الأصدقاء',emoji:'🌳',x:-11,z:5.5},{name:'متجر Wonder',emoji:'🛍️',x:10,z:4.5},{name:'كافيه Wonder',emoji:'☕',x:15,z:-4},{name:'مطعم Wonder',emoji:'🍽️',x:8,z:-23},{name:'مكتب الحي',emoji:'💼',x:0,z:-20},{name:'Wonder Fitness',emoji:'🏋️',x:15,z:-19},{name:'مطار Wonder Air',emoji:'✈️',x:34,z:-28},{name:'محطة Wonder Central',emoji:'🚆',x:-30,z:-20},{name:'منصة عروض الأزياء',emoji:'👗',x:25,z:15},{name:'البيت الأول',emoji:'🏡',x:-10,z:-6.2},{name:'البيت العائلي',emoji:'🏠',x:10,z:-6.2},{name:'فيلا Wonder الجاهزة (مجانية)',emoji:'🏡',x:-24,z:-8,homeId:'starter-villa',price:0},{name:'فيلا Wonder الفاخرة (250 عملة)',emoji:'💎',x:24,z:-8,homeId:'luxury-villa',price:250},{name:'رحلة إلى مصر — الأهرامات',emoji:'🇪🇬',x:30,z:5},{name:'رحلة إلى باريس — البرج',emoji:'🇫🇷',x:-30,z:5},{name:'رحلة إلى طوكيو — حديقة الساكورا',emoji:'🇯🇵',x:0,z:35}];
  for(const d of destinations){const b=document.createElement('button');b.type='button';b.className='map-destination';b.textContent=d.emoji+' '+d.name;b.addEventListener('click',()=>{if(indoors){document.getElementById('map-feedback').textContent='اخرجي للحي الأول قبل التنقّل السريع.';return;}if(d.homeId&&!ownedHomes.has(d.homeId)){if(coins<d.price){document.getElementById('map-feedback').textContent='تحتاجي '+d.price+' عملة افتراضية لشراء الفيلا دي. رصيدك '+coins+'.';return;}if(d.price>0){coins-=d.price;updateStats();}ownedHomes.add(d.homeId);saveProgress();document.getElementById('map-feedback').textContent=d.price===0?'الفيلا الجاهزة بقت ملكك، اضغطي عليها مرة تانية للانتقال إليها.':'مبروك! الفيلا الفاخرة بقت ملكك، اضغطي عليها مرة تانية للانتقال إليها.';renderNeighborhoodMap();return;}player.setPosition(d.x,0,d.z);cameraX=d.x;cameraZ=d.z+cameraOffsetZ;camera.setPosition(cameraX,cameraHeight,cameraZ);camera.lookAt(d.x,1,d.z);document.getElementById('map-panel').hidden=true;logAdventure('وصلت إلى '+d.name);if(activeWalkNpc){walkVisitedDestinations.add(d.name);if(walkVisitedDestinations.size>=3&&walkRewardDate!==localDateKey()){walkRewardDate=localDateKey();try{localStorage.setItem('wonderworld-shared-walk-reward-day',walkRewardDate);}catch{}happiness=Math.min(100,happiness+8);coins+=5;updateStats();awardXP(12);logAdventure('مغامرة تمشية مكتملة مع '+activeWalkNpc.name+' — زرت 3 أماكن مختلفة');say('🌟 مغامرة مشتركة رائعة! زرتوا 3 أماكن مع '+activeWalkNpc.name+'؛ +8 سعادة و+5 عملات و+12 XP. المكافأة مرة واحدة يوميًا.');}else{say('🗺️ وصلتي إلى '+d.name+' مع '+activeWalkNpc.name+'! زارتم '+walkVisitedDestinations.size+' من 3 أماكن للمغامرة المشتركة.');}}else{say('🗺️ وصلتي إلى '+d.name+'!');}});list.appendChild(b);}
 }
 
@@ -2096,8 +2240,9 @@ const places = [
   }},
   { name: 'متجر Wonder', x: 10, z: 7.1, radius: 3.5, action: () => enterHome('متجر Wonder', shopInteriorRoot, { label: '🛍️ تصفح المنتجات', run: openShop }) },
   { name: 'كافيه Wonder', x: 15, z: -3.2, radius: 4.0, action: () => enterHome('كافيه Wonder', cafeInteriorRoot, { label: '☕ طلب من الكافيه', run: orderCafe }) },
-  { name: 'مكتب الحي', x: 0, z: -18.3, radius: 4.0, action: doQuickWork },
-  { name: 'Wonder Fitness', x: 15, z: -18, radius: 4.5, action: doWorkout },
+  { name: 'مطعم Wonder', x: 8, z: -27, radius: 4.0, action: () => enterHome('مطعم Wonder', restaurantInteriorRoot, { label: '🍽️ طلب وجبة', run: orderRestaurant }) },
+  { name: 'مكتب الحي', x: 0, z: -18.3, radius: 4.0, action: () => enterHome('مكتب الحي', officeInteriorRoot, { label: '💼 بدء وردية عمل', run: doQuickWork }) },
+  { name: 'Wonder Fitness', x: 15, z: -18, radius: 4.5, action: () => enterHome('Wonder Fitness', fitnessInteriorRoot, { label: '🏋️ ابدئي التمرين', run: doWorkout }) },
   { name: 'مطار Wonder Air', x: 34, z: -28, radius: 8, action: () => window.dispatchEvent(new CustomEvent('wonderworld:open-activity', { detail: { id: 'plane' } })) },
   { name: 'محطة Wonder Central', x: -30, z: -20, radius: 6, action: () => window.dispatchEvent(new CustomEvent('wonderworld:open-activity', { detail: { id: 'train' } })) },
   { name: 'منصة WonderWorld Fashion Week', x: 25, z: 15, radius: 8, action: () => window.dispatchEvent(new CustomEvent('wonderworld:open-activity', { detail: { id: 'fashion' } })) },
@@ -2456,6 +2601,16 @@ function orderCafe() {
   updateStats();
   awardXP(6);
   say('☕ طلبك وصل! دفعتِ 5 عملات، والسعادة +10 والطاقة +8. أهلًا بيكي في Wonder Cafe!');
+}
+function orderRestaurant() {
+  if (coins < 8) { say('الوجبة محتاجة 8 عملات. تقدري تكسبي عملات من مكتب الحي أو المهام اليومية.'); return; }
+  coins -= 8;
+  happiness = Math.min(100, happiness + 12);
+  energy = Math.min(100, energy + 12);
+  awardXP(8);
+  updateStats();
+  saveProgress();
+  say('🍽️ وجبتك وصلت! دفعتي 8 عملات، والسعادة والطاقة زادوا. بالهنا والشفا في مطعم Wonder!');
 }
 function doQuickWork() {
   if (energy < 15) { say('طاقتك قليلة للشغل. خدي استراحة الأول 🛋️'); return; }

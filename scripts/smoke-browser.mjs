@@ -57,6 +57,18 @@ try {
   await page.locator('#life-ui').waitFor({ state: 'attached', timeout: 20000 });
   await page.locator('#player-level').waitFor({ state: 'attached', timeout: 10000 });
 
+  // Memory challenge should open, render all twelve cards, restart, and close accessibly.
+  await page.locator('#ww-memory-open').waitFor({ state: 'visible', timeout: 10000 });
+  await page.locator('#ww-memory-open').click();
+  await page.locator('#ww-memory-panel').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#wwm-grid .wwm-card').count(), 12, 'memory game should render six matching pairs');
+  await page.locator('#wwm-grid .wwm-card').first().click();
+  assert.notEqual(await page.locator('#wwm-grid .wwm-card').first().innerText(), '?', 'memory card should reveal its symbol');
+  await page.locator('#wwm-restart').click();
+  assert.equal(await page.locator('#wwm-moves').innerText(), '0', 'restart should reset move count');
+  await page.keyboard.press('Escape');
+  await page.locator('#ww-memory-panel').waitFor({ state: 'hidden' });
+
   assert.equal(await page.locator('#application').count(), 1, '3D canvas should be present');
   assert.equal(await page.locator('[data-dir="up"]').count(), 1, 'mobile movement controls should be present');
   await page.locator('#toggle-actions').click();
@@ -117,6 +129,37 @@ try {
   assert.equal(await page.locator('#indoor-place-action').innerText(), '☕ طلب من الكافيه', 'cafe interior should expose the cafe order action');
   await page.locator('#indoor-place-action').click();
   assert.match(await page.locator('#status').innerText(), /كافيه|قهوة|مشروب|Wonder Cafe/, 'cafe action should respond');
+  await page.locator('#exit-home').click();
+  await page.locator('#exit-home').waitFor({ state: 'hidden' });
+
+  // Restaurant, office and gym must be enterable rooms with their own equipment and action.
+  await page.locator('#open-map').click();
+  await page.locator('.map-destination').filter({ hasText: 'مطعم Wonder' }).click();
+  await page.locator('#interact').click();
+  await page.locator('#exit-home').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#indoor-place-action').innerText(), '🍽️ طلب وجبة', 'restaurant should expose a meal-order action');
+  await page.locator('#indoor-place-action').click();
+  assert.match(await page.locator('#status').innerText(), /وجبتك وصلت|مطعم Wonder|الوجبة/, 'restaurant action should respond');
+  await page.locator('#exit-home').click();
+  await page.locator('#exit-home').waitFor({ state: 'hidden' });
+
+  await page.locator('#open-map').click();
+  await page.locator('.map-destination').filter({ hasText: 'مكتب الحي' }).click();
+  await page.locator('#interact').click();
+  await page.locator('#exit-home').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#indoor-place-action').innerText(), '💼 بدء وردية عمل', 'office should expose its work-shift action');
+  await page.locator('#indoor-place-action').click();
+  assert.match(await page.locator('#status').innerText(), /وردية قصيرة|الشغل/, 'office shift should respond');
+  await page.locator('#exit-home').click();
+  await page.locator('#exit-home').waitFor({ state: 'hidden' });
+
+  await page.locator('#open-map').click();
+  await page.locator('.map-destination').filter({ hasText: 'Wonder Fitness' }).click();
+  await page.locator('#interact').click();
+  await page.locator('#exit-home').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#indoor-place-action').innerText(), '🏋️ ابدئي التمرين', 'gym should expose a workout action');
+  await page.locator('#indoor-place-action').click();
+  assert.match(await page.locator('#status').innerText(), /تمرين|طاقة|تمرينًا/, 'gym workout should respond');
   await page.locator('#exit-home').click();
   await page.locator('#exit-home').waitFor({ state: 'hidden' });
 
