@@ -861,3 +861,22 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
   touch-action: manipulation;
 }
 #home-build-panel #home-build-feedback { min-height: 1.5em; line-height: 1.5; }
+
+
+/* WonderWorld polish pass: readable floor navigation and tactile casual-game boards. */
+#indoor-floor-controls{position:fixed;z-index:10030;right:12px;bottom:calc(88px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:center;gap:7px;max-width:calc(100vw - 24px);padding:8px;border:1px solid #ffffffc9;border-radius:16px;background:linear-gradient(135deg,#182c4deF,#513a80eF);box-shadow:0 8px 26px #101b3a66;color:#fff;font:700 12px system-ui,sans-serif;backdrop-filter:blur(10px)}
+#indoor-floor-controls[hidden]{display:none}
+#indoor-floor-controls span{min-width:74px;text-align:center}
+#indoor-floor-controls button{border:1px solid #ffffff50;border-radius:11px;padding:9px 10px;background:linear-gradient(145deg,#fff,#e9e6ff);color:#27365d;font:800 11px system-ui,sans-serif}
+#indoor-floor-controls button:disabled{opacity:.42}
+#blockblast-panel,#watersort-panel,#puzzle-panel{border:1px solid #ffffffd9;background:linear-gradient(145deg,#fffdf8f7,#f0eafff7);box-shadow:0 18px 48px #18213d66;border-radius:20px}
+#blockblast-board{gap:4px;padding:7px;border:1px solid #d8d9f2;border-radius:14px;background:linear-gradient(145deg,#b9b6f0,#b9e3ef);box-shadow:inset 0 2px 9px #26365a2b}
+.blockblast-cell{border-radius:5px;background:linear-gradient(145deg,#f9fbff,#dfe7fa);box-shadow:inset 0 1px 2px #ffffff}
+.blockblast-cell.filled{background:linear-gradient(145deg,#9b7cff,#6346bf);box-shadow:inset 0 2px 3px #ffffff80,0 2px 4px #49378d55}
+.blockblast-piece{border:1px solid #d9d5f5;background:linear-gradient(145deg,#fff,#f1efff);box-shadow:0 4px 0 #d8d3f2;border-radius:13px}
+.blockblast-piece.selected{border-color:#8b61c2;background:#f0e5ff;box-shadow:0 4px 0 #b5a0e8}
+.watersort-glass{border-color:#b8c6e8!important;background:linear-gradient(90deg,#ffffffa8,#ffffff22,#ffffffa8);box-shadow:inset 0 0 0 2px #ffffff8a,0 5px 12px #273d6c1c}
+.watersort-layer{border-radius:5px 5px 9px 9px!important;box-shadow:inset 0 2px 3px #ffffff66}
+#puzzle-choices button{border:1px solid #dcd5f4;border-radius:13px;background:linear-gradient(145deg,#fff,#f1efff);box-shadow:0 3px 0 #ded8f5;font-weight:750}
+#puzzle-choices button:active{transform:translateY(2px);box-shadow:0 1px 0 #ded8f5}
+@media(max-width:380px){#indoor-floor-controls{right:6px;left:6px;bottom:calc(82px + env(safe-area-inset-bottom));gap:4px;padding:6px}#indoor-floor-controls button{padding:8px 6px;font-size:10px}#indoor-floor-controls span{min-width:60px;font-size:11px}}
