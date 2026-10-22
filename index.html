@@ -14,16 +14,21 @@
 <body>
   <main id="game">
     <canvas id="application" aria-label="WonderWorld 3D game"></canvas>
-    <header class="hud"><div class="brand">WonderWorld</div><div class="hint">حرّكي بالأسهم أو أزرار الشاشة</div></header>
+    <header class="hud"><div class="brand">WonderWorld</div><div class="hint">حرّكي بالعصا الافتراضية، واسحبي يمين الشاشة لتدوير الكاميرا</div></header>
     <button id="references-toggle" type="button" aria-expanded="false" aria-controls="character-references">مراجع الشخصيات</button>
     <aside id="character-references" hidden aria-label="مراجع شخصيات WonderWorld">
       <div class="references-heading"><strong>مراجع الشخصيات</strong><button id="references-close" type="button" aria-label="إغلاق">✕</button></div>
       <p>الصور دي مراجع بصرية للتصميم، وليست نماذج شخصيات ثلاثية الأبعاد.</p>
       <div class="reference-grid" id="reference-grid"><p id="references-status">جاري تحميل صور الشخصيات…</p></div>
     </aside>
-    <div class="touch-pad" aria-label="أزرار الحركة">
+    <div class="touch-pad" aria-label="أزرار الحركة القديمة" hidden>
       <button class="move up" data-dir="up" aria-label="تحركي للأمام">▲</button><button class="move left" data-dir="left" aria-label="تحركي لليسار">◀</button><button class="move down" data-dir="down" aria-label="تحركي للخلف">▼</button><button class="move right" data-dir="right" aria-label="تحركي لليمين">▶</button>
     </div>
+    <div id="move-joystick" class="move-joystick" role="application" aria-label="عصا افتراضية للحركة: اسحبي في الاتجاه المطلوب">
+      <span class="joystick-direction joystick-up">▲</span><span class="joystick-direction joystick-down">▼</span><span class="joystick-direction joystick-left">◀</span><span class="joystick-direction joystick-right">▶</span>
+      <span id="move-joystick-thumb" class="move-joystick-thumb"></span>
+    </div>
+    <div class="camera-look-hint" aria-hidden="true">اسحبي هنا لتحريك الكاميرا ↔</div>
     <div id="status" role="status">تحميل عالم 3D…</div>
   </main>
   <script>
