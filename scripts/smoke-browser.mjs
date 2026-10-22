@@ -57,6 +57,18 @@ try {
   await page.locator('#life-ui').waitFor({ state: 'attached', timeout: 20000 });
   await page.locator('#player-level').waitFor({ state: 'attached', timeout: 10000 });
 
+  // Memory challenge should open, render all twelve cards, restart, and close accessibly.
+  await page.locator('#ww-memory-open').waitFor({ state: 'visible', timeout: 10000 });
+  await page.locator('#ww-memory-open').click();
+  await page.locator('#ww-memory-panel').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#wwm-grid .wwm-card').count(), 12, 'memory game should render six matching pairs');
+  await page.locator('#wwm-grid .wwm-card').first().click();
+  assert.notEqual(await page.locator('#wwm-grid .wwm-card').first().innerText(), '?', 'memory card should reveal its symbol');
+  await page.locator('#wwm-restart').click();
+  assert.equal(await page.locator('#wwm-moves').innerText(), '0', 'restart should reset move count');
+  await page.keyboard.press('Escape');
+  await page.locator('#ww-memory-panel').waitFor({ state: 'hidden' });
+
   assert.equal(await page.locator('#application').count(), 1, '3D canvas should be present');
   assert.equal(await page.locator('[data-dir="up"]').count(), 1, 'mobile movement controls should be present');
   await page.locator('#toggle-actions').click();
