@@ -191,6 +191,7 @@ function makeDistrictHome(parent, localX, localZ, seed) {
   const width = 6.2 + (seed % 3) * 0.45;
   const depth = 5.4;
   const floors = seed % 4 === 0 ? 2 : 3;
+  home.storeys = floors;
   const wallMaterial = districtWallMaterials[seed % districtWallMaterials.length];
   const roofMaterial = districtRoofMaterials[seed % districtRoofMaterials.length];
   for (let floor = 0; floor < floors; floor++) {
@@ -250,7 +251,7 @@ const districtBusinessTypes = [
 function makeDistrictBuilding(parent, x, z, seed, type) {
   if (type.kind === 'home' || type.kind === 'villa') {
     const home = makeDistrictHome(parent, x, z, seed);
-    home.districtPlace = { name: type.name, kind: type.kind, x: parent.getPosition().x + x, z: parent.getPosition().z + z };
+    home.districtPlace = { name: type.name, kind: type.kind, x: parent.getPosition().x + x, z: parent.getPosition().z + z, floors: home.storeys };
     return home;
   }
   const b = new Entity('WonderWorld ' + type.name + ' ' + seed);
@@ -259,6 +260,7 @@ function makeDistrictBuilding(parent, x, z, seed, type) {
   const width = ['hospital','office','cinema'].includes(type.kind) ? 8.2 : 6.5 + (seed % 3) * 0.45;
   const depth = ['hospital','office'].includes(type.kind) ? 7 : 5.8;
   const floors = seed % 3 === 0 ? 3 : 2;
+  b.districtPlace.floors = floors;
   const roof = [mats.roof,mats.npcBlue,mats.npcPink,mats.wallGold][seed % 4];
   for (let floor=0; floor<floors; floor++) {
     const y=1.28+floor*2.55;
@@ -307,7 +309,12 @@ function createDistrictChunk(chunkX, chunkZ) {
     const worldX=chunkX*DISTRICT_CHUNK_SIZE+localX, worldZ=chunkZ*DISTRICT_CHUNK_SIZE+localZ;
     if(Math.hypot(worldX,worldZ)<44){seed=(seed+1)>>>0;continue;}
     seed=(seed*1664525+1013904223)>>>0;
-    makeDistrictBuilding(root,localX,localZ,seed,districtBusinessTypes[seed%districtBusinessTypes.length]);
+    const building = makeDistrictBuilding(root,localX,localZ,seed,districtBusinessTypes[seed%districtBusinessTypes.length]);
+    // Face each building's entrance and forecourt toward its nearest street.
+    const roadDistanceX = 29 - Math.abs(localX);
+    const roadDistanceZ = 29 - Math.abs(localZ);
+    const frontYaw = roadDistanceX < roadDistanceZ ? (localX < 0 ? 90 : 270) : (localZ < 0 ? 0 : 180);
+    building.setLocalEulerAngles(0, frontYaw, 0);
   }
   root.enabled=true; districtChunks.set(key,root); return root;
 }
@@ -936,6 +943,10 @@ function enterHome(homeName, targetInteriorRoot = interiorRoot, indoorAction = n
   camera.setPosition(cameraX, cameraHeight, cameraZ);
   camera.lookAt(0, 1, 2);
   document.getElementById('exit-home').hidden = false;
+  indoorFloorControls.hidden = targetInteriorRoot !== districtInteriorRoot || districtInteriorFloorCount <= 1;
+  document.getElementById('indoor-floor-label').textContent = 'الدور الأرضي';
+  document.getElementById('indoor-floor-down').disabled = true;
+  document.getElementById('indoor-floor-up').disabled = districtInteriorFloorCount <= 1;
   if (activeIndoorAction) say('دخلتي ' + homeName + ' ✨ استكشفي المكان، واستخدمي زر النشاط لتجربة خدماته. تقدري ترجعي للحي من زر الخروج.');
   else say('دخلتي ' + homeName + ' 🏡 استكشفي الصالة وغرفة النوم والمطبخ. تقدري ترجعي للحي من زر الخروج.');
 }
@@ -954,6 +965,7 @@ function exitHome() {
   camera.setPosition(cameraX, cameraHeight, cameraZ);
   camera.lookAt(p.x, 1, p.z);
   document.getElementById('exit-home').hidden = true;
+  indoorFloorControls.hidden = true;
   document.getElementById('indoor-place-action').hidden = true;
   activeIndoorAction = null;
   say('رجعتي للحي 🌳 كل الأماكن والأنشطة الخارجية رجعت زي ما كانت.');
@@ -2441,12 +2453,41 @@ const districtInteriorRoot = new Entity('Procedural District Interior');
 app.root.addChild(districtInteriorRoot);
 districtInteriorRoot.enabled = false;
 let districtInteriorContent = null;
+let districtInteriorFloorIndex = 0;
+let districtInteriorFloorCount = 1;
+const DISTRICT_INTERIOR_FLOOR_HEIGHT = 3.25;
+const districtInteriorFloorCopies = [];
+const indoorFloorControls = document.createElement('div');
+indoorFloorControls.id = 'indoor-floor-controls';
+indoorFloorControls.hidden = true;
+indoorFloorControls.innerHTML = '<button id="indoor-floor-down" type="button" aria-label="الدور السابق">⬇️ الدور السابق</button><span id="indoor-floor-label">الدور الأرضي</span><button id="indoor-floor-up" type="button" aria-label="الدور التالي">⬆️ الدور التالي</button>';
+document.body.appendChild(indoorFloorControls);
+function changeDistrictInteriorFloor(delta) {
+  if (!indoors || activeInteriorRoot !== districtInteriorRoot) return;
+  const next = Math.max(0, Math.min(districtInteriorFloorCount - 1, districtInteriorFloorIndex + delta));
+  if (next === districtInteriorFloorIndex) { say(next === 0 ? 'ده الدور الأرضي.' : 'وصلتي لآخر دور في المبنى.'); return; }
+  districtInteriorFloorIndex = next;
+  const y = next * DISTRICT_INTERIOR_FLOOR_HEIGHT;
+  player.setPosition(0, y, 2);
+  cameraHeight = y + 5.5; cameraOffsetZ = 4.0; cameraX = 0; cameraZ = y + 6.0;
+  camera.setPosition(cameraX, cameraHeight, cameraZ); camera.lookAt(0, y + 1, 2);
+  document.getElementById('indoor-floor-label').textContent = next === 0 ? 'الدور الأرضي' : 'الدور ' + (next + 1);
+  document.getElementById('indoor-floor-down').disabled = next === 0;
+  document.getElementById('indoor-floor-up').disabled = next >= districtInteriorFloorCount - 1;
+  say(next === 0 ? 'رجعتي للدور الأرضي.' : 'طلعتي للدور ' + (next + 1) + ' عبر السلم الداخلي.');
+}
+document.getElementById('indoor-floor-up').addEventListener('click', () => changeDistrictInteriorFloor(1));
+document.getElementById('indoor-floor-down').addEventListener('click', () => changeDistrictInteriorFloor(-1));
 function prepareDistrictInterior(place) {
   if (districtInteriorContent) districtInteriorContent.destroy();
+  for (const copy of districtInteriorFloorCopies) copy.destroy();
+  districtInteriorFloorCopies.length = 0;
   districtInteriorContent = new Entity('Furnished ' + place.kind + ' interior');
   districtInteriorRoot.addChild(districtInteriorContent);
   const root = districtInteriorContent;
   const kind = place.kind;
+  districtInteriorFloorIndex = 0;
+  districtInteriorFloorCount = Math.max(1, Math.min(3, Number(place.floors) || (['hospital','office','apartments'].includes(kind) ? 3 : 2)));
   const wall = kind === 'hospital' || kind === 'pharmacy' ? mats.white :
     kind === 'salon' || kind === 'fashion' ? mats.wallPink :
     kind === 'restaurant' || kind === 'market' ? mats.wallGold : mats.wall;
@@ -2456,6 +2497,15 @@ function prepareDistrictInterior(place) {
   box('District interior right wall', 0.28, 4.8, 18, 9, 2.25, 0, mats.white, root);
   box('District interior front wall left', 5.5, 4.8, 0.28, -6.25, 2.25, 9, wall, root);
   box('District interior front wall right', 5.5, 4.8, 0.28, 6.25, 2.25, 9, wall, root);
+  // A visible, walk-up staircase with a landing; each generated upper floor has its own furnished copy.
+  for (let step = 0; step < 12; step++) {
+    box('Interior staircase tread ' + step, 1.25, 0.16, 0.72, -6.65, 0.16 + step * 0.25, 5.25 - step * 0.68, mats.path, root);
+  }
+  box('Interior staircase upper landing', 1.55, 0.16, 1.35, -6.65, 3.12, -2.45, mats.white, root);
+  for (const railZ of [4.95, 2.9, 0.85, -1.2]) {
+    box('Interior staircase handrail post', 0.09, 1.05, 0.09, -7.35, 0.65 + (4.95 - railZ) * 0.12, railZ, mats.npcGold, root);
+    box('Interior staircase handrail post', 0.09, 1.05, 0.09, -5.95, 0.65 + (4.95 - railZ) * 0.12, railZ, mats.npcGold, root);
+  }
   box('District interior entry mat', 2.8, 0.08, 1.1, 0, 0.02, 7.6, mats.white, root);
   box('District interior reception counter', 4.0, 1.0, 1.0, 0, 0.55, -6.2, mats.bench, root);
   box('District interior service counter top', 4.2, 0.14, 1.15, 0, 1.12, -6.2, mats.outfitGold, root);
@@ -2598,6 +2648,13 @@ function prepareDistrictInterior(place) {
     else if (kind === 'school' || kind === 'hospital' || kind === 'pharmacy') { happiness = Math.min(100,happiness+3); awardXP(4); updateStats(); saveProgress(); say(messages[kind]); }
     else { happiness = Math.min(100,happiness+2); awardXP(3); updateStats(); saveProgress(); say(messages[kind] || '✨ استكشفتي المكان!'); }
   }};
+  for (let floor = 1; floor < districtInteriorFloorCount; floor++) {
+    const upperFloor = districtInteriorContent.clone();
+    upperFloor.name = 'Furnished ' + place.kind + ' floor ' + (floor + 1);
+    upperFloor.setLocalPosition(0, floor * DISTRICT_INTERIOR_FLOOR_HEIGHT, 0);
+    districtInteriorRoot.addChild(upperFloor);
+    districtInteriorFloorCopies.push(upperFloor);
+  }
   enterHome(place.name, districtInteriorRoot, action);
 }
 
@@ -3338,7 +3395,7 @@ document.querySelectorAll('[data-dir]').forEach(button => {
   button.addEventListener('lostpointercapture', release);
 });
 
-const moveSpeed = 4.2;
+const moveSpeed = 7.2;
 let walkClock = 0;
 let worldClockSeconds = 0;
 let weatherMode = 'clear';
