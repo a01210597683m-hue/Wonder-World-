@@ -646,6 +646,7 @@ ui.innerHTML = `
       <label for="avatar-presentation">ستايل الشخصية<select id="avatar-presentation"><option value="feminine">ستايل أنثوي</option><option value="masculine">ستايل ذكوري</option><option value="neutral">ستايل محايد</option></select></label>
       <label for="avatar-skin">درجة البشرة<select id="avatar-skin"><option value="light">فاتحة</option><option value="medium" selected>قمحية</option><option value="tan">سمراء فاتحة</option><option value="deep">سمراء داكنة</option></select></label>
       <label for="avatar-hair-style">تسريحة الشعر<select id="avatar-hair-style"><option value="short">قصير</option><option value="long" selected>طويل</option><option value="curly">كيرلي</option><option value="bun">كعكة شعر</option></select></label>
+      <label for="avatar-hair-color">لون الشعر<select id="avatar-hair-color"><option value="brown" selected>بني</option><option value="black">أسود</option><option value="rose">وردي</option><option value="silver">فضي</option></select></label>
     </div>
     <button id="save-avatar-profile" type="button">💾 حفظ شكل شخصيتي</button>
     <p id="avatar-creator-feedback" role="status">كل التغييرات شكلية ومحفوظة داخل تقدم اللعبة.</p>
@@ -1137,10 +1138,11 @@ document.getElementById('open-avatar-creator').addEventListener('click', () => {
   document.getElementById('avatar-creator-panel').hidden = false;
 });
 document.getElementById('close-avatar-creator').addEventListener('click', () => { document.getElementById('avatar-creator-panel').hidden = true; });
-document.getElementById('avatar-age').addEventListener('input', event => { avatarProfile.age = Number(event.target.value); applyAvatarProfile(); });
-document.getElementById('avatar-presentation').addEventListener('change', event => { avatarProfile.presentation = event.target.value; applyAvatarProfile(); });
-document.getElementById('avatar-skin').addEventListener('change', event => { avatarProfile.skin = event.target.value; applyAvatarProfile(); });
-document.getElementById('avatar-hair-style').addEventListener('change', event => { avatarProfile.hairStyle = event.target.value; applyAvatarProfile(); });
+document.getElementById('avatar-age').addEventListener('input', event => { avatarProfile.age = Number(event.target.value); applyAvatarProfile(); saveProgress(); });
+document.getElementById('avatar-presentation').addEventListener('change', event => { avatarProfile.presentation = event.target.value; applyAvatarProfile(); saveProgress(); });
+document.getElementById('avatar-skin').addEventListener('change', event => { avatarProfile.skin = event.target.value; applyAvatarProfile(); saveProgress(); });
+document.getElementById('avatar-hair-style').addEventListener('change', event => { avatarProfile.hairStyle = event.target.value; applyAvatarProfile(); saveProgress(); });
+document.getElementById('avatar-hair-color').addEventListener('change', event => { avatarProfile.hairColor = event.target.value; applyAvatarProfile(); saveProgress(); });
 document.getElementById('save-avatar-profile').addEventListener('click', () => {
   applyAvatarProfile();
   saveProgress();
@@ -1219,8 +1221,9 @@ function localDateKey(date = new Date()) {
 const todayQuestKey = localDateKey();
 let questDate = todayQuestKey;
 const equippedItems = { outfit: 'default-outfit', hair: 'default-hair' };
-const avatarProfile = { age: 22, presentation: 'feminine', skin: 'medium', hairStyle: 'long' };
+const avatarProfile = { age: 22, presentation: 'feminine', skin: 'medium', hairStyle: 'long', hairColor: 'brown' };
 const avatarSkinMaterials = { light: mats.skinLight, medium: mats.skin, tan: mats.skinTan, deep: mats.skinDeep };
+const avatarHairMaterials = { brown: mats.hairBrown, black: mats.hairBlack, rose: mats.hairRose, silver: mats.hairSilver };
 function applyAvatarProfile() {
   const age = Math.max(5, Math.min(65, Number(avatarProfile.age) || 22));
   avatarProfile.age = age;
@@ -1234,6 +1237,8 @@ function applyAvatarProfile() {
   const skin = avatarSkinMaterials[avatarProfile.skin] || mats.skin;
   player.skinParts.forEach(part => { part.render.material = skin; });
   for (const [style, parts] of Object.entries(avatarHairStyles)) for (const part of parts) part.enabled = style === avatarProfile.hairStyle;
+  const hairMaterial = avatarHairMaterials[avatarProfile.hairColor] || mats.hairBrown;
+  player.hairParts.forEach(part => { if (part.render) part.render.material = hairMaterial; });
   const ageLabel = document.getElementById('avatar-age-value');
   if (ageLabel) ageLabel.textContent = age + ' سنة';
   const ageInput = document.getElementById('avatar-age');
@@ -1244,6 +1249,8 @@ function applyAvatarProfile() {
   if (skinInput) skinInput.value = avatarProfile.skin;
   const hairInput = document.getElementById('avatar-hair-style');
   if (hairInput) hairInput.value = avatarProfile.hairStyle;
+  const hairColorInput = document.getElementById('avatar-hair-color');
+  if (hairColorInput) hairColorInput.value = avatarProfile.hairColor;
 }
 
 let loadedProgress = null;
@@ -1539,6 +1546,7 @@ try {
       if (['feminine','masculine','neutral'].includes(profile.presentation)) avatarProfile.presentation = profile.presentation;
       if (['light','medium','tan','deep'].includes(profile.skin)) avatarProfile.skin = profile.skin;
       if (['short','long','curly','bun'].includes(profile.hairStyle)) avatarProfile.hairStyle = profile.hairStyle;
+      if (['brown','black','rose','silver'].includes(profile.hairColor)) avatarProfile.hairColor = profile.hairColor;
     }
     if (loadedProgress.equippedItems && typeof loadedProgress.equippedItems === 'object') {
       if (typeof loadedProgress.equippedItems.outfit === 'string') equippedItems.outfit = loadedProgress.equippedItems.outfit;
