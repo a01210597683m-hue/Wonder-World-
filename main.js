@@ -250,7 +250,7 @@ function createDistrictChunk(chunkX, chunkZ) {
   }
   let seed=Math.abs((chunkX*73856093)^(chunkZ*19349663))>>>0;
   // 16 lots per streamed district, with varied residential, retail, health, beauty and leisure buildings.
-  for(const localX of [-21,-7,7,21]) for(const localZ of [-21,-7,7,21]){
+  for(const localX of [-18,-6,6,18]) for(const localZ of [-18,-6,6,18]){
     const worldX=chunkX*DISTRICT_CHUNK_SIZE+localX, worldZ=chunkZ*DISTRICT_CHUNK_SIZE+localZ;
     if(Math.hypot(worldX,worldZ)<44){seed=(seed+1)>>>0;continue;}
     seed=(seed*1664525+1013904223)>>>0;
