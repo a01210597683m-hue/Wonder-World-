@@ -87,7 +87,7 @@ const checks = [
   ['Office interior includes workstations, monitors, keyboards and filing storage', /Office workstation desk/.test(game) && /Office workstation monitor/.test(game) && /Office keyboard/.test(game) && /Office filing cabinet/.test(game)],
   ['Gym interior includes treadmills, dumbbells, weight bench and yoga mats', /Fitness treadmill base/.test(game) && /Fitness dumbbell weight/.test(game) && /Fitness weight bench/.test(game) && /Fitness yoga mat/.test(game)],
   ['Starter home includes desk, laptop, refrigerator, stove and bathroom fixtures', /Home writing desk/.test(game) && /Home laptop screen/.test(game) && /Home refrigerator/.test(game) && /Home stove oven/.test(game) && /Home bathroom toilet base/.test(game)],
-  ['Restaurant is reachable from the fast-travel map', /name:'مطعم Wonder',emoji:'🍽️',x:8,z:-23/.test(game)],
+  ['Restaurant is reachable from the fast-travel map', /name:'مطعم Wonder',emoji:'🍽️',x:8,z:-25/.test(game)],
   ['Purchased player-owned shop is reachable and opens business management', /if \(playerBusiness\.enabled\)/.test(game) && /مشروعي الخاص — إدارة المحل/.test(game) && /careerButton\.click\(\)/.test(game)],
   ['Social walk requires explicit consent', /موافقة/.test(game) && /accept\.addEventListener/.test(game)],
   ['Pet care system exists', /function careForActivePet/.test(game)],
