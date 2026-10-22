@@ -132,8 +132,8 @@
     function ropeCrossings(){let count=0;for(let i=0;i<ropeEdges.length;i++)for(let j=i+1;j<ropeEdges.length;j++){const [a,b]=ropeEdges[i],[c,d]=ropeEdges[j];if([a,b].some(n=>n===c||n===d))continue;if(ropeCross(ropeNodes[a],ropeNodes[b],ropeNodes[c],ropeNodes[d]))count++;}return count;}
     function ropeUpdate(){
       const svg=document.getElementById('wwa-rope-lines');svg.innerHTML=ropeEdges.map(([a,b])=>'<line class="wwa-rope-line" x1="'+ropeNodes[a].x+'" y1="'+ropeNodes[a].y+'" x2="'+ropeNodes[b].x+'" y2="'+ropeNodes[b].y+'" />').join('');
-      const board=document.getElementById('wwa-rope-board');board.querySelectorAll('.wwa-rope-node').forEach(n=>n.remove());
-      ropeNodes.forEach((p,i)=>{const n=make('button',{type:'button',class:'wwa-rope-node','data-node':i,'aria-label':'اسحبي العقدة '+(i+1)},String(i+1));n.style.left=(p.x/320*100)+'%';n.style.top=(p.y/320*100)+'%';board.appendChild(n);});
+      const board=document.getElementById('wwa-rope-board');
+      ropeNodes.forEach((p,i)=>{let n=board.querySelector('.wwa-rope-node[data-node="'+i+'"]');if(!n){n=make('button',{type:'button',class:'wwa-rope-node','data-node':i,'aria-label':'اسحبي العقدة '+(i+1)},String(i+1));board.appendChild(n);}n.style.left=(p.x/320*100)+'%';n.style.top=(p.y/320*100)+'%';});
     }
     const ropeBoard=document.getElementById('wwa-rope-board');
     ropeBoard.addEventListener('pointerdown',e=>{const node=e.target.closest('.wwa-rope-node');if(!node)return;ropeDragging=Number(node.dataset.node);node.setPointerCapture?.(e.pointerId);e.preventDefault();});
