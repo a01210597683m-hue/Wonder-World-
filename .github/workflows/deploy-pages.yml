@@ -33,6 +33,8 @@ jobs:
           node --check scripts/check-assets.mjs
       - name: Check activity module JavaScript syntax
         run: node --check wonderworld-activities.js
+      - name: Check Space Shooter JavaScript syntax
+        run: node --check space-shooter.js
       - name: Run gameplay regression checks
         run: node scripts/check-game.mjs
       - name: Run asset and integration checks
