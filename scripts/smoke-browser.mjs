@@ -116,6 +116,11 @@ try {
   await page.locator('#interact').click();
   await page.locator('#exit-home').waitFor({ state: 'visible' });
   assert.equal(await page.locator('#indoor-place-action').isVisible(), true, 'shop interior should expose its shopping action');
+  assert.equal(await page.locator('#indoor-floor-controls').isVisible(), true, 'multi-storey shop interiors should expose floor navigation');
+  await page.locator('#indoor-floor-up').click();
+  assert.equal(await page.locator('#indoor-floor-label').innerText(), 'الدور 2', 'stair navigation should move the player to the upper floor');
+  await page.locator('#indoor-floor-down').click();
+  assert.equal(await page.locator('#indoor-floor-label').innerText(), 'الدور الأرضي', 'floor navigation should return to the ground floor');
   await page.locator('#indoor-place-action').click();
   await page.locator('#shop-panel').waitFor({ state: 'visible' });
   await page.locator('#close-shop').click();
@@ -307,6 +312,16 @@ try {
   assert.equal(await page.locator('#ww-cups .ww-cup').filter({ hasText: '⭐' }).count(), 1, 'cup round should reveal exactly one hidden star');
   await page.locator('#wwa-cups-reset').click();
   assert.equal(await page.locator('#ww-cups .ww-cup:disabled').count(), 0, 'cup restart should enable all three cups again');
+  await page.locator('#wwa-match-open').click();
+  assert.equal(await page.locator('#wwa-match-board .wwa-candy-tile').count(), 64, 'Candy Match should render a playable 8x8 board');
+  await page.locator('#wwa-match-reset').click();
+  await page.locator('#wwa-rope-open').click();
+  assert.equal(await page.locator('#wwa-casual-rope-board .wwa-casual-rope-node').count(), 6, 'Rope Untangle should render six draggable nodes');
+  await page.locator('#wwa-rope-reset').click();
+  await page.locator('#wwa-party-open').click();
+  assert.equal(await page.locator('#wwa-party-board .wwa-party-star').count(), 12, 'Sparkle Party should render twelve collectible stars');
+  await page.locator('#wwa-party-board .wwa-party-star').first().click();
+  assert.ok(Number(await page.locator('#wwa-party-score').innerText()) > 0, 'collecting a star should award points');
   await page.locator('#ww-arcade-panel').getByRole('button', { name: 'إغلاق' }).click();
   await page.locator('#ww-arcade-panel').waitFor({ state: 'hidden' });
 

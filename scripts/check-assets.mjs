@@ -35,8 +35,14 @@ check('Water Sort puzzle generation uses reversible moves from a solved board',
   /scramble only with reversible reverse-moves/.test(main) && /لغز جديد قابل للحل/.test(main));
 check('Water Sort is not duplicated in the board-games panel',
   !/bg-open-water-sort/.test(boardGames) && !/function initWaterSort/.test(boardGames));
-check('Casual arcade module is loaded and both mini-games are wired',
-  html.includes('mini-games.js?v=20261021-1') && /wwa-color-open/.test(miniGames) && /wwa-cups-open/.test(miniGames));
+check('Casual arcade module is loaded and core mini-games are wired',
+  /mini-games\.js\?v=/.test(html) && /wwa-color-open/.test(miniGames) && /wwa-cups-open/.test(miniGames));
+check('Candy Match, Rope Untangle and Sparkle Party have playable controls',
+  /function candyChoose/.test(miniGames) && /function ropeCrossings/.test(miniGames) && /function partyReset/.test(miniGames));
+check('Player movement is faster and procedural buildings face the nearest street',
+  /const moveSpeed = 7\.2/.test(main) && /building\.setLocalEulerAngles\(0, frontYaw, 0\)/.test(main));
+check('Multi-storey interiors provide stairs, upper-floor copies and floor navigation',
+  /Interior staircase tread/.test(main) && /Furnished .* floor/.test(main) && /changeDistrictInteriorFloor/.test(main));
 check('Casual arcade source includes color matching and cup-guess outcomes',
   /function chooseColor/.test(miniGames) && /function newColorRound/.test(miniGames) && /function newCups/.test(miniGames) && /لقيتي النجمة/.test(miniGames));
 check('Core game and account modules are wired into the HTML',
