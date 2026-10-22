@@ -394,6 +394,20 @@ function toggleVehicleMode(forceState) {
     say('نزلتي من العربية. رجع التحكم بالمشي الطبيعي.');
   }
 }
+// Ambient residents get their own gentle, bounded walking routes around the neighborhood.
+// Their coordinates stay in sync with their visible 3D entities so interactions work while they roam.
+const npcWanderState = new Map();
+function chooseNpcWanderTarget(npc, current) {
+  const homeX = npc.homeX ?? npc.x;
+  const homeZ = npc.homeZ ?? npc.z;
+  const angle = Math.random() * Math.PI * 2;
+  const radius = 1.8 + Math.random() * 4.2;
+  return {
+    x: Math.max(-17, Math.min(17, homeX + Math.cos(angle) * radius)),
+    z: Math.max(-17, Math.min(17, homeZ + Math.sin(angle) * radius))
+  };
+}
+
 const npcs = [
   { name: 'ليلى', role: 'جارة', personality: 'اجتماعية وبتحب مساعدة الجيران', favorite: 'الحديقة والزهور', greeting: 'أهلًا! أنا ليلى، بحب أتعرف على جيراني وأساعدهم.', topics: [
     { label: '🌼 نخطط لزيارة الحديقة', reply: 'فكرة جميلة! ممكن نتمشى بين الزهور ونختار ركننا المفضل.', relation: 1, joy: 4, parkTip: true },
@@ -2809,6 +2823,42 @@ let cameraHeight = 7;
 let cameraOffsetZ = 11;
 app.on('update', dt => {
   updateWorldAtmosphere(dt);
+  // Residents stroll, pause, and change direction. A friend on an accepted walk follows the player instead.
+  if (!indoors) {
+    for (const npc of npcs) {
+      if (activeWalkNpc === npc || !npc.entity.enabled) continue;
+      let state = npcWanderState.get(npc.name);
+      const pos = npc.entity.getPosition();
+      if (!state) {
+        state = { target: chooseNpcWanderTarget(npc, pos), pause: 0.8 + Math.random() * 2.2 };
+        npcWanderState.set(npc.name, state);
+      }
+      if (state.pause > 0) {
+        state.pause -= dt;
+      } else {
+        const dx = state.target.x - pos.x;
+        const dz = state.target.z - pos.z;
+        const distance = Math.hypot(dx, dz);
+        if (distance < 0.22) {
+          state.target = chooseNpcWanderTarget(npc, pos);
+          state.pause = 1.0 + Math.random() * 2.8;
+        } else {
+          const step = Math.min(distance, 1.05 * dt);
+          npc.entity.setPosition(pos.x + dx / distance * step, 0, pos.z + dz / distance * step);
+          npc.entity.setEulerAngles(0, Math.atan2(dx, dz) * 180 / Math.PI, 0);
+          state.walkClock = (state.walkClock || 0) + dt * 6;
+          const swing = Math.sin(state.walkClock) * 18;
+          if (npc.entity.leftArm) npc.entity.leftArm.setLocalEulerAngles(swing, 0, 0);
+          if (npc.entity.rightArm) npc.entity.rightArm.setLocalEulerAngles(-swing, 0, 0);
+          if (npc.entity.leftLeg) npc.entity.leftLeg.setLocalEulerAngles(-swing * 0.7, 0, 0);
+          if (npc.entity.rightLeg) npc.entity.rightLeg.setLocalEulerAngles(swing * 0.7, 0, 0);
+        }
+      }
+      const now = npc.entity.getPosition();
+      npc.x = now.x;
+      npc.z = now.z;
+    }
+  }
   // Smooth, normalized movement and a small walk cycle for the temporary avatar.
   let x = (pressed.has('right') ? 1 : 0) - (pressed.has('left') ? 1 : 0);
   let z = (pressed.has('down') ? 1 : 0) - (pressed.has('up') ? 1 : 0);
