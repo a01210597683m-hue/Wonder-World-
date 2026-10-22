@@ -3397,6 +3397,78 @@ interactButton.addEventListener('click', () => {
 });
 
 const pressed = new Set();
+// Mobile twin-stick controls: the left virtual joystick moves relative to the camera;
+// dragging the right side of the world rotates the third-person camera.
+let analogMoveX = 0;
+let analogMoveY = 0;
+let cameraOrbitYaw = 0;
+let cameraOrbitPitch = 27;
+const cameraOrbitDistance = 11;
+const moveJoystick = document.getElementById('move-joystick');
+const moveJoystickThumb = document.getElementById('move-joystick-thumb');
+let joystickPointerId = null;
+let cameraPointerId = null;
+let cameraLastX = 0;
+let cameraLastY = 0;
+function updateJoystick(clientX, clientY) {
+  if (!moveJoystick || !moveJoystickThumb) return;
+  const rect = moveJoystick.getBoundingClientRect();
+  const radius = Math.max(1, rect.width / 2 - 25);
+  let dx = clientX - (rect.left + rect.width / 2);
+  let dy = clientY - (rect.top + rect.height / 2);
+  const length = Math.hypot(dx, dy);
+  if (length > radius) { dx = dx / length * radius; dy = dy / length * radius; }
+  analogMoveX = dx / radius;
+  analogMoveY = dy / radius;
+  moveJoystickThumb.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+}
+function releaseJoystick() {
+  joystickPointerId = null;
+  analogMoveX = 0;
+  analogMoveY = 0;
+  if (moveJoystickThumb) moveJoystickThumb.style.transform = 'translate(0,0)';
+}
+if (moveJoystick) {
+  moveJoystick.addEventListener('pointerdown', event => {
+    if (joystickPointerId !== null) return;
+    joystickPointerId = event.pointerId;
+    moveJoystick.setPointerCapture?.(event.pointerId);
+    updateJoystick(event.clientX, event.clientY);
+    event.preventDefault();
+  });
+  moveJoystick.addEventListener('pointermove', event => {
+    if (event.pointerId === joystickPointerId) { updateJoystick(event.clientX, event.clientY); event.preventDefault(); }
+  });
+  for (const eventName of ['pointerup','pointercancel','lostpointercapture']) {
+    moveJoystick.addEventListener(eventName, event => {
+      if (event.pointerId === joystickPointerId) releaseJoystick();
+    });
+  }
+}
+canvas.style.touchAction = 'none';
+canvas.addEventListener('pointerdown', event => {
+  if (event.clientX < window.innerWidth * 0.43 || cameraPointerId !== null) return;
+  cameraPointerId = event.pointerId;
+  cameraLastX = event.clientX;
+  cameraLastY = event.clientY;
+  canvas.setPointerCapture?.(event.pointerId);
+});
+canvas.addEventListener('pointermove', event => {
+  if (event.pointerId !== cameraPointerId) return;
+  const dx = event.clientX - cameraLastX;
+  const dy = event.clientY - cameraLastY;
+  cameraLastX = event.clientX;
+  cameraLastY = event.clientY;
+  cameraOrbitYaw -= dx * 0.006;
+  cameraOrbitPitch = Math.max(14, Math.min(52, cameraOrbitPitch + dy * 0.12));
+  event.preventDefault();
+});
+function releaseCameraPointer(event) {
+  if (event.pointerId === cameraPointerId) cameraPointerId = null;
+}
+canvas.addEventListener('pointerup', releaseCameraPointer);
+canvas.addEventListener('pointercancel', releaseCameraPointer);
+canvas.addEventListener('lostpointercapture', releaseCameraPointer);
 const keyMap = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down',
   ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right'
@@ -3521,10 +3593,14 @@ app.on('update', dt => {
     }
   }
   // Smooth, normalized movement and a small walk cycle for the temporary avatar.
-  let x = (pressed.has('right') ? 1 : 0) - (pressed.has('left') ? 1 : 0);
-  let z = (pressed.has('down') ? 1 : 0) - (pressed.has('up') ? 1 : 0);
+  const inputRight = (pressed.has('right') ? 1 : 0) - (pressed.has('left') ? 1 : 0) + analogMoveX;
+  const inputForward = (pressed.has('up') ? 1 : 0) - (pressed.has('down') ? 1 : 0) - analogMoveY;
+  const cameraSin = Math.sin(cameraOrbitYaw);
+  const cameraCos = Math.cos(cameraOrbitYaw);
+  let x = inputRight * cameraCos - inputForward * cameraSin;
+  let z = -inputRight * cameraSin - inputForward * cameraCos;
   const length = Math.hypot(x, z);
-  const moving = length > 0;
+  const moving = length > 0.08;
   if (moving) {
     x /= length; z /= length;
     const activeSpeed = moveSpeed * (vehicleMode ? 2.6 : 1);
@@ -3555,10 +3631,20 @@ app.on('update', dt => {
     playerCar.setEulerAngles(0, player.getEulerAngles().y, 0);
   }
 
-  // Ease the camera toward the player instead of snapping on every frame.
+  // Third-person orbit camera: swipe on the right side to look around the world.
+  // Interior rooms retain their close, fixed framing.
   const follow = 1 - Math.exp(-5 * dt);
-  cameraX += (p.x - cameraX) * follow;
-  cameraZ += (p.z + cameraOffsetZ - cameraZ) * follow;
+  if (indoors) {
+    cameraX += (p.x - cameraX) * follow;
+    cameraZ += (p.z + cameraOffsetZ - cameraZ) * follow;
+  } else {
+    const desiredX = p.x + Math.sin(cameraOrbitYaw) * cameraOrbitDistance;
+    const desiredZ = p.z + Math.cos(cameraOrbitYaw) * cameraOrbitDistance;
+    const desiredHeight = 1.2 + Math.tan(cameraOrbitPitch * Math.PI / 180) * cameraOrbitDistance;
+    cameraX += (desiredX - cameraX) * follow;
+    cameraZ += (desiredZ - cameraZ) * follow;
+    cameraHeight += (desiredHeight - cameraHeight) * follow;
+  }
   camera.setPosition(cameraX, cameraHeight, cameraZ);
   camera.lookAt(p.x, 1, p.z);
 });
