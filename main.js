@@ -556,7 +556,7 @@ box('Cafe refrigerator handle', 0.08, 0.7, 0.08, -5.28, 1.0, -4.9, mats.tvFrame,
 box('Cafe coffee grinder', 0.42, 0.62, 0.42, 0.2, 1.48, -5.0, mats.tvFrame, cafeInteriorRoot);
 box('Cafe grinder hopper', 0.34, 0.28, 0.34, 0.2, 1.91, -5.0, mats.window, cafeInteriorRoot);
 for (const [x,z] of [[-1.8,-4.6],[-0.8,-4.6],[0.2,-4.6]]) {
-  cylinder('Cafe mug handle '+x, 0.14, 0.06, 0.14, x, 1.22, z, mats.white);
+  roomCylinder('Cafe mug handle '+x, 0.14, 0.06, 0.14, x, 1.22, z, mats.white, cafeInteriorRoot);
   roomCylinder('Cafe mug '+x, 0.16, 0.22, 0.16, x, 1.2, z, mats.white, cafeInteriorRoot);
 }
 box('Cafe wall art frame', 1.35, 1.1, 0.12, -4.4, 2.75, -6.7, mats.npcGold, cafeInteriorRoot);
