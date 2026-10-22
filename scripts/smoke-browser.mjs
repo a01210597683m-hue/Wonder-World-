@@ -132,6 +132,37 @@ try {
   await page.locator('#exit-home').click();
   await page.locator('#exit-home').waitFor({ state: 'hidden' });
 
+  // Restaurant, office and gym must be enterable rooms with their own equipment and action.
+  await page.locator('#open-map').click();
+  await page.locator('.map-destination').filter({ hasText: 'مطعم Wonder' }).click();
+  await page.locator('#interact').click();
+  await page.locator('#exit-home').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#indoor-place-action').innerText(), '🍽️ طلب وجبة', 'restaurant should expose a meal-order action');
+  await page.locator('#indoor-place-action').click();
+  assert.match(await page.locator('#status').innerText(), /وجبتك وصلت|مطعم Wonder|الوجبة/, 'restaurant action should respond');
+  await page.locator('#exit-home').click();
+  await page.locator('#exit-home').waitFor({ state: 'hidden' });
+
+  await page.locator('#open-map').click();
+  await page.locator('.map-destination').filter({ hasText: 'مكتب الحي' }).click();
+  await page.locator('#interact').click();
+  await page.locator('#exit-home').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#indoor-place-action').innerText(), '💼 بدء وردية عمل', 'office should expose its work-shift action');
+  await page.locator('#indoor-place-action').click();
+  assert.match(await page.locator('#status').innerText(), /وردية قصيرة|الشغل/, 'office shift should respond');
+  await page.locator('#exit-home').click();
+  await page.locator('#exit-home').waitFor({ state: 'hidden' });
+
+  await page.locator('#open-map').click();
+  await page.locator('.map-destination').filter({ hasText: 'Wonder Fitness' }).click();
+  await page.locator('#interact').click();
+  await page.locator('#exit-home').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#indoor-place-action').innerText(), '🏋️ ابدئي التمرين', 'gym should expose a workout action');
+  await page.locator('#indoor-place-action').click();
+  assert.match(await page.locator('#status').innerText(), /تمرين|طاقة|تمرينًا/, 'gym workout should respond');
+  await page.locator('#exit-home').click();
+  await page.locator('#exit-home').waitFor({ state: 'hidden' });
+
   // The visible aircraft and train station should launch their playable activities.
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'مطار Wonder Air' }).click();
