@@ -183,10 +183,11 @@ try {
   await page.locator('#avatar-presentation').selectOption('masculine');
   await page.locator('#avatar-skin').selectOption('deep');
   await page.locator('#avatar-hair-style').selectOption('curly');
+  await page.locator('#avatar-hair-color').selectOption('rose');
   await page.locator('#save-avatar-profile').click();
   assert.match(await page.locator('#avatar-creator-feedback').innerText(), /اتحفظ شكل شخصيتك/);
   const avatarSave = await page.evaluate(() => JSON.parse(localStorage.getItem('wonderworld-save-v1') || '{}').avatarProfile);
-  assert.deepEqual(avatarSave, { age: 65, presentation: 'masculine', skin: 'deep', hairStyle: 'curly' });
+  assert.deepEqual(avatarSave, { age: 65, presentation: 'masculine', skin: 'deep', hairStyle: 'curly', hairColor: 'rose' });
   await page.locator('#close-avatar-creator').click();
   await page.locator('#avatar-creator-panel').waitFor({ state: 'hidden' });
 
