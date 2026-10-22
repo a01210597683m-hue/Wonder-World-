@@ -23,7 +23,7 @@
     '.wwa-canvas{display:block;width:100%;max-width:640px;height:auto;aspect-ratio:16/10;border-radius:14px;background:#d9e8f0;border:1px solid #c8d8e4;touch-action:manipulation;margin:10px auto}',
     '.wwa-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;max-width:420px;margin:10px auto}.wwa-controls button{min-height:44px;border:0;border-radius:11px;background:#dce7f4;color:#203c59;font:inherit;font-weight:900;touch-action:manipulation}',
     '.wwa-board{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;max-width:430px;margin:12px auto}.wwa-candy{aspect-ratio:1;border:0;border-radius:10px;font-size:clamp(19px,5vw,30px);background:#fff;box-shadow:inset 0 -3px #0001;touch-action:manipulation}',
-    '.wwa-ropes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}.wwa-rope{padding:12px 4px;border:2px solid #dfd5eb;border-radius:12px;background:#fff;font:inherit;font-weight:800}',
+    '.wwa-rope-stage{width:100%;max-width:640px;margin:12px auto;touch-action:none;user-select:none}.wwa-rope-stage svg{display:block;width:100%;height:auto;border-radius:18px;overflow:visible;touch-action:none}.wwa-rope-stage g[role=button]:focus{outline:none}.wwa-rope-stage g[role=button]:focus circle:first-child{stroke:#172b4d;stroke-width:7}',
     '.wwa-look{padding:12px;border-radius:14px;background:#f9e8f0;text-align:center;font-size:20px}.wwa-stock{display:grid;grid-template-columns:1fr 1fr;gap:8px}.wwa-stock article{padding:12px;background:white;border:1px solid #dfe6ef;border-radius:12px}',
     '.wwa-fashion-stage{position:relative;display:flex;align-items:flex-end;justify-content:center;min-height:250px;overflow:hidden;margin:10px 0;padding:18px;border-radius:18px;background:linear-gradient(180deg,#27234f 0%,#684078 55%,#f2c5df 56%,#f2c5df 100%);isolation:isolate}',
     '.wwa-fashion-sign{position:absolute;top:14px;left:10px;right:10px;text-align:center;color:#fff0bd;font-weight:950;letter-spacing:1.5px;font-size:clamp(11px,3vw,16px);text-shadow:0 2px 8px #160c33}',
@@ -71,19 +71,19 @@
       const b=el('button',{type:'button',class:'wwa-tile','data-game':id});
       b.append(el('span',{},emoji),el('span',{},title));menu.appendChild(b);
     });
-    let active='', state={}, frame=0, keys={}, selectedCandy=null;
+    let active='', state={}, frame=0, battleTimer=0, keys={}, selectedCandy=null;
     const msg = text => { feedback.textContent=text; };
     const html = value => { const next = content.cloneNode(false); content.replaceWith(next); content = next; content.innerHTML = value; };
     const button = (id,label,cls='') => '<button type="button" id="'+id+'" class="wwa-btn '+cls+'">'+label+'</button>';
     const canvas = id => '<canvas id="'+id+'" class="wwa-canvas" width="640" height="400" aria-label="ساحة اللعبة"></canvas>';
-    function stopLoop(){if(frame)cancelAnimationFrame(frame);frame=0;keys={};}
+    function stopLoop(){if(frame)cancelAnimationFrame(frame);frame=0;if(battleTimer){clearInterval(battleTimer);battleTimer=0;}keys={};}
     function start(id){
       stopLoop(); active=id; state={}; selectedCandy=null;
       const item=activities.find(x=>x[0]===id); $('#wwa-title',panel).textContent=item[2];
       $('#wwa-description',panel).textContent=({
-        battle:'تحركي داخل الساحة، صوبّي، أطلقي على أهداف التدريب، وراقبي الصحة والذخيرة. نسخة فردية آمنة بلا دماء أو تواصل بين اللاعبين.',
+        battle:'تحركي وصوّبي على الخصوم الآليين، اجمعي الذخيرة والعلاج، وابقَي داخل المنطقة الآمنة حتى تفوزي بجولة Battle Royale فردية.',
         football:'فريقان مصغران، تحرك وتمرير وتسديد ومرمى وحارس. استخدمي الأزرار أو لوحة المفاتيح وسجلي أهدافًا.',
-        ropes:'اختاري عقدة ثم حركيها. المطلوب فصل الخطوط المتقاطعة حتى تصبح الحبال واضحة.',
+        ropes:'اسحبي أطراف الحبال الملوّنة بإصبعك أو الماوس حتى تختفي كل التقاطعات.',
         fashion:'اختاري إطلالة مناسبة لموضوع العرض، ثم ابدئي العرض واحصلي على تقييم افتراضي مع نقاط أناقة.',
         plane:'ارفعي قوة المحرك، اقلعي، حافظي على الارتفاع ثم اهبطي في منطقة المدرج لتحصلي على نتيجة الطيران.',
         gym:'اختاري التمرين وسجلي التكرارات. التقدم افتراضي داخل اللعبة وليس نصيحة طبية.',
@@ -120,24 +120,36 @@
       draw(ctx,c);return {c,ctx,draw};
     }
     function renderBattle(){
-      state={x:320,y:315,hp:100,ammo:12,score:0,targets:[{x:115,y:115,hp:2},{x:320,y:90,hp:2},{x:510,y:130,hp:2}],aimX:320,aimY:100};
-      html(canvas('wwa-battle-canvas')+'<div class="wwa-controls"><button data-act="up">▲ تحرك</button><button data-act="reload">🔄 تلقيم</button><button data-act="fire">إطلاق 🎯</button><button data-act="left">◀ يسار</button><button data-act="down">▼ خلف</button><button data-act="right">يمين ▶</button></div><p>الصحة: <b id="wwa-hp">100</b> | الذخيرة: <b id="wwa-ammo">12</b> | الأهداف: <b id="wwa-bscore">0</b>/3</p>');
+      state={x:320,y:315,hp:100,ammo:30,score:0,aimX:320,aimY:100,targets:[],kills:0,zone:0,elapsed:0,lastAttack:0,ended:false,won:false};
+      const spawn=()=>({x:50+Math.random()*540,y:90+Math.random()*245,hp:2,speed:0.35+Math.random()*0.35,fireAt:Date.now()+1000+Math.random()*1800});
+      state.targets=Array.from({length:6},spawn);
+      html('<p class="wwa-note">🏝️ ساحة بقاء Battle Royale — اجمعي الإقصاءات وابتعدي عن المنطقة اللي بتضيق. الجولة فردية ضد خصوم آليين.</p>'+canvas('wwa-battle-canvas')+'<div class="wwa-controls"><button data-act="up">▲ للأمام</button><button data-act="reload">🔄 تلقيم</button><button data-act="fire">إطلاق 🎯</button><button data-act="left">◀ يسار</button><button data-act="down">▼ للخلف</button><button data-act="right">يمين ▶</button><button data-act="heal">🩹 علاج</button><button data-act="restart">جولة جديدة</button></div><p>الصحة: <b id="wwa-hp">100</b> | الذخيرة: <b id="wwa-ammo">30</b> | الإقصاءات: <b id="wwa-bscore">0</b>/6 | المنطقة: <b id="wwa-zone">100</b>%</p><p id="wwa-battle-result" role="status">اهزمي الخصوم الستة للبقاء لآخر الجولة.</p>');
       const c=$('#wwa-battle-canvas',panel),ctx=c.getContext('2d');
+      const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
       function draw(){
-        ctx.clearRect(0,0,640,400);ctx.fillStyle='#cfe6cb';ctx.fillRect(0,0,640,400);
-        ctx.fillStyle='#c6d3df';ctx.fillRect(0,0,640,45);ctx.fillStyle='#3e5367';ctx.fillRect(0,45,640,8);
-        for(let i=0;i<5;i++){ctx.fillStyle=i%2?'#b3c2cd':'#9fb0bd';ctx.fillRect(45+i*125,175,62,45);ctx.fillStyle='#687f90';ctx.fillRect(55+i*125,185,42,25);}
-        state.targets.forEach(t=>{if(t.hp<=0)return;ctx.fillStyle='#b54f55';ctx.beginPath();ctx.arc(t.x,t.y,17,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(t.x-4,t.y-10,8,20);ctx.fillRect(t.x-10,t.y-4,20,8);});
-        ctx.fillStyle='#533c86';ctx.beginPath();ctx.arc(state.x,state.y,15,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f8e6c8';ctx.beginPath();ctx.arc(state.x,state.y-18,9,0,Math.PI*2);ctx.fill();
-        ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(state.aimX,state.aimY,10,0,Math.PI*2);ctx.moveTo(state.aimX-15,state.aimY);ctx.lineTo(state.aimX+15,state.aimY);ctx.moveTo(state.aimX,state.aimY-15);ctx.lineTo(state.aimX,state.aimY+15);ctx.stroke();
-        ctx.fillStyle='#26374b';ctx.font='bold 15px sans-serif';ctx.fillText('TRAINING ZONE',18,27);
+        ctx.clearRect(0,0,640,400);
+        ctx.fillStyle='#b6d6a5';ctx.fillRect(0,0,640,400);
+        ctx.fillStyle='#d2c59a';for(let i=0;i<10;i++){ctx.beginPath();ctx.ellipse((i*79+23)%640,(i*53+17)%400,19,10,i*.4,0,Math.PI*2);ctx.fill();}
+        ctx.fillStyle='#7c9e70';for(const [x,y,w,h] of [[80,110,58,32],[190,210,74,28],[410,125,66,34],[500,270,80,28],[290,70,50,24]]){ctx.fillRect(x,y,w,h);ctx.fillStyle='#4f6f50';ctx.fillRect(x+5,y+5,w-10,h-10);ctx.fillStyle='#7c9e70';}
+        const shrink=Math.min(0.38,state.elapsed/90*0.38),pad=18+shrink*270;ctx.strokeStyle='#3e87db';ctx.lineWidth=5;ctx.setLineDash([12,7]);ctx.strokeRect(pad,pad,640-pad*2,400-pad*2);ctx.setLineDash([]);
+        state.targets.forEach((t,i)=>{if(t.hp<=0)return;ctx.fillStyle='#c54450';ctx.beginPath();ctx.arc(t.x,t.y,13,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffe3c8';ctx.beginPath();ctx.arc(t.x,t.y-10,7,0,Math.PI*2);ctx.fill();ctx.fillStyle='#5e2b35';ctx.fillRect(t.x-8,t.y+12,16,5);ctx.fillStyle='#fff';ctx.fillRect(t.x-12,t.y-2,24,3);});
+        ctx.fillStyle='#573e91';ctx.beginPath();ctx.arc(state.x,state.y,14,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f4d4b0';ctx.beginPath();ctx.arc(state.x,state.y-15,8,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(state.aimX,state.aimY,10,0,Math.PI*2);ctx.moveTo(state.aimX-15,state.aimY);ctx.lineTo(state.aimX+15,state.aimY);ctx.moveTo(state.aimX,state.aimY-15);ctx.lineTo(state.aimX,state.aimY+15);ctx.stroke();
+        ctx.fillStyle='#24364b';ctx.font='bold 14px sans-serif';ctx.fillText('WONDER BATTLE • SURVIVE',16,24);
       }
-      function update(){ $('#wwa-hp',panel).textContent=state.hp;$('#wwa-ammo',panel).textContent=state.ammo;$('#wwa-bscore',panel).textContent=state.score;draw(); }
-      const move=(dx,dy)=>{state.x=Math.max(20,Math.min(620,state.x+dx));state.y=Math.max(70,Math.min(370,state.y+dy));update();};
-      const fire=()=>{if(state.ammo<=0){msg('الذخيرة خلصت — اضغطي تلقيم.');return;}state.ammo--;let hit=state.targets.filter(t=>t.hp>0).sort((a,b)=>Math.hypot(a.x-state.aimX,a.y-state.aimY)-Math.hypot(b.x-state.aimX,b.y-state.aimY))[0];if(hit&&Math.hypot(hit.x-state.aimX,hit.y-state.aimY)<42){hit.hp--;if(hit.hp===0)state.score++;msg(hit.hp===0?'إصابة دقيقة! هدف اتدمر في تدريب آمن.':'إصابة! كملي التصويب.');}else msg('الطلقة ما أصابتش الهدف. حاولي التصويب على علامة الهدف.');update();if(state.score===3)msg('فوز! خلصتي تدريب الأهداف الثلاثة ⭐');};
+      function update(){
+        $('#wwa-hp',panel).textContent=String(Math.max(0,Math.round(state.hp)));$('#wwa-ammo',panel).textContent=String(state.ammo);$('#wwa-bscore',panel).textContent=String(state.kills);$('#wwa-zone',panel).textContent=String(Math.max(20,Math.round(100-state.elapsed/90*80)));draw();
+        if(state.hp<=0&&!state.ended){state.ended=true;state.won=false;$('#wwa-battle-result',panel).textContent='انتهت الجولة — اتدربي وابدئي جولة جديدة.';msg('انتهت الجولة. تقدري تعيدي اللعب.');}
+        if(state.kills>=6&&!state.ended){state.ended=true;state.won=true;$('#wwa-battle-result',panel).textContent='🏆 فزتي! بقيتي آخر لاعبة في الساحة.';msg('فوز! بقيتي آخر لاعبة في ساحة Wonder Battle Royale.');}
+      }
+      const move=(dx,dy)=>{if(state.ended)return;state.x=clamp(state.x+dx,22,618);state.y=clamp(state.y+dy,55,378);update();};
+      const fire=()=>{if(state.ended)return;if(state.ammo<=0){msg('الذخيرة خلصت — اضغطي تلقيم.');return;}state.ammo--;const live=state.targets.filter(t=>t.hp>0).sort((a,b)=>Math.hypot(a.x-state.aimX,a.y-state.aimY)-Math.hypot(b.x-state.aimX,b.y-state.aimY));const hit=live[0];if(hit&&Math.hypot(hit.x-state.aimX,hit.y-state.aimY)<38){hit.hp--;if(hit.hp<=0){state.kills++;if(state.kills<6)state.targets.push(spawn());msg('إقصاء! خصم خرج من الجولة.');}else msg('إصابة! كملي التصويب.');}else msg('الطلقة ما أصابتش. لمسي مكان الخصم للتصويب عليه.');update();};
+      const restart=()=>{state.x=320;state.y=315;state.hp=100;state.ammo=30;state.kills=0;state.elapsed=0;state.ended=false;state.won=false;state.targets=Array.from({length:6},spawn);state.lastAttack=Date.now();$('#wwa-battle-result',panel).textContent='اهزمي الخصوم الستة للبقاء لآخر الجولة.';update();};
       c.addEventListener('pointerdown',e=>{const r=c.getBoundingClientRect();state.aimX=(e.clientX-r.left)/r.width*640;state.aimY=(e.clientY-r.top)/r.height*400;update();});
-      $('#wwa-content',panel).querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',()=>{const a=b.dataset.act;if(a==='up')move(0,-18);if(a==='down')move(0,18);if(a==='left')move(-18,0);if(a==='right')move(18,0);if(a==='reload'){state.ammo=12;msg('تم تلقيم 12 طلقة تدريبية.');update();}if(a==='fire')fire();}));
-      update();msg('ابدئي بالتحرك والتصويب على الأهداف. ده تدريب تصويب 2D، مش نسخة PUBG ثلاثية الأبعاد.');
+      $('#wwa-content',panel).querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',()=>{const a=b.dataset.act;if(a==='up')move(0,-22);if(a==='down')move(0,22);if(a==='left')move(-22,0);if(a==='right')move(22,0);if(a==='reload'&&!state.ended){state.ammo=Math.min(30,state.ammo+12);msg('تم جمع ذخيرة إضافية.');update();}if(a==='heal'&&!state.ended&&state.hp>0){state.hp=Math.min(100,state.hp+25);msg('استخدمتي حقيبة علاج.');update();}if(a==='fire')fire();if(a==='restart')restart();}));
+      const keydown=e=>{const map={ArrowUp:[0,-18],w:[0,-18],W:[0,-18],ArrowDown:[0,18],s:[0,18],S:[0,18],ArrowLeft:[-18,0],a:[-18,0],A:[-18,0],ArrowRight:[18,0],d:[18,0],D:[18,0]};if(map[e.key]&&panel.contains(c)){e.preventDefault();move(...map[e.key]);}if((e.key===' '||e.key==='Enter')&&panel.contains(c)){e.preventDefault();fire();}};
+      c.tabIndex=0;c.addEventListener('keydown',keydown);
+      battleTimer=setInterval(()=>{if(!panel.isConnected||panel.hidden||game.hidden||!panel.contains(c)){clearInterval(battleTimer);battleTimer=0;return;}if(state.ended)return;state.elapsed+=0.5;const now=Date.now();for(const t of state.targets){if(t.hp<=0)continue;const dx=state.x-t.x,dy=state.y-t.y,d=Math.hypot(dx,dy)||1;t.x=clamp(t.x+dx/d*t.speed*7,24,616);t.y=clamp(t.y+dy/d*t.speed*7,52,378);if(now>t.fireAt&&d<240){state.hp=Math.max(0,state.hp-5);t.fireAt=now+1400+Math.random()*900;}}const pad=18+Math.min(0.38,state.elapsed/90*0.38)*270;if(state.x<pad||state.x>640-pad||state.y<pad||state.y>400-pad)state.hp=Math.max(0,state.hp-2);update();},500);
+      $('#wwa-reset',panel).textContent='🔄 إعادة الجولة';state.lastAttack=Date.now();update();msg('تحركي، صوبّي باللمس على الخصوم، اجمعي العلاج والذخيرة، وابتعدي عن حدود المنطقة الزرقاء.');
     }
     function renderFootball(){
       state={
@@ -273,12 +285,27 @@
       frame=requestAnimationFrame(tick);
     }
     function renderRopes(){
-      state={nodes:[0,1,2,3],selected:0,moves:0};
-      html('<p>اختاري عقدة ثم اضغطي عقدة أخرى لتبديل مكانيهما. الهدف إزالة التقاطعات.</p><div class="wwa-ropes" id="wwa-rope-nodes"></div><p>التقاطعات: <b id="wwa-crossings">3</b> | الحركات: <b id="wwa-rope-moves">0</b></p>');
-      const points=()=>{const pos=[[0,0],[2,2],[0,2],[2,0]], actual=state.nodes.map(i=>pos[i]);return actual;};
-      function crossings(){const p=points();let n=0;for(let i=0;i<4;i++)for(let j=i+1;j<4;j++){if((p[i][0]-p[j][0])*(p[(i+1)%4][1]-p[j][1])-(p[i][1]-p[j][1])*(p[(i+1)%4][0]-p[j][0])<0)n++;}return Math.max(0,3-state.nodes.filter((v,i)=>v===i).length);}
-      function draw(){const wrap=$('#wwa-rope-nodes',panel);wrap.replaceChildren();state.nodes.forEach((node,i)=>{const b=el('button',{type:'button',class:'wwa-rope','aria-pressed':String(state.selected===i)},['🔴 عقدة A','🔵 عقدة B','🟡 عقدة C','🟣 عقدة D'][node]);b.style.borderColor=state.selected===i?'#7b4cb2':'#dfd5eb';b.addEventListener('click',()=>{if(state.selected===i){state.selected=(i+1)%4;}else{[state.nodes[state.selected],state.nodes[i]]=[state.nodes[i],state.nodes[state.selected]];state.moves++;state.selected=i;}$('#wwa-crossings',panel).textContent=String(crossings());$('#wwa-rope-moves',panel).textContent=state.moves;draw();if(crossings()===0)msg('ممتاز! فكّيتي التشابك. 🪢');});wrap.appendChild(b);});$('#wwa-crossings',panel).textContent=String(crossings());}
-      draw();msg('بدّلي مواقع العقد حتى تتخلصي من التقاطعات. كل تبديل حركة.');
+      const initial=[{x:115,y:85},{x:525,y:285},{x:115,y:285},{x:525,y:85}];
+      state={points:initial.map(p=>({...p})),moves:0,dragging:-1,won:false};
+      html('<p>امسكي الدوائر الملوّنة واسحبيها بإصبعك أو بالماوس. حرّكي أطراف الحبال حتى تختفي كل التقاطعات.</p><div class="wwa-rope-stage"><svg id="wwa-rope-nodes" viewBox="0 0 640 360" role="img" aria-label="حبال متشابكة قابلة للسحب"><defs><filter id="wwa-rope-shadow"><feDropShadow dx="0" dy="3" stdDeviation="2" flood-opacity=".3"/></filter></defs><rect x="4" y="4" width="632" height="352" rx="18" fill="#f4f0e7" stroke="#c9b99e" stroke-width="4"/><g id="wwa-rope-lines"></g><g id="wwa-rope-endpoints"></g></svg></div><p>التقاطعات: <b id="wwa-crossings">3</b> | الحركات: <b id="wwa-rope-moves">0</b></p><button id="wwa-rope-reset" type="button">🔄 إعادة ترتيب الحبال</button>');
+      const svg=$('#wwa-rope-nodes',panel),lines=$('#wwa-rope-lines',panel),endpoints=$('#wwa-rope-endpoints',panel);
+      const colors=['#e34b54','#367bd6','#e5b526','#8a59c4'];
+      const makeSvg=(tag,attrs)=>{const n=document.createElementNS('http://www.w3.org/2000/svg',tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,String(v)));return n;};
+      const cross=(a,b,c,d)=>{const orient=(p,q,r)=>(q.x-p.x)*(r.y-p.y)-(q.y-p.y)*(r.x-p.x);const o1=orient(a,b,c),o2=orient(a,b,d),o3=orient(c,d,a),o4=orient(c,d,b);return o1*o2<0&&o3*o4<0;};
+      function crossings(){let n=0;for(let i=0;i<state.points.length;i++)for(let j=i+1;j<state.points.length;j++){if(Math.abs(i-j)===1||(i===0&&j===state.points.length-1))continue;if(cross(state.points[i],state.points[(i+1)%4],state.points[j],state.points[(j+1)%4]))n++;}return n;}
+      function draw(){
+        lines.replaceChildren();endpoints.replaceChildren();
+        for(let i=0;i<4;i++){const a=state.points[i],b=state.points[(i+1)%4];const line=makeSvg('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:colors[i], 'stroke-width':15,'stroke-linecap':'round',filter:'url(#wwa-rope-shadow)'});lines.appendChild(line);const highlight=makeSvg('line',{x1:a.x,y1:a.y-3,x2:b.x,y2:b.y-3,stroke:'#ffffff88','stroke-width':3,'stroke-linecap':'round','pointer-events':'none'});lines.appendChild(highlight);}
+        state.points.forEach((p,i)=>{const g=makeSvg('g',{'data-node':i,tabindex:0,role:'button','aria-label':'اسحبي طرف الحبل '+(i+1),style:'cursor:grab;touch-action:none'});const ring=makeSvg('circle',{cx:p.x,cy:p.y,r:20,fill:colors[i],stroke:state.dragging===i?'#1c2733':'#fff','stroke-width':5,filter:'url(#wwa-rope-shadow)'});const hole=makeSvg('circle',{cx:p.x,cy:p.y,r:5,fill:'#fff9'});g.append(ring,hole);g.addEventListener('pointerdown',e=>{if(state.won)return;state.dragging=i;svg.setPointerCapture?.(e.pointerId);e.preventDefault();});g.addEventListener('keydown',e=>{const d=e.shiftKey?20:8;const move={ArrowLeft:[-d,0],ArrowRight:[d,0],ArrowUp:[0,-d],ArrowDown:[0,d]}[e.key];if(move){e.preventDefault();p.x=Math.max(28,Math.min(612,p.x+move[0]));p.y=Math.max(28,Math.min(332,p.y+move[1]));state.moves++;update();}});endpoints.appendChild(g);});
+        $('#wwa-crossings',panel).textContent=String(crossings());$('#wwa-rope-moves',panel).textContent=String(state.moves);
+      }
+      function update(){draw();const count=crossings();$('#wwa-crossings',panel).textContent=String(count);if(count===0&&!state.won){state.won=true;msg('ممتاز! الحبال بقت منفصلة من غير أي تقاطع. 🪢');}}
+      const position=e=>{const r=svg.getBoundingClientRect();return{x:Math.max(24,Math.min(616,(e.clientX-r.left)/r.width*640)),y:Math.max(24,Math.min(336,(e.clientY-r.top)/r.height*360))};};
+      svg.addEventListener('pointermove',e=>{if(state.dragging<0)return;state.points[state.dragging]=position(e);state.moves++;draw();});
+      const stop=()=>{state.dragging=-1;const count=crossings();$('#wwa-crossings',panel).textContent=String(count);$('#wwa-rope-moves',panel).textContent=String(state.moves);if(count===0&&!state.won){state.won=true;msg('ممتاز! الحبال بقت منفصلة من غير أي تقاطع. 🪢');}};
+      svg.addEventListener('pointerup',stop);svg.addEventListener('pointercancel',stop);svg.addEventListener('lostpointercapture',stop);
+      $('#wwa-rope-reset',panel).addEventListener('click',()=>{state.points=initial.map(p=>({...p}));state.moves=0;state.won=false;state.dragging=-1;update();msg('رجعنا الحبال متشابكة. اسحبي الأطراف لحد ما تختفي التقاطعات.');});
+      draw();msg('دي حبال مرسومة فعلًا: اسحبي الدوائر الملوّنة، مش مجرد تبديل حروف.');
     }
     function renderFashion(){
       state={theme:0,look:-1,score:0,shown:false};

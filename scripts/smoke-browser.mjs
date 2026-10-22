@@ -183,10 +183,11 @@ try {
   await page.locator('#avatar-presentation').selectOption('masculine');
   await page.locator('#avatar-skin').selectOption('deep');
   await page.locator('#avatar-hair-style').selectOption('curly');
+  await page.locator('#avatar-hair-color').selectOption('rose');
   await page.locator('#save-avatar-profile').click();
   assert.match(await page.locator('#avatar-creator-feedback').innerText(), /اتحفظ شكل شخصيتك/);
   const avatarSave = await page.evaluate(() => JSON.parse(localStorage.getItem('wonderworld-save-v1') || '{}').avatarProfile);
-  assert.deepEqual(avatarSave, { age: 65, presentation: 'masculine', skin: 'deep', hairStyle: 'curly' });
+  assert.deepEqual(avatarSave, { age: 65, presentation: 'masculine', skin: 'deep', hairStyle: 'curly', hairColor: 'rose' });
   await page.locator('#close-avatar-creator').click();
   await page.locator('#avatar-creator-panel').waitFor({ state: 'hidden' });
 
@@ -407,15 +408,28 @@ try {
     await page.locator('#wwa-game').waitFor({ state: 'visible' });
     assert.notEqual((await page.locator('#wwa-title').innerText()).trim(), '', id + ' should open with a title');
     if (id === 'battle') {
+      assert.match(await page.locator('#wwa-title').innerText(), /Battle|معركة|قتال/i);
+      assert.equal(await page.locator('#wwa-bscore').innerText(), '0', 'battle royale should start with no eliminations');
+      assert.equal(await page.locator('#wwa-zone').count(), 1, 'battle royale should show the shrinking safe-zone status');
       await page.locator('[data-act="fire"]').click();
-      await page.locator('[data-act="fire"]').click();
-      assert.equal(await page.locator('#wwa-ammo').innerText(), '10', 'battle training should consume one round per shot');
-      assert.equal(await page.locator('#wwa-bscore').innerText(), '1', 'two accurate shots should complete one two-hit target');
+      assert.equal(await page.locator('#wwa-ammo').innerText(), '29', 'battle royale should consume one round per shot');
       await page.locator('[data-act="reload"]').click();
-      assert.equal(await page.locator('#wwa-ammo').innerText(), '12', 'battle reload should refill the training magazine');
+      assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'battle royale should refill ammunition up to the magazine cap');
+      await page.locator('[data-act="heal"]').click();
+      assert.equal(await page.locator('#wwa-hp').innerText(), '100', 'healing should never exceed maximum health');
     }
     if (id === 'football') { await page.locator('[data-f="pass"]').click(); await page.locator('[data-f="shoot"]').click(); }
-    if (id === 'ropes') { await page.locator('#wwa-rope-nodes button').nth(0).click(); await page.locator('#wwa-rope-nodes button').nth(1).click(); }
+    if (id === 'ropes') {
+      assert.equal(await page.locator('#wwa-rope-endpoints [data-node]').count(), 4, 'rope puzzle should show four draggable rope ends');
+      assert.equal(await page.locator('#wwa-rope-lines line').count(), 8, 'rope puzzle should render thick rope strands and highlights');
+      const ropeNode = page.locator('#wwa-rope-endpoints [data-node="0"]');
+      const ropeBox = await ropeNode.boundingBox();
+      await page.mouse.move(ropeBox.x + ropeBox.width / 2, ropeBox.y + ropeBox.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(ropeBox.x + ropeBox.width / 2 + 65, ropeBox.y + ropeBox.height / 2 + 45, { steps: 5 });
+      await page.mouse.up();
+      assert.ok(Number(await page.locator('#wwa-rope-moves').innerText()) > 0, 'dragging a rope end should count real pointer movement');
+    }
     if (id === 'fashion') { await page.locator('#wwa-looks button').first().click(); await page.locator('#wwa-runway-go').click(); }
     if (id === 'plane') { await page.locator('#wwa-thrust-up').click(); await page.locator('#wwa-thrust-up').click(); await page.locator('#wwa-thrust-up').click(); await page.locator('#wwa-takeoff').click(); await page.locator('#wwa-level').click(); await page.locator('#wwa-level').click(); await page.locator('#wwa-land').click(); }
     if (id === 'train') { await page.locator('#wwa-train-accelerate').click(); await page.locator('#wwa-train-accelerate').click(); await page.locator('#wwa-train-accelerate').click(); await page.locator('#wwa-train-brake').click(); await page.locator('#wwa-train-brake').click(); await page.locator('#wwa-train-open').click(); }
