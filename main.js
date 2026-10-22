@@ -906,6 +906,71 @@ for (const destination of worldDestinations) {
   worldDestinationList.appendChild(button);
 }
 
+  
+// Exploration quests: rewards are cosmetic/prototype progress only, with no paid items.
+const wwQuestDestinations = [
+  { id: 'plaza', label: '⛲ زوري ساحة النافورة', x: 0, z: 4 },
+  { id: 'home', label: '🏡 ارجعي لبيت البداية', x: -10, z: -13.5 },
+  { id: 'airport', label: '✈️ استكشفي منطقة المطار', x: 34, z: -39 }
+];
+const wwQuestStorageKey = 'wonderworld-exploration-quests-v1';
+let wwQuestProgress = {};
+try { wwQuestProgress = JSON.parse(localStorage.getItem(wwQuestStorageKey) || '{}') || {}; } catch (_) { wwQuestProgress = {}; }
+const wwQuestCard = document.createElement('section');
+wwQuestCard.id = 'ww-exploration-quests';
+wwQuestCard.innerHTML = '<strong>⭐ مهام الاستكشاف</strong><p id="ww-quest-summary" aria-live="polite"></p><div id="ww-quest-list"></div>';
+worldGuidePanel.appendChild(wwQuestCard);
+worldGuideStyle.textContent += `
+#ww-exploration-quests{margin-top:10px;padding-top:10px;border-top:1px solid #d8e2eb}
+#ww-exploration-quests strong{font-size:13px}
+#ww-exploration-quests p{margin:5px 0;font-size:11px}
+.ww-quest-item{display:flex;align-items:flex-start;gap:7px;margin-top:6px;padding:7px;border-radius:9px;background:#f1f6fa;font-size:11px;line-height:1.4}
+.ww-quest-item.done{background:#e5f7e9;color:#22623b}
+.ww-quest-mark{font-weight:900}
+`;
+function renderWorldQuests() {
+  const list = document.getElementById('ww-quest-list');
+  const summary = document.getElementById('ww-quest-summary');
+  if (!list || !summary) return;
+  const completed = wwQuestDestinations.filter(q => wwQuestProgress[q.id]).length;
+  summary.textContent = completed === wwQuestDestinations.length
+    ? 'أحسنتِ! خلصتي مهام الاستكشاف الثلاثة. تقدري تكملي جولتك بحرية. 🎉'
+    : 'كمّلي ' + completed + ' من ' + wwQuestDestinations.length + ' مهام بزيارة الأماكن بنفسك.';
+  list.replaceChildren();
+  for (const quest of wwQuestDestinations) {
+    const item = document.createElement('div');
+    item.className = 'ww-quest-item' + (wwQuestProgress[quest.id] ? ' done' : '');
+    const mark = document.createElement('span');
+    mark.className = 'ww-quest-mark';
+    mark.textContent = wwQuestProgress[quest.id] ? '✓' : '○';
+    const label = document.createElement('span');
+    label.textContent = quest.label;
+    item.append(mark, label);
+    list.appendChild(item);
+  }
+}
+renderWorldQuests();
+let wwQuestCheckElapsed = 0;
+app.on('update', dt => {
+  wwQuestCheckElapsed += dt;
+  if (wwQuestCheckElapsed < 0.35 || indoors) return;
+  wwQuestCheckElapsed = 0;
+  const position = player.getPosition();
+  let changed = false;
+  for (const quest of wwQuestDestinations) {
+    if (!wwQuestProgress[quest.id] && Math.hypot(position.x - quest.x, position.z - quest.z) < 4.5) {
+      wwQuestProgress[quest.id] = true;
+      changed = true;
+      say('⭐ أحسنتِ! أنهيتِ مهمة: ' + quest.label.replace(/^[^ ]+ /, '') + '.');
+      logAdventure('إنجاز مهمة استكشاف: ' + quest.label);
+    }
+  }
+  if (changed) {
+    try { localStorage.setItem(wwQuestStorageKey, JSON.stringify(wwQuestProgress)); } catch (_) {}
+    renderWorldQuests();
+  }
+});
+
 
 document.getElementById('open-football').addEventListener('click', () => { footballPanel.hidden = false; resetFootballGame(); footballPanel.focus(); });
 document.getElementById('close-football').addEventListener('click', () => { footballPanel.hidden = true; });
