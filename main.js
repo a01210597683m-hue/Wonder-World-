@@ -523,6 +523,13 @@ for (const [x, material] of [[-5, mats.outfitCoral], [-3.5, mats.outfitGold], [-
 box('Shop checkout counter', 4.4, 1.0, 1.1, 0, 0.55, -5.0, mats.bench, shopInteriorRoot);
 box('Shop checkout top', 4.6, 0.14, 1.2, 0, 1.12, -5.0, mats.outfitGold, shopInteriorRoot);
 box('Shop welcome sign', 4.2, 0.8, 0.18, 0, 3.2, -6.7, mats.npcPink, shopInteriorRoot);
+box('Shop product shelf left', 1.25, 2.0, 0.65, -5.7, 1.0, 1.0, mats.bench, shopInteriorRoot);
+box('Shop product shelf right', 1.25, 2.0, 0.65, 5.7, 1.0, 1.0, mats.bench, shopInteriorRoot);
+for (const [x,z] of [[-5.7,0.7],[-5.7,1.2],[-5.7,1.7],[5.7,0.7],[5.7,1.2],[5.7,1.7]]) box('Shop folded product '+x+' '+z, 0.72, 0.24, 0.42, x, z, 1.0, z<1?mats.outfitMint:z<1.5?mats.outfitCoral:mats.outfitGold, shopInteriorRoot);
+box('Shop fitting mirror frame', 1.35, 2.5, 0.12, -5.8, 1.25, -5.2, mats.npcGold, shopInteriorRoot);
+box('Shop fitting mirror glass', 1.08, 2.2, 0.05, -5.8, 1.25, -5.12, mats.window, shopInteriorRoot);
+box('Shop checkout terminal', 0.72, 0.55, 0.5, 0.9, 1.48, -5.0, mats.tvFrame, shopInteriorRoot);
+box('Shop checkout terminal screen', 0.5, 0.34, 0.05, 0.9, 1.5, -4.72, mats.window, shopInteriorRoot);
 shopInteriorRoot.enabled = false;
 
 const cafeInteriorRoot = new Entity('Wonder Cafe Interior');
@@ -541,6 +548,19 @@ for (const [x, z] of [[-4, 1.5], [3.5, 1.5], [-4, -1.8], [3.5, -1.8]]) {
   box('Cafe chair ' + x + ' ' + z, 0.8, 0.65, 0.75, x, 0.38, z + 1.25, mats.outfitMint, cafeInteriorRoot);
 }
 
+box('Cafe pastry display counter', 1.8, 1.0, 0.9, 4.7, 0.55, -4.9, mats.white, cafeInteriorRoot);
+box('Cafe pastry display glass', 1.75, 0.62, 0.75, 4.7, 1.32, -4.9, mats.window, cafeInteriorRoot);
+for (const [x,z] of [[4.25,-4.8],[4.7,-4.8],[5.15,-4.8]]) sphere('Cafe pastry '+x, 0.18, x, 1.18, z, mats.outfitGold, cafeInteriorRoot);
+box('Cafe refrigerator', 1.0, 1.9, 0.85, -5.7, 0.95, -5.3, mats.white, cafeInteriorRoot);
+box('Cafe refrigerator handle', 0.08, 0.7, 0.08, -5.28, 1.0, -4.9, mats.tvFrame, cafeInteriorRoot);
+box('Cafe coffee grinder', 0.42, 0.62, 0.42, 0.2, 1.48, -5.0, mats.tvFrame, cafeInteriorRoot);
+box('Cafe grinder hopper', 0.34, 0.28, 0.34, 0.2, 1.91, -5.0, mats.window, cafeInteriorRoot);
+for (const [x,z] of [[-1.8,-4.6],[-0.8,-4.6],[0.2,-4.6]]) {
+  cylinder('Cafe mug handle '+x, 0.14, 0.06, 0.14, x, 1.22, z, mats.white);
+  roomCylinder('Cafe mug '+x, 0.16, 0.22, 0.16, x, 1.2, z, mats.white, cafeInteriorRoot);
+}
+box('Cafe wall art frame', 1.35, 1.1, 0.12, -4.4, 2.75, -6.7, mats.npcGold, cafeInteriorRoot);
+box('Cafe wall art', 1.05, 0.8, 0.06, -4.4, 2.75, -6.61, mats.flower, cafeInteriorRoot);
 cafeInteriorRoot.enabled = false;
 
 // Three more dedicated, furnished destinations: restaurant, workplace and fitness centre.
