@@ -2466,7 +2466,7 @@ function prepareDistrictInterior(place) {
       kind === 'salon' || kind === 'fashion' ? '#a73578' : '#203a63';
     box('District interior readable sign', 6.2, 0.86, 0.18, 0, 3.15, -8.72, districtSignMaterial(interiorTitle, interiorBg), root);
   }
-  if (kind === 'home' || kind === 'villa' || kind === 'apartments') {
+  if (kind === 'home' || kind === 'villa') {
     box('District living room sofa', 3.8, 0.7, 1.0, -4.5, 0.45, -1.2, mats.outfitMint, root);
     box('District sofa back', 3.8, 1.0, 0.3, -4.5, 0.95, -0.75, mats.outfitMint, root);
     box('District coffee table', 1.8, 0.22, 1.0, -1.6, 0.48, -1.2, mats.bench, root);
