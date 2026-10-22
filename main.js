@@ -101,7 +101,7 @@ const sun = new Entity('Sun');
 sun.addComponent('light', { type: 'directional', color: new Color(1, 0.94, 0.82), intensity: 1.55, castShadows: true });
 sun.setEulerAngles(45, 25, 0);
 app.root.addChild(sun);
-box('Town green', 100, 0.4, 100, 0, -0.25, 0, mats.grass);
+box('Town green', 6000, 0.4, 6000, 0, -0.25, 0, mats.grass);
 box('Main street', 5.5, 0.06, 42, 0, 0.0, 0, mats.road);
 box('Cross street', 42, 0.06, 5.5, 0, 0.01, 0, mats.road);
 box('North sidewalk', 7, 0.08, 42, -6.2, 0.03, 0, mats.path);
@@ -126,6 +126,95 @@ function house(name, x, z, wallMaterial, width = 5) {
     bushes.push(sphere(name + ' garden bush ' + i, 0.65, x - width / 2 + i * 0.65, 0.42, z - 2.9, mats.leaf));
   }
   return { walls, roof, bushes };
+}
+
+// Procedural mega-world: only the nearby 3x3 district chunks are kept active.
+// Each chunk is deterministic from its coordinates, so the world can expand without
+// loading billions of meshes into memory at once.
+const DISTRICT_CHUNK_SIZE = 48;
+const DISTRICT_STREAM_RADIUS = 1;
+const districtChunks = new Map();
+let streamedDistrictCenter = '';
+const districtWallMaterials = [mats.wall, mats.wallBrick, mats.wallGold, mats.wallYellow, mats.wallPink, mats.white];
+const districtRoofMaterials = [mats.roof, mats.npcBlue, mats.wallBrick, mats.npcPink];
+function makeDistrictHome(parent, localX, localZ, seed) {
+  const home = new Entity('Generated multi-storey home ' + seed);
+  home.setLocalPosition(localX, 0, localZ);
+  parent.addChild(home);
+  const width = 6.2 + (seed % 3) * 0.45;
+  const depth = 5.4;
+  const floors = seed % 4 === 0 ? 2 : 3;
+  const wallMaterial = districtWallMaterials[seed % districtWallMaterials.length];
+  const roofMaterial = districtRoofMaterials[seed % districtRoofMaterials.length];
+  for (let floor = 0; floor < floors; floor++) {
+    const floorY = 1.22 + floor * 2.55;
+    box('Generated house facade floor ' + floor, width, 2.42, depth, 0, floorY, 0, wallMaterial, home);
+    for (const windowX of [-width * 0.27, width * 0.27]) {
+      box('Generated house window ' + floor + ' ' + windowX, 1.05, 1.05, 0.12, windowX, floorY + 0.05, -depth / 2 - 0.07, mats.window, home);
+      box('Generated house window sill ' + floor + ' ' + windowX, 1.15, 0.1, 0.18, windowX, floorY - 0.55, -depth / 2 - 0.13, mats.white, home);
+    }
+    if (floor > 0 && (seed + floor) % 2 === 0) {
+      box('Generated house balcony floor ' + floor, width * 0.78, 0.13, 0.72, 0, floorY - 0.92, -depth / 2 - 0.34, mats.white, home);
+      box('Generated house balcony rail ' + floor, width * 0.78, 0.16, 0.08, 0, floorY - 0.54, -depth / 2 - 0.65, mats.npcBlue, home);
+      for (const railX of [-width * 0.39, width * 0.39]) box('Generated house balcony side ' + floor + ' ' + railX, 0.08, 0.42, 0.65, railX, floorY - 0.65, -depth / 2 - 0.34, mats.npcBlue, home);
+    }
+  }
+  box('Generated house front door', 0.92, 1.95, 0.16, 0, 0.98, -depth / 2 - 0.1, mats.door, home);
+  box('Generated house doorstep', 1.5, 0.16, 0.65, 0, 0.08, -depth / 2 - 0.42, mats.path, home);
+  box('Generated house roof', width + 0.5, 0.34, depth + 0.45, 0, floors * 2.55 + 0.08, 0, roofMaterial, home);
+  box('Generated house roof trim', width + 0.72, 0.12, 0.16, 0, floors * 2.55 - 0.02, -depth / 2 - 0.2, mats.white, home);
+  if (seed % 3 === 0) {
+    box('Generated house garage', 2.1, 1.65, 0.12, width * 0.25, 0.85, -depth / 2 - 0.12, mats.tvFrame, home);
+  }
+  return home;
+}
+function createDistrictChunk(chunkX, chunkZ) {
+  const key = chunkX + ',' + chunkZ;
+  const root = new Entity('WonderWorld District ' + key);
+  root.setPosition(chunkX * DISTRICT_CHUNK_SIZE, 0, chunkZ * DISTRICT_CHUNK_SIZE);
+  app.root.addChild(root);
+  box('District grass ' + key, DISTRICT_CHUNK_SIZE, 0.16, DISTRICT_CHUNK_SIZE, 0, -0.16, 0, mats.grass, root);
+  for (const roadOffset of [-22, 22]) {
+    box('District east-west road ' + key + ' ' + roadOffset, DISTRICT_CHUNK_SIZE, 0.08, 5.2, 0, 0.01, roadOffset, mats.road, root);
+    box('District north-south road ' + key + ' ' + roadOffset, 5.2, 0.08, DISTRICT_CHUNK_SIZE, roadOffset, 0.01, 0, mats.road, root);
+  }
+  let seed = Math.abs((chunkX * 73856093) ^ (chunkZ * 19349663)) >>> 0;
+  for (const localX of [-12, 12]) {
+    for (const localZ of [-12, 12]) {
+      const worldX = chunkX * DISTRICT_CHUNK_SIZE + localX;
+      const worldZ = chunkZ * DISTRICT_CHUNK_SIZE + localZ;
+      // Keep the original starter neighborhood and landmarks unobstructed.
+      if (Math.hypot(worldX, worldZ) < 44) { seed = (seed + 1) >>> 0; continue; }
+      seed = (seed * 1664525 + 1013904223) >>> 0;
+      makeDistrictHome(root, localX, localZ, seed);
+    }
+  }
+  root.enabled = true;
+  districtChunks.set(key, root);
+  return root;
+}
+function updateDistrictStreaming(worldX, worldZ) {
+  const centerX = Math.floor(worldX / DISTRICT_CHUNK_SIZE);
+  const centerZ = Math.floor(worldZ / DISTRICT_CHUNK_SIZE);
+  const centerKey = centerX + ',' + centerZ;
+  if (centerKey === streamedDistrictCenter) return;
+  streamedDistrictCenter = centerKey;
+  const desired = new Set();
+  for (let dx = -DISTRICT_STREAM_RADIUS; dx <= DISTRICT_STREAM_RADIUS; dx++) {
+    for (let dz = -DISTRICT_STREAM_RADIUS; dz <= DISTRICT_STREAM_RADIUS; dz++) {
+      const cx = centerX + dx;
+      const cz = centerZ + dz;
+      const key = cx + ',' + cz;
+      desired.add(key);
+      if (!districtChunks.has(key)) createDistrictChunk(cx, cz);
+      else districtChunks.get(key).enabled = true;
+    }
+  }
+  for (const [key, root] of districtChunks) {
+    if (desired.has(key)) continue;
+    root.destroy();
+    districtChunks.delete(key);
+  }
 }
 function ensureStaticWorldVisible() {
   for (const structure of [...staticHouseStructures, ...staticPoolStructures]) {
@@ -3077,9 +3166,9 @@ app.on('update', dt => {
 
   const p = player.getPosition();
   if(activeWalkNpc && !indoors){const friendPos=activeWalkNpc.entity.getPosition();const dx=p.x-friendPos.x,dz=p.z-friendPos.z,dist=Math.hypot(dx,dz);if(dist>1.65){const step=Math.min(dist-1.1,moveSpeed*dt*0.92);activeWalkNpc.entity.setPosition(friendPos.x+dx/dist*step,0,friendPos.z+dz/dist*step);activeWalkNpc.entity.setEulerAngles(0,Math.atan2(dx,dz)*180/Math.PI,0);}}
-  p.x = Math.max(-42, Math.min(42, p.x));
-  p.z = Math.max(-42, Math.min(42, p.z));
+  // The avatar is no longer trapped inside the starter block; nearby districts stream around it.
   player.setPosition(p);
+  if (!indoors) updateDistrictStreaming(p.x, p.z);
   if (vehicleMode) {
     playerCar.setPosition(p.x, 0, p.z);
     playerCar.setEulerAngles(0, player.getEulerAngles().y, 0);
