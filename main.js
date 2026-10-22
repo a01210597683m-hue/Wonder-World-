@@ -1,6 +1,6 @@
 import {
   Application, Color, Entity, FILLMODE_FILL_WINDOW, RESOLUTION_AUTO,
-  StandardMaterial, Vec3
+  StandardMaterial, Texture, Vec3
 } from 'playcanvas';
 
 const canvas = document.getElementById('application');
@@ -67,6 +67,53 @@ function box(name, sx, sy, sz, x, y, z, material, parent = app.root) {
   e.render.material = material;
   parent.addChild(e);
   return e;
+}
+// Reusable in-world storefront lettering. Canvas textures keep labels readable without external assets.
+const districtSignMaterials = new Map();
+const districtSignLabels = {
+  cafe: 'CAFE', restaurant: 'RESTAURANT', fashion: 'FASHION',
+  hospital: 'HOSPITAL', office: 'OFFICES', shop: 'SHOP',
+  salon: 'BEAUTY SALON', gym: 'FITNESS', market: 'SUPERMARKET',
+  school: 'SCHOOL', cinema: 'CINEMA', pharmacy: 'PHARMACY',
+  arcade: 'ARCADE', apartments: 'APARTMENTS'
+};
+function districtSignMaterial(label, background = '#203a63') {
+  const key = label + '|' + background;
+  if (districtSignMaterials.has(key)) return districtSignMaterials.get(key);
+  const art = document.createElement('canvas');
+  art.width = 1024;
+  art.height = 256;
+  const ctx = art.getContext('2d');
+  ctx.fillStyle = background;
+  ctx.fillRect(0, 0, art.width, art.height);
+  ctx.strokeStyle = '#f7d98a';
+  ctx.lineWidth = 12;
+  ctx.strokeRect(8, 8, art.width - 16, art.height - 16);
+  let fontSize = 82;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  do {
+    ctx.font = 'bold ' + fontSize + 'px Arial, sans-serif';
+    if (ctx.measureText(label).width <= 900) break;
+    fontSize -= 4;
+  } while (fontSize > 30);
+  ctx.fillStyle = '#ffffff';
+  ctx.shadowColor = 'rgba(0,0,0,.35)';
+  ctx.shadowBlur = 5;
+  ctx.fillText(label, art.width / 2, art.height / 2 + 3, 900);
+  const texture = new Texture(app.graphicsDevice, { width: art.width, height: art.height });
+  texture.setSource(art);
+  const material = new StandardMaterial();
+  material.diffuse = new Color(1, 1, 1);
+  material.diffuseMap = texture;
+  material.emissiveMap = texture;
+  material.emissive = new Color(1, 1, 1);
+  material.update();
+  districtSignMaterials.set(key, material);
+  return material;
+}
+function districtLabelFor(kind) {
+  return districtSignLabels[kind] || String(kind || 'COMMUNITY').replace(/[-_]/g, ' ').toUpperCase();
 }
 function sphere(name, scale, x, y, z, material, parent = app.root) {
   const e = new Entity(name);
@@ -220,7 +267,13 @@ function makeDistrictBuilding(parent, x, z, seed, type) {
   }
   box(type.name+' roof',width+0.45,0.34,depth+0.4,0,floors*2.55+0.08,0,roof,b);
   box(type.name+' entrance',1.05,2,0.16,0,1,-depth/2-0.1,mats.door,b);
-  box(type.name+' sign',width*0.72,0.52,0.16,0,2.95,-depth/2-0.16,type.kind==='hospital'?mats.npcPink:mats.npcBlue,b);
+  if (type.kind !== 'home' && type.kind !== 'villa') {
+    const signLabel = districtLabelFor(type.kind);
+    const signBg = type.kind === 'hospital' ? '#b82f67' :
+      type.kind === 'salon' || type.kind === 'fashion' ? '#a73578' :
+      type.kind === 'cinema' || type.kind === 'arcade' ? '#452e79' : '#203a63';
+    box(type.name+' readable storefront sign',width*0.82,0.68,0.18,0,2.95,-depth/2-0.18,districtSignMaterial(signLabel, signBg),b);
+  }
   box(type.name+' awning',width*0.82,0.18,0.68,0,2.25,-depth/2-0.34,roof,b);
   if(type.kind==='hospital'){
     box('Hospital cross vertical '+seed,0.28,0.9,0.12,0,floors*2.55+0.75,-depth/2-0.2,mats.npcPink,b);
@@ -2406,8 +2459,14 @@ function prepareDistrictInterior(place) {
   box('District interior entry mat', 2.8, 0.08, 1.1, 0, 0.02, 7.6, mats.white, root);
   box('District interior reception counter', 4.0, 1.0, 1.0, 0, 0.55, -6.2, mats.bench, root);
   box('District interior service counter top', 4.2, 0.14, 1.15, 0, 1.12, -6.2, mats.outfitGold, root);
-  box('District interior feature sign', 5.0, 0.8, 0.16, 0, 3.15, -8.75, kind === 'hospital' ? mats.npcPink : mats.npcBlue, root);
-  if (kind === 'home' || kind === 'villa' || kind === 'apartments') {
+  const interiorTitle = (kind === 'home' || kind === 'villa') ? '' :
+    kind === 'apartments' ? 'APARTMENT LOBBY' : districtLabelFor(kind);
+  if (interiorTitle) {
+    const interiorBg = kind === 'hospital' ? '#b82f67' :
+      kind === 'salon' || kind === 'fashion' ? '#a73578' : '#203a63';
+    box('District interior readable sign', 6.2, 0.86, 0.18, 0, 3.15, -8.72, districtSignMaterial(interiorTitle, interiorBg), root);
+  }
+  if (kind === 'home' || kind === 'villa') {
     box('District living room sofa', 3.8, 0.7, 1.0, -4.5, 0.45, -1.2, mats.outfitMint, root);
     box('District sofa back', 3.8, 1.0, 0.3, -4.5, 0.95, -0.75, mats.outfitMint, root);
     box('District coffee table', 1.8, 0.22, 1.0, -1.6, 0.48, -1.2, mats.bench, root);
@@ -2473,10 +2532,33 @@ function prepareDistrictInterior(place) {
     }
     box('Classroom board', 5.0, 2.0, 0.12, 0, 2.2, -8.6, mats.tvFrame, root);
   } else if (kind === 'cinema' || kind === 'arcade') {
-    box('Cinema screen', 8.0, 4.0, 0.15, 0, 2.5, -8.5, mats.tvScreen, root);
-    for (const x of [-5,0,5]) for (const z of [-1,1.5,4]) box(kind==='cinema'?'Cinema seat':'Arcade cabinet', 1.1, 1.0, 1.0, x, 0.5, z, kind==='cinema'?mats.outfitCoral:mats.npcBlue, root);
+    box(kind === 'cinema' ? 'Cinema movie screen' : 'Arcade feature display', 8.0, 4.0, 0.15, 0, 2.5, -8.5, mats.tvScreen, root);
+    for (const x of [-5,0,5]) for (const z of [-1,1.5,4]) {
+      box(kind==='cinema'?'Cinema theatre seat':'Arcade game cabinet', 1.1, 1.0, 1.0, x, 0.5, z, kind==='cinema'?mats.outfitCoral:mats.npcBlue, root);
+      if (kind === 'arcade') box('Arcade cabinet screen', 0.72, 0.52, 0.08, x, 0.88, z-0.54, mats.tvScreen, root);
+    }
+  } else if (kind === 'pharmacy') {
+    for (const x of [-6.5,-3.5,3.5,6.5]) {
+      box('Pharmacy medicine cabinet', 0.8, 2.2, 5.2, x, 1.1, 0, mats.white, root);
+      for (let shelf=0;shelf<4;shelf++) {
+        box('Pharmacy medicine shelf', 0.7, 0.12, 4.8, x, 0.45+shelf*0.48, 0, mats.npcBlue, root);
+        for (const itemZ of [-1.5,0,1.5]) box('Pharmacy supply box', 0.42, 0.32, 0.42, x, 0.68+shelf*0.48, itemZ, shelf%2?mats.outfitMint:mats.outfitPink, root);
+      }
+    }
+    box('Pharmacy consultation desk', 2.4, 1.0, 1.0, 0, 0.55, -5.2, mats.bench, root);
+    box('Pharmacy service computer', 0.75, 0.62, 0.12, 0, 1.36, -5.35, mats.tvScreen, root);
+  } else if (kind === 'apartments') {
+    box('Apartment lobby reception', 3.6, 1.0, 1.0, 0, 0.55, -6.0, mats.bench, root);
+    for (const x of [-5,5]) {
+      box('Apartment lobby sofa', 2.6, 0.7, 0.9, x, 0.42, 1.2, mats.outfitMint, root);
+      box('Apartment lobby wall art', 1.5, 1.4, 0.12, x, 2.2, -8.72, mats.npcGold, root);
+    }
+    box('Apartment mailboxes', 2.4, 1.6, 0.35, 6.8, 0.9, -4.8, mats.npcBlue, root);
   } else {
-    for (const [x,z] of [[-4,0],[0,0],[4,0],[-4,3],[0,3],[4,3]]) box('Community service station', 1.6, 1.0, 1.0, x, 0.5, z, mats.white, root);
+    for (const [x,z] of [[-4,0],[0,0],[4,0],[-4,3],[0,3],[4,3]]) {
+      box('Community service station', 1.6, 1.0, 1.0, x, 0.5, z, mats.white, root);
+      box('Community service station top', 1.7, 0.12, 1.05, x, 1.06, z, mats.outfitMint, root);
+    }
   }
   const actionLabels = {
     home: '🏡 استكشاف البيت', villa: '💎 استكشاف الفيلا', apartments: '🛋️ استكشاف الشقة',
