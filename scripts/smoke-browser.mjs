@@ -398,11 +398,11 @@ try {
   assert.equal(await page.evaluate(() => document.activeElement?.id), 'ww-auth-launch', 'closing the account dialog should restore keyboard focus');
 
 
-  // Exercise the eleven additional activity prototypes without duplicating existing gym and cup modes.
+  // Exercise the twelve additional activity prototypes, including the now-visible gym mode.
   await page.locator('#ww-activities-launch').click();
   await page.locator('#ww-activities').waitFor({ state: 'visible' });
-  assert.equal(await page.locator('#wwa-menu [data-game]').count(), 11, 'activity hub should expose eleven additional activities without duplicating gym and cup modes');
-  for (const id of ['battle','football','ropes','fashion','plane','train','arrows','stocks','space','candy','party']) {
+  assert.equal(await page.locator('#wwa-menu [data-game]').count(), 12, 'activity hub should expose twelve additional activities including gym without duplicating cup mode');
+  for (const id of ['battle','football','ropes','fashion','gym','plane','train','arrows','stocks','space','candy','party']) {
     await page.locator('#wwa-menu [data-game="' + id + '"]').click();
     await page.locator('#wwa-game').waitFor({ state: 'visible' });
     assert.notEqual((await page.locator('#wwa-title').innerText()).trim(), '', id + ' should open with a title');
