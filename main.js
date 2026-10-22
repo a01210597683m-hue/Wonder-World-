@@ -2823,35 +2823,34 @@ let cameraHeight = 7;
 let cameraOffsetZ = 11;
 app.on('update', dt => {
   updateWorldAtmosphere(dt);
-  // Residents stroll, pause, and change direction. A friend on an accepted walk follows the player instead.
+  // Visible resident roaming: start moving immediately, use a larger radius and keep world coordinates synced.
   if (!indoors) {
     for (const npc of npcs) {
-      if (activeWalkNpc === npc || !npc.entity.enabled) continue;
+      if (activeWalkNpc === npc || !npc.entity || npc.entity.enabled === false) continue;
       let state = npcWanderState.get(npc.name);
       const pos = npc.entity.getPosition();
       if (!state) {
-        state = { target: chooseNpcWanderTarget(npc, pos), pause: 0.8 + Math.random() * 2.2 };
+        state = { target: chooseNpcWanderTarget(npc, pos), pause: 0, walkClock: 0 };
         npcWanderState.set(npc.name, state);
       }
-      if (state.pause > 0) {
-        state.pause -= dt;
-      } else {
+      state.pause = Math.max(0, state.pause - dt);
+      if (state.pause <= 0) {
         const dx = state.target.x - pos.x;
         const dz = state.target.z - pos.z;
         const distance = Math.hypot(dx, dz);
-        if (distance < 0.22) {
+        if (distance < 0.3) {
           state.target = chooseNpcWanderTarget(npc, pos);
-          state.pause = 1.0 + Math.random() * 2.8;
+          state.pause = 0.15 + Math.random() * 0.45;
         } else {
-          const step = Math.min(distance, 1.05 * dt);
-          npc.entity.setPosition(pos.x + dx / distance * step, 0, pos.z + dz / distance * step);
+          const step = Math.min(distance, 2.15 * dt);
+          npc.entity.setPosition(pos.x + (dx / distance) * step, pos.y, pos.z + (dz / distance) * step);
           npc.entity.setEulerAngles(0, Math.atan2(dx, dz) * 180 / Math.PI, 0);
-          state.walkClock = (state.walkClock || 0) + dt * 6;
-          const swing = Math.sin(state.walkClock) * 18;
+          state.walkClock += dt * 9;
+          const swing = Math.sin(state.walkClock) * 28;
           if (npc.entity.leftArm) npc.entity.leftArm.setLocalEulerAngles(swing, 0, 0);
           if (npc.entity.rightArm) npc.entity.rightArm.setLocalEulerAngles(-swing, 0, 0);
-          if (npc.entity.leftLeg) npc.entity.leftLeg.setLocalEulerAngles(-swing * 0.7, 0, 0);
-          if (npc.entity.rightLeg) npc.entity.rightLeg.setLocalEulerAngles(swing * 0.7, 0, 0);
+          if (npc.entity.leftLeg) npc.entity.leftLeg.setLocalEulerAngles(-swing * 0.8, 0, 0);
+          if (npc.entity.rightLeg) npc.entity.rightLeg.setLocalEulerAngles(swing * 0.8, 0, 0);
         }
       }
       const now = npc.entity.getPosition();
