@@ -3,8 +3,8 @@
   if (document.getElementById('ww-memory-open')) return;
   const style = document.createElement('style');
   style.textContent = `
-    #ww-memory-open{position:fixed;right:14px;top:118px;z-index:30;border:0;border-radius:14px;padding:11px 14px;background:#5b43b5;color:#fff;font:700 14px system-ui;box-shadow:0 5px 18px #172b4d55}
-    #ww-memory-panel{position:fixed;z-index:60;inset:4% 3%;max-width:620px;max-height:92%;margin:auto;overflow:auto;background:#fff;color:#20233a;border-radius:22px;padding:18px;box-shadow:0 18px 70px #101a36aa;font-family:system-ui,sans-serif}
+    #ww-memory-open{position:fixed;right:14px;top:118px;z-index:3000;border:0;border-radius:14px;padding:11px 14px;background:#5b43b5;color:#fff;font:700 14px system-ui;box-shadow:0 5px 18px #172b4d55}
+    #ww-memory-panel{position:fixed;z-index:3001;inset:4% 3%;max-width:620px;max-height:92%;margin:auto;overflow:auto;background:#fff;color:#20233a;border-radius:22px;padding:18px;box-shadow:0 18px 70px #101a36aa;font-family:system-ui,sans-serif}
     #ww-memory-panel[hidden]{display:none} .wwm-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.wwm-head h2{margin:0;font-size:22px}.wwm-close{border:0;border-radius:10px;padding:8px 12px;background:#eee;font-size:18px}
     .wwm-stats{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.wwm-stat{flex:1;min-width:90px;background:#f2efff;border-radius:12px;padding:9px;text-align:center}.wwm-stat b{display:block;font-size:20px}
     .wwm-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.wwm-card{min-height:70px;border:0;border-radius:14px;background:linear-gradient(145deg,#7765d8,#4c3b9e);color:white;font-size:30px;box-shadow:0 3px 0 #32256f;touch-action:manipulation}.wwm-card.revealed,.wwm-card.matched{background:#e8f8ef;color:#20233a;box-shadow:none;border:2px solid #7bc99b}.wwm-card.matched{opacity:.65}.wwm-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.wwm-actions button{border:0;border-radius:12px;padding:10px 14px;background:#5b43b5;color:white;font-weight:700}.wwm-message{min-height:28px;margin:12px 0 0;font-weight:600}
