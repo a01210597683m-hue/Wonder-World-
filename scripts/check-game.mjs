@@ -16,6 +16,7 @@ const css = read('../style.css');
 const careerCss = read('../career.css');
 
 const checks = [
+  ['Backyard pool interaction has proximity and cooldown checks', /name: 'مسبح بيت البداية 🏊'/.test(game) && /lastSwimAt/.test(game) && /poolDistance < poolTarget.radius/.test(game)],
   ['Career persistence function exists', /function save\s*\(/.test(careers)],
   ['Auth exposes the configured client to game modules', /window\.wonderWorldSupabase = supabase/.test(read('../auth.js'))],
   ['Password recovery uses Supabase reset flow and returns to the current game URL', /resetPasswordForEmail\(email\.value, \{ redirectTo: window\.location\.href\.split\('\#'\)\[0\] \}\)/.test(read('../auth.js'))],
