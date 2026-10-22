@@ -316,7 +316,7 @@ try {
   assert.equal(await page.locator('#wwa-match-board .wwa-candy-tile').count(), 64, 'Candy Match should render a playable 8x8 board');
   await page.locator('#wwa-match-reset').click();
   await page.locator('#wwa-rope-open').click();
-  assert.equal(await page.locator('#wwa-rope-board .wwa-rope-node').count(), 6, 'Rope Untangle should render six draggable nodes');
+  assert.equal(await page.locator('#wwa-casual-rope-board .wwa-casual-rope-node').count(), 6, 'Rope Untangle should render six draggable nodes');
   await page.locator('#wwa-rope-reset').click();
   await page.locator('#wwa-party-open').click();
   assert.equal(await page.locator('#wwa-party-board .wwa-party-star').count(), 12, 'Sparkle Party should render twelve collectible stars');
