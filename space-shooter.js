@@ -127,6 +127,7 @@
     if (!panel.hidden) raf=requestAnimationFrame(frame);
   }
   launcher.addEventListener('click',open); closeBtn.addEventListener('click',close);
+  window.addEventListener('keydown',e=>{if(!panel.hidden&&e.key==='Escape'){e.preventDefault();close();}});
   startBtn.addEventListener('click',reset);
   pauseBtn.addEventListener('click',()=>{if(gameOver)return;running=!running;pauseBtn.textContent=running?'⏸ إيقاف مؤقت':'▶ متابعة';message.textContent=running?'رجعنا للعب!':'اللعبة متوقفة مؤقتًا.';last=performance.now();if(!raf&&!panel.hidden)raf=requestAnimationFrame(frame);});
   panel.querySelectorAll('[data-space-move]').forEach(btn=>{
