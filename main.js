@@ -2543,6 +2543,7 @@ function showDialogue(npc) {
 
 let lastBedRestAt = 0;
 let lastReadingAt = 0;
+let lastSwimAt = 0;
 let lastTvTimeAt = 0;
 const indoorTargets = [
   {
@@ -2655,6 +2656,33 @@ function nearestTarget() {
       }
     }
     return best;
+  }
+  const poolTarget = {
+    name: 'مسبح بيت البداية 🏊',
+    x: -16.1, z: -7.2, radius: 2.7,
+    action: () => {
+      const now = Date.now();
+      if (now - lastSwimAt < 15000) {
+        say('🏊 خدي استراحة قصيرة بعد السباحة؛ تقدري ترجعي للمسبح بعد شوية.');
+        return;
+      }
+      if (energy < 8) {
+        say('⚡ طاقتك قليلة للسباحة. ارتاحي أو تناولي وجبة في البيت الأول.');
+        return;
+      }
+      lastSwimAt = now;
+      energy = Math.max(0, energy - 8);
+      happiness = Math.min(100, happiness + 10);
+      updateStats();
+      awardXP(6);
+      logAdventure('سبحت في مسبح بيت البداية');
+      say('🏊 استمتعتي بسباحة منعشة! السعادة +10، الطاقة -8، والخبرة +6.');
+    }
+  };
+  const poolDistance = Math.hypot(p.x - poolTarget.x, p.z - poolTarget.z);
+  if (poolDistance < poolTarget.radius && poolDistance < bestDistance) {
+    best = { ...poolTarget, distance: poolDistance };
+    bestDistance = poolDistance;
   }
   for (const place of places) {
     const d = Math.hypot(p.x - place.x, p.z - place.z);
