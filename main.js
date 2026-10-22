@@ -927,6 +927,11 @@ function enterHome(homeName, targetInteriorRoot = interiorRoot, indoorAction = n
     outdoorEnabledStates.set(entity, entity.enabled);
     entity.enabled = false;
   }
+  currentIndoorFloorIndex = 0;
+  currentIndoorFloorCount = targetInteriorRoot === districtInteriorRoot
+    ? districtInteriorFloorCount
+    : Math.max(1, Math.min(3, /فيلا|villa/i.test(homeName) ? 3 : 2));
+  if (targetInteriorRoot !== districtInteriorRoot) ensureStaticInteriorFloors(targetInteriorRoot, currentIndoorFloorCount);
   activeInteriorRoot = targetInteriorRoot;
   activeIndoorAction = indoorAction;
   activeInteriorRoot.enabled = true;
@@ -943,10 +948,10 @@ function enterHome(homeName, targetInteriorRoot = interiorRoot, indoorAction = n
   camera.setPosition(cameraX, cameraHeight, cameraZ);
   camera.lookAt(0, 1, 2);
   document.getElementById('exit-home').hidden = false;
-  indoorFloorControls.hidden = targetInteriorRoot !== districtInteriorRoot || districtInteriorFloorCount <= 1;
+  indoorFloorControls.hidden = currentIndoorFloorCount <= 1;
   document.getElementById('indoor-floor-label').textContent = 'الدور الأرضي';
   document.getElementById('indoor-floor-down').disabled = true;
-  document.getElementById('indoor-floor-up').disabled = districtInteriorFloorCount <= 1;
+  document.getElementById('indoor-floor-up').disabled = currentIndoorFloorCount <= 1;
   if (activeIndoorAction) say('دخلتي ' + homeName + ' ✨ استكشفي المكان، واستخدمي زر النشاط لتجربة خدماته. تقدري ترجعي للحي من زر الخروج.');
   else say('دخلتي ' + homeName + ' 🏡 استكشفي الصالة وغرفة النوم والمطبخ. تقدري ترجعي للحي من زر الخروج.');
 }
@@ -968,6 +973,7 @@ function exitHome() {
   indoorFloorControls.hidden = true;
   document.getElementById('indoor-place-action').hidden = true;
   activeIndoorAction = null;
+  currentIndoorFloorIndex = 0;
   say('رجعتي للحي 🌳 كل الأماكن والأنشطة الخارجية رجعت زي ما كانت.');
 }
 
@@ -2457,15 +2463,37 @@ let districtInteriorFloorIndex = 0;
 let districtInteriorFloorCount = 1;
 const DISTRICT_INTERIOR_FLOOR_HEIGHT = 3.25;
 const districtInteriorFloorCopies = [];
+const staticInteriorFloorRoots = new WeakSet();
+let currentIndoorFloorIndex = 0;
+let currentIndoorFloorCount = 1;
+function ensureStaticInteriorFloors(root, count) {
+  if (!root || root === districtInteriorRoot || count <= 1 || staticInteriorFloorRoots.has(root)) return;
+  for (let step = 0; step < 12; step++) {
+    box('Interior staircase tread ' + step, 1.15, 0.16, 0.68, -5.8, 0.16 + step * 0.25, 5.0 - step * 0.62, mats.path, root);
+  }
+  box('Interior staircase landing', 1.45, 0.16, 1.25, -5.8, 3.12, -2.1, mats.white, root);
+  for (const z of [4.7,2.7,0.7,-1.3]) box('Interior staircase handrail',0.08,0.95,0.08,-6.45,0.65+(4.7-z)*0.12,z,mats.npcGold,root);
+  const template = root.clone();
+  for (let floor = 1; floor < count; floor++) {
+    const copy = template.clone();
+    copy.name = 'Furnished upper interior floor ' + (floor + 1);
+    copy.enabled = true;
+    copy.setLocalPosition(0, floor * DISTRICT_INTERIOR_FLOOR_HEIGHT, 0);
+    root.addChild(copy);
+  }
+  template.destroy();
+  staticInteriorFloorRoots.add(root);
+}
 const indoorFloorControls = document.createElement('div');
 indoorFloorControls.id = 'indoor-floor-controls';
 indoorFloorControls.hidden = true;
 indoorFloorControls.innerHTML = '<button id="indoor-floor-down" type="button" aria-label="الدور السابق">⬇️ الدور السابق</button><span id="indoor-floor-label">الدور الأرضي</span><button id="indoor-floor-up" type="button" aria-label="الدور التالي">⬆️ الدور التالي</button>';
 document.body.appendChild(indoorFloorControls);
 function changeDistrictInteriorFloor(delta) {
-  if (!indoors || activeInteriorRoot !== districtInteriorRoot) return;
-  const next = Math.max(0, Math.min(districtInteriorFloorCount - 1, districtInteriorFloorIndex + delta));
-  if (next === districtInteriorFloorIndex) { say(next === 0 ? 'ده الدور الأرضي.' : 'وصلتي لآخر دور في المبنى.'); return; }
+  if (!indoors) return;
+  const next = Math.max(0, Math.min(currentIndoorFloorCount - 1, currentIndoorFloorIndex + delta));
+  if (next === currentIndoorFloorIndex) { say(next === 0 ? 'ده الدور الأرضي.' : 'وصلتي لآخر دور في المبنى.'); return; }
+  currentIndoorFloorIndex = next;
   districtInteriorFloorIndex = next;
   const y = next * DISTRICT_INTERIOR_FLOOR_HEIGHT;
   player.setPosition(0, y, 2);
@@ -2473,7 +2501,7 @@ function changeDistrictInteriorFloor(delta) {
   camera.setPosition(cameraX, cameraHeight, cameraZ); camera.lookAt(0, y + 1, 2);
   document.getElementById('indoor-floor-label').textContent = next === 0 ? 'الدور الأرضي' : 'الدور ' + (next + 1);
   document.getElementById('indoor-floor-down').disabled = next === 0;
-  document.getElementById('indoor-floor-up').disabled = next >= districtInteriorFloorCount - 1;
+  document.getElementById('indoor-floor-up').disabled = next >= currentIndoorFloorCount - 1;
   say(next === 0 ? 'رجعتي للدور الأرضي.' : 'طلعتي للدور ' + (next + 1) + ' عبر السلم الداخلي.');
 }
 document.getElementById('indoor-floor-up').addEventListener('click', () => changeDistrictInteriorFloor(1));
