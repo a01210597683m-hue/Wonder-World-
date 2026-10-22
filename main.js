@@ -168,30 +168,59 @@ function makeDistrictHome(parent, localX, localZ, seed) {
   }
   return home;
 }
+const districtBusinessTypes = [
+  { name: 'Homes', kind: 'home', wall: mats.wall }, { name: 'Luxury villas', kind: 'villa', wall: mats.wallGold },
+  { name: 'Cafes', kind: 'cafe', wall: mats.wallPink }, { name: 'Restaurants', kind: 'restaurant', wall: mats.wallGold },
+  { name: 'Fashion stores', kind: 'fashion', wall: mats.npcPink }, { name: 'Hospitals', kind: 'hospital', wall: mats.white },
+  { name: 'Office buildings', kind: 'office', wall: mats.wall }, { name: 'Shops', kind: 'shop', wall: mats.white },
+  { name: 'Beauty salons', kind: 'salon', wall: mats.wallPink }, { name: 'Gyms', kind: 'gym', wall: mats.white },
+  { name: 'Supermarkets', kind: 'market', wall: mats.wallYellow }, { name: 'Schools', kind: 'school', wall: mats.wallGold },
+  { name: 'Cinemas', kind: 'cinema', wall: mats.wallBrick }, { name: 'Pharmacies', kind: 'pharmacy', wall: mats.white },
+  { name: 'Arcades', kind: 'arcade', wall: mats.npcBlue }, { name: 'Apartment buildings', kind: 'apartments', wall: mats.wallPink }
+];
+function makeDistrictBuilding(parent, x, z, seed, type) {
+  if (type.kind === 'home' || type.kind === 'villa') return makeDistrictHome(parent, x, z, seed);
+  const b = new Entity('WonderWorld ' + type.name + ' ' + seed);
+  b.setLocalPosition(x, 0, z); parent.addChild(b);
+  const width = ['hospital','office','cinema'].includes(type.kind) ? 8.2 : 6.5 + (seed % 3) * 0.45;
+  const depth = ['hospital','office'].includes(type.kind) ? 7 : 5.8;
+  const floors = seed % 3 === 0 ? 3 : 2;
+  const roof = [mats.roof,mats.npcBlue,mats.npcPink,mats.wallGold][seed % 4];
+  for (let floor=0; floor<floors; floor++) {
+    const y=1.28+floor*2.55;
+    box(type.name+' floor '+floor,width,2.48,depth,0,y,0,type.wall,b);
+    for (const wx of [-width*0.29,0,width*0.29]) box(type.name+' window '+floor+' '+wx,1.05,1.05,0.13,wx,y+0.04,-depth/2-0.07,mats.window,b);
+  }
+  box(type.name+' roof',width+0.45,0.34,depth+0.4,0,floors*2.55+0.08,0,roof,b);
+  box(type.name+' entrance',1.05,2,0.16,0,1,-depth/2-0.1,mats.door,b);
+  box(type.name+' sign',width*0.72,0.52,0.16,0,2.95,-depth/2-0.16,type.kind==='hospital'?mats.npcPink:mats.npcBlue,b);
+  box(type.name+' awning',width*0.82,0.18,0.68,0,2.25,-depth/2-0.34,roof,b);
+  if(type.kind==='hospital'){
+    box('Hospital cross vertical '+seed,0.28,0.9,0.12,0,floors*2.55+0.75,-depth/2-0.2,mats.npcPink,b);
+    box('Hospital cross horizontal '+seed,0.85,0.25,0.12,0,floors*2.55+0.75,-depth/2-0.2,mats.npcPink,b);
+  }
+  if(type.kind==='fashion'||type.kind==='salon') for(const dx of [-1.25,1.25]) box(type.name+' display '+dx,0.65,0.9,0.14,dx,1.2,-depth/2-0.12,mats.outfitGold,b);
+  return b;
+}
 function createDistrictChunk(chunkX, chunkZ) {
-  const key = chunkX + ',' + chunkZ;
-  const root = new Entity('WonderWorld District ' + key);
-  root.setPosition(chunkX * DISTRICT_CHUNK_SIZE, 0, chunkZ * DISTRICT_CHUNK_SIZE);
+  const key=chunkX+','+chunkZ;
+  const root=new Entity('WonderWorld District '+key);
+  root.setPosition(chunkX*DISTRICT_CHUNK_SIZE,0,chunkZ*DISTRICT_CHUNK_SIZE);
   app.root.addChild(root);
-  box('District grass ' + key, DISTRICT_CHUNK_SIZE, 0.16, DISTRICT_CHUNK_SIZE, 0, -0.16, 0, mats.grass, root);
-  for (const roadOffset of [-22, 22]) {
-    box('District east-west road ' + key + ' ' + roadOffset, DISTRICT_CHUNK_SIZE, 0.08, 5.2, 0, 0.01, roadOffset, mats.road, root);
-    box('District north-south road ' + key + ' ' + roadOffset, 5.2, 0.08, DISTRICT_CHUNK_SIZE, roadOffset, 0.01, 0, mats.road, root);
+  box('District grass '+key,DISTRICT_CHUNK_SIZE,0.16,DISTRICT_CHUNK_SIZE,0,-0.16,0,mats.grass,root);
+  for(const roadOffset of [-22,22]){
+    box('District east-west road '+key+' '+roadOffset,DISTRICT_CHUNK_SIZE,0.08,5.2,0,0.01,roadOffset,mats.road,root);
+    box('District north-south road '+key+' '+roadOffset,5.2,0.08,DISTRICT_CHUNK_SIZE,roadOffset,0.01,0,mats.road,root);
   }
-  let seed = Math.abs((chunkX * 73856093) ^ (chunkZ * 19349663)) >>> 0;
-  for (const localX of [-12, 12]) {
-    for (const localZ of [-12, 12]) {
-      const worldX = chunkX * DISTRICT_CHUNK_SIZE + localX;
-      const worldZ = chunkZ * DISTRICT_CHUNK_SIZE + localZ;
-      // Keep the original starter neighborhood and landmarks unobstructed.
-      if (Math.hypot(worldX, worldZ) < 44) { seed = (seed + 1) >>> 0; continue; }
-      seed = (seed * 1664525 + 1013904223) >>> 0;
-      makeDistrictHome(root, localX, localZ, seed);
-    }
+  let seed=Math.abs((chunkX*73856093)^(chunkZ*19349663))>>>0;
+  // 16 lots per streamed district, with varied residential, retail, health, beauty and leisure buildings.
+  for(const localX of [-15,-5,5,15]) for(const localZ of [-15,-5,5,15]){
+    const worldX=chunkX*DISTRICT_CHUNK_SIZE+localX, worldZ=chunkZ*DISTRICT_CHUNK_SIZE+localZ;
+    if(Math.hypot(worldX,worldZ)<44){seed=(seed+1)>>>0;continue;}
+    seed=(seed*1664525+1013904223)>>>0;
+    makeDistrictBuilding(root,localX,localZ,seed,districtBusinessTypes[seed%districtBusinessTypes.length]);
   }
-  root.enabled = true;
-  districtChunks.set(key, root);
-  return root;
+  root.enabled=true; districtChunks.set(key,root); return root;
 }
 function updateDistrictStreaming(worldX, worldZ) {
   const centerX = Math.floor(worldX / DISTRICT_CHUNK_SIZE);
