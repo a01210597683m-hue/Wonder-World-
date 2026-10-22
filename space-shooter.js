@@ -127,6 +127,7 @@
     if (!panel.hidden) raf=requestAnimationFrame(frame);
   }
   launcher.addEventListener('click',open); closeBtn.addEventListener('click',close);
+  window.addEventListener('keydown',e=>{if(!panel.hidden&&e.key==='Escape'){e.preventDefault();close();}});
   startBtn.addEventListener('click',reset);
   pauseBtn.addEventListener('click',()=>{if(gameOver)return;running=!running;pauseBtn.textContent=running?'⏸ إيقاف مؤقت':'▶ متابعة';message.textContent=running?'رجعنا للعب!':'اللعبة متوقفة مؤقتًا.';last=performance.now();if(!raf&&!panel.hidden)raf=requestAnimationFrame(frame);});
   panel.querySelectorAll('[data-space-move]').forEach(btn=>{
@@ -140,6 +141,23 @@
   window.addEventListener('blur',()=>{keys.clear();pointer.left=pointer.right=pointer.fire=false;});
   window.addEventListener('resize',resize);
   document.addEventListener('visibilitychange',()=>{if(document.hidden&&running){running=false;pauseBtn.textContent='▶ متابعة';message.textContent='اللعبة متوقفة مؤقتًا لأنك خرجتي من الصفحة.';}});
-  canvas.addEventListener('pointerdown',e=>{if(!running)return;const rect=canvas.getBoundingClientRect();ship.x=Math.max(17,Math.min(width-17,e.clientX-rect.left));});
+  let draggingShip = false;
+  function moveShipToPointer(e) {
+    const rect = canvas.getBoundingClientRect();
+    ship.x = Math.max(17, Math.min(width - 17, e.clientX - rect.left));
+  }
+  canvas.addEventListener('pointerdown', e => {
+    if (!running) return;
+    draggingShip = true;
+    moveShipToPointer(e);
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  canvas.addEventListener('pointermove', e => {
+    if (running && draggingShip) moveShipToPointer(e);
+  });
+  function stopDraggingShip() { draggingShip = false; }
+  canvas.addEventListener('pointerup', stopDraggingShip);
+  canvas.addEventListener('pointercancel', stopDraggingShip);
+  canvas.addEventListener('lostpointercapture', stopDraggingShip);
   resize(); draw();
 })();
