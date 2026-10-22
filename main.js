@@ -309,6 +309,10 @@ function makePerson(name, x, z, shirtMaterial, isPlayer = false) {
   app.root.addChild(person);
   const body = box(name + ' body', 0.82, 1.22, 0.58, 0, 1.02, 0, shirtMaterial, person);
   const head = sphere(name + ' head', 0.78, 0, 1.95, 0, mats.skin, person);
+  // Face silhouette details: ears and neck make character heads read clearly at game-camera distance.
+  sphere(name + ' neck', 0.22, 0, 1.38, 0, mats.skin, person);
+  sphere(name + ' left ear', 0.17, -0.39, 1.96, 0.015, mats.skin, person);
+  sphere(name + ' right ear', 0.17, 0.39, 1.96, 0.015, mats.skin, person);
   const hair = sphere(name + ' hair', 0.8, 0, 2.28, -0.04, isPlayer ? mats.player : mats.trunk, person);
   const hairFront = sphere(name + ' fringe', 0.38, 0, 2.16, 0.31, isPlayer ? mats.player : mats.trunk, person);
   const leftEye = sphere(name + ' left eye', 0.13, -0.18, 2.00, 0.335, mats.eyes, person);
@@ -984,6 +988,31 @@ app.on('update', dt => {
     renderWorldQuests();
   }
 });
+let npcSocialClock = 5;
+const npcSocialLines = [
+  (a,b) => a.name + ' بتقول لـ' + b.name + ': الجو جميل النهارده، نتمشى شوية؟',
+  (a,b) => b.name + ' بيرد على ' + a.name + ': يلا! وبعدها نلعب لعبة خفيفة سوا.',
+  (a,b) => a.name + ' و' + b.name + ' بيتكلموا عن أنشطة الحي وبيضحكوا مع بعض 😄',
+  (a,b) => b.name + ' بيقترح على ' + a.name + ' يزوروا الحديقة ويتعرفوا على الجيران.'
+];
+app.on('update', dt => {
+  if (indoors) return;
+  npcSocialClock -= dt;
+  if (npcSocialClock > 0) return;
+  npcSocialClock = 10 + Math.random() * 7;
+  const pairs = [];
+  for (let i = 0; i < npcs.length; i++) for (let j = i + 1; j < npcs.length; j++) {
+    const a = npcs[i], b = npcs[j];
+    if (!a.entity || !b.entity || a.entity.enabled === false || b.entity.enabled === false) continue;
+    const pa = a.entity.getPosition(), pb = b.entity.getPosition();
+    if (Math.hypot(pa.x - pb.x, pa.z - pb.z) < 7) pairs.push([a,b]);
+  }
+  if (pairs.length) {
+    const [a,b] = pairs[Math.floor(Math.random() * pairs.length)];
+    say('💬 ' + npcSocialLines[Math.floor(Math.random() * npcSocialLines.length)](a,b));
+  }
+});
+
 
 
 document.getElementById('open-football').addEventListener('click', () => { footballPanel.hidden = false; resetFootballGame(); footballPanel.focus(); });
