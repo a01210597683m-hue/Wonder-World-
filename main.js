@@ -3446,14 +3446,14 @@ if (moveJoystick) {
   }
 }
 canvas.style.touchAction = 'none';
-canvas.addEventListener('pointerdown', event => {
+// Listen on the document in capture phase: HUD panels can cover the canvas on phones.
+document.addEventListener('pointerdown', event => {
   if (event.clientX < window.innerWidth * 0.43 || cameraPointerId !== null) return;
   cameraPointerId = event.pointerId;
   cameraLastX = event.clientX;
   cameraLastY = event.clientY;
-  canvas.setPointerCapture?.(event.pointerId);
-});
-canvas.addEventListener('pointermove', event => {
+}, { capture: true, passive: true });
+document.addEventListener('pointermove', event => {
   if (event.pointerId !== cameraPointerId) return;
   const dx = event.clientX - cameraLastX;
   const dy = event.clientY - cameraLastY;
@@ -3462,13 +3462,12 @@ canvas.addEventListener('pointermove', event => {
   cameraOrbitYaw -= dx * 0.0065;
   // Wide vertical orbit: look above the avatar or down over the world, without flipping over.
   cameraOrbitPitch = Math.max(-18, Math.min(72, cameraOrbitPitch + dy * 0.18));
-  event.preventDefault();
-});
+}, { capture: true, passive: true });
 function releaseCameraPointer(event) {
   if (event.pointerId === cameraPointerId) cameraPointerId = null;
 }
-canvas.addEventListener('pointerup', releaseCameraPointer);
-canvas.addEventListener('pointercancel', releaseCameraPointer);
+document.addEventListener('pointerup', releaseCameraPointer, true);
+document.addEventListener('pointercancel', releaseCameraPointer, true);
 canvas.addEventListener('lostpointercapture', releaseCameraPointer);
 // Desktop mouse-wheel zoom complements the full 360-degree touch orbit.
 canvas.addEventListener('wheel', event => {
