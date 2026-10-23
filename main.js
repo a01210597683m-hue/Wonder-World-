@@ -1018,14 +1018,11 @@ ui.innerHTML = `
   </div>
   <div id="xp-panel" aria-label="تقدم الخبرة"><div class="xp-label"><span>خبرة اللاعب</span><span id="xp-count">0 / 100 XP</span></div><div id="xp-track" role="progressbar" aria-label="التقدم للمستوى التالي" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="xp-fill"></span></div></div>
   <p id="game-cloud-status" role="status">💾 التقدم محفوظ على هذا الجهاز. سجّلي الدخول لتفعيل النسخة السحابية.</p>
+  </div>
   <div id="world-clock" role="status">🕒 نهار هادئ</div>
   <button id="interact" type="button">تفاعل / استكشاف</button>
   <button id="exit-home" type="button" hidden>🚪 الخروج للحي</button>
   <button id="indoor-place-action" type="button" hidden>تنفيذ نشاط المكان</button>
-  </div>
-  <div id="world-clock" role="status">🕒 نهار هادئ</div>
-  <button id="interact" type="button">تفاعل / استكشاف</button>
-  <button id="exit-home" type="button" hidden>🚪 الخروج للحي</button>\n  <button id="indoor-place-action" type="button" hidden>تنفيذ نشاط المكان</button>
   <section id="avatar-creator-panel" hidden aria-label="تصميم الشخصية">
     <div class="shop-heading"><strong>✨ استوديو تصميم شخصيتك</strong><button id="close-avatar-creator" type="button" aria-label="إغلاق">✕</button></div>
     <p>اختاري عمر الشخصية من 5 إلى 65 سنة، وطابع المظهر، ودرجة البشرة وتسريحة الشعر. التغييرات تظهر على الشخصية داخل العالم وتُحفظ مع تقدمك.</p>
@@ -1145,6 +1142,7 @@ ui.innerHTML = `
 document.getElementById('game').appendChild(ui);
   const wwMenuToggle = document.getElementById('ww-menu-toggle');
   const wwMenuContent = document.getElementById('ww-menu-content');
+  ui.classList.add('ww-menu-collapsed');
   wwMenuToggle.addEventListener('click', () => {
     const expanded = wwMenuToggle.getAttribute('aria-expanded') === 'true';
     wwMenuToggle.setAttribute('aria-expanded', String(!expanded));
