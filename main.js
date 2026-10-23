@@ -552,13 +552,29 @@ function makePerson(name, x, z, shirtMaterial, isPlayer = false) {
   sphere(name + ' right pupil', 0.065, 0.18, 2.00, 0.445, mats.pupil, person);
   const nose = sphere(name + ' nose', 0.075, 0, 1.86, 0.37, mats.skin, person);
   box(name + ' smile', 0.16, 0.035, 0.04, 0, 1.77, 0.36, mats.outfitCoral, person);
-  const leftArm = box(name + ' left arm', 0.22, 0.88, 0.24, -0.54, 1.0, 0, shirtMaterial, person);
-  const rightArm = box(name + ' right arm', 0.22, 0.88, 0.24, 0.54, 1.0, 0, shirtMaterial, person);
-  const leftLeg = box(name + ' left leg', 0.27, 0.68, 0.3, -0.22, 0.39, 0, mats.outfitBlue, person);
-  const rightLeg = box(name + ' right leg', 0.27, 0.68, 0.3, 0.22, 0.39, 0, mats.outfitBlue, person);
-  const leftShoe = box(name + ' left shoe', 0.32, 0.16, 0.48, -0.22, 0.09, 0.08, mats.shoes, person);
-  const rightShoe = box(name + ' right shoe', 0.32, 0.16, 0.48, 0.22, 0.09, 0.08, mats.shoes, person);
-  person.outfitParts = [body, leftArm, rightArm, leftLeg, rightLeg];
+  // Pivoted limbs make gestures and walking rotate from the shoulder/hip, not from the limb's centre.
+  const leftArm = new Entity(name + ' left shoulder');
+  leftArm.setLocalPosition(-0.48, 1.42, 0);
+  person.addChild(leftArm);
+  const leftArmMesh = box(name + ' left arm', 0.24, 0.78, 0.25, 0, -0.37, 0, shirtMaterial, leftArm);
+  const leftHand = sphere(name + ' left hand', 0.14, 0, -0.78, 0.015, mats.skin, leftArm);
+  const rightArm = new Entity(name + ' right shoulder');
+  rightArm.setLocalPosition(0.48, 1.42, 0);
+  person.addChild(rightArm);
+  const rightArmMesh = box(name + ' right arm', 0.24, 0.78, 0.25, 0, -0.37, 0, shirtMaterial, rightArm);
+  const rightHand = sphere(name + ' right hand', 0.14, 0, -0.78, 0.015, mats.skin, rightArm);
+  const leftLeg = new Entity(name + ' left hip');
+  leftLeg.setLocalPosition(-0.22, 0.68, 0);
+  person.addChild(leftLeg);
+  const leftLegMesh = box(name + ' left leg', 0.29, 0.68, 0.31, 0, -0.31, 0, mats.outfitBlue, leftLeg);
+  const leftShoe = box(name + ' left shoe', 0.34, 0.16, 0.48, 0, -0.66, 0.08, mats.shoes, leftLeg);
+  const rightLeg = new Entity(name + ' right hip');
+  rightLeg.setLocalPosition(0.22, 0.68, 0);
+  person.addChild(rightLeg);
+  const rightLegMesh = box(name + ' right leg', 0.29, 0.68, 0.31, 0, -0.31, 0, mats.outfitBlue, rightLeg);
+  const rightShoe = box(name + ' right shoe', 0.34, 0.16, 0.48, 0, -0.66, 0.08, mats.shoes, rightLeg);
+  person.outfitParts = [body, leftArmMesh, rightArmMesh, leftLegMesh, rightLegMesh];
+  person.handParts = [leftHand, rightHand];
   person.headPart = head;
   person.skinParts = [head, nose];
   person.hairPart = hair;
@@ -984,6 +1000,7 @@ ui.innerHTML = `
   <div id="xp-panel" aria-label="تقدم الخبرة"><div class="xp-label"><span>خبرة اللاعب</span><span id="xp-count">0 / 100 XP</span></div><div id="xp-track" role="progressbar" aria-label="التقدم للمستوى التالي" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="xp-fill"></span></div></div>
   <p id="game-cloud-status" role="status">💾 التقدم محفوظ على هذا الجهاز. سجّلي الدخول لتفعيل النسخة السحابية.</p>
   <div class="avatar-tools"><button id="change-outfit" type="button">👕 تغيير الملابس</button><button id="change-hair" type="button">💇 تغيير لون الشعر</button></div>
+  <div class="avatar-tools avatar-emotes" aria-label="حركات الشخصية"><button id="avatar-wave" type="button">👋 تلويح باليد</button><button id="avatar-greet" type="button">🙋 تحية</button><button id="avatar-dance" type="button">💃 رقص</button></div>
   <button id="open-avatar-creator" type="button">✨ تصميم شخصيتي (العمر والشكل)</button>
   <button id="open-shop" type="button">🛍️ افتحي متجر Wonder</button>
   <button id="open-pets" type="button">🐾 حيواناتي الأليفة</button>
@@ -1601,8 +1618,9 @@ function applyAvatarProfile() {
   player.headPart.setLocalScale(0.78 * (age <= 12 ? 1.1 : age <= 18 ? 1.04 : 1), 0.78 * (age <= 12 ? 1.1 : age <= 18 ? 1.04 : 1), 0.78 * (age <= 12 ? 1.1 : age <= 18 ? 1.04 : 1));
   const bodyWidth = avatarProfile.presentation === 'masculine' ? 0.9 : avatarProfile.presentation === 'feminine' ? 0.76 : 0.82;
   player.bodyPart.setLocalScale(bodyWidth, 1.22, 0.58);
-  player.leftArm.setLocalPosition(-bodyWidth / 2 - 0.13, 1.0, 0);
-  player.rightArm.setLocalPosition(bodyWidth / 2 + 0.13, 1.0, 0);
+  player.leftArm.setLocalPosition(-bodyWidth / 2 - 0.13, 1.42, 0);
+  player.rightArm.setLocalPosition(bodyWidth / 2 + 0.13, 1.42, 0);
+  if (player.handParts) player.handParts.forEach(part => { part.render.material = skin; });
   const skin = avatarSkinMaterials[avatarProfile.skin] || mats.skin;
   player.skinParts.forEach(part => { part.render.material = skin; });
   for (const [style, parts] of Object.entries(avatarHairStyles)) for (const part of parts) part.enabled = style === avatarProfile.hairStyle;
@@ -3502,7 +3520,18 @@ document.querySelectorAll('[data-dir]').forEach(button => {
 
 const moveSpeed = 7.2;
 let walkClock = 0;
+let gestureMode = '';
+let gestureTime = 0;
 let worldClockSeconds = 0;
+function playAvatarGesture(mode) {
+  gestureMode = mode;
+  gestureTime = mode === 'dance' ? 4.2 : 2.0;
+  const labels = { wave: '👋 شخصيتك بتلوّح بإيدها!', greet: '🙋 شخصيتك بتسلّم بتحية لطيفة!', dance: '💃 يلا نرقص! شخصيتك بتتحرك على الإيقاع.' };
+  say(labels[mode] || '✨ حركة جديدة!');
+}
+document.getElementById('avatar-wave').addEventListener('click', () => playAvatarGesture('wave'));
+document.getElementById('avatar-greet').addEventListener('click', () => playAvatarGesture('greet'));
+document.getElementById('avatar-dance').addEventListener('click', () => playAvatarGesture('dance'));
 let weatherMode = 'clear';
 let weatherFeedbackAt = 0;
 const rainDrops = [];
@@ -3612,18 +3641,40 @@ app.on('update', dt => {
     player.translate(x * activeSpeed * dt, 0, z * activeSpeed * dt);
     walkClock += dt * 9;
     player.setEulerAngles(0, Math.atan2(x, z) * 180 / Math.PI, 0);
-    const swing = Math.sin(walkClock) * 24;
-    player.leftArm.setLocalEulerAngles(swing, 0, 0);
-    player.rightArm.setLocalEulerAngles(-swing, 0, 0);
-    player.leftLeg.setLocalEulerAngles(-swing * 0.7, 0, 0);
-    player.rightLeg.setLocalEulerAngles(swing * 0.7, 0, 0);
-    player.bodyPart.setLocalPosition(0, 1.02 + Math.abs(Math.sin(walkClock * 2)) * 0.055, 0);
+    const swing = Math.sin(walkClock) * 30;
+    player.leftArm.setLocalEulerAngles(swing * 0.72, 0, -4);
+    player.rightArm.setLocalEulerAngles(-swing * 0.72, 0, 4);
+    player.leftLeg.setLocalEulerAngles(-swing * 0.82, 0, 0);
+    player.rightLeg.setLocalEulerAngles(swing * 0.82, 0, 0);
+    player.bodyPart.setLocalPosition(0, 1.02 + Math.abs(Math.sin(walkClock * 2)) * 0.045, 0);
   } else {
-    player.leftArm.setLocalEulerAngles(0, 0, 0);
-    player.rightArm.setLocalEulerAngles(0, 0, 0);
+    player.leftArm.setLocalEulerAngles(0, 0, -3);
+    player.rightArm.setLocalEulerAngles(0, 0, 3);
     player.leftLeg.setLocalEulerAngles(0, 0, 0);
     player.rightLeg.setLocalEulerAngles(0, 0, 0);
     player.bodyPart.setLocalPosition(0, 1.02, 0);
+  }
+  // Time-limited, blended social emotes. A wave uses a wrist/shoulder arc; dance adds a bounce and sway.
+  if (gestureTime > 0) {
+    gestureTime = Math.max(0, gestureTime - dt);
+    const t = walkClock + (4.2 - gestureTime) * 5;
+    if (gestureMode === 'wave') {
+      player.rightArm.setLocalEulerAngles(-118 + Math.sin(t * 2.5) * 24, 0, -12);
+      player.leftArm.setLocalEulerAngles(0, 0, 8);
+    } else if (gestureMode === 'greet') {
+      const bow = Math.sin((2 - gestureTime) / 2 * Math.PI);
+      player.rightArm.setLocalEulerAngles(-82, 0, -8);
+      player.leftArm.setLocalEulerAngles(-34, 0, 8);
+      player.bodyPart.setLocalPosition(0, 1.02 - Math.max(0, bow) * 0.09, 0);
+    } else if (gestureMode === 'dance') {
+      player.leftArm.setLocalEulerAngles(-55 + Math.sin(t) * 34, 0, -18);
+      player.rightArm.setLocalEulerAngles(-55 - Math.sin(t) * 34, 0, 18);
+      player.leftLeg.setLocalEulerAngles(Math.sin(t) * 24, 0, 0);
+      player.rightLeg.setLocalEulerAngles(-Math.sin(t) * 24, 0, 0);
+      player.bodyPart.setLocalPosition(0, 1.02 + Math.abs(Math.sin(t * 2)) * 0.13, 0);
+      player.setEulerAngles(0, player.getEulerAngles().y + Math.sin(t) * dt * 70, 0);
+    }
+    if (gestureTime <= 0) gestureMode = '';
   }
 
   const p = player.getPosition();
