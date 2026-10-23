@@ -128,13 +128,51 @@
       const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
       function draw(){
         ctx.clearRect(0,0,640,400);
-        ctx.fillStyle='#b6d6a5';ctx.fillRect(0,0,640,400);
-        ctx.fillStyle='#d2c59a';for(let i=0;i<10;i++){ctx.beginPath();ctx.ellipse((i*79+23)%640,(i*53+17)%400,19,10,i*.4,0,Math.PI*2);ctx.fill();}
-        ctx.fillStyle='#7c9e70';for(const [x,y,w,h] of [[80,110,58,32],[190,210,74,28],[410,125,66,34],[500,270,80,28],[290,70,50,24]]){ctx.fillRect(x,y,w,h);ctx.fillStyle='#4f6f50';ctx.fillRect(x+5,y+5,w-10,h-10);ctx.fillStyle='#7c9e70';}
-        const shrink=Math.min(0.38,state.elapsed/90*0.38),pad=18+shrink*270;ctx.strokeStyle='#3e87db';ctx.lineWidth=5;ctx.setLineDash([12,7]);ctx.strokeRect(pad,pad,640-pad*2,400-pad*2);ctx.setLineDash([]);
-        state.targets.forEach((t,i)=>{if(t.hp<=0)return;ctx.fillStyle='#c54450';ctx.beginPath();ctx.arc(t.x,t.y,13,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffe3c8';ctx.beginPath();ctx.arc(t.x,t.y-10,7,0,Math.PI*2);ctx.fill();ctx.fillStyle='#5e2b35';ctx.fillRect(t.x-8,t.y+12,16,5);ctx.fillStyle='#fff';ctx.fillRect(t.x-12,t.y-2,24,3);});
-        ctx.fillStyle='#573e91';ctx.beginPath();ctx.arc(state.x,state.y,14,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f4d4b0';ctx.beginPath();ctx.arc(state.x,state.y-15,8,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(state.aimX,state.aimY,10,0,Math.PI*2);ctx.moveTo(state.aimX-15,state.aimY);ctx.lineTo(state.aimX+15,state.aimY);ctx.moveTo(state.aimX,state.aimY-15);ctx.lineTo(state.aimX,state.aimY+15);ctx.stroke();
-        ctx.fillStyle='#24364b';ctx.font='bold 14px sans-serif';ctx.fillText('WONDER BATTLE • SURVIVE',16,24);
+        const ground=ctx.createLinearGradient(0,0,640,400);ground.addColorStop(0,'#9dbb8b');ground.addColorStop(.5,'#6e9a70');ground.addColorStop(1,'#496e59');
+        ctx.fillStyle=ground;ctx.fillRect(0,0,640,400);
+        // Natural terrain, winding dirt tracks, grass and small water patches.
+        ctx.fillStyle='#c4b889';ctx.beginPath();ctx.moveTo(0,305);ctx.bezierCurveTo(150,260,160,170,290,160);ctx.bezierCurveTo(440,150,470,70,640,55);ctx.lineTo(640,90);ctx.bezierCurveTo(475,105,455,190,300,195);ctx.bezierCurveTo(175,205,160,295,0,340);ctx.closePath();ctx.fill();
+        ctx.fillStyle='#7ba5a1';ctx.beginPath();ctx.ellipse(515,322,75,28,-.25,0,Math.PI*2);ctx.fill();
+        for(let i=0;i<65;i++){const x=(i*97+31)%640,y=(i*67+23)%400;ctx.strokeStyle=i%2?'#c6d9a366':'#294f3766';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+4,y-2);ctx.stroke();}
+        // Cover: timber crates, low stone walls and bushes.
+        for(const [x,y,w,h] of [[80,110,58,32],[190,210,74,28],[410,125,66,34],[500,270,80,28],[290,70,50,24],[110,285,42,26],[350,300,54,22]]){
+          ctx.fillStyle='#243b2c55';ctx.fillRect(x+4,y+5,w,h);
+          ctx.fillStyle='#8a7654';ctx.fillRect(x,y,w,h);ctx.fillStyle='#b9a47a';ctx.fillRect(x+4,y+4,w-8,h-8);
+          ctx.strokeStyle='#5d523b';ctx.lineWidth=2;ctx.strokeRect(x,y,w,h);ctx.beginPath();ctx.moveTo(x+4,y+4);ctx.lineTo(x+w-4,y+h-4);ctx.moveTo(x+w-4,y+4);ctx.lineTo(x+4,y+h-4);ctx.stroke();
+        }
+        for(const [x,y,r] of [[48,72,17],[165,65,22],[570,90,24],[590,215,19],[45,240,22],[245,355,19],[435,350,23],[350,235,14]]){
+          ctx.fillStyle='#203a2a66';ctx.beginPath();ctx.ellipse(x+4,y+8,r*1.1,r*.65,0,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle='#315c3c';ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle='#5f9860';ctx.beginPath();ctx.arc(x-r*.25,y-r*.25,r*.67,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle='#86b878';ctx.beginPath();ctx.arc(x-r*.28,y-r*.3,r*.3,0,Math.PI*2);ctx.fill();
+        }
+        // The blue zone closes progressively around the survival arena.
+        const shrink=Math.min(.38,state.elapsed/90*.38),pad=18+shrink*270;
+        ctx.fillStyle='#4a92ed18';ctx.fillRect(pad,pad,640-pad*2,400-pad*2);
+        ctx.strokeStyle='#4ab2ff';ctx.lineWidth=5;ctx.setLineDash([12,7]);ctx.strokeRect(pad,pad,640-pad*2,400-pad*2);ctx.setLineDash([]);
+        // Enemies: red team silhouettes with a health bar and a clear hitbox.
+        state.targets.forEach(t=>{
+          if(t.hp<=0)return;
+          ctx.fillStyle='#14271d88';ctx.beginPath();ctx.ellipse(t.x,t.y+14,14,6,0,0,Math.PI*2);ctx.fill();
+          ctx.strokeStyle='#26374a';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(t.x-5,t.y+8);ctx.lineTo(t.x-7,t.y+15);ctx.moveTo(t.x+5,t.y+8);ctx.lineTo(t.x+7,t.y+15);ctx.stroke();
+          ctx.fillStyle='#bd3545';ctx.beginPath();ctx.roundRect(t.x-10,t.y-5,20,18,5);ctx.fill();
+          ctx.fillStyle='#f0c6a1';ctx.beginPath();ctx.arc(t.x,t.y-12,7,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle='#39485a';ctx.beginPath();ctx.arc(t.x,t.y-15,7,Math.PI,Math.PI*2);ctx.fill();
+          ctx.fillStyle='#24364b';ctx.fillRect(t.x-12,t.y-24,24,4);ctx.fillStyle='#75dc82';ctx.fillRect(t.x-12,t.y-24,12*t.hp,4);
+          ctx.strokeStyle='#272d36';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(t.x+8,t.y+1);ctx.lineTo(t.x+18,t.y-5);ctx.stroke();
+        });
+        // Player in a distinct purple tactical outfit.
+        ctx.fillStyle='#10291e99';ctx.beginPath();ctx.ellipse(state.x,state.y+15,15,6,0,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='#273344';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(state.x-5,state.y+9);ctx.lineTo(state.x-7,state.y+16);ctx.moveTo(state.x+5,state.y+9);ctx.lineTo(state.x+7,state.y+16);ctx.stroke();
+        ctx.fillStyle='#6844b6';ctx.beginPath();ctx.roundRect(state.x-11,state.y-5,22,19,5);ctx.fill();
+        ctx.fillStyle='#d6c7f6';ctx.fillRect(state.x-7,state.y-1,14,5);
+        ctx.fillStyle='#f0c8a5';ctx.beginPath();ctx.arc(state.x,state.y-13,8,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#342a42';ctx.beginPath();ctx.arc(state.x,state.y-16,8,Math.PI,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#24364b';ctx.fillRect(state.x-11,state.y-25,22,4);ctx.fillStyle='#75dc82';ctx.fillRect(state.x-11,state.y-25,22*Math.max(0,state.hp)/100,4);
+        // Crosshair and HUD compass make the shooting loop easier to read.
+        ctx.strokeStyle='#f5faff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(state.aimX,state.aimY,10,0,Math.PI*2);ctx.moveTo(state.aimX-17,state.aimY);ctx.lineTo(state.aimX+17,state.aimY);ctx.moveTo(state.aimX,state.aimY-17);ctx.lineTo(state.aimX,state.aimY+17);ctx.stroke();
+        ctx.fillStyle='#0c1c2bdd';ctx.fillRect(10,8,225,25);ctx.fillStyle='#fff';ctx.font='bold 13px system-ui';ctx.textAlign='left';ctx.fillText('WONDER BATTLE • SURVIVE',18,25);
+        ctx.fillStyle='#0c1c2dbb';ctx.fillRect(480,8,150,25);ctx.fillStyle='#fff';ctx.textAlign='right';ctx.fillText('🎯 '+state.kills+'/6  •  '+state.ammo+' ammo',620,25);
       }
       function update(){
         $('#wwa-hp',panel).textContent=String(Math.max(0,Math.round(state.hp)));$('#wwa-ammo',panel).textContent=String(state.ammo);$('#wwa-bscore',panel).textContent=String(state.kills);$('#wwa-zone',panel).textContent=String(Math.max(20,Math.round(100-state.elapsed/90*80)));draw();
@@ -174,28 +212,62 @@
       const ball=()=>state.ball;
       function draw(){
         ctx.clearRect(0,0,640,400);
-        ctx.fillStyle='#318c54';ctx.fillRect(0,0,640,400);
-        for(let i=0;i<8;i++){ctx.fillStyle=i%2?'#ffffff08':'#123f2410';ctx.fillRect(20+i*75,20,75,360);}
-        ctx.strokeStyle='#f4fff1';ctx.lineWidth=2.5;ctx.strokeRect(18,18,604,364);
-        ctx.beginPath();ctx.moveTo(18,200);ctx.lineTo(622,200);ctx.stroke();
-        ctx.beginPath();ctx.arc(320,200,48,0,Math.PI*2);ctx.stroke();
-        ctx.strokeRect(220,18,200,65);ctx.strokeRect(270,18,100,32);
-        ctx.strokeRect(220,317,200,65);ctx.strokeRect(270,350,100,32);
-        ctx.fillStyle='#f7f7f7';ctx.fillRect(state.keeper.x-29,24,58,8);
-        const drawPlayer=(p,color,shirt,label)=>{
-          ctx.fillStyle='#142a22';ctx.beginPath();ctx.ellipse(p.x,p.y+13,12,5,0,0,Math.PI*2);ctx.fill();
-          ctx.fillStyle=color;ctx.beginPath();ctx.arc(p.x,p.y-8,7,0,Math.PI*2);ctx.fill();
-          ctx.fillStyle=shirt;ctx.fillRect(p.x-10,p.y-2,20,17);
-          ctx.fillStyle='#fff';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText(label,p.x,p.y+8);
+        // Stadium bowl, stands, crowd and floodlight glow.
+        const sky=ctx.createLinearGradient(0,0,0,400);sky.addColorStop(0,'#172b42');sky.addColorStop(1,'#0b1828');
+        ctx.fillStyle=sky;ctx.fillRect(0,0,640,400);
+        ctx.fillStyle='#263e55';ctx.fillRect(12,10,616,380);
+        for(let row=0;row<4;row++)for(let col=0;col<42;col++){
+          const x=20+col*14,y=15+row*7;
+          ctx.fillStyle=['#f7cf74','#e9f2ff','#f18b8b','#8cd5c2','#9e9bff'][(col*3+row*7)%5];
+          ctx.fillRect(x,y,5,3);
+          ctx.fillStyle=['#f7cf74','#e9f2ff','#f18b8b','#8cd5c2','#9e9bff'][(col+row*11)%5];
+          ctx.fillRect(x,382-row*7,5,3);
+        }
+        ctx.fillStyle='#e8edf4';ctx.fillRect(24,42,592,316);
+        ctx.fillStyle='#287b45';ctx.fillRect(31,29,578,342);
+        for(let i=0;i<10;i++){ctx.fillStyle=i%2?'#2f8a4e':'#267441';ctx.fillRect(31+i*57.8,29,57.8,342);}
+        // Touchlines, halfway line, center circle, penalty boxes and goal mouths.
+        ctx.strokeStyle='#f1f8e9';ctx.lineWidth=2.4;ctx.strokeRect(31,29,578,342);
+        ctx.beginPath();ctx.moveTo(31,200);ctx.lineTo(609,200);ctx.stroke();
+        ctx.beginPath();ctx.arc(320,200,43,0,Math.PI*2);ctx.stroke();
+        ctx.fillStyle='#f1f8e9';ctx.beginPath();ctx.arc(320,200,3,0,Math.PI*2);ctx.fill();
+        ctx.strokeRect(207,29,226,66);ctx.strokeRect(263,29,114,29);
+        ctx.strokeRect(207,305,226,66);ctx.strokeRect(263,342,114,29);
+        ctx.beginPath();ctx.arc(320,95,29,0.15*Math.PI,0.85*Math.PI);ctx.stroke();
+        ctx.beginPath();ctx.arc(320,305,29,1.15*Math.PI,1.85*Math.PI);ctx.stroke();
+        function goal(y,top){
+          ctx.fillStyle='#e7f0f4';ctx.fillRect(269,y-5,102,10);
+          ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.strokeRect(269,y-5,102,10);
+          ctx.strokeStyle='#b9c8d4';ctx.lineWidth=1;
+          for(let x=279;x<370;x+=10){ctx.beginPath();ctx.moveTo(x,y-4);ctx.lineTo(x,y+4);ctx.stroke();}
+          for(let yy=y-3;yy<=y+3;yy+=3){ctx.beginPath();ctx.moveTo(270,yy);ctx.lineTo(370,yy);ctx.stroke();}
+        }
+        goal(29,true);goal(371,false);
+        const drawPlayer=(p,skin,shirt,label,keeper=false)=>{
+          ctx.fillStyle='#10251b88';ctx.beginPath();ctx.ellipse(p.x,p.y+12,13,6,0,0,Math.PI*2);ctx.fill();
+          // Legs and boots give each player a readable football-kit silhouette.
+          ctx.strokeStyle='#f4f5f7';ctx.lineWidth=4;ctx.lineCap='round';
+          ctx.beginPath();ctx.moveTo(p.x-4,p.y+8);ctx.lineTo(p.x-6,p.y+15);ctx.moveTo(p.x+4,p.y+8);ctx.lineTo(p.x+6,p.y+15);ctx.stroke();
+          ctx.strokeStyle=shirt;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(p.x-8,p.y-1);ctx.lineTo(p.x-13,p.y+5);ctx.moveTo(p.x+8,p.y-1);ctx.lineTo(p.x+13,p.y+5);ctx.stroke();
+          ctx.fillStyle=shirt;ctx.beginPath();ctx.roundRect(p.x-9,p.y-4,18,16,4);ctx.fill();
+          ctx.fillStyle=keeper?'#ffd44f':'#fff';ctx.font='bold 9px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(label,p.x,p.y+4);
+          ctx.fillStyle=skin;ctx.beginPath();ctx.arc(p.x,p.y-10,7,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle='#202a34';ctx.beginPath();ctx.arc(p.x,p.y-13,7,Math.PI,Math.PI*2);ctx.fill();
+          ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x+2,p.y-10,1.2,0,Math.PI*2);ctx.fill();
+          if(keeper){ctx.strokeStyle='#ffd44f';ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y+1,15,Math.PI,Math.PI*2);ctx.stroke();}
         };
-        state.teammates.forEach((p,i)=>drawPlayer(p,'#f0c9a1','#2565c9',String(i+2)));
-        state.opponents.forEach((p,i)=>drawPlayer(p,'#eac19e','#d94d50',String(i+2)));
-        drawPlayer(state.player,'#f2c8a3','#174ba5','1');
-        drawPlayer(state.keeper,'#e8bf9a','#f0b323','GK');
-        ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(ball().x,ball().y,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#202a31';ctx.lineWidth=1.5;ctx.stroke();
-        ctx.fillStyle='#fff';ctx.font='bold 13px sans-serif';ctx.textAlign='left';ctx.fillText('WONDER FC',26,36);
-        ctx.textAlign='right';ctx.fillText('RIVALS',614,36);
-        if(state.ended){ctx.fillStyle='#10243acc';ctx.fillRect(90,145,460,100);ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 26px sans-serif';ctx.fillText('نهاية المباراة',320,183);ctx.font='bold 18px sans-serif';ctx.fillText(state.blue>state.red?'فوز Wonder FC! 🎉':state.blue<state.red?'فوز الفريق المنافس':'تعادل!',320,215);}
+        state.teammates.forEach((p,i)=>drawPlayer(p,'#dca77e','#f3f7ff',String(i+2)));
+        state.opponents.forEach((p,i)=>drawPlayer(p,'#dca77e','#e84e55',String(i+2)));
+        drawPlayer(state.player,'#efbd94','#2269d5','10');
+        drawPlayer(state.keeper,'#e0ae86','#f4bd2e','GK',true);
+        // Ball with a shadow and panel detail.
+        ctx.fillStyle='#0b1b1388';ctx.beginPath();ctx.ellipse(ball().x+2,ball().y+5,9,4,0,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(ball().x,ball().y,7.5,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='#17202a';ctx.lineWidth=1.4;ctx.stroke();
+        ctx.fillStyle='#17202a';ctx.beginPath();ctx.moveTo(ball().x,ball().y-3);ctx.lineTo(ball().x+3,ball().y-1);ctx.lineTo(ball().x+2,ball().y+3);ctx.lineTo(ball().x-2,ball().y+3);ctx.lineTo(ball().x-3,ball().y-1);ctx.closePath();ctx.fill();
+        ctx.fillStyle='#ffffff';ctx.font='bold 11px system-ui';ctx.textAlign='left';ctx.fillText('WONDER FC',39,20);
+        ctx.textAlign='right';ctx.fillText('RIVALS',601,20);
+        if(state.ended){ctx.fillStyle='#071526d9';ctx.fillRect(90,145,460,100);ctx.strokeStyle='#ffffff99';ctx.strokeRect(90,145,460,100);ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 26px system-ui';ctx.fillText('نهاية المباراة',320,183);ctx.font='bold 18px system-ui';ctx.fillText(state.blue>state.red?'فوز Wonder FC! 🎉':state.blue<state.red?'فوز الفريق المنافس':'تعادل!',320,215);}
       }
       function updateScore(){
         $('#wwa-blue-score',panel).textContent=String(state.blue);
