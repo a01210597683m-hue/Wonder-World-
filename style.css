@@ -912,3 +912,8 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
  .move-joystick-thumb{width:48px;height:48px;margin:-24px 0 0 -24px}
  .camera-look-hint{right:8px;bottom:max(15px,env(safe-area-inset-bottom));font-size:10px}
 }
+
+/* Character emotes: clear, thumb-friendly social actions */
+.avatar-emotes { display: flex; flex-wrap: wrap; gap: 6px; }
+.avatar-emotes button { min-height: 38px; background: linear-gradient(135deg,#8156bd,#b45c9c); }
+.avatar-emotes button:active { transform: translateY(1px) scale(.98); }
