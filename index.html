@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#172b4d">
   <title>WonderWorld — 3D Prototype</title>
-  <link rel="stylesheet" href="./style.css?v=20261022-16">
+  <link rel="stylesheet" href="./style.css?v=20261023-1">
   <link rel="stylesheet" href="./career.css?v=20261021-2">
   <script type="importmap">
     {"imports":{"playcanvas":"https://cdn.jsdelivr.net/npm/playcanvas@2.7.3/build/playcanvas.mjs"}}
@@ -14,7 +14,7 @@
 <body>
   <main id="game">
     <canvas id="application" aria-label="WonderWorld 3D game"></canvas>
-    <header class="hud"><div class="brand">WonderWorld</div><div class="hint">حرّكي بالعصا الافتراضية، واسحبي يمين الشاشة لتدوير الكاميرا</div></header>
+    <header class="hud"><div class="brand">WonderWorld</div><div class="hint">حرّكي بالعصا شمالًا، واسحبي يمين الشاشة للدوران 360° والنظر لفوق وتحت</div></header>
     <button id="references-toggle" type="button" aria-expanded="false" aria-controls="character-references">مراجع الشخصيات</button>
     <aside id="character-references" hidden aria-label="مراجع شخصيات WonderWorld">
       <div class="references-heading"><strong>مراجع الشخصيات</strong><button id="references-close" type="button" aria-label="إغلاق">✕</button></div>
@@ -95,7 +95,7 @@
     loadCharacterReferences();
   </script>
   <script type="module" src="./auth.js?v=20261022-5"></script>
-  <script type="module" src="./main.js?v=20261022-40"></script>
+  <script type="module" src="./main.js?v=20261023-1"></script>
   <script src="./careers.js?v=20261021-3" defer></script>
   <script src="./mini-games.js?v=20261022-4" defer></script>
   <script src="./wonderworld-activities.js?v=20261022-7" defer></script>
