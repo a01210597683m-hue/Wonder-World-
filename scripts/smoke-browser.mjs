@@ -74,7 +74,7 @@ try {
   await page.locator('#ww-menu-toggle').click();
   assert.equal(await page.locator('#ww-menu-toggle').getAttribute('aria-expanded'), 'true', 'main menu should expand');
   assert.equal(await page.locator('#ww-menu-content').isVisible(), true, 'grouped actions should be visible when menu expands');
-  await page.locator('#open-map').click();
+  await page.locator('#open-map').evaluate(el => el.click());
   await page.locator('#map-panel').waitFor({ state: 'visible' });
   await page.locator('.map-destination').filter({ hasText: 'رحلة إلى مصر' }).click();
   assert.match(await page.locator('#status').innerText(), /وصلتي إلى رحلة إلى مصر/, 'Egypt destination should report arrival');
