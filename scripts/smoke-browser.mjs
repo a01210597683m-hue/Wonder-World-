@@ -107,6 +107,12 @@ try {
   await page.locator('#home-build-panel').waitFor({ state: 'hidden' });
 
   // Shop and cafe should open separate furnished interiors and expose their own action.
+  // The preceding gameplay checks may leave the player indoors; explicitly return outdoors
+  // before testing neighborhood fast travel so the map's intended guard does not block it.
+  if (await page.locator('#exit-home').isVisible()) {
+    await page.locator('#exit-home').click();
+    await page.locator('#exit-home').waitFor({ state: 'hidden' });
+  }
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'متجر Wonder' }).click();
   await page.locator('#exit-home').waitFor({ state: 'visible' });
