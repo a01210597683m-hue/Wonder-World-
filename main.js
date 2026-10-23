@@ -2108,7 +2108,7 @@ document.getElementById('save-pet-name').addEventListener('click',()=>{
  petNames[activePetId]=chosen;saveProgress();renderPetPanel();document.getElementById('pet-feedback').textContent='🐾 من النهارده اسم رفيقك '+chosen+'!';
 });
 document.getElementById('open-achievements').addEventListener('click',()=>{renderAchievementPanel();document.getElementById('achievement-panel').hidden=false});
-document.getElementById('open-map').addEventListener('click',()=>{const panel=document.getElementById('map-panel');panel.hidden=false;document.getElementById('map-feedback').textContent='اختاري وجهتك من القائمة.';renderNeighborhoodMap();});
+document.addEventListener('click',event=>{const trigger=event.target instanceof Element?event.target.closest('#open-map'):null;if(!trigger)return;const panel=document.getElementById('map-panel');if(!panel)return;panel.hidden=false;document.getElementById('map-feedback').textContent='اختاري وجهتك من القائمة.';renderNeighborhoodMap();},{capture:true});
 document.getElementById('open-walks').addEventListener('click',()=>{renderWalkPanel();document.getElementById('social-walk-panel').hidden=false});
 
 let activeGathering = null;
