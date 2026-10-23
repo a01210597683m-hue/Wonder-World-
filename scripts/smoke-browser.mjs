@@ -79,6 +79,9 @@ try {
   assert.match(await page.locator('#toggle-vehicle').innerText(), /النزول من العربية/);
   await page.locator('#toggle-vehicle').click();
   assert.equal(await page.locator('#toggle-vehicle').getAttribute('aria-pressed'), 'false', 'vehicle button should return to walking mode');
+  await page.locator('#ww-menu-toggle').click();
+  assert.equal(await page.locator('#ww-menu-toggle').getAttribute('aria-expanded'), 'false', 'main menu should close before opening another navigation panel');
+  await page.locator('#ww-menu-toggle').click();
   await page.locator('#open-map').click();
   await page.locator('#map-panel').waitFor({ state: 'visible' });
   await page.locator('.map-destination').filter({ hasText: 'رحلة إلى مصر' }).click();
