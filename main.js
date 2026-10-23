@@ -1620,9 +1620,9 @@ function applyAvatarProfile() {
   player.bodyPart.setLocalScale(bodyWidth, 1.22, 0.58);
   player.leftArm.setLocalPosition(-bodyWidth / 2 - 0.13, 1.42, 0);
   player.rightArm.setLocalPosition(bodyWidth / 2 + 0.13, 1.42, 0);
-  if (player.handParts) player.handParts.forEach(part => { part.render.material = skin; });
   const skin = avatarSkinMaterials[avatarProfile.skin] || mats.skin;
   player.skinParts.forEach(part => { part.render.material = skin; });
+  if (player.handParts) player.handParts.forEach(part => { part.render.material = skin; });
   for (const [style, parts] of Object.entries(avatarHairStyles)) for (const part of parts) part.enabled = style === avatarProfile.hairStyle;
   const hairMaterial = avatarHairMaterials[avatarProfile.hairColor] || mats.hairBrown;
   player.hairParts.forEach(part => { if (part.render) part.render.material = hairMaterial; });
