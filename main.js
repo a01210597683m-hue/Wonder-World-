@@ -3402,8 +3402,8 @@ const pressed = new Set();
 let analogMoveX = 0;
 let analogMoveY = 0;
 let cameraOrbitYaw = 0;
-let cameraOrbitPitch = 27;
-const cameraOrbitDistance = 11;
+let cameraOrbitPitch = 18;
+let cameraOrbitDistance = 7.5;
 const moveJoystick = document.getElementById('move-joystick');
 const moveJoystickThumb = document.getElementById('move-joystick-thumb');
 let joystickPointerId = null;
@@ -3459,8 +3459,9 @@ canvas.addEventListener('pointermove', event => {
   const dy = event.clientY - cameraLastY;
   cameraLastX = event.clientX;
   cameraLastY = event.clientY;
-  cameraOrbitYaw -= dx * 0.006;
-  cameraOrbitPitch = Math.max(14, Math.min(52, cameraOrbitPitch + dy * 0.12));
+  cameraOrbitYaw -= dx * 0.0065;
+  // Wide vertical orbit: look above the avatar or down over the world, without flipping over.
+  cameraOrbitPitch = Math.max(-18, Math.min(72, cameraOrbitPitch + dy * 0.18));
   event.preventDefault();
 });
 function releaseCameraPointer(event) {
@@ -3469,6 +3470,11 @@ function releaseCameraPointer(event) {
 canvas.addEventListener('pointerup', releaseCameraPointer);
 canvas.addEventListener('pointercancel', releaseCameraPointer);
 canvas.addEventListener('lostpointercapture', releaseCameraPointer);
+// Desktop mouse-wheel zoom complements the full 360-degree touch orbit.
+canvas.addEventListener('wheel', event => {
+  cameraOrbitDistance = Math.max(4.2, Math.min(14, cameraOrbitDistance + Math.sign(event.deltaY) * 0.7));
+  event.preventDefault();
+}, { passive: false });
 const keyMap = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down',
   ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right'
@@ -3631,22 +3637,22 @@ app.on('update', dt => {
     playerCar.setEulerAngles(0, player.getEulerAngles().y, 0);
   }
 
-  // Third-person orbit camera: swipe on the right side to look around the world.
-  // Interior rooms retain their close, fixed framing.
-  const follow = 1 - Math.exp(-5 * dt);
-  if (indoors) {
-    cameraX += (p.x - cameraX) * follow;
-    cameraZ += (p.z + cameraOffsetZ - cameraZ) * follow;
-  } else {
-    const desiredX = p.x + Math.sin(cameraOrbitYaw) * cameraOrbitDistance;
-    const desiredZ = p.z + Math.cos(cameraOrbitYaw) * cameraOrbitDistance;
-    const desiredHeight = 1.2 + Math.tan(cameraOrbitPitch * Math.PI / 180) * cameraOrbitDistance;
-    cameraX += (desiredX - cameraX) * follow;
-    cameraZ += (desiredZ - cameraZ) * follow;
-    cameraHeight += (desiredHeight - cameraHeight) * follow;
-  }
+  // Full third-person orbit in the outdoor world AND indoors, so the avatar stays visible.
+  // Elevation changes the camera's vertical and horizontal offsets around the player.
+  const follow = 1 - Math.exp(-7 * dt);
+  const orbitDistance = indoors ? 4.2 : cameraOrbitDistance;
+  const orbitPitch = indoors ? Math.max(-8, Math.min(60, cameraOrbitPitch)) : cameraOrbitPitch;
+  const pitchRadians = orbitPitch * Math.PI / 180;
+  const horizontalOrbit = Math.cos(pitchRadians) * orbitDistance;
+  const targetY = p.y + 1.15;
+  const desiredX = p.x + Math.sin(cameraOrbitYaw) * horizontalOrbit;
+  const desiredZ = p.z + Math.cos(cameraOrbitYaw) * horizontalOrbit;
+  const desiredHeight = Math.max(0.48, targetY + Math.sin(pitchRadians) * orbitDistance);
+  cameraX += (desiredX - cameraX) * follow;
+  cameraZ += (desiredZ - cameraZ) * follow;
+  cameraHeight += (desiredHeight - cameraHeight) * follow;
   camera.setPosition(cameraX, cameraHeight, cameraZ);
-  camera.lookAt(p.x, 1, p.z);
+  camera.lookAt(p.x, targetY, p.z);
 });
 
 applyAvatarProfile();
