@@ -996,30 +996,33 @@ function exitHome() {
 const ui = document.createElement('section');
 ui.id = 'life-ui';
 ui.innerHTML = `
+  <div class="ww-hud-top"><div class="ww-brand"><span class="ww-brand-mark">W</span><span><strong>WonderWorld</strong><small>عالمك، بطريقتك</small></span></div><button id="ww-menu-toggle" type="button" aria-expanded="false" aria-controls="ww-menu-content">☰ القائمة</button></div>
   <div class="life-stats"><span>💛 السعادة: <b id="happiness">60</b></span><span>⚡ الطاقة: <b id="energy">80</b></span><span>🪙 العملات: <b id="coins">20</b></span><span>🌷 الزهور: <b id="flowers">0</b></span><span>📸 الذكريات: <b id="photo-memories">0</b></span><span>⭐ المستوى: <b id="player-level">1</b></span></div>
+  <div id="ww-menu-content" hidden>
+  <div class="ww-menu-section"><div class="ww-section-title">✨ شخصيتي</div>
+    <div class="avatar-tools"><button id="change-outfit" type="button">👕 تغيير الملابس</button><button id="change-hair" type="button">💇 تغيير لون الشعر</button></div>
+    <div class="avatar-tools avatar-emotes" aria-label="حركات الشخصية"><button id="avatar-wave" type="button">👋 تلويح باليد</button><button id="avatar-greet" type="button">🙋 تحية</button><button id="avatar-dance" type="button">💃 رقص</button></div>
+    <button id="open-avatar-creator" type="button">✨ استوديو تصميم الشخصية</button>
+  </div>
+  <div class="ww-menu-section"><div class="ww-section-title">🌍 العالم والاستكشاف</div>
+    <button id="open-map" type="button">🗺️ خريطة الحي والتنقّل</button><button id="open-wonder-guide" type="button">🧭 دليل Wonder</button><button id="open-walks" type="button">🚶 تمشية مع صديق</button><button id="open-gathering" type="button">🎉 تجمعات العيلة والأصحاب</button>
+  </div>
+  <div class="ww-menu-section"><div class="ww-section-title">🏡 البيت والحياة اليومية</div>
+    <button id="open-home-build" type="button">🏡 تخصيص البيت والحديقة</button><button id="quick-work" type="button">💼 شغل سريع</button><button id="quick-rest" type="button">🛋️ استراحة</button><button id="quick-cafe" type="button">☕ طلب كافيه</button><button id="quick-gym" type="button">🏋️ تمرين</button><button id="quick-garden" type="button">🌷 جمع زهور</button><button id="quick-photo" type="button">📸 تصوير ذكرى</button><button id="quick-weather" type="button">🌤️ تغيير الطقس</button><button id="toggle-vehicle" type="button" aria-pressed="false">🚗 ركوب العربية</button><span id="vehicle-hint" role="status">قيادة تجريبية داخل الحي، والتحكم بنفس أزرار الحركة.</span>
+  </div>
+  <div class="ww-menu-section"><div class="ww-section-title">🎮 الألعاب والأنشطة</div>
+    <button id="open-football" type="button">⚽ كرة القدم — تحدّي التسديد</button><button id="open-puzzle" type="button">🧩 ألغاز سريعة</button><button id="open-blockblast" type="button">🟦 Block Blast</button><button id="open-watersort" type="button">🧪 Water Sort</button><button id="open-memory-match" type="button">🃏 لعبة ذاكرة الصور</button>
+  </div>
+  <div class="ww-menu-section"><div class="ww-section-title">🎒 مجموعتي وتقدمي</div>
+    <button id="open-shop" type="button">🛍️ متجر Wonder</button><button id="open-pets" type="button">🐾 حيواناتي الأليفة</button><button id="open-achievements" type="button">🏅 إنجازاتي وتقدمي</button><button id="open-journal" type="button">📔 سجل مغامراتي</button>
+  </div>
   <div id="xp-panel" aria-label="تقدم الخبرة"><div class="xp-label"><span>خبرة اللاعب</span><span id="xp-count">0 / 100 XP</span></div><div id="xp-track" role="progressbar" aria-label="التقدم للمستوى التالي" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="xp-fill"></span></div></div>
   <p id="game-cloud-status" role="status">💾 التقدم محفوظ على هذا الجهاز. سجّلي الدخول لتفعيل النسخة السحابية.</p>
-  <div class="avatar-tools"><button id="change-outfit" type="button">👕 تغيير الملابس</button><button id="change-hair" type="button">💇 تغيير لون الشعر</button></div>
-  <div class="avatar-tools avatar-emotes" aria-label="حركات الشخصية"><button id="avatar-wave" type="button">👋 تلويح باليد</button><button id="avatar-greet" type="button">🙋 تحية</button><button id="avatar-dance" type="button">💃 رقص</button></div>
-  <button id="open-avatar-creator" type="button">✨ تصميم شخصيتي (العمر والشكل)</button>
-  <button id="open-shop" type="button">🛍️ افتحي متجر Wonder</button>
-  <button id="open-pets" type="button">🐾 حيواناتي الأليفة</button>
-  <button id="open-achievements" type="button">🏅 إنجازاتي وتقدمي</button>
-  <button id="open-map" type="button">🗺️ خريطة الحي والتنقّل</button>
-  <button id="open-home-build" type="button">🏡 تخصيص البيت والحديقة</button>
-  <button id="open-walks" type="button">🚶 تمشية مع صديق</button>
-  <button id="open-gathering" type="button">🎉 تجمعات العيلة والأصحاب</button>
-  <button id="open-wonder-guide" type="button">🤖 مساعد Wonder الإرشادي</button>
-  <button id="open-football" type="button">⚽ كرة القدم — تحدّي التسديد</button>
-  <button id="open-journal" type="button">📔 سجل مغامراتي</button>
-  <div class="avatar-tools"><button id="open-puzzle" type="button">🧩 ألغاز سريعة</button></div>
-  <div class="avatar-tools"><button id="open-blockblast" type="button">🟦 Block Blast</button></div>
-  <div class="avatar-tools"><button id="open-watersort" type="button">🧪 Water Sort</button></div>
-  <div class="avatar-tools"><button id="open-memory-match" type="button">🃏 لعبة ذاكرة الصور</button></div>
-  <div class="avatar-tools"><button id="quick-work" type="button">💼 شغل سريع</button><button id="quick-rest" type="button">🛋️ استراحة</button><button id="quick-cafe" type="button">☕ طلب كافيه</button></div>
-  <div class="avatar-tools"><button id="quick-gym" type="button">🏋️ تمرين</button><button id="quick-garden" type="button">🌷 جمع زهور</button></div>
-  <div class="avatar-tools"><button id="quick-photo" type="button">📸 تصوير ذكرى</button><button id="quick-weather" type="button">🌤️ تغيير الطقس</button></div>
-  <div class="avatar-tools"><button id="toggle-vehicle" type="button" aria-pressed="false">🚗 ركوب العربية</button><span id="vehicle-hint" role="status">قيادة تجريبية داخل الحي، والتحكم بنفس أزرار الحركة.</span></div>
+  <div id="world-clock" role="status">🕒 نهار هادئ</div>
+  <button id="interact" type="button">تفاعل / استكشاف</button>
+  <button id="exit-home" type="button" hidden>🚪 الخروج للحي</button>
+  <button id="indoor-place-action" type="button" hidden>تنفيذ نشاط المكان</button>
+  </div>
   <div id="world-clock" role="status">🕒 نهار هادئ</div>
   <button id="interact" type="button">تفاعل / استكشاف</button>
   <button id="exit-home" type="button" hidden>🚪 الخروج للحي</button>\n  <button id="indoor-place-action" type="button" hidden>تنفيذ نشاط المكان</button>
@@ -1140,6 +1143,15 @@ ui.innerHTML = `
   <div id="life-goal">مهمتك: تعرّفي على شخص، ثم زوري المتجر والحديقة.</div>
 `;
 document.getElementById('game').appendChild(ui);
+  const wwMenuToggle = document.getElementById('ww-menu-toggle');
+  const wwMenuContent = document.getElementById('ww-menu-content');
+  wwMenuToggle.addEventListener('click', () => {
+    const expanded = wwMenuToggle.getAttribute('aria-expanded') === 'true';
+    wwMenuToggle.setAttribute('aria-expanded', String(!expanded));
+    wwMenuContent.hidden = expanded;
+    ui.classList.toggle('ww-menu-collapsed', expanded);
+  });
+
 document.getElementById('open-wonder-guide').addEventListener('click', () => { document.getElementById('wonder-guide-panel').hidden = false; });
 document.getElementById('close-wonder-guide').addEventListener('click', () => { document.getElementById('wonder-guide-panel').hidden = true; });
 const wonderGuideTopics = [
