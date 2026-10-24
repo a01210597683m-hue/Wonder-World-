@@ -7,12 +7,14 @@ const canvas = document.getElementById('application');
 const status = document.getElementById('status');
 // Diagnostic guard: surface runtime failures on the game screen instead of leaving the loading label stuck.
 window.addEventListener('error', event => {
-  console.error('WonderWorld runtime error:', event.error || event.message);
-  if (status) status.textContent = '⚠️ خطأ داخل اللعبة: ' + String(event.message || 'تعذّر تشغيل أحد أجزاء اللعبة').slice(0, 180);
+  const detail = event.error?.stack || (String(event.message || 'خطأ غير معروف') + ' — ' + String(event.filename || '') + ':' + String(event.lineno || 0) + ':' + String(event.colno || 0));
+  console.error('WonderWorld runtime error:', detail, event.error || event.message);
+  if (status) status.textContent = '⚠️ خطأ: ' + String(event.message || event.error?.message || 'تعذّر تشغيل جزء من اللعبة') + ' | ' + String(event.filename || '').split('/').pop() + ':' + String(event.lineno || 0) + ':' + String(event.colno || 0);
 });
 window.addEventListener('unhandledrejection', event => {
-  console.error('WonderWorld async error:', event.reason);
-  if (status) status.textContent = '⚠️ تعذّر تحميل جزء من اللعبة: ' + String(event.reason?.message || event.reason || 'خطأ غير معروف').slice(0, 160);
+  const detail = event.reason?.stack || event.reason?.message || event.reason || 'خطأ غير معروف';
+  console.error('WonderWorld async error:', detail);
+  if (status) status.textContent = '⚠️ خطأ تحميل: ' + String(event.reason?.message || event.reason || 'خطأ غير معروف').slice(0, 180);
 });
 const app = new Application(canvas, {
   graphicsDeviceOptions: { antialias: true, alpha: false }
