@@ -5,6 +5,15 @@ import {
 
 const canvas = document.getElementById('application');
 const status = document.getElementById('status');
+// Diagnostic guard: surface runtime failures on the game screen instead of leaving the loading label stuck.
+window.addEventListener('error', event => {
+  console.error('WonderWorld runtime error:', event.error || event.message);
+  if (status) status.textContent = '⚠️ خطأ داخل اللعبة: ' + String(event.message || 'تعذّر تشغيل أحد أجزاء اللعبة').slice(0, 180);
+});
+window.addEventListener('unhandledrejection', event => {
+  console.error('WonderWorld async error:', event.reason);
+  if (status) status.textContent = '⚠️ تعذّر تحميل جزء من اللعبة: ' + String(event.reason?.message || event.reason || 'خطأ غير معروف').slice(0, 160);
+});
 const app = new Application(canvas, {
   graphicsDeviceOptions: { antialias: true, alpha: false }
 });
