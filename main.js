@@ -3771,4 +3771,4 @@ updateStats();
 
 
 // Load the standalone Ludo/chess activities after the game HUD is created.
-import('./board-games.js?v=20261021-3').catch(error => console.error('WonderWorld board games failed to load:', error));
+import('./board-games.js?v=20261026-ludo-fix1').catch(error => { console.error('WonderWorld board games failed to load:', error); if (status) status.textContent = '⚠️ تعذّر تحميل ألعاب الطاولة؛ حدّثي الصفحة وحاولي مرة أخرى.'; });
