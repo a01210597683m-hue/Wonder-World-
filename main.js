@@ -1151,6 +1151,7 @@ ui.innerHTML = `
   <div id="life-goal">مهمتك: تعرّفي على شخص، ثم زوري المتجر والحديقة.</div>
 `;
 document.getElementById('game').appendChild(ui);
+const message = document.getElementById('life-message');
   const wwMenuToggle = document.getElementById('ww-menu-toggle');
   const wwMenuContent = document.getElementById('ww-menu-content');
   ui.classList.add('ww-menu-collapsed');
@@ -1567,7 +1568,6 @@ document.getElementById('change-hair').addEventListener('click', openShop);
 document.getElementById('close-dialogue').addEventListener('click', () => {
   document.getElementById('dialogue-panel').hidden = true;
 });
-const message = document.getElementById('life-message');
 let happiness = 60;
 let energy = 80;
 let coins = 20;
