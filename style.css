@@ -824,6 +824,14 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 @media(max-width:480px){.avatar-creator-grid{grid-template-columns:1fr}.avatar-creator-grid label{padding:10px}}
 
 
+/* Home builder is a modal inside #life-ui. Keep its own color controls visible
+   even when the compact HUD hides the regular avatar-tools in collapsed mode. */
+#life-ui.actions-collapsed #home-build-panel .avatar-tools {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+}
+
 /* Clear, touch-friendly state for the home-design controls. */
 #home-build-panel .avatar-tools button[data-home-wall],
 #home-build-panel .avatar-tools button[data-home-roof] {
