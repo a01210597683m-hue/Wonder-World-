@@ -3514,9 +3514,18 @@ document.addEventListener('pointermove', event => {
 function releaseCameraPointer(event) {
   if (event.pointerId === cameraPointerId) cameraPointerId = null;
 }
+function clearCameraPointer() {
+  cameraPointerId = null;
+}
 document.addEventListener('pointerup', releaseCameraPointer, true);
 document.addEventListener('pointercancel', releaseCameraPointer, true);
 canvas.addEventListener('lostpointercapture', releaseCameraPointer);
+// Never leave the camera in a dragging state if Android interrupts a touch,
+// the browser switches tabs, or the app loses focus.
+window.addEventListener('blur', clearCameraPointer);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) clearCameraPointer();
+});
 // Desktop mouse-wheel zoom complements the full 360-degree touch orbit.
 canvas.addEventListener('wheel', event => {
   cameraOrbitDistance = Math.max(4.2, Math.min(14, cameraOrbitDistance + Math.sign(event.deltaY) * 0.7));
