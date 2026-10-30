@@ -3490,6 +3490,16 @@ if (moveJoystick) {
     });
   }
 }
+// A document-level fallback guarantees that interrupted touch sequences cannot leave movement held.
+function releaseJoystickPointer(event) {
+  if (event.pointerId === joystickPointerId) releaseJoystick();
+}
+document.addEventListener('pointerup', releaseJoystickPointer, true);
+document.addEventListener('pointercancel', releaseJoystickPointer, true);
+window.addEventListener('blur', releaseJoystick);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) releaseJoystick();
+});
 canvas.style.touchAction = 'none';
 // Listen on the document in capture phase: HUD panels can cover the canvas on phones.
 document.addEventListener('pointerdown', event => {
