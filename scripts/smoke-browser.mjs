@@ -50,7 +50,11 @@ try {
   });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
   const pageErrors = [];
-  page.on('pageerror', error => pageErrors.push(error.message));
+  const consoleErrors = [];
+  const failedRequests = [];
+  page.on('pageerror', error => pageErrors.push(error.stack || error.message));
+  page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
+  page.on('requestfailed', request => failedRequests.push(request.url() + ' :: ' + (request.failure()?.errorText || 'request failed')));
 
   await page.goto('http://127.0.0.1:4173/', { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.locator('#application').waitFor({ state: 'visible', timeout: 15000 });
@@ -91,7 +95,18 @@ try {
   assert.ok(Math.abs((joystickThumbAfterRelease.y + joystickThumbAfterRelease.height / 2) - (joystickAfterRelease.y + joystickAfterRelease.height / 2)) < 3, 'joystick thumb should visually recenter vertically after release');
 
   // Mobile camera dock: zoom, recenter, and right-side canvas orbit must all work independently.
-  await page.waitForFunction(() => Number.isFinite(Number(document.querySelector('#application')?.dataset.cameraDistance)), { timeout: 10000 });
+  try {
+    await page.waitForFunction(() => Number.isFinite(Number(document.querySelector('#application')?.dataset.cameraDistance)), { timeout: 15000 });
+  } catch (error) {
+    const diagnostics = await page.locator('#application').evaluate(el => ({
+      engineReady: el.dataset.engineReady || 'false',
+      engineFrames: el.dataset.engineFrames || '0',
+      cameraDistance: el.dataset.cameraDistance || 'missing'
+    })).catch(() => ({}));
+    throw new Error('Camera update did not become ready. Diagnostics: ' + JSON.stringify({
+      ...diagnostics, pageErrors, consoleErrors: consoleErrors.slice(-12), failedRequests: failedRequests.slice(-12)
+    }) + '\\nOriginal: ' + error.message);
+  }
   assert.equal(await page.locator('#camera-controls button').count(), 3, 'camera dock should expose zoom in, recenter, and zoom out');
   const cameraDistanceBefore = Number(await canvas.getAttribute('data-camera-distance'));
   await page.locator('#camera-zoom-in').click();
