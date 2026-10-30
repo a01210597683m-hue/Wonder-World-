@@ -85,6 +85,24 @@ try {
   assert.notEqual(await page.locator('#move-joystick-thumb').evaluate(el => el.style.transform), 'translate(0px,0px)', 'joystick thumb should respond while dragging');
   await page.mouse.up();
   assert.equal(await page.locator('#move-joystick-thumb').evaluate(el => el.style.transform), 'translate(0,0)', 'joystick should recenter after release');
+
+  // Ludo must visibly move a home piece onto the track after a six, then advance it on a later roll.
+  await page.locator('#board-games-launch').waitFor({ state: 'visible', timeout: 10000 });
+  await page.locator('#board-games-launch').click();
+  await page.locator('#bg-open-ludo').click();
+  await page.evaluate(() => { window.__wwOriginalRandom = Math.random; Math.random = () => 0.999; });
+  await page.locator('#ludo-roll').click();
+  await page.locator('#ludo-status').waitFor({ state: 'visible' });
+  assert.match(await page.locator('#ludo-status').innerText(), /طلع 6/, 'Ludo should report a six before leaving home');
+  await page.locator('#ludo-board [data-ludo-home][aria-label="حمراء 1"]').click();
+  assert.equal(await page.locator('#ludo-board button[aria-label="حمراء 1"]').count(), 1, 'red piece should appear on the track after leaving home');
+  assert.equal(await page.locator('#ludo-board [data-ludo-home][aria-label="حمراء 1"]').count(), 0, 'moved red piece should no longer remain in its home slot');
+  await page.evaluate(() => { Math.random = () => 0; });
+  await page.locator('#ludo-roll').click();
+  await page.locator('#ludo-board button[aria-label="حمراء 1"]').click();
+  assert.match(await page.locator('#ludo-status').innerText(), /حركتِ القطعة/, 'Ludo should advance an already launched piece');
+  await page.evaluate(() => { if (window.__wwOriginalRandom) Math.random = window.__wwOriginalRandom; });
+  await page.locator('#bg-close').click();
   await page.locator('#ww-menu-toggle').click();
   assert.equal(await page.locator('#ww-menu-toggle').getAttribute('aria-expanded'), 'true', 'main menu should expand');
   assert.equal(await page.locator('#ww-menu-content').isVisible(), true, 'grouped actions should be visible when menu expands');
