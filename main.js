@@ -3527,6 +3527,7 @@ document.addEventListener('pointermove', event => {
   cameraOrbitYaw -= dx * 0.0065;
   // Wide vertical orbit: look above the avatar or down over the world, without flipping over.
   cameraOrbitPitch = Math.max(-18, Math.min(72, cameraOrbitPitch + dy * 0.18));
+  publishCameraState();
 }, { capture: true, passive: true });
 function releaseCameraPointer(event) {
   if (event.pointerId === cameraPointerId) cameraPointerId = null;
