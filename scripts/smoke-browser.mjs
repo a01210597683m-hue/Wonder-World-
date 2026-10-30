@@ -109,11 +109,43 @@ try {
   }
   assert.equal(await page.locator('#camera-controls button').count(), 3, 'camera dock should expose zoom in, recenter, and zoom out');
   const cameraDistanceBefore = Number(await canvas.getAttribute('data-camera-distance'));
-  await page.locator('#camera-zoom-in').click();
-  await page.waitForFunction(before => {
-    const value = Number(document.querySelector('#application')?.dataset.cameraDistance);
-    return Number.isFinite(value) && value < before - 0.2;
-  }, cameraDistanceBefore, { timeout: 3000 });
+  const zoomInButton = page.locator('#camera-zoom-in');
+  await zoomInButton.click();
+  try {
+    await page.waitForFunction(before => {
+      const value = Number(document.querySelector('#application')?.dataset.cameraDistance);
+      return Number.isFinite(value) && value < before - 0.2;
+    }, cameraDistanceBefore, { timeout: 3000 });
+  } catch (error) {
+    const zoomDiagnostics = await page.evaluate(() => {
+      const canvas = document.querySelector('#application');
+      const button = document.querySelector('#camera-zoom-in');
+      const rect = button?.getBoundingClientRect();
+      const hit = rect ? document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2) : null;
+      const style = button ? getComputedStyle(button) : null;
+      return {
+        cameraDistance: canvas?.dataset.cameraDistance ?? 'missing',
+        cameraYaw: canvas?.dataset.cameraYaw ?? 'missing',
+        engineReady: canvas?.dataset.engineReady ?? 'false',
+        engineFrames: canvas?.dataset.engineFrames ?? '0',
+        buttonExists: Boolean(button),
+        buttonDisabled: button?.disabled ?? null,
+        buttonRect: rect ? { x: rect.x, y: rect.y, width: rect.width, height: rect.height } : null,
+        buttonPointerEvents: style?.pointerEvents ?? null,
+        buttonZIndex: style?.zIndex ?? null,
+        hitTarget: hit ? { id: hit.id, tag: hit.tagName, className: String(hit.className || '') } : null
+      };
+    });
+    throw new Error('Zoom-in diagnostic failure: ' + JSON.stringify({
+      before: cameraDistanceBefore,
+      after: await canvas.getAttribute('data-camera-distance'),
+      ...zoomDiagnostics,
+      pageErrors: pageErrors.slice(-8),
+      consoleErrors: consoleErrors.slice(-8),
+      failedRequests: failedRequests.slice(-8),
+      original: error.message
+    }));
+  }
   const cameraDistanceAfterZoomIn = Number(await canvas.getAttribute('data-camera-distance'));
   assert.ok(cameraDistanceAfterZoomIn < cameraDistanceBefore, 'camera zoom-in button should move the camera closer');
   await page.locator('#camera-zoom-out').click();
