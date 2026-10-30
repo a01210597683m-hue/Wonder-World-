@@ -14,6 +14,7 @@ const welcomeMigration = read('../supabase/migrations/202610210010_wallet_welcom
 const careerRewardMigration = read('../supabase/migrations/202610210011_secure_career_shift_rewards.sql');
 const css = read('../style.css');
 const careerCss = read('../career.css');
+const workflow = read('../.github/workflows/deploy-pages.yml');
 
 const checks = [
   ['Backyard pool interaction has proximity and cooldown checks', /name: 'مسبح بيت البداية 🏊'/.test(game) && /lastSwimAt/.test(game) && /poolDistance < poolTarget.radius/.test(game)],
@@ -40,6 +41,7 @@ const checks = [
   ['Signed-in career shifts request the server-authoritative wallet reward', /rpc\('ww_claim_career_shift'/.test(careers) && /wonderworld:cloud-wallet-updated/.test(careers)],
   ['Economy RPCs require authenticated users and restrict anonymous execution', economyMigration.includes('auth.uid()') && economyMigration.includes('revoke all on function public.ww_purchase_game_item(text) from public,anon') && economyMigration.includes('grant execute on function public.ww_purchase_game_item(text) to authenticated')],
   ['Mobile viewport allows user zoom', /viewport-fit=cover/.test(html) && !/user-scalable=no|max(?:imum)?-scale=1/i.test(html)],
+  ['Browser gameplay smoke tests are required and cannot silently pass on failure', /name: Run browser gameplay smoke tests\s+run: node scripts\/smoke-browser\.mjs/.test(workflow) && !/name: Run browser gameplay smoke tests[\s\S]{0,180}continue-on-error:\s*true/.test(workflow)],
 
   ['Ludo and chess activities are dynamically wired', /import\(['"]\.\/board-games\.js\?v=/.test(game)],
   ['Casual arcade module is loaded by the page', /mini-games\.js\?v=/.test(html) && /function boot\(\)/.test(miniGames)],
