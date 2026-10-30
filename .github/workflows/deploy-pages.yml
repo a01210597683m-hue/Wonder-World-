@@ -50,9 +50,6 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run browser gameplay smoke tests
         run: node scripts/smoke-browser.mjs
-        # Keep the Pages deployment available while the known shop-interior smoke test is investigated.
-        # The step remains visibly failed in the workflow; it is not treated as a passing test.
-        continue-on-error: true
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
         with:
