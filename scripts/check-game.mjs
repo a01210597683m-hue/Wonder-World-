@@ -80,6 +80,7 @@ const checks = [
   ['Career system is loaded', /careers\.js\?v=/.test(html)],
   ['Mobile touch controls exist', /data-dir="up"/.test(html) && /data-dir="left"/.test(html)],
   ['Mobile virtual joystick and camera-relative third-person orbit controls are wired', /id="move-joystick"/.test(html) && /moveJoystick\.addEventListener\('pointerdown'/.test(game) && /cameraOrbitYaw/.test(game) && /inputRight \* cameraCos/.test(game) && /camera-look-hint/.test(css)],
+  ['Mobile joystick captures its pointer and always recenters on release, cancel or lost capture', /moveJoystick\.setPointerCapture\?\.\(event\.pointerId\)/.test(game) && /\['pointerup','pointercancel','lostpointercapture'\]/.test(game) && /function releaseJoystick\(\)/.test(game) && /analogMoveX = 0/.test(game) && /analogMoveY = 0/.test(game)],
   ['Camera drag starts only on the 3D canvas and releases cleanly without hijacking HUD gestures', /if \(event\.target !== canvas\) return;/.test(game) && /document\.addEventListener\('pointermove'/.test(game) && /document\.addEventListener\('pointerup', releaseCameraPointer/.test(game) && /document\.addEventListener\('pointercancel', releaseCameraPointer/.test(game)],
   ['Camera drag state is cleared when the browser loses focus or the tab becomes hidden', /window\.addEventListener\('blur', clearCameraPointer\)/.test(game) && /document\.addEventListener\('visibilitychange',[\s\S]*?document\.hidden[\s\S]*?clearCameraPointer\(\)/.test(game)],
   ['World interaction control exists', /id="interact"/.test(game)],
