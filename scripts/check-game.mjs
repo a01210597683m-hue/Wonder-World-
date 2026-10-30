@@ -80,6 +80,7 @@ const checks = [
   ['Career system is loaded', /careers\.js\?v=/.test(html)],
   ['Mobile touch controls exist', /data-dir="up"/.test(html) && /data-dir="left"/.test(html)],
   ['Mobile virtual joystick and camera-relative third-person orbit controls are wired', /id="move-joystick"/.test(html) && /moveJoystick\.addEventListener\('pointerdown'/.test(game) && /cameraOrbitYaw/.test(game) && /inputRight \* cameraCos/.test(game) && /camera-look-hint/.test(css)],
+  ['Camera drag starts only on the 3D canvas and releases cleanly without hijacking HUD gestures', /if \(event\.target !== canvas\) return;/.test(game) && /document\.addEventListener\('pointermove'/.test(game) && /document\.addEventListener\('pointerup', releaseCameraPointer/.test(game) && /document\.addEventListener\('pointercancel', releaseCameraPointer/.test(game)],
   ['World interaction control exists', /id="interact"/.test(game)],
   ['Neighborhood destinations include enterable furnished shop and cafe interiors with clickable context actions', /const shopInteriorRoot = new Entity\('Wonder Shop Interior'\)/.test(game) && /const cafeInteriorRoot = new Entity\('Wonder Cafe Interior'\)/.test(game) && /activeIndoorAction\.run\(\)/.test(game) && /متجر Wonder', shopInteriorRoot/.test(game) && /كافيه Wonder', cafeInteriorRoot/.test(game) && /#exit-home, #indoor-place-action\s*\{\s*pointer-events: auto/.test(css)],
   ['Neighborhood destinations exist', /const places = \[/.test(game)],
