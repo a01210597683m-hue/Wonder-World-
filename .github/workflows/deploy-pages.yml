@@ -31,8 +31,11 @@ jobs:
           node --check careers.js
           node --check board-games.js
           node --check mini-games.js
+          node --check wonder-challenges.js
+          node --check wonder-memory.js
           node --check scripts/check-game.mjs
           node --check scripts/check-assets.mjs
+          node --check scripts/smoke-browser.mjs
       - name: Check activity module JavaScript syntax
         run: node --check wonderworld-activities.js
       - name: Check Space Shooter JavaScript syntax
