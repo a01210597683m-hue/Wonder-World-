@@ -110,9 +110,17 @@ try {
   assert.equal(await page.locator('#camera-controls button').count(), 3, 'camera dock should expose zoom in, recenter, and zoom out');
   const cameraDistanceBefore = Number(await canvas.getAttribute('data-camera-distance'));
   await page.locator('#camera-zoom-in').click();
+  await page.waitForFunction(before => {
+    const value = Number(document.querySelector('#application')?.dataset.cameraDistance);
+    return Number.isFinite(value) && value < before - 0.2;
+  }, cameraDistanceBefore, { timeout: 3000 });
   const cameraDistanceAfterZoomIn = Number(await canvas.getAttribute('data-camera-distance'));
   assert.ok(cameraDistanceAfterZoomIn < cameraDistanceBefore, 'camera zoom-in button should move the camera closer');
   await page.locator('#camera-zoom-out').click();
+  await page.waitForFunction(afterZoomIn => {
+    const value = Number(document.querySelector('#application')?.dataset.cameraDistance);
+    return Number.isFinite(value) && value > afterZoomIn + 0.2;
+  }, cameraDistanceAfterZoomIn, { timeout: 3000 });
   const cameraDistanceAfterZoomOut = Number(await canvas.getAttribute('data-camera-distance'));
   assert.ok(cameraDistanceAfterZoomOut > cameraDistanceAfterZoomIn, 'camera zoom-out button should move the camera farther away');
   await page.locator('#camera-reset').click();
@@ -125,6 +133,10 @@ try {
   await page.mouse.down();
   await page.mouse.move(cameraStartX + 42, cameraStartY + 16, { steps: 4 });
   await page.mouse.up();
+  await page.waitForFunction(before => {
+    const value = Number(document.querySelector('#application')?.dataset.cameraYaw);
+    return Number.isFinite(value) && Math.abs(value - before) > 0.01;
+  }, yawBeforeDrag, { timeout: 3000 });
   const yawAfterDrag = Number(await canvas.getAttribute('data-camera-yaw'));
   assert.notEqual(yawAfterDrag, yawBeforeDrag, 'right-side canvas drag should rotate the camera');
   await page.locator('#camera-reset').click();
