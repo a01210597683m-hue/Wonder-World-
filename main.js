@@ -3566,7 +3566,11 @@ function setCameraDistance(nextDistance) {
   cameraOrbitDistance = Math.max(3.2, Math.min(14, nextDistance));
   publishCameraState();
 }
-cameraZoomIn?.addEventListener('click', () => setCameraDistance(cameraOrbitDistance - 0.9));
+cameraZoomIn?.addEventListener('click', () => {
+  canvas.dataset.cameraZoomInClicks = String((Number(canvas.dataset.cameraZoomInClicks) || 0) + 1);
+  canvas.dataset.cameraZoomDistanceBefore = cameraOrbitDistance.toFixed(1);
+  setCameraDistance(cameraOrbitDistance - 0.9);
+});
 cameraZoomOut?.addEventListener('click', () => setCameraDistance(cameraOrbitDistance + 0.9));
 cameraReset?.addEventListener('click', () => {
   cameraOrbitYaw = 0;
