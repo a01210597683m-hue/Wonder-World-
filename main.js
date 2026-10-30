@@ -3528,9 +3528,24 @@ document.addEventListener('visibilitychange', () => {
 });
 // Desktop mouse-wheel zoom complements the full 360-degree touch orbit.
 canvas.addEventListener('wheel', event => {
-  cameraOrbitDistance = Math.max(4.2, Math.min(14, cameraOrbitDistance + Math.sign(event.deltaY) * 0.7));
+  cameraOrbitDistance = Math.max(3.2, Math.min(14, cameraOrbitDistance + Math.sign(event.deltaY) * 0.7));
   event.preventDefault();
 }, { passive: false });
+
+// Dedicated touch-friendly camera controls; these are separate from the movement joystick.
+const cameraZoomIn = document.getElementById('camera-zoom-in');
+const cameraZoomOut = document.getElementById('camera-zoom-out');
+const cameraReset = document.getElementById('camera-reset');
+function setCameraDistance(nextDistance) {
+  cameraOrbitDistance = Math.max(3.2, Math.min(14, nextDistance));
+}
+cameraZoomIn?.addEventListener('click', () => setCameraDistance(cameraOrbitDistance - 0.9));
+cameraZoomOut?.addEventListener('click', () => setCameraDistance(cameraOrbitDistance + 0.9));
+cameraReset?.addEventListener('click', () => {
+  cameraOrbitYaw = 0;
+  cameraOrbitPitch = 18;
+  setCameraDistance(indoors ? 4.2 : 7.5);
+});
 const keyMap = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down',
   ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right'
@@ -3729,8 +3744,12 @@ app.on('update', dt => {
   // Full third-person orbit in the outdoor world AND indoors, so the avatar stays visible.
   // Elevation changes the camera's vertical and horizontal offsets around the player.
   const follow = 1 - Math.exp(-7 * dt);
-  const orbitDistance = indoors ? 4.2 : cameraOrbitDistance;
+  // Indoor camera remains close enough for room navigation but can now zoom in/out.
+  const orbitDistance = indoors ? Math.max(3.2, Math.min(7.5, cameraOrbitDistance)) : cameraOrbitDistance;
   const orbitPitch = indoors ? Math.max(-8, Math.min(60, cameraOrbitPitch)) : cameraOrbitPitch;
+  canvas.dataset.cameraDistance = orbitDistance.toFixed(1);
+  canvas.dataset.cameraYaw = cameraOrbitYaw.toFixed(3);
+  canvas.dataset.cameraPitch = orbitPitch.toFixed(1);
   const pitchRadians = orbitPitch * Math.PI / 180;
   const horizontalOrbit = Math.cos(pitchRadians) * orbitDistance;
   const targetY = p.y + 1.15;
