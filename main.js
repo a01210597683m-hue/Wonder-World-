@@ -22,6 +22,13 @@ const app = new Application(canvas, {
 app.setCanvasFillMode(FILLMODE_FILL_WINDOW);
 app.setCanvasResolution(RESOLUTION_AUTO);
 app.start();
+// Publish a lightweight engine heartbeat before gameplay systems run. This distinguishes
+// a stopped PlayCanvas frame loop from an exception later in the gameplay update handler.
+app.on('update', () => {
+  if (!canvas) return;
+  canvas.dataset.engineReady = 'true';
+  canvas.dataset.engineFrames = String((Number(canvas.dataset.engineFrames) || 0) + 1);
+});
 app.scene.ambientLight = new Color(0.72, 0.75, 0.82);
 
 function mat(color) {
