@@ -2,7 +2,7 @@ name: Deploy WonderWorld to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'rebuild/**']
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -59,7 +59,7 @@ jobs:
         with:
           path: .
   deploy:
-    if: github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
