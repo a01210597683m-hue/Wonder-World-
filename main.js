@@ -3545,7 +3545,7 @@ document.addEventListener('visibilitychange', () => {
 });
 // Desktop mouse-wheel zoom complements the full 360-degree touch orbit.
 canvas.addEventListener('wheel', event => {
-  cameraOrbitDistance = Math.max(3.2, Math.min(14, cameraOrbitDistance + Math.sign(event.deltaY) * 0.7));
+  setCameraDistance(cameraOrbitDistance + Math.sign(event.deltaY) * 0.7);
   event.preventDefault();
 }, { passive: false });
 
@@ -3553,8 +3553,17 @@ canvas.addEventListener('wheel', event => {
 const cameraZoomIn = document.getElementById('camera-zoom-in');
 const cameraZoomOut = document.getElementById('camera-zoom-out');
 const cameraReset = document.getElementById('camera-reset');
+function publishCameraState() {
+  if (!canvas) return;
+  const visibleDistance = indoors ? Math.max(3.2, Math.min(7.5, cameraOrbitDistance)) : cameraOrbitDistance;
+  const visiblePitch = indoors ? Math.max(-8, Math.min(60, cameraOrbitPitch)) : cameraOrbitPitch;
+  canvas.dataset.cameraDistance = visibleDistance.toFixed(1);
+  canvas.dataset.cameraYaw = cameraOrbitYaw.toFixed(3);
+  canvas.dataset.cameraPitch = visiblePitch.toFixed(1);
+}
 function setCameraDistance(nextDistance) {
   cameraOrbitDistance = Math.max(3.2, Math.min(14, nextDistance));
+  publishCameraState();
 }
 cameraZoomIn?.addEventListener('click', () => setCameraDistance(cameraOrbitDistance - 0.9));
 cameraZoomOut?.addEventListener('click', () => setCameraDistance(cameraOrbitDistance + 0.9));
@@ -3562,6 +3571,7 @@ cameraReset?.addEventListener('click', () => {
   cameraOrbitYaw = 0;
   cameraOrbitPitch = 18;
   setCameraDistance(indoors ? 4.2 : 7.5);
+  publishCameraState();
 });
 const keyMap = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down',
