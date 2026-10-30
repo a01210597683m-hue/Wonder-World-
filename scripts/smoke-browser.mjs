@@ -84,7 +84,11 @@ try {
   await page.mouse.move(joystickCenterX + 30, joystickCenterY - 18, { steps: 3 });
   assert.notEqual(await page.locator('#move-joystick-thumb').evaluate(el => el.style.transform), 'translate(0px,0px)', 'joystick thumb should respond while dragging');
   await page.mouse.up();
-  assert.equal(await page.locator('#move-joystick-thumb').evaluate(el => el.style.transform), 'translate(0,0)', 'joystick should recenter after release');
+  const joystickThumbAfterRelease = await page.locator('#move-joystick-thumb').boundingBox();
+  const joystickAfterRelease = await joystick.boundingBox();
+  assert.ok(joystickThumbAfterRelease && joystickAfterRelease, 'joystick and thumb should remain measurable after release');
+  assert.ok(Math.abs((joystickThumbAfterRelease.x + joystickThumbAfterRelease.width / 2) - (joystickAfterRelease.x + joystickAfterRelease.width / 2)) < 3, 'joystick thumb should visually recenter horizontally after release');
+  assert.ok(Math.abs((joystickThumbAfterRelease.y + joystickThumbAfterRelease.height / 2) - (joystickAfterRelease.y + joystickAfterRelease.height / 2)) < 3, 'joystick thumb should visually recenter vertically after release');
 
   // Mobile camera dock: zoom, recenter, and right-side canvas orbit must all work independently.
   await page.waitForFunction(() => Number.isFinite(Number(document.querySelector('#application')?.dataset.cameraDistance)), { timeout: 10000 });
