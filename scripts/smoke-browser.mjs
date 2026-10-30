@@ -161,16 +161,25 @@ try {
   const cameraStartX = cameraBox.x + cameraBox.width * 0.78;
   const cameraStartY = cameraBox.y + cameraBox.height * 0.48;
   const yawBeforeDrag = Number(await canvas.getAttribute('data-camera-yaw'));
-  await page.mouse.move(cameraStartX, cameraStartY);
-  await page.mouse.down();
-  await page.mouse.move(cameraStartX + 42, cameraStartY + 16, { steps: 4 });
-  await page.mouse.up();
-  await page.waitForFunction(before => {
-    const value = Number(document.querySelector('#application')?.dataset.cameraYaw);
-    return Number.isFinite(value) && Math.abs(value - before) > 0.01;
-  }, yawBeforeDrag, { timeout: 3000 });
+  // Drive the exact Pointer Events consumed by the game's document-level handlers.
+  // page.mouse can target a composited WebGL layer differently under headless mobile emulation.
+  const pointerOrbit = await page.evaluate(({ x, y, before }) => {
+    const target = document.querySelector('#application');
+    const pointer = (type, clientX, clientY, buttons) => new PointerEvent(type, {
+      bubbles: true, cancelable: true, pointerId: 731, pointerType: 'touch',
+      isPrimary: true, clientX, clientY, button: 0, buttons
+    });
+    target.dispatchEvent(pointer('pointerdown', x, y, 1));
+    document.dispatchEvent(pointer('pointermove', x + 42, y + 16, 1));
+    const afterMove = Number(target.dataset.cameraYaw);
+    document.dispatchEvent(pointer('pointerup', x + 42, y + 16, 0));
+    return { before, afterMove, afterRelease: Number(target.dataset.cameraYaw) };
+  }, { x: cameraStartX, y: cameraStartY, before: yawBeforeDrag });
+  assert.ok(Number.isFinite(pointerOrbit.afterMove), 'camera yaw should remain a finite number after pointer movement');
+  assert.ok(Math.abs(pointerOrbit.afterMove - yawBeforeDrag) > 0.01,
+    'a pointer drag beginning on the right side of the 3D canvas should rotate the camera');
   const yawAfterDrag = Number(await canvas.getAttribute('data-camera-yaw'));
-  assert.notEqual(yawAfterDrag, yawBeforeDrag, 'right-side canvas drag should rotate the camera');
+  assert.notEqual(yawAfterDrag, yawBeforeDrag, 'right-side canvas pointer drag should rotate the camera');
   await page.locator('#camera-reset').click();
   assert.ok(Math.abs(Number(await canvas.getAttribute('data-camera-yaw'))) < 0.01, 'camera reset should restore the default orbit angle');
 
