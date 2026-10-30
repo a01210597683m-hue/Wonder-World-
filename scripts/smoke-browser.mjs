@@ -86,6 +86,31 @@ try {
   await page.mouse.up();
   assert.equal(await page.locator('#move-joystick-thumb').evaluate(el => el.style.transform), 'translate(0,0)', 'joystick should recenter after release');
 
+  // Mobile camera dock: zoom, recenter, and right-side canvas orbit must all work independently.
+  await page.waitForFunction(() => Number.isFinite(Number(document.querySelector('#application')?.dataset.cameraDistance)), { timeout: 10000 });
+  assert.equal(await page.locator('#camera-controls button').count(), 3, 'camera dock should expose zoom in, recenter, and zoom out');
+  const cameraDistanceBefore = Number(await canvas.getAttribute('data-camera-distance'));
+  await page.locator('#camera-zoom-in').click();
+  const cameraDistanceAfterZoomIn = Number(await canvas.getAttribute('data-camera-distance'));
+  assert.ok(cameraDistanceAfterZoomIn < cameraDistanceBefore, 'camera zoom-in button should move the camera closer');
+  await page.locator('#camera-zoom-out').click();
+  const cameraDistanceAfterZoomOut = Number(await canvas.getAttribute('data-camera-distance'));
+  assert.ok(cameraDistanceAfterZoomOut > cameraDistanceAfterZoomIn, 'camera zoom-out button should move the camera farther away');
+  await page.locator('#camera-reset').click();
+  assert.ok(Math.abs(Number(await canvas.getAttribute('data-camera-distance')) - 7.5) < 0.15, 'camera reset should restore the outdoor follow distance');
+  const cameraBox = await canvas.boundingBox();
+  const cameraStartX = cameraBox.x + cameraBox.width * 0.78;
+  const cameraStartY = cameraBox.y + cameraBox.height * 0.48;
+  const yawBeforeDrag = Number(await canvas.getAttribute('data-camera-yaw'));
+  await page.mouse.move(cameraStartX, cameraStartY);
+  await page.mouse.down();
+  await page.mouse.move(cameraStartX + 42, cameraStartY + 16, { steps: 4 });
+  await page.mouse.up();
+  const yawAfterDrag = Number(await canvas.getAttribute('data-camera-yaw'));
+  assert.notEqual(yawAfterDrag, yawBeforeDrag, 'right-side canvas drag should rotate the camera');
+  await page.locator('#camera-reset').click();
+  assert.ok(Math.abs(Number(await canvas.getAttribute('data-camera-yaw'))) < 0.01, 'camera reset should restore the default orbit angle');
+
   // Ludo must visibly move a home piece onto the track after a six, then advance it on a later roll.
   await page.locator('#board-games-launch').waitFor({ state: 'visible', timeout: 10000 });
   await page.locator('#board-games-launch').click();
