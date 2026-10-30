@@ -221,6 +221,20 @@ try {
   // Bring each control into the visible area before tapping, matching a real phone interaction.
   for (const [color, feedback] of [['brick', /الطوبي/], ['gold', /الذهبي/], ['yellow', /الأصفر/]]) {
     const wallButton = page.locator('[data-home-wall="' + color + '"]');
+    const wallVisibility = await wallButton.evaluate(el => ({
+      display: getComputedStyle(el).display,
+      visibility: getComputedStyle(el).visibility,
+      width: el.getBoundingClientRect().width,
+      height: el.getBoundingClientRect().height,
+      panelHidden: el.closest('#home-build-panel')?.hidden ?? true,
+      hudCollapsed: el.closest('#life-ui')?.classList.contains('actions-collapsed') ?? false
+    }));
+    assert.notEqual(wallVisibility.display, 'none',
+      color + ' facade button must not be hidden by compact HUD styles: ' + JSON.stringify(wallVisibility));
+    assert.equal(wallVisibility.visibility, 'visible',
+      color + ' facade button must be visible: ' + JSON.stringify(wallVisibility));
+    assert.ok(wallVisibility.width > 0 && wallVisibility.height > 0,
+      color + ' facade button must have a visible hit area: ' + JSON.stringify(wallVisibility));
     await wallButton.scrollIntoViewIfNeeded();
     await wallButton.click();
     assert.match(await page.locator('#home-build-feedback').innerText(), feedback, color + ' facade button should apply and report its selection');
