@@ -1282,7 +1282,7 @@ actionToggle.id = 'toggle-actions';
 actionToggle.type = 'button';
 actionToggle.setAttribute('aria-expanded', 'false');
 actionToggle.textContent = '☰ الأنشطة والخيارات';
-ui.insertBefore(actionToggle, document.getElementById('xp-panel'));
+ui.appendChild(actionToggle);
 ui.classList.add('actions-collapsed');
 actionToggle.addEventListener('click', () => {
   const expanded = ui.classList.toggle('actions-expanded');
