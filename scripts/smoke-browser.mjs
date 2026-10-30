@@ -69,8 +69,22 @@ try {
   await page.keyboard.press('Escape');
   await page.locator('#ww-memory-panel').waitFor({ state: 'hidden' });
 
-  assert.equal(await page.locator('#application').count(), 1, '3D canvas should be present');
+  const canvas = page.locator('#application');
+  assert.equal(await canvas.count(), 1, '3D canvas should be present');
+  const canvasBox = await canvas.boundingBox();
+  assert.ok(canvasBox && canvasBox.width >= 300 && canvasBox.height >= 500, '3D canvas should fill the mobile game viewport');
   assert.equal(await page.locator('[data-dir="up"]').count(), 1, 'mobile movement controls should be present');
+  const joystick = page.locator('#move-joystick');
+  const joystickBox = await joystick.boundingBox();
+  assert.ok(joystickBox, 'mobile virtual joystick should be visible');
+  const joystickCenterX = joystickBox.x + joystickBox.width / 2;
+  const joystickCenterY = joystickBox.y + joystickBox.height / 2;
+  await page.mouse.move(joystickCenterX, joystickCenterY);
+  await page.mouse.down();
+  await page.mouse.move(joystickCenterX + 30, joystickCenterY - 18, { steps: 3 });
+  assert.notEqual(await page.locator('#move-joystick-thumb').evaluate(el => el.style.transform), 'translate(0px,0px)', 'joystick thumb should respond while dragging');
+  await page.mouse.up();
+  assert.equal(await page.locator('#move-joystick-thumb').evaluate(el => el.style.transform), 'translate(0,0)', 'joystick should recenter after release');
   await page.locator('#ww-menu-toggle').click();
   assert.equal(await page.locator('#ww-menu-toggle').getAttribute('aria-expanded'), 'true', 'main menu should expand');
   assert.equal(await page.locator('#ww-menu-content').isVisible(), true, 'grouped actions should be visible when menu expands');
