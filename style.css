@@ -571,7 +571,7 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 
 /* In compact mode, entering an interior must never hide the only way back out. */
 #life-ui.actions-collapsed.is-indoors #exit-home,
-#life-ui.actions-collapsed.is-indoors #indoor-place-action{display:block!important}
+#life-ui.actions-collapsed.is-indoors #indoor-place-action:not([hidden]){display:block!important}
 
 #life-ui .avatar-tools button,#life-ui #open-shop,#life-ui #interact,#life-ui #exit-home{
  width:100%;min-width:0;min-height:36px;justify-self:stretch;margin:0;padding:7px 6px;
