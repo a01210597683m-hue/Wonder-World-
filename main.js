@@ -973,6 +973,8 @@ function enterHome(homeName, targetInteriorRoot = interiorRoot, indoorAction = n
   indoorActionButton.hidden = !activeIndoorAction;
   if (activeIndoorAction) indoorActionButton.textContent = activeIndoorAction.label;
   indoors = true;
+  // Keep the essential exit/action controls reachable even when the HUD is compact.
+  ui.classList.add('is-indoors');
   player.setPosition(0, 0, 2.0);
   player.setEulerAngles(0, 180, 0);
   cameraX = 0;
@@ -995,6 +997,7 @@ function exitHome() {
   for (const [entity, enabled] of outdoorEnabledStates) entity.enabled = enabled;
   outdoorEnabledStates.clear();
   indoors = false;
+  ui.classList.remove('is-indoors');
   if (indoorReturnPosition) player.setPosition(indoorReturnPosition);
   cameraHeight = 7;
   cameraOffsetZ = 11;
