@@ -217,8 +217,12 @@ try {
   await page.locator('.map-destination').filter({ hasText: 'نافورة الساحة' }).click();
   await page.locator('#open-home-build').click();
   await page.locator('#home-build-panel').waitFor({ state: 'visible' });
+  // The customization overlay is vertically scrollable on a 390px mobile viewport.
+  // Bring each control into the visible area before tapping, matching a real phone interaction.
   for (const [color, feedback] of [['brick', /الطوبي/], ['gold', /الذهبي/], ['yellow', /الأصفر/]]) {
-    await page.locator('[data-home-wall="' + color + '"]').click();
+    const wallButton = page.locator('[data-home-wall="' + color + '"]');
+    await wallButton.scrollIntoViewIfNeeded();
+    await wallButton.click();
     assert.match(await page.locator('#home-build-feedback').innerText(), feedback, color + ' facade button should apply and report its selection');
   }
   await page.locator('[data-home-wall="mint"]').click();
