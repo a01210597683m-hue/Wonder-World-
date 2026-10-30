@@ -3493,6 +3493,9 @@ if (moveJoystick) {
 canvas.style.touchAction = 'none';
 // Listen on the document in capture phase: HUD panels can cover the canvas on phones.
 document.addEventListener('pointerdown', event => {
+  // Start camera orbit only from the actual 3D canvas. UI buttons, menus and dialogs
+  // must keep their own pointer gestures and must never be interpreted as camera drags.
+  if (event.target !== canvas) return;
   if (event.clientX < window.innerWidth * 0.43 || cameraPointerId !== null) return;
   cameraPointerId = event.pointerId;
   cameraLastX = event.clientX;
