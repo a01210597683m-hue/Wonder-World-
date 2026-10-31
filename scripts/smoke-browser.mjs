@@ -316,6 +316,26 @@ try {
     floorBox.y < actionBox.y + actionBox.height &&
     floorBox.y + floorBox.height > actionBox.y;
   assert.equal(overlaps, false, 'floor navigation must not overlap the primary place action');
+  const cameraControls = page.locator('#camera-controls');
+  const cameraReset = page.locator('#camera-reset');
+  const [cameraBox, actionHitBox] = await Promise.all([
+    cameraControls.boundingBox(),
+    page.locator('#indoor-place-action').boundingBox()
+  ]);
+  assert.ok(cameraBox && actionHitBox, 'camera controls and indoor action must both have hit areas');
+  const cameraOverlapsAction = cameraBox.x < actionHitBox.x + actionHitBox.width &&
+    cameraBox.x + cameraBox.width > actionHitBox.x &&
+    cameraBox.y < actionHitBox.y + actionHitBox.height &&
+    cameraBox.y + cameraBox.height > actionHitBox.y;
+  assert.equal(cameraOverlapsAction, false, 'camera control surface must not overlap the primary indoor action');
+  const resetBox = await cameraReset.boundingBox();
+  assert.ok(resetBox, 'camera reset must remain visible and usable indoors');
+  const resetHitTarget = await page.evaluate(({ x, y }) => {
+    const target = document.elementFromPoint(x, y);
+    return !!target && (target.id === 'camera-reset' || target.closest('#camera-reset'));
+  }, { x: resetBox.x + resetBox.width / 2, y: resetBox.y + resetBox.height / 2 });
+  assert.equal(resetHitTarget, true, 'camera reset must receive its own pointer hit target');
+  await cameraReset.click();
   await page.locator('#indoor-place-action').click();
   await page.locator('#shop-panel').waitFor({ state: 'visible' });
   await page.locator('#close-shop').click();
