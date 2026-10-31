@@ -1252,7 +1252,7 @@ const message = document.getElementById('life-message');
   });
   ui.addEventListener('click', event => {
     const action = event.target.closest('.ww-section-body button');
-    if (!action || action.classList.contains('ww-menu-category')) return;
+    if (!action || action.classList.contains('ww-menu-category') || action.classList.contains('ww-menu-docked-launcher')) return;
     wwMenuContent.hidden = true;
     wwMenuBodies.forEach(item => {
       item.section.hidden = true;
