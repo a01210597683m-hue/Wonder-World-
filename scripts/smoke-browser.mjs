@@ -669,6 +669,33 @@ try {
     assert.notEqual((await page.locator('#wwa-title').innerText()).trim(), '', id + ' should open with a title');
     if (id === 'battle') {
       assert.match(await page.locator('#wwa-title').innerText(), /Battle|معركة|قتال/i);
+      const battleCanvas = page.locator('#wwa-battle-canvas');
+      const moveStick = page.locator('#wwa-battle-move-stick');
+      await moveStick.scrollIntoViewIfNeeded();
+      const moveBox = await moveStick.boundingBox();
+      assert.ok(moveBox && moveBox.width >= 100, 'Battle Royale should show a large mobile movement stick');
+      const playerXBeforeStick = Number(await battleCanvas.getAttribute('data-player-x'));
+      const moveCX = moveBox.x + moveBox.width / 2, moveCY = moveBox.y + moveBox.height / 2;
+      await page.mouse.move(moveCX, moveCY);
+      await page.mouse.down();
+      await page.mouse.move(moveCX + moveBox.width * 0.28, moveCY, { steps: 3 });
+      await page.waitForTimeout(650);
+      const playerXAfterStick = Number(await battleCanvas.getAttribute('data-player-x'));
+      await page.mouse.up();
+      assert.ok(playerXAfterStick > playerXBeforeStick + 5, 'left virtual stick should continuously move the player');
+      const aimStick = page.locator('#wwa-battle-aim-stick');
+      await aimStick.scrollIntoViewIfNeeded();
+      const aimBox = await aimStick.boundingBox();
+      assert.ok(aimBox && aimBox.width >= 100, 'Battle Royale should show a separate mobile aiming stick');
+      const aimCX = aimBox.x + aimBox.width / 2, aimCY = aimBox.y + aimBox.height / 2;
+      await page.mouse.move(aimCX, aimCY);
+      await page.mouse.down();
+      await page.mouse.move(aimCX + aimBox.width * 0.28, aimCY, { steps: 3 });
+      const aimedX = Number(await battleCanvas.getAttribute('data-aim-x'));
+      const playerXForAim = Number(await battleCanvas.getAttribute('data-player-x'));
+      await page.mouse.up();
+      assert.ok(aimedX > playerXForAim + 30, 'right virtual stick should independently move the aiming reticle');
+
       assert.equal(await page.locator('#wwa-bscore').innerText(), '0', 'battle royale should start with no eliminations');
       assert.equal(await page.locator('#wwa-zone').count(), 1, 'battle royale should show the shrinking safe-zone status');
       await page.locator('[data-act="fire"]').click();
