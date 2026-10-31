@@ -1460,7 +1460,7 @@ const worldDestinations = [
 ];
 const worldGuideStyle = document.createElement('style');
 worldGuideStyle.textContent = `
-#ww-world-guide{position:absolute;z-index:35;right:12px;top:68px;width:min(230px,calc(100vw - 24px));direction:rtl;font-family:system-ui,sans-serif;color:#17324c}
+#ww-world-guide{position:absolute;z-index:5;right:12px;top:68px;width:min(230px,calc(100vw - 24px));direction:rtl;font-family:system-ui,sans-serif;color:#17324c}
 #ww-world-guide-toggle{width:100%;border:1px solid #ffffffc9;border-radius:13px;padding:10px 12px;background:#fff0b8;color:#17324c;font-weight:850;box-shadow:0 4px 14px #10263c33;touch-action:manipulation}
 #ww-world-guide-panel{margin-top:7px;padding:10px;border:1px solid #ffffffb8;border-radius:15px;background:#fffaf0f5;box-shadow:0 10px 28px #10263c40;max-height:55vh;overflow:auto}
 #ww-world-guide-panel[hidden]{display:none}
