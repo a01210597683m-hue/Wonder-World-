@@ -60,7 +60,11 @@ try {
   await page.locator('#application').waitFor({ state: 'visible', timeout: 15000 });
   await page.locator('#life-ui').waitFor({ state: 'attached', timeout: 20000 });
   await page.locator('#player-level').waitFor({ state: 'attached', timeout: 10000 });
-  // Modern menu layout: five distinct categories, with two-column action cards.
+  // Reference-led world home: eight bottom shortcuts, three side destinations and card-based category pages.
+  assert.equal(await page.locator('.ww-world-dock-item').count(), 8, 'home dock should expose eight navigation shortcuts');
+  assert.equal(await page.locator('.ww-world-side-item').count(), 3, 'world side rail should expose three destinations');
+  assert.equal(await page.locator('.ww-world-logo').count(), 1, 'world logo should be centered in the home HUD');
+  // Legacy categories remain as the source of existing action groups.
   assert.equal(await page.locator('#ww-menu-categories .ww-menu-category').count(), 5, 'menu should expose five independent categories');
   await openMenuCategory(3);
   const gameGridColumns = await page.locator('.ww-menu-section[data-category-index="3"] .ww-section-body').evaluate(el => getComputedStyle(el).gridTemplateColumns);
@@ -75,10 +79,12 @@ try {
   // The new HUD keeps five category shortcuts visible at the screen edge.
   // Open the relevant category before exercising any of its original controls.
   async function openMenuCategory(index) {
-    const categories = page.locator('#ww-menu-categories');
-    if (!(await categories.isVisible())) await page.locator('#ww-menu-toggle').click();
     const section = page.locator('.ww-menu-section[data-category-index="' + index + '"]');
-    if (!(await section.isVisible())) await page.locator('#ww-menu-category-' + index).click();
+    if (!(await section.isVisible())) {
+      const dockShortcut = page.locator('.ww-world-dock-item').nth(index === 0 ? 0 : 5);
+      if (index === 0 || index === 3) await dockShortcut.click();
+      else await page.locator('.ww-world-side-item').nth(index === 1 ? 0 : index === 2 ? 1 : 2).click();
+    }
     await section.waitFor({ state: 'visible', timeout: 5000 });
   }
 
