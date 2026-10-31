@@ -1513,3 +1513,31 @@ body:has(#life-ui.is-indoors) #camera-controls {
   #indoor-floor-controls { top: max(58px,calc(env(safe-area-inset-top) + 48px)) !important; max-width: 230px; }
   #life-ui #life-message { bottom: 54px; }
 }
+
+
+/* Keep indoor shop action and leave-building action on separate hit targets. */
+#life-ui #indoor-place-action {
+  position: fixed !important;
+  right: max(10px,env(safe-area-inset-right)) !important;
+  left: auto !important;
+  bottom: 112px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: min(42vw,220px) !important;
+  z-index: 10034 !important;
+}
+#life-ui #exit-home {
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: 64px !important;
+  transform: translateX(-50%) !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: min(64vw,300px) !important;
+  z-index: 10033 !important;
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  #life-ui #indoor-place-action { bottom: 104px !important; }
+  #life-ui #exit-home { bottom: 56px !important; }
+}
