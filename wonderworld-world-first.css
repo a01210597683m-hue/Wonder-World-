@@ -5,7 +5,7 @@
 #life-ui .life-stats{gap:3px;max-width:calc(50vw - 80px)}
 #life-ui .life-stats span{padding:4px 7px;font-size:9px}
 #life-ui .ww-world-side{right:max(6px,env(safe-area-inset-right));gap:5px}
-#life-ui .ww-world-side-item{min-width:44px;min-height:42px;padding:3px;border-radius:10px;font-size:7px}
+#life-ui .ww-world-side-item{width:50px;min-width:50px;min-height:50px;padding:3px;border-radius:10px;font-size:7px}
 #life-ui .ww-world-side-item span{font-size:16px}
 #life-ui .ww-world-dock{width:min(520px,calc(100vw - 150px));min-height:46px;padding:3px 5px;border-radius:13px}
 #life-ui .ww-world-dock-item{gap:0;padding:2px 1px;font-size:7px}
@@ -32,7 +32,7 @@
  #life-ui .life-stats{max-width:calc(50vw - 62px);gap:2px}
  #life-ui .life-stats span{padding:3px 5px;font-size:8px}
  #life-ui .ww-world-side{right:4px;top:42%;gap:4px}
- #life-ui .ww-world-side-item{min-width:38px;min-height:38px;font-size:6px}
+ #life-ui .ww-world-side-item{width:50px;min-width:50px;min-height:46px;font-size:6px}
  #life-ui .ww-world-side-item span{font-size:15px}
  #life-ui .ww-world-dock{width:calc(100vw - 94px);min-height:42px;bottom:max(4px,env(safe-area-inset-bottom));padding:2px 3px}
  #life-ui .ww-world-dock-item{min-height:36px}
