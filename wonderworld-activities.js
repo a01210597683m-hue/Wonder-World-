@@ -77,12 +77,12 @@
       const b=el('button',{type:'button',class:'wwa-tile','data-game':id});
       b.append(el('span',{},emoji),el('span',{},title));menu.appendChild(b);
     });
-    let active='', state={}, frame=0, battleTimer=0, keys={}, selectedCandy=null;
+    let active='', state={}, frame=0, battleTimer=0, battleFireTimer=0, keys={}, selectedCandy=null;
     const msg = text => { feedback.textContent=text; };
     const html = value => { const next = content.cloneNode(false); content.replaceWith(next); content = next; content.innerHTML = value; };
     const button = (id,label,cls='') => '<button type="button" id="'+id+'" class="wwa-btn '+cls+'">'+label+'</button>';
     const canvas = id => '<canvas id="'+id+'" class="wwa-canvas" width="640" height="400" aria-label="ساحة اللعبة"></canvas>';
-    function stopLoop(){if(frame)cancelAnimationFrame(frame);frame=0;if(battleTimer){clearInterval(battleTimer);battleTimer=0;}keys={};}
+    function stopLoop(){if(frame)cancelAnimationFrame(frame);frame=0;if(battleTimer){clearInterval(battleTimer);battleTimer=0;}if(battleFireTimer){clearInterval(battleFireTimer);battleFireTimer=0;}keys={};}
     function start(id){
       stopLoop(); active=id; state={}; selectedCandy=null;
       const item=activities.find(x=>x[0]===id); $('#wwa-title',panel).textContent=item[2];
@@ -203,7 +203,12 @@
       };
       bindBattleStick('wwa-battle-move-stick','wwa-battle-move-thumb',(x,y)=>{state.moveX=x;state.moveY=y;});
       bindBattleStick('wwa-battle-aim-stick','wwa-battle-aim-thumb',(x,y)=>{if(Math.hypot(x,y)>.12){state.aimX=clamp(state.x+x*150,0,640);state.aimY=clamp(state.y+y*150,0,400);draw();}});
-      $('#wwa-content',panel).querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',()=>{const a=b.dataset.act;if(a==='up')move(0,-22);if(a==='down')move(0,22);if(a==='left')move(-22,0);if(a==='right')move(22,0);if(a==='reload'&&!state.ended){state.ammo=Math.min(30,state.ammo+12);msg('تم جمع ذخيرة إضافية.');update();}if(a==='heal'&&!state.ended&&state.hp>0){state.hp=Math.min(100,state.hp+25);msg('استخدمتي حقيبة علاج.');update();}if(a==='fire')fire();if(a==='restart')restart();}));
+      $('#wwa-content',panel).querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',e=>{const a=b.dataset.act;if(a==='up')move(0,-22);if(a==='down')move(0,22);if(a==='left')move(-22,0);if(a==='right')move(22,0);if(a==='reload'&&!state.ended){state.ammo=Math.min(30,state.ammo+12);msg('تم جمع ذخيرة إضافية.');update();}if(a==='heal'&&!state.ended&&state.hp>0){state.hp=Math.min(100,state.hp+25);msg('استخدمتي حقيبة علاج.');update();}if(a==='fire'&&e.detail===0)fire();if(a==='restart')restart();}));
+      const fireButton=$('#wwa-content [data-act="fire"]',panel);let firePointer=null;
+      const stopHeldFire=()=>{if(battleFireTimer){clearInterval(battleFireTimer);battleFireTimer=0;}};
+      fireButton.addEventListener('pointerdown',e=>{firePointer=e.pointerId;fireButton.setPointerCapture?.(firePointer);fire();stopHeldFire();battleFireTimer=setInterval(fire,260);e.preventDefault();});
+      const endHeldFire=e=>{if(firePointer!==null&&(!e.pointerId||e.pointerId===firePointer)){firePointer=null;stopHeldFire();}};
+      fireButton.addEventListener('pointerup',endHeldFire);fireButton.addEventListener('pointercancel',endHeldFire);fireButton.addEventListener('lostpointercapture',endHeldFire);
       const keydown=e=>{const map={ArrowUp:[0,-18],w:[0,-18],W:[0,-18],ArrowDown:[0,18],s:[0,18],S:[0,18],ArrowLeft:[-18,0],a:[-18,0],A:[-18,0],ArrowRight:[18,0],d:[18,0],D:[18,0]};if(map[e.key]&&panel.contains(c)){e.preventDefault();move(...map[e.key]);}if((e.key===' '||e.key==='Enter')&&panel.contains(c)){e.preventDefault();fire();}};
       c.tabIndex=0;c.addEventListener('keydown',keydown);
       battleTimer=setInterval(()=>{if(!panel.isConnected||panel.hidden||game.hidden||!panel.contains(c)){clearInterval(battleTimer);battleTimer=0;return;}if(state.ended)return;state.elapsed+=0.5;if(Math.hypot(state.moveX,state.moveY)>.08){state.x=clamp(state.x+state.moveX*12,22,618);state.y=clamp(state.y+state.moveY*12,55,378);}const now=Date.now();for(const t of state.targets){if(t.hp<=0)continue;const dx=state.x-t.x,dy=state.y-t.y,d=Math.hypot(dx,dy)||1;t.x=clamp(t.x+dx/d*t.speed*7,24,616);t.y=clamp(t.y+dy/d*t.speed*7,52,378);if(now>t.fireAt&&d<240){state.hp=Math.max(0,state.hp-5);t.fireAt=now+1400+Math.random()*900;}}const pad=18+Math.min(0.38,state.elapsed/90*0.38)*270;if(state.x<pad||state.x>640-pad||state.y<pad||state.y>400-pad)state.hp=Math.max(0,state.hp-2);update();},500);
