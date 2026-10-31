@@ -53,3 +53,8 @@
  #move-joystick{bottom:4px!important;width:86px!important;height:86px!important}
  #camera-controls{bottom:4px!important}
 }
+
+/* Keep open navigation above floating world-guide overlays so menu actions remain tappable. */
+#life-ui #ww-menu-content{z-index:10020!important;isolation:isolate!important}
+#life-ui #ww-menu-categories{z-index:10021!important}
+#life-ui #ww-world-guide{z-index:30!important}
