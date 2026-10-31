@@ -1335,7 +1335,7 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 #life-ui .ww-section-body #vehicle-hint { color:#f1eaff; background:#ffffff12; padding:9px; border-radius:12px; }
 #life-ui .ww-section-title { color:#ffe7a1; font-size:16px; margin:0 0 12px; }
 #life-ui .ww-world-side {
-  position: fixed; z-index: 27; right: max(9px,env(safe-area-inset-right));
+  position: fixed; z-index: 45; right: max(9px,env(safe-area-inset-right));
   top: 43%; transform: translateY(-50%); display: grid; gap: 8px; pointer-events: auto;
 }
 #life-ui .ww-world-side-item {
