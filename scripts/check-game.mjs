@@ -97,6 +97,7 @@ const checks = [
   ['Restaurant is reachable from the fast-travel map', /name:'مطعم Wonder',emoji:'🍽️',x:8,z:-25/.test(game)],
   ['Purchased player-owned shop is reachable and opens business management', /if \(playerBusiness\.enabled\)/.test(game) && /مشروعي الخاص — إدارة المحل/.test(game) && /careerButton\.click\(\)/.test(game)],
   ['Social walk requires explicit consent', /موافقة/.test(game) && /accept\.addEventListener/.test(game)],
+  ['NPC dialogue choices trigger short two-arm conversation gestures that return to neutral pose', /const npcGestureState = new Map\(\)/.test(game) && /npcGestureState\.set\(npc\.name, \{ started: Date\.now\(\), until: Date\.now\(\) \+ 1900 \}\)/.test(game) && /socialGesture && Date\.now\(\) < socialGesture\.until/.test(game) && /npcGestureState\.delete\(npc\.name\)/.test(game)],
   ['Pet care system exists', /function careForActivePet/.test(game)],
   ['Career progression has a daily contract', /dailyOrderCount/.test(careers) && /contractClaimedDate/.test(careers)],
   ['Business level upgrades are bounded in the UI', /businessLevel >= 5/.test(careers)],

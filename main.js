@@ -667,6 +667,7 @@ function toggleVehicleMode(forceState) {
 // Their coordinates stay in sync with their visible 3D entities so interactions work while they roam.
 const npcWanderState = new Map();
 const npcGreetingState = new Map();
+const npcGestureState = new Map();
 function chooseNpcWanderTarget(npc, current) {
   const homeX = npc.homeX ?? npc.x;
   const homeZ = npc.homeZ ?? npc.z;
@@ -3237,6 +3238,7 @@ function showDialogue(npc) {
     button.className = 'dialogue-choice';
     button.textContent = choice.label;
     button.addEventListener('click', () => {
+      npcGestureState.set(npc.name, { started: Date.now(), until: Date.now() + 1900 });
       if (npcInteractionDates[npc.name] !== localDateKey()) {
         const previousRelation = npc.relation;
         npc.relation = Math.min(10, npc.relation + choice.relation);
@@ -3730,6 +3732,17 @@ app.on('update', dt => {
         greeting.greeted = false;
       }
       npcGreetingState.set(npc.name, greeting);
+      const socialGesture = npcGestureState.get(npc.name);
+      if (socialGesture && Date.now() < socialGesture.until) {
+        const elapsed = (Date.now() - socialGesture.started) / 1000;
+        const emphasis = Math.sin(elapsed * 7) * 12;
+        if (npc.entity.leftArm) npc.entity.leftArm.setLocalEulerAngles(-58 + emphasis, 0, -16);
+        if (npc.entity.rightArm) npc.entity.rightArm.setLocalEulerAngles(-58 - emphasis, 0, 16);
+      } else if (socialGesture) {
+        npcGestureState.delete(npc.name);
+        if (npc.entity.leftArm) npc.entity.leftArm.setLocalEulerAngles(0, 0, 0);
+        if (npc.entity.rightArm) npc.entity.rightArm.setLocalEulerAngles(0, 0, 0);
+      }
       npc.x = now.x;
       npc.z = now.z;
     }
