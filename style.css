@@ -994,3 +994,20 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
   #camera-controls{bottom:calc(12px + env(safe-area-inset-bottom));right:12px}
   .camera-look-hint{display:none}
 }
+
+
+/* The redesigned grouped menu is controlled by ww-menu-toggle, independently of the legacy action dock.
+   When that menu is open, restore its controls even if the compact action dock remains collapsed. */
+#life-ui.actions-collapsed #ww-menu-content:not([hidden]) .avatar-tools {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+#life-ui.actions-collapsed #ww-menu-content:not([hidden]) #open-shop,
+#life-ui.actions-collapsed #ww-menu-content:not([hidden]) #open-pets,
+#life-ui.actions-collapsed #ww-menu-content:not([hidden]) #xp-panel {
+  display: block !important;
+}
+#life-ui.actions-collapsed #ww-menu-content:not([hidden]) #open-shop,
+#life-ui.actions-collapsed #ww-menu-content:not([hidden]) #open-pets {
+  display: flex !important;
+}
