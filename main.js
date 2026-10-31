@@ -1163,15 +1163,101 @@ ui.innerHTML = `
   <div id="life-goal">مهمتك: تعرّفي على شخص، ثم زوري المتجر والحديقة.</div>
 `;
 document.getElementById('game').appendChild(ui);
+
+// Convert the long menu into five compact, persistent category shortcuts.
+// The original action buttons and their IDs stay intact so their existing
+// gameplay handlers continue to work.
+const wwMenuSections = Array.from(ui.querySelectorAll('.ww-menu-section'));
+const wwMenuContent = document.getElementById('ww-menu-content');
+const wwMenuCategories = document.createElement('nav');
+wwMenuCategories.id = 'ww-menu-categories';
+wwMenuCategories.setAttribute('aria-label', 'أقسام WonderWorld');
+const wwMenuCategoryIcons = ['✨', '🌍', '🏡', '🎮', '🎒'];
+const wwMenuBodies = [];
+wwMenuSections.forEach((section, index) => {
+  const oldTitle = section.querySelector('.ww-section-title');
+  const label = oldTitle ? oldTitle.textContent.trim() : 'القسم';
+  const categoryId = 'ww-menu-category-' + index;
+  const body = document.createElement('div');
+  body.className = 'ww-section-body';
+  body.id = categoryId + '-content';
+  while (oldTitle && oldTitle.nextSibling) body.appendChild(oldTitle.nextSibling);
+  const trigger = document.createElement('button');
+  trigger.type = 'button';
+  trigger.className = 'ww-menu-category';
+  trigger.dataset.categoryIndex = String(index);
+  trigger.setAttribute('aria-controls', body.id);
+  trigger.setAttribute('aria-expanded', 'false');
+  trigger.innerHTML = '<span class="ww-menu-category-icon" aria-hidden="true">' + wwMenuCategoryIcons[index] + '</span><span class="ww-menu-category-label"></span>';
+  trigger.querySelector('.ww-menu-category-label').textContent = label;
+  wwMenuCategories.appendChild(trigger);
+  section.dataset.categoryIndex = String(index);
+  section.replaceChildren(body);
+  section.hidden = true;
+  wwMenuBodies.push({ section, body, trigger });
+  trigger.addEventListener('click', () => {
+    const shouldOpen = section.hidden;
+    wwMenuBodies.forEach(item => {
+      item.section.hidden = true;
+      item.trigger.setAttribute('aria-expanded', 'false');
+      item.trigger.classList.remove('is-active');
+    });
+    wwMenuContent.hidden = !shouldOpen;
+    if (shouldOpen) {
+      section.hidden = false;
+      trigger.setAttribute('aria-expanded', 'true');
+      trigger.classList.add('is-active');
+    }
+  });
+});
+ui.insertBefore(wwMenuCategories, wwMenuContent);
+const wwGamesBody = wwMenuBodies[3]?.body;
+function dockWonderGameLaunchers(root = document) {
+  if (!wwGamesBody) return;
+  const launcherIds = ['ww-activities-launch', 'ww-arcade-launch', 'board-games-launch', 'ww-challenges-launch', 'ww-space-launcher'];
+  for (const id of launcherIds) {
+    const launcher = root.querySelector('#' + id);
+    if (!launcher || launcher.parentElement === wwGamesBody) continue;
+    launcher.classList.add('ww-menu-docked-launcher');
+    Object.assign(launcher.style, {
+      position: 'static', inset: 'auto', top: 'auto', right: 'auto', bottom: 'auto', left: 'auto',
+      width: '100%', maxWidth: 'none', margin: '4px 0', display: 'block', transform: 'none', zIndex: 'auto'
+    });
+    wwGamesBody.appendChild(launcher);
+  }
+}
+dockWonderGameLaunchers();
+const wwLauncherObserver = new MutationObserver(() => dockWonderGameLaunchers());
+wwLauncherObserver.observe(ui, { childList: true, subtree: true });
+wwLauncherObserver.observe(document.body, { childList: true, subtree: true });
+
 const message = document.getElementById('life-message');
   const wwMenuToggle = document.getElementById('ww-menu-toggle');
-  const wwMenuContent = document.getElementById('ww-menu-content');
   ui.classList.add('ww-menu-collapsed');
+  wwMenuCategories.hidden = false;
+  wwMenuToggle.setAttribute('aria-expanded', 'true');
+  wwMenuToggle.textContent = '✕ إخفاء القوائم';
   wwMenuToggle.addEventListener('click', () => {
-    const expanded = wwMenuToggle.getAttribute('aria-expanded') === 'true';
-    wwMenuToggle.setAttribute('aria-expanded', String(!expanded));
-    wwMenuContent.hidden = expanded;
-    ui.classList.toggle('ww-menu-collapsed', expanded);
+    const willHide = !wwMenuCategories.hidden;
+    wwMenuCategories.hidden = willHide;
+    wwMenuContent.hidden = true;
+    wwMenuBodies.forEach(item => {
+      item.section.hidden = true;
+      item.trigger.setAttribute('aria-expanded', 'false');
+      item.trigger.classList.remove('is-active');
+    });
+    wwMenuToggle.setAttribute('aria-expanded', String(!willHide));
+    wwMenuToggle.textContent = willHide ? '☰ القوائم' : '✕ إخفاء القوائم';
+  });
+  ui.addEventListener('click', event => {
+    const action = event.target.closest('.ww-section-body button');
+    if (!action || action.classList.contains('ww-menu-category')) return;
+    wwMenuContent.hidden = true;
+    wwMenuBodies.forEach(item => {
+      item.section.hidden = true;
+      item.trigger.setAttribute('aria-expanded', 'false');
+      item.trigger.classList.remove('is-active');
+    });
   });
   document.getElementById('open-map').addEventListener('click', () => {
     const panel = document.getElementById('map-panel');
