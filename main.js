@@ -666,6 +666,7 @@ function toggleVehicleMode(forceState) {
 // Ambient residents get their own gentle, bounded walking routes around the neighborhood.
 // Their coordinates stay in sync with their visible 3D entities so interactions work while they roam.
 const npcWanderState = new Map();
+const npcGreetingState = new Map();
 function chooseNpcWanderTarget(npc, current) {
   const homeX = npc.homeX ?? npc.x;
   const homeZ = npc.homeZ ?? npc.z;
@@ -3711,6 +3712,24 @@ app.on('update', dt => {
         }
       }
       const now = npc.entity.getPosition();
+      const playerPosition = player.getPosition();
+      const nearPlayer = Math.hypot(playerPosition.x - now.x, playerPosition.z - now.z) < 3.6;
+      let greeting = npcGreetingState.get(npc.name) || { until: 0, greeted: false };
+      if (nearPlayer) {
+        npc.entity.setEulerAngles(0, Math.atan2(playerPosition.x - now.x, playerPosition.z - now.z) * 180 / Math.PI, 0);
+        if (!greeting.greeted) {
+          greeting.greeted = true;
+          greeting.until = Date.now() + 1500;
+          if (npc.entity.leftArm) npc.entity.leftArm.setLocalEulerAngles(-72, 0, 10);
+        }
+        if (Date.now() < greeting.until && npc.entity.leftArm) {
+          const wave = Math.sin(Date.now() / 115) * 22;
+          npc.entity.leftArm.setLocalEulerAngles(-72 + wave, 0, 10);
+        }
+      } else {
+        greeting.greeted = false;
+      }
+      npcGreetingState.set(npc.name, greeting);
       npc.x = now.x;
       npc.z = now.z;
     }
