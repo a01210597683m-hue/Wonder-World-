@@ -318,15 +318,15 @@ try {
   assert.equal(overlaps, false, 'floor navigation must not overlap the primary place action');
   const cameraControls = page.locator('#camera-controls');
   const cameraReset = page.locator('#camera-reset');
-  const [cameraBox, actionHitBox] = await Promise.all([
+  const [indoorCameraControlsBox, indoorActionHitBox] = await Promise.all([
     cameraControls.boundingBox(),
     page.locator('#indoor-place-action').boundingBox()
   ]);
-  assert.ok(cameraBox && actionHitBox, 'camera controls and indoor action must both have hit areas');
-  const cameraOverlapsAction = cameraBox.x < actionHitBox.x + actionHitBox.width &&
-    cameraBox.x + cameraBox.width > actionHitBox.x &&
-    cameraBox.y < actionHitBox.y + actionHitBox.height &&
-    cameraBox.y + cameraBox.height > actionHitBox.y;
+  assert.ok(indoorCameraControlsBox && indoorActionHitBox, 'camera controls and indoor action must both have hit areas');
+  const cameraOverlapsAction = indoorCameraControlsBox.x < indoorActionHitBox.x + indoorActionHitBox.width &&
+    indoorCameraControlsBox.x + indoorCameraControlsBox.width > indoorActionHitBox.x &&
+    indoorCameraControlsBox.y < indoorActionHitBox.y + indoorActionHitBox.height &&
+    indoorCameraControlsBox.y + indoorCameraControlsBox.height > indoorActionHitBox.y;
   assert.equal(cameraOverlapsAction, false, 'camera control surface must not overlap the primary indoor action');
   const resetBox = await cameraReset.boundingBox();
   assert.ok(resetBox, 'camera reset must remain visible and usable indoors');
