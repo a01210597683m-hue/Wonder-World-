@@ -1415,3 +1415,37 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
     right: auto;
   }
 }
+
+
+/* Final HUD separation: reserve the lower-right corner for the active place action.
+   Floor navigation lives in a compact upper-left slot, not beside the joystick/action row. */
+#indoor-floor-controls {
+  top: max(92px, calc(env(safe-area-inset-top) + 76px));
+  bottom: auto;
+  left: max(12px, env(safe-area-inset-left));
+  right: auto;
+  width: max-content;
+  max-width: min(46vw, 320px);
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+#indoor-floor-controls span {
+  min-width: 62px;
+}
+@media (max-width: 600px) {
+  #indoor-floor-controls {
+    top: max(108px, calc(env(safe-area-inset-top) + 92px));
+    max-width: calc(48vw - 16px);
+    gap: 4px;
+    padding: 6px;
+  }
+  #indoor-floor-controls button {
+    padding: 7px 8px;
+  }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  #indoor-floor-controls {
+    top: max(68px, calc(env(safe-area-inset-top) + 58px));
+    max-width: 280px;
+  }
+}
