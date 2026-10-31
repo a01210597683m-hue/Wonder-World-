@@ -97,6 +97,7 @@ const checks = [
   ['Restaurant is reachable from the fast-travel map', /name:'مطعم Wonder',emoji:'🍽️',x:8,z:-25/.test(game)],
   ['Purchased player-owned shop is reachable and opens business management', /if \(playerBusiness\.enabled\)/.test(game) && /مشروعي الخاص — إدارة المحل/.test(game) && /careerButton\.click\(\)/.test(game)],
   ['Social walk requires explicit consent', /موافقة/.test(game) && /accept\.addEventListener/.test(game)],
+  ['NPC dialogue choices trigger short two-arm conversation gestures that return to neutral pose', /const npcGestureState = new Map\(\)/.test(game) && /npcGestureState\.set\(npc\.name, \{ started: Date\.now\(\), until: Date\.now\(\) \+ 1900 \}\)/.test(game) && /socialGesture && Date\.now\(\) < socialGesture\.until/.test(game) && /npcGestureState\.delete\(npc\.name\)/.test(game)],
   ['Pet care system exists', /function careForActivePet/.test(game)],
   ['Career progression has a daily contract', /dailyOrderCount/.test(careers) && /contractClaimedDate/.test(careers)],
   ['Business level upgrades are bounded in the UI', /businessLevel >= 5/.test(careers)],
@@ -106,7 +107,14 @@ const checks = [
   ['Procedural public buildings have readable English storefront signs while houses and villas remain unlabeled', /districtSignMaterial/.test(game) && /districtLabelFor/.test(game) && /readable storefront sign/.test(game) && /CAFE/.test(game) && /HOSPITAL/.test(game) && /CINEMA/.test(game) && /type.kind !== 'home' && type.kind !== 'villa'/.test(game)],
   ['Procedural interiors show matching signs and pharmacy/apartment interiors have dedicated furnishing', /District interior readable sign/.test(game) && /Pharmacy medicine cabinet/.test(game) && /Apartment lobby reception/.test(game) && /Arcade game cabinet/.test(game)],
   ['Player movement is no longer clamped to the starter neighborhood', !/p\.x = Math\.max\(-42/.test(game) && !/p\.z = Math\.max\(-42/.test(game)],
-  ['No service-role credential is hard-coded', !/service_role/i.test(html + game + careers)]
+  ['No service-role credential is hard-coded', !/service_role/i.test(html + game + careers)],
+  ['Billiards activity is playable with touch aiming, ball collisions, cushions and pockets', /function renderBilliards\(\)/.test(activities) && /wwa-pool-canvas/.test(activities) && /function shoot\(e\)/.test(activities) && /const pockets=/.test(activities) && /requestAnimationFrame\(step\)/.test(activities)],
+  ['Dominoes activity supports matching both chain ends and a computer opponent', /function renderDominoes\(\)/.test(activities) && /function cpuPlay\(\)/.test(activities) && /state\.chain\.unshift/.test(activities) && /wwa-domino-hand/.test(activities)],
+  ['Card game supports a shuffled 52-card deck, ten rounds and score-based result', /function renderCards\(\)/.test(activities) && /suits\.flatMap/.test(activities) && /state\.round>=10/.test(activities) && /wwa-card-draw/.test(activities)],
+  ['Five screen-edge category shortcuts are generated from the existing menu sections', /ww-menu-categories/.test(game) && /wwMenuCategoryIcons = \['✨', '🌍', '🏡', '🎮', '🎒'\]/.test(game) && /wwMenuSections\.forEach/.test(game)],
+  ['Only the selected menu category opens and every original menu action ID is preserved', /wwMenuBodies\.forEach/.test(game) && /item\.section\.hidden = true/.test(game) && /ww-section-body button/.test(game) && ['open-map','open-football','open-puzzle','open-blockblast','open-watersort','open-shop','open-pets'].every(id => game.includes('id="' + id + '"'))],
+  ['Additional arcade, board, challenge and space launchers are docked inside the games category', ['ww-activities-launch','ww-arcade-launch','board-games-launch','ww-challenges-launch','ww-space-launcher'].every(id => game.includes("'" + id + "'")) && /dockWonderGameLaunchers/.test(game)],
+  ['Category rail and selected panel stay on the screen edge and adapt to landscape phones', /#life-ui #ww-menu-categories/.test(css) && /right: 6px/.test(css) && /orientation: landscape/.test(css) && /#life-ui #ww-menu-content\[hidden\]/.test(css)],
 ];
 
 let failed = 0;
