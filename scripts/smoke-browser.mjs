@@ -61,6 +61,17 @@ try {
   await page.locator('#life-ui').waitFor({ state: 'attached', timeout: 20000 });
   await page.locator('#player-level').waitFor({ state: 'attached', timeout: 10000 });
 
+  // The new HUD keeps five category shortcuts visible at the screen edge.
+  // Open the relevant category before exercising any of its original controls.
+  async function openMenuCategory(index) {
+    const categories = page.locator('#ww-menu-categories');
+    if (!(await categories.isVisible())) await page.locator('#ww-menu-toggle').click();
+    const section = page.locator('.ww-menu-section[data-category-index="' + index + '"]');
+    if (!(await section.isVisible())) await page.locator('#ww-menu-category-' + index).click();
+    await section.waitFor({ state: 'visible', timeout: 5000 });
+  }
+
+
   // Memory challenge should open, render all twelve cards, restart, and close accessibly.
   await page.locator('#ww-memory-open').waitFor({ state: 'visible', timeout: 10000 });
   await page.locator('#ww-memory-open').click();
@@ -184,7 +195,9 @@ try {
   assert.ok(Math.abs(Number(await canvas.getAttribute('data-camera-yaw'))) < 0.01, 'camera reset should restore the default orbit angle');
 
   // Ludo must visibly move a home piece onto the track after a six, then advance it on a later roll.
+  await openMenuCategory(3);
   await page.locator('#board-games-launch').waitFor({ state: 'visible', timeout: 10000 });
+  await openMenuCategory(3);
   await page.locator('#board-games-launch').click();
   await page.locator('#bg-open-ludo').click();
   await page.evaluate(() => { window.__wwOriginalRandom = Math.random; Math.random = () => 0.999; });
@@ -201,20 +214,27 @@ try {
   await page.evaluate(() => { if (window.__wwOriginalRandom) Math.random = window.__wwOriginalRandom; });
   await page.locator('#bg-close').click();
   await page.locator('#ww-menu-toggle').click();
-  assert.equal(await page.locator('#ww-menu-toggle').getAttribute('aria-expanded'), 'true', 'main menu should expand');
-  assert.equal(await page.locator('#ww-menu-content').isVisible(), true, 'grouped actions should be visible when menu expands');
+  assert.equal(await page.locator('#ww-menu-toggle').getAttribute('aria-expanded'), 'false', 'menu toggle should collapse the category rail');
+  await page.locator('#ww-menu-toggle').click();
+  assert.equal(await page.locator('#ww-menu-toggle').getAttribute('aria-expanded'), 'true', 'menu toggle should restore the category rail');
+  await openMenuCategory(1);
+  assert.equal(await page.locator('#ww-menu-content').isVisible(), true, 'selected category panel should be visible');
   await page.locator('#open-map').evaluate(el => el.click());
   await page.locator('#map-panel').waitFor({ state: 'visible' });
   await page.locator('.map-destination').filter({ hasText: 'رحلة إلى مصر' }).click();
   assert.match(await page.locator('#status').innerText(), /وصلتي إلى رحلة إلى مصر/, 'Egypt destination should report arrival');
+  await openMenuCategory(1);
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'رحلة إلى باريس' }).click();
   assert.match(await page.locator('#status').innerText(), /وصلتي إلى رحلة إلى باريس/, 'Paris destination should report arrival');
+  await openMenuCategory(1);
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'رحلة إلى طوكيو' }).click();
   assert.match(await page.locator('#status').innerText(), /وصلتي إلى رحلة إلى طوكيو/, 'Tokyo destination should report arrival');
+  await openMenuCategory(1);
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'نافورة الساحة' }).click();
+  await openMenuCategory(2);
   await page.locator('#open-home-build').click();
   await page.locator('#home-build-panel').waitFor({ state: 'visible' });
   // The customization overlay is vertically scrollable on a 390px mobile viewport.
@@ -260,6 +280,7 @@ try {
     await page.locator('#exit-home').click();
     await page.locator('#exit-home').waitFor({ state: 'hidden' });
   }
+  await openMenuCategory(1);
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'متجر Wonder' }).click();
   await page.locator('#exit-home').waitFor({ state: 'visible' });
@@ -275,6 +296,7 @@ try {
   await page.locator('#exit-home').click();
   await page.locator('#exit-home').waitFor({ state: 'hidden' });
 
+  await openMenuCategory(1);
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'كافيه Wonder' }).click();
   await page.locator('#exit-home').waitFor({ state: 'visible' });
@@ -285,6 +307,7 @@ try {
   await page.locator('#exit-home').waitFor({ state: 'hidden' });
 
   // Restaurant, office and gym must be enterable rooms with their own equipment and action.
+  await openMenuCategory(1);
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'مطعم Wonder' }).click();
   await page.locator('#interact').click();
@@ -295,6 +318,7 @@ try {
   await page.locator('#exit-home').click();
   await page.locator('#exit-home').waitFor({ state: 'hidden' });
 
+  await openMenuCategory(1);
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'مكتب الحي' }).click();
   await page.locator('#interact').click();
@@ -305,6 +329,7 @@ try {
   await page.locator('#exit-home').click();
   await page.locator('#exit-home').waitFor({ state: 'hidden' });
 
+  await openMenuCategory(1);
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'Wonder Fitness' }).click();
   await page.locator('#interact').click();
@@ -316,6 +341,7 @@ try {
   await page.locator('#exit-home').waitFor({ state: 'hidden' });
 
   // The visible aircraft and train station should launch their playable activities.
+  await openMenuCategory(1);
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'مطار Wonder Air' }).click();
   await page.locator('#interact').click();
@@ -324,6 +350,7 @@ try {
   await page.locator('#wwa-home').click();
   await page.locator('#ww-activities').waitFor({ state: 'hidden' });
 
+  await openMenuCategory(1);
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'محطة Wonder Central' }).click();
   await page.locator('#interact').click();
@@ -332,6 +359,7 @@ try {
   await page.locator('#wwa-home').click();
   await page.locator('#ww-activities').waitFor({ state: 'hidden' });
 
+  await openMenuCategory(1);
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'منصة عروض الأزياء' }).click();
   await page.locator('#interact').click();
@@ -346,31 +374,37 @@ try {
   await page.locator('#ww-activities').waitFor({ state: 'hidden' });
 
   // A free ready-made villa opens a distinct furnished interior; the premium villa is price-gated.
+  await openMenuCategory(1);
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'فيلا Wonder الجاهزة' }).click();
   await page.locator('#interact').click();
   await page.locator('#exit-home').waitFor({ state: 'visible' });
   await page.locator('#exit-home').click();
   await page.locator('#exit-home').waitFor({ state: 'hidden' });
+  await openMenuCategory(1);
   await page.locator('#open-map').click();
   await page.locator('.map-destination').filter({ hasText: 'فيلا Wonder الفاخرة' }).click();
   assert.match(await page.locator('#map-feedback').innerText(), /250 عملة/);
   await page.locator('#close-map').click();
   await page.locator('#map-panel').waitFor({ state: 'hidden' });
 
-  if (await page.locator('#ww-menu-toggle').getAttribute('aria-expanded') !== 'true') {
-    await page.locator('#ww-menu-toggle').click();
-  }
+  await openMenuCategory(4);
   await page.locator('#ww-menu-content').waitFor({ state: 'visible' });
   await page.locator('#open-shop').waitFor({ state: 'visible' });
   await page.locator('#open-pets').waitFor({ state: 'visible' });
+  await openMenuCategory(2);
   await page.locator('#toggle-vehicle').click();
+  await openMenuCategory(2);
   assert.equal(await page.locator('#toggle-vehicle').getAttribute('aria-pressed'), 'true', 'vehicle button should enter driving mode');
+  await openMenuCategory(2);
   assert.match(await page.locator('#toggle-vehicle').innerText(), /النزول من العربية/);
+  await openMenuCategory(2);
   await page.locator('#toggle-vehicle').click();
+  await openMenuCategory(2);
   assert.equal(await page.locator('#toggle-vehicle').getAttribute('aria-pressed'), 'false', 'vehicle button should return to walking mode');
 
   // Preset-only group gathering: choose participants, respond to each, and finish with no free-text chat.
+  await openMenuCategory(1);
   await page.locator('#open-gathering').click();
   await page.locator('#gathering-panel').waitFor({ state: 'visible' });
   await page.locator('#gathering-location').selectOption('park');
@@ -384,6 +418,7 @@ try {
   await page.locator('#close-gathering').click();
   await page.locator('#gathering-panel').waitFor({ state: 'hidden' });
 
+  await openMenuCategory(0);
   await page.locator('#open-avatar-creator').click();
   await page.locator('#avatar-creator-panel').waitFor({ state: 'visible' });
   await page.locator('#avatar-age').evaluate(el => { el.value = '65'; el.dispatchEvent(new Event('input', { bubbles: true })); });
@@ -398,6 +433,7 @@ try {
   await page.locator('#close-avatar-creator').click();
   await page.locator('#avatar-creator-panel').waitFor({ state: 'hidden' });
 
+  await openMenuCategory(1);
   await page.locator('#open-wonder-guide').click();
   await page.locator('#wonder-guide-panel').waitFor({ state: 'visible' });
   assert.equal(await page.locator('.wonder-guide-choice').count(), 5, 'Wonder guide should expose only bounded preset questions');
@@ -414,6 +450,7 @@ try {
   await page.locator('#career-panel .career-heading button').click();
   await page.locator('#career-panel').waitFor({ state: 'hidden' });
 
+  await openMenuCategory(3);
   await page.locator('#board-games-launch').click();
   await page.locator('#board-games-panel').waitFor({ state: 'visible' });
   await page.locator('#bg-open-ludo').click();
@@ -445,12 +482,14 @@ try {
   await page.locator('#bg-close').click();
   await page.locator('#board-games-panel').waitFor({ state: 'hidden' });
 
+  await openMenuCategory(3);
   await page.locator('#ww-arcade-launch').click();
   await page.locator('#ww-arcade-panel').waitFor({ state: 'visible' });
   assert.equal(await page.evaluate(() => document.activeElement?.id), 'wwa-close', 'opening the arcade dialog should move keyboard focus inside it');
   await page.keyboard.press('Escape');
   await page.locator('#ww-arcade-panel').waitFor({ state: 'hidden' });
   assert.equal(await page.evaluate(() => document.activeElement?.id), 'ww-arcade-launch', 'Escape should close the arcade dialog and restore focus to its launcher');
+  await openMenuCategory(3);
   await page.locator('#ww-arcade-launch').click();
   await page.locator('#ww-arcade-panel').waitFor({ state: 'visible' });
   await page.locator('#wwa-color-open').click();
@@ -485,6 +524,7 @@ try {
   await page.locator('#ww-arcade-panel').waitFor({ state: 'hidden' });
 
   // PUBG-inspired Battle Royale: validate touch actions, ammunition, reload and reset.
+  await openMenuCategory(3);
   await page.locator('#ww-activities-launch').click();
   await page.locator('#ww-activities').waitFor({ state: 'visible' });
   await page.locator('#wwa-menu [data-game="battle"]').click();
@@ -527,6 +567,7 @@ try {
   await page.locator('#wwa-home').click();
   await page.locator('#ww-activities').waitFor({ state: 'hidden' });
 
+  await openMenuCategory(3);
   await page.locator('#open-football').click();
   await page.locator('#football-panel').waitFor({ state: 'visible' });
   await page.locator('[data-foot-aim="40"]').click();
@@ -553,6 +594,7 @@ try {
   await page.locator('#close-football').click();
   await page.locator('#football-panel').waitFor({ state: 'hidden' });
 
+  await openMenuCategory(3);
   await page.locator('#open-blockblast').click();
   await page.locator('#blockblast-panel').waitFor({ state: 'visible' });
   assert.equal(await page.locator('#blockblast-board .blockblast-cell').count(), 64, 'Block Blast should render an 8x8 board');
@@ -565,6 +607,7 @@ try {
   await page.locator('#close-blockblast').click();
   await page.locator('#blockblast-panel').waitFor({ state: 'hidden' });
 
+  await openMenuCategory(3);
   await page.locator('#open-watersort').click();
   await page.locator('#watersort-panel').waitFor({ state: 'visible' });
   assert.equal(await page.locator('#watersort-tubes .watersort-tube').count(), 6, 'Water Sort should render four color tubes and two empty tubes');
@@ -599,11 +642,13 @@ try {
   await page.locator('#close-watersort').click();
   await page.locator('#watersort-panel').waitFor({ state: 'hidden' });
 
+  await openMenuCategory(3);
   await page.locator('#open-memory-match').click();
   await page.locator('#memory-match-panel').waitFor({ state: 'visible' });
   assert.equal(await page.locator('#memory-board button').count(), 16, 'memory game should render eight playable pairs');
   await page.locator('#close-memory-match').click();
 
+  await openMenuCategory(4);
   await page.locator('#open-shop').click();
   await page.locator('#shop-panel').waitFor({ state: 'visible' });
   await page.locator('#cloud-economy-panel').waitFor({ state: 'visible' });
@@ -660,6 +705,7 @@ try {
 
 
   // Exercise the twelve additional activity prototypes, including the now-visible gym mode.
+  await openMenuCategory(3);
   await page.locator('#ww-activities-launch').click();
   await page.locator('#ww-activities').waitFor({ state: 'visible' });
   assert.equal(await page.locator('#wwa-menu [data-game]').count(), 12, 'activity hub should expose twelve additional activities including gym without duplicating cup mode');
