@@ -812,7 +812,7 @@ try {
     if (id === 'football') { await page.locator('[data-f="pass"]').click(); await page.locator('[data-f="shoot"]').click(); }
     if (id === 'ropes') {
       assert.equal(await page.locator('#wwa-rope-endpoints [data-node]').count(), 4, 'rope puzzle should show four draggable rope ends');
-      assert.equal(await page.locator('#wwa-rope-lines line').count(), 8, 'rope puzzle should render thick rope strands and highlights');
+      assert.equal(await page.locator('#wwa-rope-lines line').count(), 20, 'rope puzzle should render the full set of braided strands and highlights');
       const ropeNode = page.locator('#wwa-rope-endpoints [data-node="0"]');
       const ropeBox = await ropeNode.boundingBox();
       await page.mouse.move(ropeBox.x + ropeBox.width / 2, ropeBox.y + ropeBox.height / 2);
