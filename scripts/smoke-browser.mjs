@@ -64,11 +64,11 @@ try {
   assert.equal(await page.locator('#ww-menu-categories .ww-menu-category').count(), 5, 'menu should expose five independent categories');
   await openMenuCategory(3);
   const gameGridColumns = await page.locator('.ww-menu-section[data-category-index="3"] .ww-section-body').evaluate(el => getComputedStyle(el).gridTemplateColumns);
-  assert.equal(gameGridColumns.trim().split(/\\s+/).length, 2, 'games and activities should be distributed into two columns');
+  assert.equal(gameGridColumns.trim().split(/\s+/).length, 2, 'games and activities should be distributed into two columns');
   assert.ok(await page.locator('.ww-menu-section[data-category-index="3"] .ww-menu-docked-launcher').count() >= 1, 'game hubs should remain visible as separate wide launch cards');
   await page.setViewportSize({ width: 844, height: 390 });
   const landscapeCategoryColumns = await page.locator('#ww-menu-categories').evaluate(el => getComputedStyle(el).gridTemplateColumns);
-  assert.equal(landscapeCategoryColumns.trim().split(/\\s+/).length, 1, 'landscape category rail should be a compact vertical dock');
+  assert.equal(landscapeCategoryColumns.trim().split(/\s+/).length, 1, 'landscape category rail should be a compact vertical dock');
   await page.setViewportSize({ width: 390, height: 844 });
 
 
