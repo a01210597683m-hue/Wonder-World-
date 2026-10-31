@@ -362,6 +362,8 @@ try {
     await page.locator('#ww-menu-toggle').click();
   }
   await page.locator('#ww-menu-content').waitFor({ state: 'visible' });
+  await page.locator('#open-shop').waitFor({ state: 'visible' });
+  await page.locator('#open-pets').waitFor({ state: 'visible' });
   await page.locator('#toggle-vehicle').click();
   assert.equal(await page.locator('#toggle-vehicle').getAttribute('aria-pressed'), 'true', 'vehicle button should enter driving mode');
   assert.match(await page.locator('#toggle-vehicle').innerText(), /النزول من العربية/);
