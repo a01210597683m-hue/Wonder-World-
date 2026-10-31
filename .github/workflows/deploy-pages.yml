@@ -2,7 +2,7 @@ name: Deploy WonderWorld to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'rebuild/**']
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -31,8 +31,11 @@ jobs:
           node --check careers.js
           node --check board-games.js
           node --check mini-games.js
+          node --check wonder-challenges.js
+          node --check wonder-memory.js
           node --check scripts/check-game.mjs
           node --check scripts/check-assets.mjs
+          node --check scripts/smoke-browser.mjs
       - name: Check activity module JavaScript syntax
         run: node --check wonderworld-activities.js
       - name: Check Space Shooter JavaScript syntax
@@ -47,9 +50,13 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run browser gameplay smoke tests
         run: node scripts/smoke-browser.mjs
-        # Keep the Pages deployment available while the known shop-interior smoke test is investigated.
-        # The step remains visibly failed in the workflow; it is not treated as a passing test.
-        continue-on-error: true
+      - name: Assemble clean Pages site
+        run: |
+          mkdir -p _site
+          cp index.html style.css career.css auth.js main.js careers.js board-games.js mini-games.js wonderworld-activities.js space-shooter.js wonder-challenges.js wonder-memory.js _site/
+          cp -R assets game-design-references App-Branding _site/
+          test -f _site/index.html
+          test ! -d _site/node_modules
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
         with:
@@ -57,9 +64,9 @@ jobs:
       - name: Upload static site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
   deploy:
-    if: github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

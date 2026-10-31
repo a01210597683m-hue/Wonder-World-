@@ -14,6 +14,7 @@ const welcomeMigration = read('../supabase/migrations/202610210010_wallet_welcom
 const careerRewardMigration = read('../supabase/migrations/202610210011_secure_career_shift_rewards.sql');
 const css = read('../style.css');
 const careerCss = read('../career.css');
+const workflow = read('../.github/workflows/deploy-pages.yml');
 
 const checks = [
   ['Backyard pool interaction has proximity and cooldown checks', /name: 'مسبح بيت البداية 🏊'/.test(game) && /lastSwimAt/.test(game) && /poolDistance < poolTarget.radius/.test(game)],
@@ -40,6 +41,7 @@ const checks = [
   ['Signed-in career shifts request the server-authoritative wallet reward', /rpc\('ww_claim_career_shift'/.test(careers) && /wonderworld:cloud-wallet-updated/.test(careers)],
   ['Economy RPCs require authenticated users and restrict anonymous execution', economyMigration.includes('auth.uid()') && economyMigration.includes('revoke all on function public.ww_purchase_game_item(text) from public,anon') && economyMigration.includes('grant execute on function public.ww_purchase_game_item(text) to authenticated')],
   ['Mobile viewport allows user zoom', /viewport-fit=cover/.test(html) && !/user-scalable=no|max(?:imum)?-scale=1/i.test(html)],
+  ['Browser gameplay smoke tests are required and cannot silently pass on failure', /name: Run browser gameplay smoke tests\s+run: node scripts\/smoke-browser\.mjs/.test(workflow) && !/name: Run browser gameplay smoke tests[\s\S]{0,180}continue-on-error:\s*true/.test(workflow)],
 
   ['Ludo and chess activities are dynamically wired', /import\(['"]\.\/board-games\.js\?v=/.test(game)],
   ['Casual arcade module is loaded by the page', /mini-games\.js\?v=/.test(html) && /function boot\(\)/.test(miniGames)],
@@ -80,6 +82,10 @@ const checks = [
   ['Career system is loaded', /careers\.js\?v=/.test(html)],
   ['Mobile touch controls exist', /data-dir="up"/.test(html) && /data-dir="left"/.test(html)],
   ['Mobile virtual joystick and camera-relative third-person orbit controls are wired', /id="move-joystick"/.test(html) && /moveJoystick\.addEventListener\('pointerdown'/.test(game) && /cameraOrbitYaw/.test(game) && /inputRight \* cameraCos/.test(game) && /camera-look-hint/.test(css)],
+  ['Mobile joystick captures its pointer and always recenters on release, cancel, lost capture, browser blur or hidden tab', /moveJoystick\.setPointerCapture\?\.\(event\.pointerId\)/.test(game) && /\['pointerup','pointercancel','lostpointercapture'\]/.test(game) && /function releaseJoystick\(\)/.test(game) && /document\.addEventListener\('pointerup', releaseJoystickPointer, true\)/.test(game) && /document\.addEventListener\('pointercancel', releaseJoystickPointer, true\)/.test(game) && /window\.addEventListener\('blur', releaseJoystick\)/.test(game) && /analogMoveX = 0/.test(game) && /analogMoveY = 0/.test(game)],
+  ['Camera drag starts only on the 3D canvas and releases cleanly without hijacking HUD gestures', /if \(event\.target !== canvas\) return;/.test(game) && /document\.addEventListener\('pointermove'/.test(game) && /document\.addEventListener\('pointerup', releaseCameraPointer/.test(game) && /document\.addEventListener\('pointercancel', releaseCameraPointer/.test(game)],
+  ['Camera drag state is cleared when the browser loses focus or the tab becomes hidden', /window\.addEventListener\('blur', clearCameraPointer\)/.test(game) && /document\.addEventListener\('visibilitychange',[\s\S]*?document\.hidden[\s\S]*?clearCameraPointer\(\)/.test(game)],
+  ['Mobile camera dock exposes zoom and recenter controls with bounded indoor/outdoor distance', /id="camera-zoom-in"/.test(html) && /id="camera-zoom-out"/.test(html) && /id="camera-reset"/.test(html) && /function setCameraDistance\(/.test(game) && /Math\.max\(3\.2, Math\.min\(7\.5, cameraOrbitDistance\)\)/.test(game) && /#camera-controls/.test(css)],
   ['World interaction control exists', /id="interact"/.test(game)],
   ['Neighborhood destinations include enterable furnished shop and cafe interiors with clickable context actions', /const shopInteriorRoot = new Entity\('Wonder Shop Interior'\)/.test(game) && /const cafeInteriorRoot = new Entity\('Wonder Cafe Interior'\)/.test(game) && /activeIndoorAction\.run\(\)/.test(game) && /متجر Wonder', shopInteriorRoot/.test(game) && /كافيه Wonder', cafeInteriorRoot/.test(game) && /#exit-home, #indoor-place-action\s*\{\s*pointer-events: auto/.test(css)],
   ['Neighborhood destinations exist', /const places = \[/.test(game)],

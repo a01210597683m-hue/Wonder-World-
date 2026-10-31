@@ -568,6 +568,11 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 #life-ui.actions-collapsed #exit-home,
 #life-ui.actions-collapsed #indoor-place-action{display:none!important}
 #life-ui .avatar-tools{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px!important}
+
+/* In compact mode, entering an interior must never hide the only way back out. */
+#life-ui.actions-collapsed.is-indoors #exit-home,
+#life-ui.actions-collapsed.is-indoors #indoor-place-action:not([hidden]){display:block!important}
+
 #life-ui .avatar-tools button,#life-ui #open-shop,#life-ui #interact,#life-ui #exit-home{
  width:100%;min-width:0;min-height:36px;justify-self:stretch;margin:0;padding:7px 6px;
  font-size:11px;line-height:1.3;overflow-wrap:anywhere;touch-action:manipulation
@@ -824,6 +829,14 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 @media(max-width:480px){.avatar-creator-grid{grid-template-columns:1fr}.avatar-creator-grid label{padding:10px}}
 
 
+/* Home builder is a modal inside #life-ui. Keep its own color controls visible
+   even when the compact HUD hides the regular avatar-tools in collapsed mode. */
+#life-ui.actions-collapsed #home-build-panel .avatar-tools {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+}
+
 /* Clear, touch-friendly state for the home-design controls. */
 #home-build-panel .avatar-tools button[data-home-wall],
 #home-build-panel .avatar-tools button[data-home-roof] {
@@ -958,3 +971,43 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 
 /* Keep the redesigned HUD compact before the menu is opened. */
 #life-ui.ww-menu-collapsed{bottom:auto!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
+
+/* Dedicated camera controls for touch screens; kept separate from the look-drag surface. */
+#camera-controls{
+  position:fixed;z-index:31;right:max(14px,env(safe-area-inset-right));bottom:calc(58px + env(safe-area-inset-bottom));
+  display:flex;align-items:center;gap:8px;padding:7px;border:1px solid #ffffffa8;border-radius:16px;
+  background:rgba(18,34,59,.72);box-shadow:0 6px 20px #0b1b3155;backdrop-filter:blur(8px);
+  pointer-events:auto;touch-action:manipulation
+}
+#camera-controls button{
+  display:grid;place-items:center;width:42px;height:42px;border:1px solid #ffffff80;border-radius:12px;
+  background:linear-gradient(145deg,#fff,#dce9fa);color:#1d3554;font:900 25px/1 system-ui,sans-serif;
+  box-shadow:0 2px 7px #08182b44;touch-action:manipulation;-webkit-tap-highlight-color:transparent
+}
+#camera-controls button:active{transform:scale(.94);background:#d8e9ff}
+#camera-controls button:focus-visible{outline:3px solid #f4c95d;outline-offset:2px}
+@media(max-width:420px){
+  #camera-controls{right:8px;bottom:calc(52px + env(safe-area-inset-bottom));gap:5px;padding:5px}
+  #camera-controls button{width:38px;height:38px;font-size:23px}
+}
+@media(orientation:landscape) and (max-height:520px){
+  #camera-controls{bottom:calc(12px + env(safe-area-inset-bottom));right:12px}
+  .camera-look-hint{display:none}
+}
+
+
+/* The redesigned grouped menu is controlled by ww-menu-toggle, independently of the legacy action dock.
+   When that menu is open, restore its controls even if the compact action dock remains collapsed. */
+#life-ui.actions-collapsed #ww-menu-content:not([hidden]) .avatar-tools {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+#life-ui.actions-collapsed #ww-menu-content:not([hidden]) #open-shop,
+#life-ui.actions-collapsed #ww-menu-content:not([hidden]) #open-pets,
+#life-ui.actions-collapsed #ww-menu-content:not([hidden]) #xp-panel {
+  display: block !important;
+}
+#life-ui.actions-collapsed #ww-menu-content:not([hidden]) #open-shop,
+#life-ui.actions-collapsed #ww-menu-content:not([hidden]) #open-pets {
+  display: flex !important;
+}

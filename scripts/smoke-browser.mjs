@@ -50,7 +50,11 @@ try {
   });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
   const pageErrors = [];
-  page.on('pageerror', error => pageErrors.push(error.message));
+  const consoleErrors = [];
+  const failedRequests = [];
+  page.on('pageerror', error => pageErrors.push(error.stack || error.message));
+  page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
+  page.on('requestfailed', request => failedRequests.push(request.url() + ' :: ' + (request.failure()?.errorText || 'request failed')));
 
   await page.goto('http://127.0.0.1:4173/', { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.locator('#application').waitFor({ state: 'visible', timeout: 15000 });
@@ -69,8 +73,133 @@ try {
   await page.keyboard.press('Escape');
   await page.locator('#ww-memory-panel').waitFor({ state: 'hidden' });
 
-  assert.equal(await page.locator('#application').count(), 1, '3D canvas should be present');
+  const canvas = page.locator('#application');
+  assert.equal(await canvas.count(), 1, '3D canvas should be present');
+  const canvasBox = await canvas.boundingBox();
+  assert.ok(canvasBox && canvasBox.width >= 300 && canvasBox.height >= 500, '3D canvas should fill the mobile game viewport');
   assert.equal(await page.locator('[data-dir="up"]').count(), 1, 'mobile movement controls should be present');
+  const joystick = page.locator('#move-joystick');
+  const joystickBox = await joystick.boundingBox();
+  assert.ok(joystickBox, 'mobile virtual joystick should be visible');
+  const joystickCenterX = joystickBox.x + joystickBox.width / 2;
+  const joystickCenterY = joystickBox.y + joystickBox.height / 2;
+  await page.mouse.move(joystickCenterX, joystickCenterY);
+  await page.mouse.down();
+  await page.mouse.move(joystickCenterX + 30, joystickCenterY - 18, { steps: 3 });
+  assert.notEqual(await page.locator('#move-joystick-thumb').evaluate(el => el.style.transform), 'translate(0px,0px)', 'joystick thumb should respond while dragging');
+  await page.mouse.up();
+  const joystickThumbAfterRelease = await page.locator('#move-joystick-thumb').boundingBox();
+  const joystickAfterRelease = await joystick.boundingBox();
+  assert.ok(joystickThumbAfterRelease && joystickAfterRelease, 'joystick and thumb should remain measurable after release');
+  assert.ok(Math.abs((joystickThumbAfterRelease.x + joystickThumbAfterRelease.width / 2) - (joystickAfterRelease.x + joystickAfterRelease.width / 2)) < 3, 'joystick thumb should visually recenter horizontally after release');
+  assert.ok(Math.abs((joystickThumbAfterRelease.y + joystickThumbAfterRelease.height / 2) - (joystickAfterRelease.y + joystickAfterRelease.height / 2)) < 3, 'joystick thumb should visually recenter vertically after release');
+
+  // Mobile camera dock: zoom, recenter, and right-side canvas orbit must all work independently.
+  try {
+    await page.waitForFunction(() => Number.isFinite(Number(document.querySelector('#application')?.dataset.cameraDistance)), { timeout: 15000 });
+  } catch (error) {
+    const diagnostics = await page.locator('#application').evaluate(el => ({
+      engineReady: el.dataset.engineReady || 'false',
+      engineFrames: el.dataset.engineFrames || '0',
+      cameraDistance: el.dataset.cameraDistance || 'missing'
+    })).catch(() => ({}));
+    throw new Error('Camera update did not become ready. Diagnostics: ' + JSON.stringify({
+      ...diagnostics, pageErrors, consoleErrors: consoleErrors.slice(-12), failedRequests: failedRequests.slice(-12)
+    }) + '\\nOriginal: ' + error.message);
+  }
+  assert.equal(await page.locator('#camera-controls button').count(), 3, 'camera dock should expose zoom in, recenter, and zoom out');
+  const cameraDistanceBefore = Number(await canvas.getAttribute('data-camera-distance'));
+  const zoomInButton = page.locator('#camera-zoom-in');
+  await zoomInButton.click();
+  try {
+    await page.waitForFunction(before => {
+      const value = Number(document.querySelector('#application')?.dataset.cameraDistance);
+      return Number.isFinite(value) && value < before - 0.2;
+    }, cameraDistanceBefore, { timeout: 3000 });
+  } catch (error) {
+    const zoomDiagnostics = await page.evaluate(() => {
+      const canvas = document.querySelector('#application');
+      const button = document.querySelector('#camera-zoom-in');
+      const rect = button?.getBoundingClientRect();
+      const hit = rect ? document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2) : null;
+      const style = button ? getComputedStyle(button) : null;
+      return {
+        cameraDistance: canvas?.dataset.cameraDistance ?? 'missing',
+        cameraYaw: canvas?.dataset.cameraYaw ?? 'missing',
+        engineReady: canvas?.dataset.engineReady ?? 'false',
+        engineFrames: canvas?.dataset.engineFrames ?? '0',
+        buttonExists: Boolean(button),
+        buttonDisabled: button?.disabled ?? null,
+        buttonRect: rect ? { x: rect.x, y: rect.y, width: rect.width, height: rect.height } : null,
+        buttonPointerEvents: style?.pointerEvents ?? null,
+        buttonZIndex: style?.zIndex ?? null,
+        hitTarget: hit ? { id: hit.id, tag: hit.tagName, className: String(hit.className || '') } : null
+      };
+    });
+    throw new Error('Zoom-in diagnostic failure: ' + JSON.stringify({
+      before: cameraDistanceBefore,
+      after: await canvas.getAttribute('data-camera-distance'),
+      ...zoomDiagnostics,
+      pageErrors: pageErrors.slice(-8),
+      consoleErrors: consoleErrors.slice(-8),
+      failedRequests: failedRequests.slice(-8),
+      original: error.message
+    }));
+  }
+  const cameraDistanceAfterZoomIn = Number(await canvas.getAttribute('data-camera-distance'));
+  assert.ok(cameraDistanceAfterZoomIn < cameraDistanceBefore, 'camera zoom-in button should move the camera closer');
+  await page.locator('#camera-zoom-out').click();
+  await page.waitForFunction(afterZoomIn => {
+    const value = Number(document.querySelector('#application')?.dataset.cameraDistance);
+    return Number.isFinite(value) && value > afterZoomIn + 0.2;
+  }, cameraDistanceAfterZoomIn, { timeout: 3000 });
+  const cameraDistanceAfterZoomOut = Number(await canvas.getAttribute('data-camera-distance'));
+  assert.ok(cameraDistanceAfterZoomOut > cameraDistanceAfterZoomIn, 'camera zoom-out button should move the camera farther away');
+  await page.locator('#camera-reset').click();
+  assert.ok(Math.abs(Number(await canvas.getAttribute('data-camera-distance')) - 7.5) < 0.15, 'camera reset should restore the outdoor follow distance');
+  const cameraBox = await canvas.boundingBox();
+  const cameraStartX = cameraBox.x + cameraBox.width * 0.78;
+  const cameraStartY = cameraBox.y + cameraBox.height * 0.48;
+  const yawBeforeDrag = Number(await canvas.getAttribute('data-camera-yaw'));
+  // Drive the exact Pointer Events consumed by the game's document-level handlers.
+  // page.mouse can target a composited WebGL layer differently under headless mobile emulation.
+  const pointerOrbit = await page.evaluate(({ x, y, before }) => {
+    const target = document.querySelector('#application');
+    const pointer = (type, clientX, clientY, buttons) => new PointerEvent(type, {
+      bubbles: true, cancelable: true, pointerId: 731, pointerType: 'touch',
+      isPrimary: true, clientX, clientY, button: 0, buttons
+    });
+    target.dispatchEvent(pointer('pointerdown', x, y, 1));
+    document.dispatchEvent(pointer('pointermove', x + 42, y + 16, 1));
+    const afterMove = Number(target.dataset.cameraYaw);
+    document.dispatchEvent(pointer('pointerup', x + 42, y + 16, 0));
+    return { before, afterMove, afterRelease: Number(target.dataset.cameraYaw) };
+  }, { x: cameraStartX, y: cameraStartY, before: yawBeforeDrag });
+  assert.ok(Number.isFinite(pointerOrbit.afterMove), 'camera yaw should remain a finite number after pointer movement');
+  assert.ok(Math.abs(pointerOrbit.afterMove - yawBeforeDrag) > 0.01,
+    'a pointer drag beginning on the right side of the 3D canvas should rotate the camera');
+  const yawAfterDrag = Number(await canvas.getAttribute('data-camera-yaw'));
+  assert.notEqual(yawAfterDrag, yawBeforeDrag, 'right-side canvas pointer drag should rotate the camera');
+  await page.locator('#camera-reset').click();
+  assert.ok(Math.abs(Number(await canvas.getAttribute('data-camera-yaw'))) < 0.01, 'camera reset should restore the default orbit angle');
+
+  // Ludo must visibly move a home piece onto the track after a six, then advance it on a later roll.
+  await page.locator('#board-games-launch').waitFor({ state: 'visible', timeout: 10000 });
+  await page.locator('#board-games-launch').click();
+  await page.locator('#bg-open-ludo').click();
+  await page.evaluate(() => { window.__wwOriginalRandom = Math.random; Math.random = () => 0.999; });
+  await page.locator('#ludo-roll').click();
+  await page.locator('#ludo-status').waitFor({ state: 'visible' });
+  assert.match(await page.locator('#ludo-status').innerText(), /طلع 6/, 'Ludo should report a six before leaving home');
+  await page.locator('#ludo-board [data-ludo-home][aria-label="حمراء 1"]').click();
+  assert.equal(await page.locator('#ludo-board button[aria-label="حمراء 1"]').count(), 1, 'red piece should appear on the track after leaving home');
+  assert.equal(await page.locator('#ludo-board [data-ludo-home][aria-label="حمراء 1"]').count(), 0, 'moved red piece should no longer remain in its home slot');
+  await page.evaluate(() => { Math.random = () => 0; });
+  await page.locator('#ludo-roll').click();
+  await page.locator('#ludo-board button[aria-label="حمراء 1"]').click();
+  assert.match(await page.locator('#ludo-status').innerText(), /حركتِ القطعة/, 'Ludo should advance an already launched piece');
+  await page.evaluate(() => { if (window.__wwOriginalRandom) Math.random = window.__wwOriginalRandom; });
+  await page.locator('#bg-close').click();
   await page.locator('#ww-menu-toggle').click();
   assert.equal(await page.locator('#ww-menu-toggle').getAttribute('aria-expanded'), 'true', 'main menu should expand');
   assert.equal(await page.locator('#ww-menu-content').isVisible(), true, 'grouped actions should be visible when menu expands');
@@ -88,8 +217,26 @@ try {
   await page.locator('.map-destination').filter({ hasText: 'نافورة الساحة' }).click();
   await page.locator('#open-home-build').click();
   await page.locator('#home-build-panel').waitFor({ state: 'visible' });
+  // The customization overlay is vertically scrollable on a 390px mobile viewport.
+  // Bring each control into the visible area before tapping, matching a real phone interaction.
   for (const [color, feedback] of [['brick', /الطوبي/], ['gold', /الذهبي/], ['yellow', /الأصفر/]]) {
-    await page.locator('[data-home-wall="' + color + '"]').click();
+    const wallButton = page.locator('[data-home-wall="' + color + '"]');
+    const wallVisibility = await wallButton.evaluate(el => ({
+      display: getComputedStyle(el).display,
+      visibility: getComputedStyle(el).visibility,
+      width: el.getBoundingClientRect().width,
+      height: el.getBoundingClientRect().height,
+      panelHidden: el.closest('#home-build-panel')?.hidden ?? true,
+      hudCollapsed: el.closest('#life-ui')?.classList.contains('actions-collapsed') ?? false
+    }));
+    assert.notEqual(wallVisibility.display, 'none',
+      color + ' facade button must not be hidden by compact HUD styles: ' + JSON.stringify(wallVisibility));
+    assert.equal(wallVisibility.visibility, 'visible',
+      color + ' facade button must be visible: ' + JSON.stringify(wallVisibility));
+    assert.ok(wallVisibility.width > 0 && wallVisibility.height > 0,
+      color + ' facade button must have a visible hit area: ' + JSON.stringify(wallVisibility));
+    await wallButton.scrollIntoViewIfNeeded();
+    await wallButton.click();
     assert.match(await page.locator('#home-build-feedback').innerText(), feedback, color + ' facade button should apply and report its selection');
   }
   await page.locator('[data-home-wall="mint"]').click();
@@ -211,7 +358,12 @@ try {
   await page.locator('#close-map').click();
   await page.locator('#map-panel').waitFor({ state: 'hidden' });
 
-  await page.locator('#ww-menu-toggle').click();
+  if (await page.locator('#ww-menu-toggle').getAttribute('aria-expanded') !== 'true') {
+    await page.locator('#ww-menu-toggle').click();
+  }
+  await page.locator('#ww-menu-content').waitFor({ state: 'visible' });
+  await page.locator('#open-shop').waitFor({ state: 'visible' });
+  await page.locator('#open-pets').waitFor({ state: 'visible' });
   await page.locator('#toggle-vehicle').click();
   assert.equal(await page.locator('#toggle-vehicle').getAttribute('aria-pressed'), 'true', 'vehicle button should enter driving mode');
   assert.match(await page.locator('#toggle-vehicle').innerText(), /النزول من العربية/);
@@ -331,6 +483,49 @@ try {
   assert.ok(Number(await page.locator('#wwa-party-score').innerText()) > 0, 'collecting a star should award points');
   await page.locator('#ww-arcade-panel').getByRole('button', { name: 'إغلاق' }).click();
   await page.locator('#ww-arcade-panel').waitFor({ state: 'hidden' });
+
+  // PUBG-inspired Battle Royale: validate touch actions, ammunition, reload and reset.
+  await page.locator('#ww-activities-launch').click();
+  await page.locator('#ww-activities').waitFor({ state: 'visible' });
+  await page.locator('#wwa-menu [data-game="battle"]').click();
+  await page.locator('#wwa-battle-canvas').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#wwa-hp').innerText(), '100', 'Battle Royale should start with full health');
+  assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'Battle Royale should start with a full magazine');
+  await page.locator('#wwa-content [data-act="up"]').click();
+  await page.locator('#wwa-content [data-act="left"]').click();
+  await page.locator('#wwa-content [data-act="fire"]').click();
+  assert.equal(await page.locator('#wwa-ammo').innerText(), '29', 'Battle Royale fire control should consume one round');
+  await page.locator('#wwa-content [data-act="reload"]').click();
+  assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'Battle Royale reload should restore ammunition up to magazine capacity');
+  await page.locator('#wwa-content [data-act="heal"]').click();
+  assert.ok(Number(await page.locator('#wwa-hp').innerText()) <= 100, 'Battle Royale healing must not exceed maximum health');
+  await page.locator('#wwa-reset').click();
+  assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'Battle Royale restart should restore the starting magazine');
+  await page.locator('#wwa-back').click();
+  await page.locator('#wwa-menu [data-game="ropes"]').click();
+  await page.locator('#wwa-rope-nodes').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#wwa-rope-nodes [data-node]').count(), 4, 'Tangle Master should render four draggable rope endpoints');
+  const ropeSvg = page.locator('#wwa-rope-nodes');
+  const ropeBox = await ropeSvg.boundingBox();
+  assert.ok(ropeBox, 'rope board should have a measurable touch surface');
+  const ropePoint = (x, y) => ({ x: ropeBox.x + x / 640 * ropeBox.width, y: ropeBox.y + y / 360 * ropeBox.height });
+  for (const move of [
+    { from: [525, 285], to: [525, 85] },
+    { from: [115, 285], to: [525, 285] },
+    { from: [525, 85], to: [115, 285] }
+  ]) {
+    const from = ropePoint(...move.from), to = ropePoint(...move.to);
+    await page.mouse.move(from.x, from.y);
+    await page.mouse.down();
+    await page.mouse.move(to.x, to.y, { steps: 4 });
+    await page.mouse.up();
+  }
+  assert.equal(await page.locator('#wwa-crossings').innerText(), '0', 'dragging rope endpoints into a square should remove all crossings');
+  assert.match(await page.locator('#wwa-feedback').innerText(), /الحبال بقت منفصلة/, 'Tangle Master should confirm a solved rope layout');
+  await page.locator('#wwa-reset').click();
+  assert.equal(await page.locator('#wwa-rope-moves').innerText(), '0', 'rope reset should clear the move counter');
+  await page.locator('#wwa-home').click();
+  await page.locator('#ww-activities').waitFor({ state: 'hidden' });
 
   await page.locator('#open-football').click();
   await page.locator('#football-panel').waitFor({ state: 'visible' });
@@ -474,12 +669,51 @@ try {
     assert.notEqual((await page.locator('#wwa-title').innerText()).trim(), '', id + ' should open with a title');
     if (id === 'battle') {
       assert.match(await page.locator('#wwa-title').innerText(), /Battle|معركة|قتال/i);
+      const battleCanvas = page.locator('#wwa-battle-canvas');
+      const moveStick = page.locator('#wwa-battle-move-stick');
+      await moveStick.scrollIntoViewIfNeeded();
+      const moveBox = await moveStick.boundingBox();
+      assert.ok(moveBox && moveBox.width >= 100, 'Battle Royale should show a large mobile movement stick');
+      const playerXBeforeStick = Number(await battleCanvas.getAttribute('data-player-x'));
+      const moveCX = moveBox.x + moveBox.width / 2, moveCY = moveBox.y + moveBox.height / 2;
+      await page.mouse.move(moveCX, moveCY);
+      await page.mouse.down();
+      await page.mouse.move(moveCX + moveBox.width * 0.28, moveCY, { steps: 3 });
+      await page.waitForTimeout(650);
+      const playerXAfterStick = Number(await battleCanvas.getAttribute('data-player-x'));
+      await page.mouse.up();
+      assert.ok(playerXAfterStick > playerXBeforeStick + 5, 'left virtual stick should continuously move the player');
+      const aimStick = page.locator('#wwa-battle-aim-stick');
+      await aimStick.scrollIntoViewIfNeeded();
+      const aimBox = await aimStick.boundingBox();
+      assert.ok(aimBox && aimBox.width >= 100, 'Battle Royale should show a separate mobile aiming stick');
+      const aimCX = aimBox.x + aimBox.width / 2, aimCY = aimBox.y + aimBox.height / 2;
+      await page.mouse.move(aimCX, aimCY);
+      await page.mouse.down();
+      await page.mouse.move(aimCX + aimBox.width * 0.28, aimCY, { steps: 3 });
+      const aimedX = Number(await battleCanvas.getAttribute('data-aim-x'));
+      const playerXForAim = Number(await battleCanvas.getAttribute('data-player-x'));
+      await page.mouse.up();
+      assert.ok(aimedX > playerXForAim + 30, 'right virtual stick should independently move the aiming reticle');
+
       assert.equal(await page.locator('#wwa-bscore').innerText(), '0', 'battle royale should start with no eliminations');
       assert.equal(await page.locator('#wwa-zone').count(), 1, 'battle royale should show the shrinking safe-zone status');
       await page.locator('[data-act="fire"]').click();
       assert.equal(await page.locator('#wwa-ammo').innerText(), '29', 'battle royale should consume one round per shot');
       await page.locator('[data-act="reload"]').click();
       assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'battle royale should refill ammunition up to the magazine cap');
+      const holdFire = page.locator('[data-act="fire"]');
+      await holdFire.scrollIntoViewIfNeeded();
+      const holdFireBox = await holdFire.boundingBox();
+      assert.ok(holdFireBox, 'Battle Royale fire control should have a touch target');
+      await page.mouse.move(holdFireBox.x + holdFireBox.width / 2, holdFireBox.y + holdFireBox.height / 2);
+      await page.mouse.down();
+      await page.waitForTimeout(650);
+      const ammoAfterHold = Number(await page.locator('#wwa-ammo').innerText());
+      await page.mouse.up();
+      assert.ok(ammoAfterHold <= 28, 'holding the fire control should fire repeated shots until released');
+      await page.waitForTimeout(350);
+      assert.equal(Number(await page.locator('#wwa-ammo').innerText()), ammoAfterHold, 'automatic fire should stop immediately when the fire control is released');
       await page.locator('[data-act="heal"]').click();
       assert.ok(Number(await page.locator('#wwa-hp').innerText()) <= 100, 'healing should never exceed maximum health');
     }

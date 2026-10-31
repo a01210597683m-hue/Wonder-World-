@@ -22,6 +22,13 @@ const app = new Application(canvas, {
 app.setCanvasFillMode(FILLMODE_FILL_WINDOW);
 app.setCanvasResolution(RESOLUTION_AUTO);
 app.start();
+// Publish a lightweight engine heartbeat before gameplay systems run. This distinguishes
+// a stopped PlayCanvas frame loop from an exception later in the gameplay update handler.
+app.on('update', () => {
+  if (!canvas) return;
+  canvas.dataset.engineReady = 'true';
+  canvas.dataset.engineFrames = String((Number(canvas.dataset.engineFrames) || 0) + 1);
+});
 app.scene.ambientLight = new Color(0.72, 0.75, 0.82);
 
 function mat(color) {
@@ -659,6 +666,7 @@ function toggleVehicleMode(forceState) {
 // Ambient residents get their own gentle, bounded walking routes around the neighborhood.
 // Their coordinates stay in sync with their visible 3D entities so interactions work while they roam.
 const npcWanderState = new Map();
+const npcGreetingState = new Map();
 function chooseNpcWanderTarget(npc, current) {
   const homeX = npc.homeX ?? npc.x;
   const homeZ = npc.homeZ ?? npc.z;
@@ -966,6 +974,8 @@ function enterHome(homeName, targetInteriorRoot = interiorRoot, indoorAction = n
   indoorActionButton.hidden = !activeIndoorAction;
   if (activeIndoorAction) indoorActionButton.textContent = activeIndoorAction.label;
   indoors = true;
+  // Keep the essential exit/action controls reachable even when the HUD is compact.
+  ui.classList.add('is-indoors');
   player.setPosition(0, 0, 2.0);
   player.setEulerAngles(0, 180, 0);
   cameraX = 0;
@@ -988,6 +998,7 @@ function exitHome() {
   for (const [entity, enabled] of outdoorEnabledStates) entity.enabled = enabled;
   outdoorEnabledStates.clear();
   indoors = false;
+  ui.classList.remove('is-indoors');
   if (indoorReturnPosition) player.setPosition(indoorReturnPosition);
   cameraHeight = 7;
   cameraOffsetZ = 11;
@@ -1275,7 +1286,7 @@ actionToggle.id = 'toggle-actions';
 actionToggle.type = 'button';
 actionToggle.setAttribute('aria-expanded', 'false');
 actionToggle.textContent = '☰ الأنشطة والخيارات';
-ui.insertBefore(actionToggle, document.getElementById('xp-panel'));
+ui.appendChild(actionToggle);
 ui.classList.add('actions-collapsed');
 actionToggle.addEventListener('click', () => {
   const expanded = ui.classList.toggle('actions-expanded');
@@ -3490,6 +3501,16 @@ if (moveJoystick) {
     });
   }
 }
+// A document-level fallback guarantees that interrupted touch sequences cannot leave movement held.
+function releaseJoystickPointer(event) {
+  if (event.pointerId === joystickPointerId) releaseJoystick();
+}
+document.addEventListener('pointerup', releaseJoystickPointer, true);
+document.addEventListener('pointercancel', releaseJoystickPointer, true);
+window.addEventListener('blur', releaseJoystick);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) releaseJoystick();
+});
 canvas.style.touchAction = 'none';
 // Listen on the document in capture phase: HUD panels can cover the canvas on phones.
 document.addEventListener('pointerdown', event => {
@@ -3510,18 +3531,57 @@ document.addEventListener('pointermove', event => {
   cameraOrbitYaw -= dx * 0.0065;
   // Wide vertical orbit: look above the avatar or down over the world, without flipping over.
   cameraOrbitPitch = Math.max(-18, Math.min(72, cameraOrbitPitch + dy * 0.18));
+  publishCameraState();
 }, { capture: true, passive: true });
 function releaseCameraPointer(event) {
   if (event.pointerId === cameraPointerId) cameraPointerId = null;
 }
+function clearCameraPointer() {
+  cameraPointerId = null;
+}
 document.addEventListener('pointerup', releaseCameraPointer, true);
 document.addEventListener('pointercancel', releaseCameraPointer, true);
 canvas.addEventListener('lostpointercapture', releaseCameraPointer);
+// Never leave the camera in a dragging state if Android interrupts a touch,
+// the browser switches tabs, or the app loses focus.
+window.addEventListener('blur', clearCameraPointer);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) clearCameraPointer();
+});
 // Desktop mouse-wheel zoom complements the full 360-degree touch orbit.
 canvas.addEventListener('wheel', event => {
-  cameraOrbitDistance = Math.max(4.2, Math.min(14, cameraOrbitDistance + Math.sign(event.deltaY) * 0.7));
+  setCameraDistance(cameraOrbitDistance + Math.sign(event.deltaY) * 0.7);
   event.preventDefault();
 }, { passive: false });
+
+// Dedicated touch-friendly camera controls; these are separate from the movement joystick.
+const cameraZoomIn = document.getElementById('camera-zoom-in');
+const cameraZoomOut = document.getElementById('camera-zoom-out');
+const cameraReset = document.getElementById('camera-reset');
+function publishCameraState() {
+  if (!canvas) return;
+  const visibleDistance = indoors ? Math.max(3.2, Math.min(7.5, cameraOrbitDistance)) : cameraOrbitDistance;
+  const visiblePitch = indoors ? Math.max(-8, Math.min(60, cameraOrbitPitch)) : cameraOrbitPitch;
+  canvas.dataset.cameraDistance = visibleDistance.toFixed(1);
+  canvas.dataset.cameraYaw = cameraOrbitYaw.toFixed(3);
+  canvas.dataset.cameraPitch = visiblePitch.toFixed(1);
+}
+function setCameraDistance(nextDistance) {
+  cameraOrbitDistance = Math.max(3.2, Math.min(14, nextDistance));
+  publishCameraState();
+}
+cameraZoomIn?.addEventListener('click', () => {
+  canvas.dataset.cameraZoomInClicks = String((Number(canvas.dataset.cameraZoomInClicks) || 0) + 1);
+  canvas.dataset.cameraZoomDistanceBefore = cameraOrbitDistance.toFixed(1);
+  setCameraDistance(cameraOrbitDistance - 0.9);
+});
+cameraZoomOut?.addEventListener('click', () => setCameraDistance(cameraOrbitDistance + 0.9));
+cameraReset?.addEventListener('click', () => {
+  cameraOrbitYaw = 0;
+  cameraOrbitPitch = 18;
+  setCameraDistance(indoors ? 4.2 : 7.5);
+  publishCameraState();
+});
 const keyMap = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down',
   ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right'
@@ -3652,6 +3712,24 @@ app.on('update', dt => {
         }
       }
       const now = npc.entity.getPosition();
+      const playerPosition = player.getPosition();
+      const nearPlayer = Math.hypot(playerPosition.x - now.x, playerPosition.z - now.z) < 3.6;
+      let greeting = npcGreetingState.get(npc.name) || { until: 0, greeted: false };
+      if (nearPlayer) {
+        npc.entity.setEulerAngles(0, Math.atan2(playerPosition.x - now.x, playerPosition.z - now.z) * 180 / Math.PI, 0);
+        if (!greeting.greeted) {
+          greeting.greeted = true;
+          greeting.until = Date.now() + 1500;
+          if (npc.entity.leftArm) npc.entity.leftArm.setLocalEulerAngles(-72, 0, 10);
+        }
+        if (Date.now() < greeting.until && npc.entity.leftArm) {
+          const wave = Math.sin(Date.now() / 115) * 22;
+          npc.entity.leftArm.setLocalEulerAngles(-72 + wave, 0, 10);
+        }
+      } else {
+        greeting.greeted = false;
+      }
+      npcGreetingState.set(npc.name, greeting);
       npc.x = now.x;
       npc.z = now.z;
     }
@@ -3720,8 +3798,12 @@ app.on('update', dt => {
   // Full third-person orbit in the outdoor world AND indoors, so the avatar stays visible.
   // Elevation changes the camera's vertical and horizontal offsets around the player.
   const follow = 1 - Math.exp(-7 * dt);
-  const orbitDistance = indoors ? 4.2 : cameraOrbitDistance;
+  // Indoor camera remains close enough for room navigation but can now zoom in/out.
+  const orbitDistance = indoors ? Math.max(3.2, Math.min(7.5, cameraOrbitDistance)) : cameraOrbitDistance;
   const orbitPitch = indoors ? Math.max(-8, Math.min(60, cameraOrbitPitch)) : cameraOrbitPitch;
+  canvas.dataset.cameraDistance = orbitDistance.toFixed(1);
+  canvas.dataset.cameraYaw = cameraOrbitYaw.toFixed(3);
+  canvas.dataset.cameraPitch = orbitPitch.toFixed(1);
   const pitchRadians = orbitPitch * Math.PI / 180;
   const horizontalOrbit = Math.cos(pitchRadians) * orbitDistance;
   const targetY = p.y + 1.15;

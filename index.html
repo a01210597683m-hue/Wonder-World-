@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#172b4d">
   <title>WonderWorld — 3D Prototype</title>
-  <link rel="stylesheet" href="./style.css?v=20261024-5">
+  <link rel="stylesheet" href="./style.css?v=20261031-indoor-exit-fix1">
   <link rel="stylesheet" href="./career.css?v=20261024-5">
   <script type="importmap">
     {"imports":{"playcanvas":"https://cdn.jsdelivr.net/npm/playcanvas@2.7.3/build/playcanvas.mjs"}}
@@ -29,6 +29,11 @@
       <span id="move-joystick-thumb" class="move-joystick-thumb"></span>
     </div>
     <div class="camera-look-hint" aria-hidden="true">اسحبي هنا لتحريك الكاميرا ↔</div>
+    <div id="camera-controls" role="group" aria-label="التحكم في الكاميرا">
+      <button id="camera-zoom-in" type="button" aria-label="تقريب الكاميرا" title="تقريب">＋</button>
+      <button id="camera-reset" type="button" aria-label="إعادة ضبط زاوية الكاميرا" title="إعادة ضبط">◎</button>
+      <button id="camera-zoom-out" type="button" aria-label="إبعاد الكاميرا" title="إبعاد">−</button>
+    </div>
     <div id="status" role="status">تحميل عالم 3D…</div>
   </main>
   <script>
@@ -95,7 +100,7 @@
     loadCharacterReferences();
   </script>
   <script type="module" src="./auth.js?v=20261024-5"></script>
-  <script type="module" src="./main.js?v=20261031-camera-input-guard1"></script>
+  <script type="module" src="./main.js?v=20261031-indoor-exit-fix1"></script>
   <script src="./careers.js?v=20261024-5" defer></script>
   <script src="./mini-games.js?v=20261024-5" defer></script>
   <script src="./wonderworld-activities.js?v=20261024-5" defer></script>
