@@ -358,7 +358,10 @@ try {
   await page.locator('#close-map').click();
   await page.locator('#map-panel').waitFor({ state: 'hidden' });
 
-  await page.locator('#ww-menu-toggle').click();
+  if (await page.locator('#ww-menu-toggle').getAttribute('aria-expanded') !== 'true') {
+    await page.locator('#ww-menu-toggle').click();
+  }
+  await page.locator('#ww-menu-content').waitFor({ state: 'visible' });
   await page.locator('#toggle-vehicle').click();
   assert.equal(await page.locator('#toggle-vehicle').getAttribute('aria-pressed'), 'true', 'vehicle button should enter driving mode');
   assert.match(await page.locator('#toggle-vehicle').innerText(), /النزول من العربية/);
