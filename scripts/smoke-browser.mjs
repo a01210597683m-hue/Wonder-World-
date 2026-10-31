@@ -60,7 +60,11 @@ try {
   await page.locator('#application').waitFor({ state: 'visible', timeout: 15000 });
   await page.locator('#life-ui').waitFor({ state: 'attached', timeout: 20000 });
   await page.locator('#player-level').waitFor({ state: 'attached', timeout: 10000 });
-  // Modern menu layout: five distinct categories, with two-column action cards.
+  // Reference-led world home: eight bottom shortcuts, three side destinations and card-based category pages.
+  assert.equal(await page.locator('.ww-world-dock-item').count(), 8, 'home dock should expose eight navigation shortcuts');
+  assert.equal(await page.locator('.ww-world-side-item').count(), 3, 'world side rail should expose three destinations');
+  assert.equal(await page.locator('.ww-world-logo').count(), 1, 'world logo should be centered in the home HUD');
+  // Legacy categories remain as the source of existing action groups.
   assert.equal(await page.locator('#ww-menu-categories .ww-menu-category').count(), 5, 'menu should expose five independent categories');
   await openMenuCategory(3);
   const gameGridColumns = await page.locator('.ww-menu-section[data-category-index="3"] .ww-section-body').evaluate(el => getComputedStyle(el).gridTemplateColumns);
@@ -75,10 +79,12 @@ try {
   // The new HUD keeps five category shortcuts visible at the screen edge.
   // Open the relevant category before exercising any of its original controls.
   async function openMenuCategory(index) {
-    const categories = page.locator('#ww-menu-categories');
-    if (!(await categories.isVisible())) await page.locator('#ww-menu-toggle').click();
     const section = page.locator('.ww-menu-section[data-category-index="' + index + '"]');
-    if (!(await section.isVisible())) await page.locator('#ww-menu-category-' + index).click();
+    if (!(await section.isVisible())) {
+      const dockShortcut = page.locator('.ww-world-dock-item').nth(index === 0 ? 0 : 5);
+      if (index === 0 || index === 3) await dockShortcut.click();
+      else await page.locator('.ww-world-side-item').nth(index === 1 ? 0 : index === 2 ? 1 : 2).click();
+    }
     await section.waitFor({ state: 'visible', timeout: 5000 });
   }
 
@@ -224,10 +230,9 @@ try {
   assert.match(await page.locator('#ludo-status').innerText(), /حركتِ القطعة/, 'Ludo should advance an already launched piece');
   await page.evaluate(() => { if (window.__wwOriginalRandom) Math.random = window.__wwOriginalRandom; });
   await page.locator('#bg-close').click();
-  await page.locator('#ww-menu-toggle').click();
-  assert.equal(await page.locator('#ww-menu-toggle').getAttribute('aria-expanded'), 'false', 'menu toggle should collapse the category rail');
-  await page.locator('#ww-menu-toggle').click();
-  assert.equal(await page.locator('#ww-menu-toggle').getAttribute('aria-expanded'), 'true', 'menu toggle should restore the category rail');
+  // The old toggle is intentionally hidden in the reference-led HUD; use the visible world dock instead.
+  await page.locator('.ww-world-side-item').nth(0).click();
+  await page.locator('.ww-menu-section[data-category-index="1"]').waitFor({ state: 'visible' });
   await openMenuCategory(1);
   assert.equal(await page.locator('#ww-menu-content').isVisible(), true, 'selected category panel should be visible');
   await page.locator('#open-map').evaluate(el => el.click());
@@ -301,6 +306,36 @@ try {
   assert.equal(await page.locator('#indoor-floor-label').innerText(), 'الدور 2', 'stair navigation should move the player to the upper floor');
   await page.locator('#indoor-floor-down').click();
   assert.equal(await page.locator('#indoor-floor-label').innerText(), 'الدور الأرضي', 'floor navigation should return to the ground floor');
+  const [floorBox, actionBox] = await Promise.all([
+    page.locator('#indoor-floor-controls').boundingBox(),
+    page.locator('#indoor-place-action').boundingBox()
+  ]);
+  assert.ok(floorBox && actionBox, 'floor controls and place action must both have hit areas');
+  const overlaps = floorBox.x < actionBox.x + actionBox.width &&
+    floorBox.x + floorBox.width > actionBox.x &&
+    floorBox.y < actionBox.y + actionBox.height &&
+    floorBox.y + floorBox.height > actionBox.y;
+  assert.equal(overlaps, false, 'floor navigation must not overlap the primary place action');
+  const cameraControls = page.locator('#camera-controls');
+  const cameraReset = page.locator('#camera-reset');
+  const [indoorCameraControlsBox, indoorActionHitBox] = await Promise.all([
+    cameraControls.boundingBox(),
+    page.locator('#indoor-place-action').boundingBox()
+  ]);
+  assert.ok(indoorCameraControlsBox && indoorActionHitBox, 'camera controls and indoor action must both have hit areas');
+  const cameraOverlapsAction = indoorCameraControlsBox.x < indoorActionHitBox.x + indoorActionHitBox.width &&
+    indoorCameraControlsBox.x + indoorCameraControlsBox.width > indoorActionHitBox.x &&
+    indoorCameraControlsBox.y < indoorActionHitBox.y + indoorActionHitBox.height &&
+    indoorCameraControlsBox.y + indoorCameraControlsBox.height > indoorActionHitBox.y;
+  assert.equal(cameraOverlapsAction, false, 'camera control surface must not overlap the primary indoor action');
+  const resetBox = await cameraReset.boundingBox();
+  assert.ok(resetBox, 'camera reset must remain visible and usable indoors');
+  const resetHitTarget = await page.evaluate(({ x, y }) => {
+    const target = document.elementFromPoint(x, y);
+    return !!target && (target.id === 'camera-reset' || target.closest('#camera-reset'));
+  }, { x: resetBox.x + resetBox.width / 2, y: resetBox.y + resetBox.height / 2 });
+  assert.equal(resetHitTarget, true, 'camera reset must receive its own pointer hit target');
+  await cameraReset.click();
   await page.locator('#indoor-place-action').click();
   await page.locator('#shop-panel').waitFor({ state: 'visible' });
   await page.locator('#close-shop').click();
