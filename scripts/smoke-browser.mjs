@@ -702,6 +702,16 @@ try {
       assert.equal(await page.locator('#wwa-ammo').innerText(), '29', 'battle royale should consume one round per shot');
       await page.locator('[data-act="reload"]').click();
       assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'battle royale should refill ammunition up to the magazine cap');
+      const holdFire = page.locator('[data-act="fire"]');
+      await holdFire.scrollIntoViewIfNeeded();
+      const holdFireBox = await holdFire.boundingBox();
+      assert.ok(holdFireBox, 'Battle Royale fire control should have a touch target');
+      await page.mouse.move(holdFireBox.x + holdFireBox.width / 2, holdFireBox.y + holdFireBox.height / 2);
+      await page.mouse.down();
+      await page.waitForTimeout(650);
+      const ammoAfterHold = Number(await page.locator('#wwa-ammo').innerText());
+      await page.mouse.up();
+      assert.ok(ammoAfterHold < 30, 'holding the fire control should fire repeated shots until released');
       await page.locator('[data-act="heal"]').click();
       assert.ok(Number(await page.locator('#wwa-hp').innerText()) <= 100, 'healing should never exceed maximum health');
     }
