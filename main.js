@@ -193,11 +193,11 @@ function house(name, x, z, wallMaterial, width = 5) {
   return { walls, roof, bushes };
 }
 
-// Procedural mega-world: only the nearby 3x3 district chunks are kept active.
-// Each chunk is deterministic from its coordinates, so the world can expand without
-// loading billions of meshes into memory at once.
+// Procedural mega-world: keep a 5x5 district window active around the player.
+// At 96 world units per chunk this gives a 480x480-unit traversable streamed area;
+// chunks outside the window are released to keep mobile memory use bounded.
 const DISTRICT_CHUNK_SIZE = 96;
-const DISTRICT_STREAM_RADIUS = 1;
+const DISTRICT_STREAM_RADIUS = 2;
 const districtChunks = new Map();
 let streamedDistrictCenter = '';
 const districtWallMaterials = [mats.wall, mats.wallBrick, mats.wallGold, mats.wallYellow, mats.wallPink, mats.white];
