@@ -1131,3 +1131,130 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
   #life-ui #ww-menu-content { top: 8px; right: 120px; max-height: calc(100dvh - 16px); }
   #life-ui .ww-section-body { max-height: calc(100dvh - 52px); }
 }
+
+
+/* WonderWorld modern category menu — responsive, grouped, thumb-friendly. */
+#life-ui #ww-menu-categories {
+  grid-template-columns: 1fr;
+  width: 104px;
+  gap: 7px;
+}
+#life-ui .ww-menu-category {
+  min-height: 58px;
+  border-radius: 15px;
+  background: linear-gradient(145deg, #183c5dF2, #49366fF2);
+  box-shadow: 0 6px 18px #08182b55, inset 0 1px #ffffff35;
+  transition: transform .16s ease, background .16s ease, border-color .16s ease;
+}
+#life-ui .ww-menu-category-label {
+  font-size: 10px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+#life-ui .ww-menu-category.is-active {
+  background: linear-gradient(145deg, #9a5ca8, #c06b91);
+  border-color: #ffe5a0;
+}
+#life-ui #ww-menu-content {
+  width: min(390px, calc(100vw - 132px));
+  padding: 12px;
+  border: 1px solid #ffffff75;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #102b49f5, #3d315ff5);
+  box-shadow: 0 18px 46px #07162980, inset 0 1px #ffffff22;
+  backdrop-filter: blur(14px);
+}
+#life-ui .ww-section-body {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  padding: 4px;
+}
+#life-ui .ww-menu-section[data-category-index="3"] .ww-section-body {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+#life-ui .ww-section-body > button,
+#life-ui .ww-section-body > .avatar-tools button {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7px;
+  padding: 10px 11px;
+  border: 1px solid #ffffff38;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #ffffff22, #ffffff0d);
+  box-shadow: inset 0 1px #ffffff20, 0 4px 10px #06172a22;
+  font-size: 11px;
+  line-height: 1.35;
+  text-align: right;
+  transition: transform .14s ease, border-color .14s ease, background .14s ease;
+}
+#life-ui .ww-section-body > button:active,
+#life-ui .ww-section-body > .avatar-tools button:active {
+  transform: scale(.97);
+  border-color: #ffe5a0;
+  background: #ffffff30;
+}
+#life-ui .ww-section-body > .avatar-tools {
+  grid-column: 1 / -1;
+}
+#life-ui .ww-section-body > .ww-menu-docked-launcher {
+  grid-column: 1 / -1;
+  min-height: 48px;
+  justify-content: center;
+  border-color: #ffe0a055;
+  background: linear-gradient(110deg, #7954a8, #a84e82);
+  font-size: 12px;
+}
+#life-ui .ww-section-body #vehicle-hint,
+#life-ui .ww-section-body #xp-panel,
+#life-ui .ww-section-body #game-cloud-status {
+  grid-column: 1 / -1;
+}
+#life-ui .ww-section-body #vehicle-hint {
+  padding: 8px 10px;
+  border-radius: 10px;
+  color: #e6efff;
+  background: #ffffff12;
+  font-size: 10px;
+  line-height: 1.4;
+}
+@media (max-width: 520px) {
+  #life-ui #ww-menu-categories { width: 94px; gap: 6px; }
+  #life-ui .ww-menu-category { min-height: 52px; padding: 5px 3px; }
+  #life-ui #ww-menu-content {
+    right: 106px;
+    width: calc(100vw - 116px);
+    max-height: 70dvh;
+    padding: 8px;
+  }
+  #life-ui .ww-section-body { gap: 7px; max-height: 64dvh; }
+  #life-ui .ww-section-body > button,
+  #life-ui .ww-section-body > .avatar-tools button {
+    min-height: 48px;
+    padding: 8px;
+    font-size: 10px;
+  }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  #life-ui #ww-menu-categories {
+    top: 8px;
+    right: max(8px, env(safe-area-inset-right));
+    bottom: 8px;
+    width: 96px;
+    grid-template-columns: 1fr;
+    align-content: center;
+    gap: 5px;
+  }
+  #life-ui .ww-menu-category { min-height: 48px; }
+  #life-ui #ww-menu-content {
+    top: 8px;
+    right: max(112px, calc(env(safe-area-inset-right) + 104px));
+    bottom: 8px;
+    width: min(430px, calc(100vw - 130px));
+    max-height: none;
+  }
+  #life-ui .ww-section-body { max-height: calc(100dvh - 52px); }
+  #life-ui .ww-section-body > button,
+  #life-ui .ww-section-body > .avatar-tools button { min-height: 42px; }
+}
