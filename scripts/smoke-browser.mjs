@@ -711,7 +711,9 @@ try {
       await page.waitForTimeout(650);
       const ammoAfterHold = Number(await page.locator('#wwa-ammo').innerText());
       await page.mouse.up();
-      assert.ok(ammoAfterHold < 30, 'holding the fire control should fire repeated shots until released');
+      assert.ok(ammoAfterHold <= 28, 'holding the fire control should fire repeated shots until released');
+      await page.waitForTimeout(350);
+      assert.equal(Number(await page.locator('#wwa-ammo').innerText()), ammoAfterHold, 'automatic fire should stop immediately when the fire control is released');
       await page.locator('[data-act="heal"]').click();
       assert.ok(Number(await page.locator('#wwa-hp').innerText()) <= 100, 'healing should never exceed maximum health');
     }
