@@ -56,7 +56,10 @@
     ['stocks','📈','سوق الأسهم — محفظة افتراضية'],
     ['space','🚀','صواريخ الفضاء — Space Blaster'],
     ['candy','🍬','Candy Crush — مطابقة الحلوى'],
-    ['party','✨','Sparkle Party — مسابقات وأسئلة']
+    ['party','✨','Sparkle Party — مسابقات وأسئلة'],
+    ['billiards','🎱','البلياردو — تصويب وتصادم الكرات'],
+    ['dominoes','🁣','الدومينو — طابقي أطراف القطع'],
+    ['cards','🃏','ورق اللعب — تحدي أعلى ورقة']
   ];
   function boot() {
     const hud = $('#life-ui');
@@ -119,6 +122,9 @@
       else if(active==='space') renderSpace();
       else if(active==='candy') renderCandy();
       else if(active==='party') renderParty();
+      else if(active==='billiards') renderBilliards();
+      else if(active==='dominoes') renderDominoes();
+      else if(active==='cards') renderCards();
     }
     function setupCanvas(id, draw){
       const c=$('#'+id,panel),ctx=c.getContext('2d');
@@ -477,6 +483,42 @@
       function matches(board){const out=new Set();for(let r=0;r<6;r++)for(let c=0;c<6;c++){const i=r*6+c;if(c<4&&board[i]===board[i+1]&&board[i]===board[i+2]){let j=c;while(j<6&&board[r*6+j]===board[i]){out.add(r*6+j);j++;}}if(r<4&&board[i]===board[i+6]&&board[i]===board[i+12]){let j=r;while(j<6&&board[j*6+c]===board[i]){out.add(j*6+c);j++;}}}return out;}
       function draw(){const wrap=$('#wwa-candy-board',panel);wrap.replaceChildren();state.board.forEach((v,i)=>{const b=el('button',{type:'button',class:'wwa-candy','aria-label':'حلوى '+(i+1)},symbols[v]);if(selectedCandy===i)b.style.outline='3px solid #9b5bc4';b.addEventListener('click',()=>{if(selectedCandy===null){selectedCandy=i;draw();return;}const a=selectedCandy;selectedCandy=null;if(Math.abs(a-i)!==6&&!(Math.floor(a/6)===Math.floor(i/6)&&Math.abs(a-i)===1)){msg('بدّلي حبتين متجاورتين فقط.');draw();return;}[state.board[a],state.board[i]]=[state.board[i],state.board[a]];const m=matches(state.board);if(m.size){m.forEach(j=>state.board[j]=Math.floor(Math.random()*6));state.score+=m.size*10;msg('مطابقة ممتازة! جمعتي '+(m.size*10)+' نقطة 🍬');}else{[state.board[a],state.board[i]]=[state.board[i],state.board[a]];msg('المبادلة دي ما عملتش 3 متشابهين. جربي غيرها.');}state.moves++;$('#wwa-candy-score',panel).textContent=state.score;$('#wwa-candy-moves',panel).textContent=state.moves;draw();});wrap.appendChild(b);});}
       draw();msg('اختاري حبة ثم حبة مجاورة لتكوين خط من 3 أو أكثر. المطابقات تمنح نقاطًا.');
+    }
+    function renderBilliards(){
+      state={balls:[{x:170,y:200,vx:0,vy:0,r:10,kind:'cue'}],shots:0,potted:0,aim:null};
+      for(let row=0;row<5;row++)for(let col=0;col<=row;col++)state.balls.push({x:420+row*18,y:200+(col-row/2)*19,vx:0,vy:0,r:9,kind:'object'});
+      html('<p>🎱 اضغطي على الطاولة لتحديد اتجاه التصويب، ثم اسحبي للخلف واضغطي مرة ثانية لضرب الكرة البيضاء. دخّلي أكبر عدد من الكرات في الجيوب.</p><p>التسديدات: <b id="wwa-pool-shots">0</b> | الكرات المسجلة: <b id="wwa-pool-potted">0</b>/15</p><canvas id="wwa-pool-canvas" class="wwa-canvas" width="640" height="400" aria-label="طاولة بلياردو تفاعلية"></canvas>');
+      const {c,ctx}=setupCanvas('wwa-pool-canvas',draw);
+      function draw(){ctx.clearRect(0,0,640,400);ctx.fillStyle='#176b50';ctx.fillRect(16,16,608,368);ctx.strokeStyle='#b58a50';ctx.lineWidth=13;ctx.strokeRect(16,16,608,368);const pockets=[[22,22],[320,20],[618,22],[22,378],[320,380],[618,378]];pockets.forEach(([x,y])=>{ctx.fillStyle='#111827';ctx.beginPath();ctx.arc(x,y,17,0,Math.PI*2);ctx.fill();});state.balls.forEach((b,i)=>{if(b.potted)return;ctx.fillStyle=b.kind==='cue'?'#fff':['#facc15','#2563eb','#ef4444','#f8fafc','#7c3aed'][i%5];ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#16324b';ctx.lineWidth=1;ctx.stroke();});if(state.aim){ctx.strokeStyle='#fff';ctx.setLineDash([7,6]);ctx.beginPath();ctx.moveTo(state.balls[0].x,state.balls[0].y);ctx.lineTo(state.aim.x,state.aim.y);ctx.stroke();ctx.setLineDash([]);}}
+      function moving(){return state.balls.some(b=>!b.potted&&Math.hypot(b.vx,b.vy)>.12);}
+      function step(){let activeMotion=false;for(const b of state.balls){if(b.potted)continue;b.x+=b.vx;b.y+=b.vy;b.vx*=.986;b.vy*=.986;if(Math.hypot(b.vx,b.vy)>.12)activeMotion=true;else b.vx=b.vy=0;if(b.x<35||b.x>605)b.vx*=-.88;if(b.y<35||b.y>365)b.vy*=-.88;b.x=Math.max(35,Math.min(605,b.x));b.y=Math.max(35,Math.min(365,b.y));for(const [px,py] of pockets){if(Math.hypot(b.x-px,b.y-py)<17&&b.kind!=='cue'){b.potted=true;state.potted++;$('#wwa-pool-potted',panel).textContent=state.potted;}}}
+        for(let i=0;i<state.balls.length;i++)for(let j=i+1;j<state.balls.length;j++){const a=state.balls[i],b=state.balls[j];if(a.potted||b.potted)continue;const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy),min=a.r+b.r;if(d>0&&d<min){const nx=dx/d,ny=dy/d,rel=(a.vx-b.vx)*nx+(a.vy-b.vy)*ny;if(rel>0){a.vx-=rel*nx;a.vy-=rel*ny;b.vx+=rel*nx;b.vy+=rel*ny;}const push=(min-d)/2;a.x-=nx*push;a.y-=ny*push;b.x+=nx*push;b.y+=ny*push;}}
+        draw();if(activeMotion)frame=requestAnimationFrame(step);else frame=0;
+      }
+      function shoot(e){if(moving())return;const rect=c.getBoundingClientRect(),x=(e.clientX-rect.left)*640/rect.width,y=(e.clientY-rect.top)*400/rect.height,ball=state.balls[0];const dx=ball.x-x,dy=ball.y-y,d=Math.hypot(dx,dy)||1,power=Math.min(13,d/12);ball.vx=dx/d*power;ball.vy=dy/d*power;state.shots++;$('#wwa-pool-shots',panel).textContent=state.shots;state.aim=null;if(!frame)frame=requestAnimationFrame(step);}
+      c.addEventListener('pointerdown',e=>{if(!state.aim){const rect=c.getBoundingClientRect();state.aim={x:(e.clientX-rect.left)*640/rect.width,y:(e.clientY-rect.top)*400/rect.height};draw();}else shoot(e);});
+      msg('لعبة بلياردو فردية تدريبية: حددي الاتجاه ثم اضغطي مرة ثانية للتسديد.');draw();
+    }
+    function renderDominoes(){
+      const makeDeck=()=>{const deck=[];for(let a=0;a<=6;a++)for(let b=a;b<=6;b++)deck.push([a,b]);return deck.sort(()=>Math.random()-.5);};
+      state={deck:makeDeck(),hand:[],chain:[],turn:'player',wins:0};
+      state.hand=state.deck.splice(0,7);
+      html('<p>🁣 وصّلي قطعة من يدك بأحد طرفي السلسلة. لو مفيش حركة اسحبي قطعة جديدة. أول لاعب يخلّص قطعه يكسب.</p><p>قطعك: <b id="wwa-domino-count">7</b> | قطع الكمبيوتر: <b id="wwa-domino-cpu">7</b> | السلسلة: <b id="wwa-domino-chain">ابدئي بقطعة</b></p><div id="wwa-domino-hand" class="wwa-actions"></div><button id="wwa-domino-draw" class="wwa-btn" type="button">اسحبي قطعة</button>');
+      let cpu=state.deck.splice(0,7);
+      const label=t=>t[0]+' | '+t[1];
+      function paint(){const hand=$('#wwa-domino-hand',panel);hand.replaceChildren();state.hand.forEach((tile,i)=>{const b=el('button',{type:'button',class:'wwa-btn'},label(tile));b.addEventListener('click',()=>play(i));hand.appendChild(b);});$('#wwa-domino-count',panel).textContent=state.hand.length;$('#wwa-domino-cpu',panel).textContent=cpu.length;$('#wwa-domino-chain',panel).textContent=state.chain.length?state.chain.map(label).join('  ·  '):'ابدئي بقطعة';}
+      function play(i){if(state.turn!=='player')return;const tile=state.hand[i];if(!state.chain.length)state.chain.push(tile);else{const left=state.chain[0][0],right=state.chain[state.chain.length-1][1];if(tile[0]===right)state.chain.push(tile);else if(tile[1]===right)state.chain.push([tile[1],tile[0]]);else if(tile[1]===left)state.chain.unshift(tile);else if(tile[0]===left)state.chain.unshift([tile[1],tile[0]]);else{msg('القطعة لازم تطابق أحد طرفي السلسلة.');return;}}state.hand.splice(i,1);if(!state.hand.length){msg('🎉 كسبتي جولة الدومينو!');state.turn='done';paint();return;}state.turn='cpu';paint();setTimeout(cpuPlay,450);}
+      function cpuPlay(){if(state.turn!=='cpu')return;const l=state.chain[0]?.[0],r=state.chain[state.chain.length-1]?.[1];const i=cpu.findIndex(t=>!state.chain.length||t.includes(l)||t.includes(r));if(i>=0){const t=cpu.splice(i,1)[0];if(!state.chain.length)state.chain.push(t);else if(t[0]===r)state.chain.push(t);else if(t[1]===r)state.chain.push([t[1],t[0]]);else if(t[1]===l)state.chain.unshift(t);else state.chain.unshift([t[1],t[0]]);msg('الكمبيوتر لعب قطعة. دورك!');}else msg('الكمبيوتر سحب أو مرّر. دورك!');if(!cpu.length){state.turn='done';msg('الكمبيوتر خلّص قطعه وفاز بالجولة.');}else state.turn='player';paint();}
+      $('#wwa-domino-draw',panel).addEventListener('click',()=>{if(state.turn!=='player'||!state.deck.length)return;state.hand.push(state.deck.pop());paint();msg('سحبتي قطعة جديدة. اختاري قطعة مناسبة.');});
+      paint();msg('ابدئي بأي قطعة، وبعدها طابقي الرقم مع طرف من أطراف السلسلة.');
+    }
+    function renderCards(){
+      const suits=['♠','♥','♦','♣'],names=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+      const deck=suits.flatMap(s=>names.map((n,i)=>({s,n,v:i+2}))).sort(()=>Math.random()-.5);
+      state={deck,player:0,cpu:0,round:0};
+      html('<p>🃏 اسحبي ورقة في كل دور. الورقة الأعلى تكسب نقطة. أول من يصل إلى 10 نقاط يفوز.</p><div style="display:flex;justify-content:space-around;gap:12px;text-align:center"><div><b>أنتِ</b><div id="wwa-card-player" style="font-size:54px;padding:16px">🂠</div><b id="wwa-card-player-score">0</b></div><div><b>الكمبيوتر</b><div id="wwa-card-cpu" style="font-size:54px;padding:16px">🂠</div><b id="wwa-card-cpu-score">0</b></div></div><button id="wwa-card-draw" class="wwa-btn" type="button">اسحبي ورقة 🃏</button><p id="wwa-card-round">الجولة 0 / 10</p>');
+      $('#wwa-card-draw',panel).addEventListener('click',()=>{if(state.round>=10)return;const a=state.deck.pop(),b=state.deck.pop();state.round++;$('#wwa-card-player',panel).textContent=a.n+a.s;$('#wwa-card-cpu',panel).textContent=b.n+b.s;$('#wwa-card-player',panel).style.color=['♥','♦'].includes(a.s)?'#dc3558':'#24354a';$('#wwa-card-cpu',panel).style.color=['♥','♦'].includes(b.s)?'#dc3558':'#24354a';if(a.v>b.v)state.player++;else if(b.v>a.v)state.cpu++;$('#wwa-card-player-score',panel).textContent=state.player;$('#wwa-card-cpu-score',panel).textContent=state.cpu;$('#wwa-card-round',panel).textContent='الجولة '+state.round+' / 10';if(state.round===10)msg(state.player>state.cpu?'🏆 فزتي بتحدي الورق!':state.player<state.cpu?'الكمبيوتر كسب الجولة. جربي مرة تانية!':'تعادل جميل!');else msg(a.v>b.v?'ورقتك أعلى! نقطة ليكي.':a.v<b.v?'ورقة الكمبيوتر أعلى.':'تعادل في الجولة.');});
+      msg('تحدي أعلى ورقة: 10 جولات ضد الكمبيوتر.');
     }
     function renderParty(){
       const qs=[
