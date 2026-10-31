@@ -1183,6 +1183,7 @@ wwMenuSections.forEach((section, index) => {
   body.id = categoryId + '-content';
   while (oldTitle && oldTitle.nextSibling) body.appendChild(oldTitle.nextSibling);
   const trigger = document.createElement('button');
+  trigger.id = categoryId;
   trigger.type = 'button';
   trigger.className = 'ww-menu-category';
   trigger.dataset.categoryIndex = String(index);
