@@ -230,10 +230,9 @@ try {
   assert.match(await page.locator('#ludo-status').innerText(), /حركتِ القطعة/, 'Ludo should advance an already launched piece');
   await page.evaluate(() => { if (window.__wwOriginalRandom) Math.random = window.__wwOriginalRandom; });
   await page.locator('#bg-close').click();
-  await page.locator('#ww-menu-toggle').click();
-  assert.equal(await page.locator('#ww-menu-toggle').getAttribute('aria-expanded'), 'false', 'menu toggle should collapse the category rail');
-  await page.locator('#ww-menu-toggle').click();
-  assert.equal(await page.locator('#ww-menu-toggle').getAttribute('aria-expanded'), 'true', 'menu toggle should restore the category rail');
+  // The old toggle is intentionally hidden in the reference-led HUD; use the visible world dock instead.
+  await page.locator('.ww-world-side-item').nth(0).click();
+  await page.locator('.ww-menu-section[data-category-index="1"]').waitFor({ state: 'visible' });
   await openMenuCategory(1);
   assert.equal(await page.locator('#ww-menu-content').isVisible(), true, 'selected category panel should be visible');
   await page.locator('#open-map').evaluate(el => el.click());
