@@ -1018,7 +1018,7 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 #life-ui #ww-menu-categories {
   position: fixed;
   z-index: 34;
-  top: max(94px, calc(env(safe-area-inset-top) + 82px));
+  top: max(156px, calc(env(safe-area-inset-top) + 144px));
   right: max(8px, env(safe-area-inset-right));
   width: 116px;
   display: grid;
@@ -1109,7 +1109,7 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 #life-ui .ww-menu-docked-launcher { box-sizing: border-box; min-height: 42px; border-radius: 11px; }
 @media (max-width: 520px) {
   #life-ui #ww-menu-categories {
-    top: max(90px, calc(env(safe-area-inset-top) + 76px));
+    top: max(150px, calc(env(safe-area-inset-top) + 138px));
     right: 6px;
     width: 108px;
     gap: 6px;
