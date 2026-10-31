@@ -1169,8 +1169,8 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
   gap: 9px;
   padding: 4px;
 }
-#life-ui .ww-menu-section[data-category-index="3"] .ww-section-body {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+#life-ui #ww-menu-content .ww-menu-section[data-category-index="3"] .ww-section-body {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
 }
 #life-ui .ww-section-body > button,
 #life-ui .ww-section-body > .avatar-tools button {
