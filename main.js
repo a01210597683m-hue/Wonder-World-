@@ -1212,7 +1212,6 @@ wwMenuSections.forEach((section, index) => {
   });
 });
 ui.insertBefore(wwMenuCategories, wwMenuContent);
-ui.insertBefore(wwMenuCategories, wwMenuContent);
 
 // Reference-led home screen: world-first canvas, compact top HUD and a bottom navigation dock.
 const wwWorldLogo = document.createElement('div');
