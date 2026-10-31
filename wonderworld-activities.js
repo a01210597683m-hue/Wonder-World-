@@ -22,6 +22,12 @@
     '.wwa-feedback{min-height:42px;padding:10px;border-radius:10px;background:#f1f5fa;font-size:13px;line-height:1.55;margin:9px 0}',
     '.wwa-canvas{display:block;width:100%;max-width:640px;height:auto;aspect-ratio:16/10;border-radius:14px;background:#d9e8f0;border:1px solid #c8d8e4;touch-action:manipulation;margin:10px auto}',
     '.wwa-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;max-width:420px;margin:10px auto}.wwa-controls button{min-height:44px;border:0;border-radius:11px;background:#dce7f4;color:#203c59;font:inherit;font-weight:900;touch-action:manipulation}',
+    '.wwa-battle-sticks{display:flex;justify-content:space-between;align-items:center;gap:24px;max-width:560px;margin:12px auto;padding:4px 8px;direction:ltr;touch-action:none;user-select:none}',
+    '.wwa-battle-stick{position:relative;width:clamp(112px,24vw,150px);height:clamp(112px,24vw,150px);flex:0 0 auto;border:2px solid #ffffffb8;border-radius:50%;background:radial-gradient(circle,#e8f1f4aa 0 35%,#18324c88 37% 100%);box-shadow:inset 0 0 0 8px #ffffff18;touch-action:none;user-select:none}',
+    '.wwa-battle-stick:before{content:"";position:absolute;inset:25%;border:1px dashed #ffffff88;border-radius:50%}',
+    '.wwa-battle-thumb{position:absolute;left:50%;top:50%;width:42%;height:42%;border:2px solid #fff;border-radius:50%;background:linear-gradient(145deg,#fff,#b8c9dc);box-shadow:0 4px 12px #071a2d77;transform:translate(-50%,-50%);pointer-events:none}',
+    '.wwa-battle-stick-label{position:absolute;left:0;right:0;bottom:-23px;text-align:center;color:#33465a;font-size:12px;font-weight:900;white-space:nowrap}',
+    '@media(max-width:440px){.wwa-battle-sticks{gap:16px;padding:4px 2px}.wwa-battle-stick-label{font-size:11px}}',
     '.wwa-board{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;max-width:430px;margin:12px auto}.wwa-candy{aspect-ratio:1;border:0;border-radius:10px;font-size:clamp(19px,5vw,30px);background:#fff;box-shadow:inset 0 -3px #0001;touch-action:manipulation}',
     '.wwa-rope-stage{width:100%;max-width:640px;margin:12px auto;touch-action:none;user-select:none}.wwa-rope-stage svg{display:block;width:100%;height:auto;border-radius:18px;overflow:visible;touch-action:none}.wwa-rope-stage g[role=button]:focus{outline:none}.wwa-rope-stage g[role=button]:focus circle:first-child{stroke:#172b4d;stroke-width:7}',
     '.wwa-look{padding:12px;border-radius:14px;background:#f9e8f0;text-align:center;font-size:20px}.wwa-stock{display:grid;grid-template-columns:1fr 1fr;gap:8px}.wwa-stock article{padding:12px;background:white;border:1px solid #dfe6ef;border-radius:12px}',
@@ -120,13 +126,16 @@
       draw(ctx,c);return {c,ctx,draw};
     }
     function renderBattle(){
-      state={x:320,y:315,hp:100,ammo:30,score:0,aimX:320,aimY:100,targets:[],kills:0,zone:0,elapsed:0,lastAttack:0,ended:false,won:false};
+      state={x:320,y:315,hp:100,ammo:30,score:0,aimX:320,aimY:100,moveX:0,moveY:0,targets:[],kills:0,zone:0,elapsed:0,lastAttack:0,ended:false,won:false};
       const spawn=()=>({x:50+Math.random()*540,y:90+Math.random()*245,hp:2,speed:0.35+Math.random()*0.35,fireAt:Date.now()+1000+Math.random()*1800});
       state.targets=Array.from({length:6},spawn);
-      html('<p class="wwa-note">🏝️ ساحة بقاء Battle Royale — اجمعي الإقصاءات وابتعدي عن المنطقة اللي بتضيق. الجولة فردية ضد خصوم آليين.</p>'+canvas('wwa-battle-canvas')+'<div class="wwa-controls"><button data-act="up">▲ للأمام</button><button data-act="reload">🔄 تلقيم</button><button data-act="fire">إطلاق 🎯</button><button data-act="left">◀ يسار</button><button data-act="down">▼ للخلف</button><button data-act="right">يمين ▶</button><button data-act="heal">🩹 علاج</button><button data-act="restart">جولة جديدة</button></div><p>الصحة: <b id="wwa-hp">100</b> | الذخيرة: <b id="wwa-ammo">30</b> | الإقصاءات: <b id="wwa-bscore">0</b>/6 | المنطقة: <b id="wwa-zone">100</b>%</p><p id="wwa-battle-result" role="status">اهزمي الخصوم الستة للبقاء لآخر الجولة.</p>');
+      html('<p class="wwa-note">🏝️ ساحة بقاء Battle Royale — اجمعي الإقصاءات وابتعدي عن المنطقة اللي بتضيق. الجولة فردية ضد خصوم آليين.</p>'+canvas('wwa-battle-canvas')+'<div class="wwa-battle-sticks" aria-label="عصا الحركة والتصويب">'+
+        '<div id="wwa-battle-move-stick" class="wwa-battle-stick" role="application" aria-label="عصا الحركة — اسحبي للتحرك"><span class="wwa-battle-thumb" id="wwa-battle-move-thumb"></span><span class="wwa-battle-stick-label">الحركة</span></div>'+
+        '<div id="wwa-battle-aim-stick" class="wwa-battle-stick" role="application" aria-label="عصا التصويب — اسحبي لتوجيه المؤشر"><span class="wwa-battle-thumb" id="wwa-battle-aim-thumb"></span><span class="wwa-battle-stick-label">التصويب</span></div></div><div class="wwa-controls"><button data-act="up">▲ للأمام</button><button data-act="reload">🔄 تلقيم</button><button data-act="fire">إطلاق 🎯</button><button data-act="left">◀ يسار</button><button data-act="down">▼ للخلف</button><button data-act="right">يمين ▶</button><button data-act="heal">🩹 علاج</button><button data-act="restart">جولة جديدة</button></div><p>الصحة: <b id="wwa-hp">100</b> | الذخيرة: <b id="wwa-ammo">30</b> | الإقصاءات: <b id="wwa-bscore">0</b>/6 | المنطقة: <b id="wwa-zone">100</b>%</p><p id="wwa-battle-result" role="status">اهزمي الخصوم الستة للبقاء لآخر الجولة.</p>');
       const c=$('#wwa-battle-canvas',panel),ctx=c.getContext('2d');
       const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
       function draw(){
+        c.dataset.playerX=String(Math.round(state.x));c.dataset.playerY=String(Math.round(state.y));c.dataset.aimX=String(Math.round(state.aimX));c.dataset.aimY=String(Math.round(state.aimY));
         ctx.clearRect(0,0,640,400);
         const ground=ctx.createLinearGradient(0,0,640,400);ground.addColorStop(0,'#9dbb8b');ground.addColorStop(.5,'#6e9a70');ground.addColorStop(1,'#496e59');
         ctx.fillStyle=ground;ctx.fillRect(0,0,640,400);
@@ -181,12 +190,23 @@
       }
       const move=(dx,dy)=>{if(state.ended)return;state.x=clamp(state.x+dx,22,618);state.y=clamp(state.y+dy,55,378);update();};
       const fire=()=>{if(state.ended)return;if(state.ammo<=0){msg('الذخيرة خلصت — اضغطي تلقيم.');return;}state.ammo--;const live=state.targets.filter(t=>t.hp>0).sort((a,b)=>Math.hypot(a.x-state.aimX,a.y-state.aimY)-Math.hypot(b.x-state.aimX,b.y-state.aimY));const hit=live[0];if(hit&&Math.hypot(hit.x-state.aimX,hit.y-state.aimY)<38){hit.hp--;if(hit.hp<=0){state.kills++;if(state.kills<6)state.targets.push(spawn());msg('إقصاء! خصم خرج من الجولة.');}else msg('إصابة! كملي التصويب.');}else msg('الطلقة ما أصابتش. لمسي مكان الخصم للتصويب عليه.');update();};
-      const restart=()=>{state.x=320;state.y=315;state.hp=100;state.ammo=30;state.kills=0;state.elapsed=0;state.ended=false;state.won=false;state.targets=Array.from({length:6},spawn);state.lastAttack=Date.now();$('#wwa-battle-result',panel).textContent='اهزمي الخصوم الستة للبقاء لآخر الجولة.';update();};
+      const restart=()=>{state.x=320;state.y=315;state.hp=100;state.ammo=30;state.kills=0;state.elapsed=0;state.moveX=0;state.moveY=0;state.aimX=320;state.aimY=100;state.ended=false;state.won=false;state.targets=Array.from({length:6},spawn);state.lastAttack=Date.now();$('#wwa-battle-result',panel).textContent='اهزمي الخصوم الستة للبقاء لآخر الجولة.';update();};
       c.addEventListener('pointerdown',e=>{const r=c.getBoundingClientRect();state.aimX=(e.clientX-r.left)/r.width*640;state.aimY=(e.clientY-r.top)/r.height*400;update();});
+      const bindBattleStick=(padId,thumbId,onVector)=>{
+        const pad=$('#'+padId,panel),thumb=$('#'+thumbId,panel);let pointer=null;
+        const set=(e)=>{const r=pad.getBoundingClientRect(),radius=Math.min(r.width,r.height)*.34,cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=(e.clientX-cx)/radius,dy=(e.clientY-cy)/radius;const length=Math.hypot(dx,dy)||1;if(length>1){dx/=length;dy/=length;}thumb.style.transform='translate(calc(-50% + '+(dx*radius)+'px),calc(-50% + '+(dy*radius)+'px))';onVector(dx,dy);};
+        const release=()=>{pointer=null;thumb.style.transform='translate(-50%,-50%)';onVector(0,0);};
+        pad.addEventListener('pointerdown',e=>{pointer=e.pointerId;pad.setPointerCapture?.(pointer);set(e);e.preventDefault();});
+        pad.addEventListener('pointermove',e=>{if(pointer===e.pointerId)set(e);});
+        pad.addEventListener('pointerup',e=>{if(pointer===e.pointerId)release();});
+        pad.addEventListener('pointercancel',release);pad.addEventListener('lostpointercapture',release);
+      };
+      bindBattleStick('wwa-battle-move-stick','wwa-battle-move-thumb',(x,y)=>{state.moveX=x;state.moveY=y;});
+      bindBattleStick('wwa-battle-aim-stick','wwa-battle-aim-thumb',(x,y)=>{if(Math.hypot(x,y)>.12){state.aimX=clamp(state.x+x*150,0,640);state.aimY=clamp(state.y+y*150,0,400);draw();}});
       $('#wwa-content',panel).querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',()=>{const a=b.dataset.act;if(a==='up')move(0,-22);if(a==='down')move(0,22);if(a==='left')move(-22,0);if(a==='right')move(22,0);if(a==='reload'&&!state.ended){state.ammo=Math.min(30,state.ammo+12);msg('تم جمع ذخيرة إضافية.');update();}if(a==='heal'&&!state.ended&&state.hp>0){state.hp=Math.min(100,state.hp+25);msg('استخدمتي حقيبة علاج.');update();}if(a==='fire')fire();if(a==='restart')restart();}));
       const keydown=e=>{const map={ArrowUp:[0,-18],w:[0,-18],W:[0,-18],ArrowDown:[0,18],s:[0,18],S:[0,18],ArrowLeft:[-18,0],a:[-18,0],A:[-18,0],ArrowRight:[18,0],d:[18,0],D:[18,0]};if(map[e.key]&&panel.contains(c)){e.preventDefault();move(...map[e.key]);}if((e.key===' '||e.key==='Enter')&&panel.contains(c)){e.preventDefault();fire();}};
       c.tabIndex=0;c.addEventListener('keydown',keydown);
-      battleTimer=setInterval(()=>{if(!panel.isConnected||panel.hidden||game.hidden||!panel.contains(c)){clearInterval(battleTimer);battleTimer=0;return;}if(state.ended)return;state.elapsed+=0.5;const now=Date.now();for(const t of state.targets){if(t.hp<=0)continue;const dx=state.x-t.x,dy=state.y-t.y,d=Math.hypot(dx,dy)||1;t.x=clamp(t.x+dx/d*t.speed*7,24,616);t.y=clamp(t.y+dy/d*t.speed*7,52,378);if(now>t.fireAt&&d<240){state.hp=Math.max(0,state.hp-5);t.fireAt=now+1400+Math.random()*900;}}const pad=18+Math.min(0.38,state.elapsed/90*0.38)*270;if(state.x<pad||state.x>640-pad||state.y<pad||state.y>400-pad)state.hp=Math.max(0,state.hp-2);update();},500);
+      battleTimer=setInterval(()=>{if(!panel.isConnected||panel.hidden||game.hidden||!panel.contains(c)){clearInterval(battleTimer);battleTimer=0;return;}if(state.ended)return;state.elapsed+=0.5;if(Math.hypot(state.moveX,state.moveY)>.08){state.x=clamp(state.x+state.moveX*12,22,618);state.y=clamp(state.y+state.moveY*12,55,378);}const now=Date.now();for(const t of state.targets){if(t.hp<=0)continue;const dx=state.x-t.x,dy=state.y-t.y,d=Math.hypot(dx,dy)||1;t.x=clamp(t.x+dx/d*t.speed*7,24,616);t.y=clamp(t.y+dy/d*t.speed*7,52,378);if(now>t.fireAt&&d<240){state.hp=Math.max(0,state.hp-5);t.fireAt=now+1400+Math.random()*900;}}const pad=18+Math.min(0.38,state.elapsed/90*0.38)*270;if(state.x<pad||state.x>640-pad||state.y<pad||state.y>400-pad)state.hp=Math.max(0,state.hp-2);update();},500);
       $('#wwa-reset',panel).textContent='🔄 إعادة الجولة';state.lastAttack=Date.now();update();msg('تحركي، صوبّي باللمس على الخصوم، اجمعي العلاج والذخيرة، وابتعدي عن حدود المنطقة الزرقاء.');
     }
     function renderFootball(){
