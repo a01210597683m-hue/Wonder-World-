@@ -1212,6 +1212,68 @@ wwMenuSections.forEach((section, index) => {
   });
 });
 ui.insertBefore(wwMenuCategories, wwMenuContent);
+ui.insertBefore(wwMenuCategories, wwMenuContent);
+
+// Reference-led home screen: world-first canvas, compact top HUD and a bottom navigation dock.
+const wwWorldLogo = document.createElement('div');
+wwWorldLogo.className = 'ww-world-logo';
+wwWorldLogo.innerHTML = '<span class="ww-world-crown" aria-hidden="true">♛</span><strong>WonderWorld</strong><small>More Than a Game · It’s Your Whole World</small>';
+ui.appendChild(wwWorldLogo);
+
+const wwWorldSide = document.createElement('nav');
+wwWorldSide.className = 'ww-world-side';
+wwWorldSide.setAttribute('aria-label', 'استكشاف العالم');
+const wwWorldSideItems = [
+  { icon: '🌍', label: 'العالم', category: 1 },
+  { icon: '🏡', label: 'الحياة', category: 2 },
+  { icon: '🎒', label: 'مجموعتي', category: 4 }
+];
+function openWonderCategory(index) {
+  const item = wwMenuBodies[index];
+  if (!item) return;
+  wwMenuCategories.hidden = false;
+  item.trigger.click();
+}
+wwWorldSideItems.forEach(item => {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'ww-world-side-item';
+  button.innerHTML = '<span aria-hidden="true">' + item.icon + '</span><b>' + item.label + '</b>';
+  button.addEventListener('click', () => openWonderCategory(item.category));
+  wwWorldSide.appendChild(button);
+});
+ui.appendChild(wwWorldSide);
+
+const wwWorldDock = document.createElement('nav');
+wwWorldDock.className = 'ww-world-dock';
+wwWorldDock.setAttribute('aria-label', 'القائمة الرئيسية');
+const wwWorldDockItems = [
+  { icon: '👤', label: 'الشخصيات', category: 0 },
+  { icon: '👗', label: 'الملابس', action: 'change-outfit' },
+  { icon: '🛍️', label: 'المتجر', action: 'open-shop' },
+  { icon: '🏡', label: 'بناء/منزل', action: 'open-home-build' },
+  { icon: '🚗', label: 'مركبات', action: 'toggle-vehicle' },
+  { icon: '🎮', label: 'ألعاب', category: 3 },
+  { icon: '🏆', label: 'المسابقات', action: 'open-achievements' },
+  { icon: '🗺️', label: 'الخريطة', action: 'open-map' }
+];
+wwWorldDockItems.forEach((item, index) => {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'ww-world-dock-item' + (index === 5 ? ' is-games' : '');
+  button.setAttribute('aria-label', item.label);
+  button.innerHTML = '<span class="ww-world-dock-icon" aria-hidden="true">' + item.icon + '</span><span class="ww-world-dock-label">' + item.label + '</span>';
+  button.addEventListener('click', () => {
+    if (Number.isInteger(item.category)) openWonderCategory(item.category);
+    else {
+      const action = document.getElementById(item.action);
+      if (action) action.click();
+    }
+  });
+  wwWorldDock.appendChild(button);
+});
+ui.appendChild(wwWorldDock);
+
 const wwGamesBody = wwMenuBodies[3]?.body;
 function dockWonderGameLaunchers(root = document) {
   if (!wwGamesBody) return;
