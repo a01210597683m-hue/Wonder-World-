@@ -1,0 +1,55 @@
+/* 2026-10-31 world-first HUD correction: controls stay compact and never occupy the playfield. */
+#life-ui .ww-world-logo{min-width:132px;padding:3px 10px 5px;border-radius:0 0 14px 14px}
+#life-ui .ww-world-logo strong{font-size:clamp(17px,2.6vw,23px)}
+#life-ui .ww-world-logo small{font-size:7px}
+#life-ui .life-stats{gap:3px;max-width:calc(50vw - 80px)}
+#life-ui .life-stats span{padding:4px 7px;font-size:9px}
+#life-ui .ww-world-side{right:max(6px,env(safe-area-inset-right));gap:5px}
+#life-ui .ww-world-side-item{min-width:44px;min-height:42px;padding:3px;border-radius:10px;font-size:7px}
+#life-ui .ww-world-side-item span{font-size:16px}
+#life-ui .ww-world-dock{width:min(520px,calc(100vw - 150px));min-height:46px;padding:3px 5px;border-radius:13px}
+#life-ui .ww-world-dock-item{gap:0;padding:2px 1px;font-size:7px}
+#life-ui .ww-world-dock-icon{font-size:17px}
+#life-ui .ww-world-dock-label{font-size:7px}
+#life-ui #ww-menu-categories{display:none!important}
+#life-ui #ww-menu-content{top:68px!important;bottom:66px!important;left:auto!important;right:max(58px,calc(env(safe-area-inset-right) + 54px))!important;transform:none!important;width:min(350px,calc(100vw - 120px))!important;max-height:none!important;padding:10px!important;border-radius:16px!important;overflow:auto!important}
+#life-ui:has(#ww-menu-content:not([hidden])) #ww-menu-categories{display:grid!important;position:fixed!important;z-index:43!important;top:68px!important;right:max(8px,env(safe-area-inset-right))!important;left:auto!important;bottom:66px!important;width:44px!important;grid-template-columns:1fr!important;grid-auto-rows:minmax(42px,auto)!important;align-content:start!important;gap:5px!important;padding:4px!important;border:1px solid #ffffff55!important;border-radius:13px!important;background:#14254de8!important}
+#life-ui:has(#ww-menu-content:not([hidden])) .ww-menu-category{display:grid!important;place-items:center!important;min-width:0!important;min-height:42px!important;padding:3px!important;border:1px solid #ffffff35!important;border-radius:9px!important;background:#ffffff15!important;color:#fff!important;font-size:0!important}
+#life-ui:has(#ww-menu-content:not([hidden])) .ww-menu-category-icon{width:25px!important;height:25px!important;flex-basis:25px!important;font-size:16px!important}
+#life-ui:has(#ww-menu-content:not([hidden])) .ww-menu-category-label,
+#life-ui:has(#ww-menu-content:not([hidden])) .ww-hub-count{display:none!important}
+#life-ui .ww-hub-heading{margin:0 0 6px!important}
+#life-ui .ww-hub-heading strong{font-size:13px!important}
+#life-ui .ww-hub-search{margin-bottom:7px!important;padding:6px 9px!important}
+#life-ui .ww-section-body{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;padding:2px!important}
+#life-ui .ww-section-title{font-size:12px!important;margin-bottom:7px!important}
+#life-ui .ww-section-body>button,#life-ui .ww-section-body>.avatar-tools button{min-height:40px!important;padding:7px 8px!important;border-radius:10px!important;font-size:10px!important;line-height:1.25!important}
+#life-ui .ww-section-body>.avatar-tools{gap:5px!important}
+#life-ui #life-message{max-width:min(300px,48vw)!important;font-size:9px!important;padding:5px 8px!important}
+@media(max-width:600px){
+ #life-ui .ww-world-logo{min-width:112px;padding:3px 7px 4px}
+ #life-ui .ww-world-logo strong{font-size:17px}
+ #life-ui .life-stats{max-width:calc(50vw - 62px);gap:2px}
+ #life-ui .life-stats span{padding:3px 5px;font-size:8px}
+ #life-ui .ww-world-side{right:4px;top:42%;gap:4px}
+ #life-ui .ww-world-side-item{min-width:38px;min-height:38px;font-size:6px}
+ #life-ui .ww-world-side-item span{font-size:15px}
+ #life-ui .ww-world-dock{width:calc(100vw - 94px);min-height:42px;bottom:max(4px,env(safe-area-inset-bottom));padding:2px 3px}
+ #life-ui .ww-world-dock-item{min-height:36px}
+ #life-ui .ww-world-dock-icon{font-size:16px}
+ #life-ui #ww-menu-content{top:62px!important;bottom:56px!important;right:52px!important;width:calc(100vw - 108px)!important;padding:8px!important}
+ #life-ui:has(#ww-menu-content:not([hidden])) #ww-menu-categories{top:62px!important;bottom:56px!important;right:5px!important;width:40px!important;grid-auto-rows:38px!important;gap:4px!important}
+ #life-ui:has(#ww-menu-content:not([hidden])) .ww-menu-category{min-height:38px!important}
+ #life-ui:has(#ww-menu-content:not([hidden])) .ww-menu-category-icon{width:23px!important;height:23px!important;flex-basis:23px!important}
+ #life-ui .ww-section-body>button,#life-ui .ww-section-body>.avatar-tools button{min-height:36px!important;padding:6px!important;font-size:9px!important}
+ #life-ui #life-message{bottom:52px!important;max-width:48vw!important}
+}
+@media(orientation:landscape) and (max-height:520px){
+ #life-ui .ww-world-logo{top:4px}
+ #life-ui .ww-world-side{top:45%;right:4px}
+ #life-ui .ww-world-dock{width:calc(100vw - 150px);min-height:38px;bottom:3px}
+ #life-ui #ww-menu-content{top:8px!important;bottom:48px!important;right:52px!important;width:min(340px,calc(100vw - 110px))!important}
+ #life-ui:has(#ww-menu-content:not([hidden])) #ww-menu-categories{top:8px!important;bottom:48px!important;right:5px!important}
+ #move-joystick{bottom:4px!important;width:86px!important;height:86px!important}
+ #camera-controls{bottom:4px!important}
+}
