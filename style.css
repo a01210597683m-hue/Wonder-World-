@@ -1469,3 +1469,75 @@ body:has(#life-ui.is-indoors) #camera-controls {
     bottom: auto !important;
   }
 }
+
+
+/* 2026-10-31: balanced mobile HUD — keep the world visible without shrinking touch targets. */
+@media (max-width: 600px) {
+  #life-ui .ww-world-side { right: max(5px,env(safe-area-inset-right)); top: 43%; gap: 5px; }
+  #life-ui .ww-world-side-item { min-width: 48px; min-height: 46px; padding: 4px 3px; border-radius: 12px; font-size: 8px; }
+  #life-ui .ww-world-side-item span { font-size: 17px; }
+  #life-ui .ww-world-dock {
+    left: 50%; width: calc(100vw - 104px); min-height: 54px;
+    bottom: max(5px,env(safe-area-inset-bottom)); padding: 4px 5px; border-radius: 15px;
+  }
+  #life-ui .ww-world-dock-item { min-height: 44px; gap: 2px; padding: 3px 1px; font-size: 8px; }
+  #life-ui .ww-world-dock-icon { font-size: 18px; }
+  #life-ui .ww-world-dock-label { font-size: 8px; }
+  #move-joystick { left: max(8px,env(safe-area-inset-left)) !important; bottom: max(66px,calc(env(safe-area-inset-bottom) + 58px)) !important; width: 104px !important; height: 104px !important; }
+  #move-joystick-thumb { width: 42px !important; height: 42px !important; margin: -21px 0 0 -21px !important; }
+  #camera-controls {
+    right: max(7px,env(safe-area-inset-right)); bottom: max(66px,calc(env(safe-area-inset-bottom) + 58px)) !important;
+    gap: 5px; padding: 5px; border-radius: 13px;
+  }
+  #camera-controls button { width: 36px; height: 36px; border-radius: 10px; font-size: 21px; }
+  #life-ui #interact, #life-ui #exit-home, #life-ui #indoor-place-action {
+    right: max(8px,env(safe-area-inset-right)); bottom: max(112px,calc(env(safe-area-inset-bottom) + 104px));
+    max-width: min(46vw,210px); min-height: 38px; padding: 8px 10px; font-size: 11px;
+  }
+  #indoor-floor-controls {
+    top: max(82px,calc(env(safe-area-inset-top) + 70px)) !important;
+    left: max(8px,env(safe-area-inset-left)); max-width: min(42vw,220px);
+    gap: 4px; padding: 5px; border-radius: 12px;
+  }
+  #indoor-floor-controls span { min-width: 52px; font-size: 10px; }
+  #indoor-floor-controls button { min-height: 34px; padding: 6px 7px; font-size: 10px; }
+  #life-ui #life-message { bottom: 62px; max-width: 58vw; font-size: 10px; padding: 6px 9px; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  #life-ui .ww-world-side { right: max(5px,env(safe-area-inset-right)); top: 44%; }
+  #life-ui .ww-world-dock { width: calc(100vw - 190px); min-height: 50px; bottom: max(4px,env(safe-area-inset-bottom)); }
+  #move-joystick { left: max(8px,env(safe-area-inset-left)) !important; bottom: max(6px,env(safe-area-inset-bottom)) !important; width: 96px !important; height: 96px !important; }
+  #move-joystick-thumb { width: 40px !important; height: 40px !important; margin: -20px 0 0 -20px !important; }
+  #camera-controls { right: max(7px,env(safe-area-inset-right)); bottom: max(6px,env(safe-area-inset-bottom)) !important; }
+  #life-ui #interact, #life-ui #exit-home, #life-ui #indoor-place-action { bottom: max(62px,calc(env(safe-area-inset-bottom) + 54px)); }
+  #indoor-floor-controls { top: max(58px,calc(env(safe-area-inset-top) + 48px)) !important; max-width: 230px; }
+  #life-ui #life-message { bottom: 54px; }
+}
+
+
+/* Keep indoor shop action and leave-building action on separate hit targets. */
+#life-ui #indoor-place-action {
+  position: fixed !important;
+  right: max(10px,env(safe-area-inset-right)) !important;
+  left: auto !important;
+  bottom: 112px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: min(42vw,220px) !important;
+  z-index: 10034 !important;
+}
+#life-ui #exit-home {
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: 64px !important;
+  transform: translateX(-50%) !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: min(64vw,300px) !important;
+  z-index: 10033 !important;
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  #life-ui #indoor-place-action { bottom: 104px !important; }
+  #life-ui #exit-home { bottom: 56px !important; }
+}

@@ -196,7 +196,7 @@ function house(name, x, z, wallMaterial, width = 5) {
 // Procedural mega-world: only the nearby 3x3 district chunks are kept active.
 // Each chunk is deterministic from its coordinates, so the world can expand without
 // loading billions of meshes into memory at once.
-const DISTRICT_CHUNK_SIZE = 64;
+const DISTRICT_CHUNK_SIZE = 96;
 const DISTRICT_STREAM_RADIUS = 1;
 const districtChunks = new Map();
 let streamedDistrictCenter = '';
@@ -317,20 +317,20 @@ function createDistrictChunk(chunkX, chunkZ) {
   root.setPosition(chunkX*DISTRICT_CHUNK_SIZE,0,chunkZ*DISTRICT_CHUNK_SIZE);
   app.root.addChild(root);
   box('District grass '+key,DISTRICT_CHUNK_SIZE,0.16,DISTRICT_CHUNK_SIZE,0,-0.16,0,mats.grass,root);
-  for(const roadOffset of [-29,29]){
+  for(const roadOffset of [-48,48]){
     box('District east-west road '+key+' '+roadOffset,DISTRICT_CHUNK_SIZE,0.08,5.2,0,0.01,roadOffset,mats.road,root);
     box('District north-south road '+key+' '+roadOffset,5.2,0.08,DISTRICT_CHUNK_SIZE,roadOffset,0.01,0,mats.road,root);
   }
   let seed=Math.abs((chunkX*73856093)^(chunkZ*19349663))>>>0;
   // 16 lots per streamed district, with varied residential, retail, health, beauty and leisure buildings.
-  for(const localX of [-18,-6,6,18]) for(const localZ of [-18,-6,6,18]){
+  for(const localX of [-30,-10,10,30]) for(const localZ of [-30,-10,10,30]){
     const worldX=chunkX*DISTRICT_CHUNK_SIZE+localX, worldZ=chunkZ*DISTRICT_CHUNK_SIZE+localZ;
     if(Math.hypot(worldX,worldZ)<44){seed=(seed+1)>>>0;continue;}
     seed=(seed*1664525+1013904223)>>>0;
     const building = makeDistrictBuilding(root,localX,localZ,seed,districtBusinessTypes[seed%districtBusinessTypes.length]);
     // Face each building's entrance and forecourt toward its nearest street.
-    const roadDistanceX = 29 - Math.abs(localX);
-    const roadDistanceZ = 29 - Math.abs(localZ);
+    const roadDistanceX = 48 - Math.abs(localX);
+    const roadDistanceZ = 48 - Math.abs(localZ);
     const frontYaw = roadDistanceX < roadDistanceZ ? (localX < 0 ? 90 : 270) : (localZ < 0 ? 0 : 180);
     building.setLocalEulerAngles(0, frontYaw, 0);
   }

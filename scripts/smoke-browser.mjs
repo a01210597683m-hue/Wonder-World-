@@ -64,6 +64,17 @@ try {
   assert.equal(await page.locator('.ww-world-dock-item').count(), 8, 'home dock should expose eight navigation shortcuts');
   assert.equal(await page.locator('.ww-world-side-item').count(), 3, 'world side rail should expose three destinations');
   assert.equal(await page.locator('.ww-world-logo').count(), 1, 'world logo should be centered in the home HUD');
+  const mobileHud = await page.evaluate(() => ({
+    dock: document.querySelector('.ww-world-dock').getBoundingClientRect().width,
+    viewport: innerWidth,
+    joystick: document.querySelector('#move-joystick').getBoundingClientRect().width,
+    cameraButton: document.querySelector('#camera-reset').getBoundingClientRect().width,
+    sideButton: document.querySelector('.ww-world-side-item').getBoundingClientRect().width
+  }));
+  assert.ok(mobileHud.dock < mobileHud.viewport - 60, 'mobile dock should leave visible world space on both sides');
+  assert.ok(mobileHud.joystick >= 96 && mobileHud.joystick <= 112, 'movement joystick should remain comfortably touchable without dominating the screen');
+  assert.ok(mobileHud.cameraButton >= 34 && mobileHud.cameraButton <= 40, 'camera controls should remain visible compact touch targets');
+  assert.ok(mobileHud.sideButton >= 46 && mobileHud.sideButton <= 54, 'side navigation should remain readable and compact');
   // Legacy categories remain as the source of existing action groups.
   assert.equal(await page.locator('#ww-menu-categories .ww-menu-category').count(), 5, 'menu should expose five independent categories');
   await openMenuCategory(3);
