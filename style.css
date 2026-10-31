@@ -1400,3 +1400,18 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
   #move-joystick { bottom:14px !important; }
   #camera-controls { bottom:14px !important; }
 }
+
+
+/* Keep indoor floor navigation on the opposite side from the primary place action.
+   Both controls are fixed HUD elements; separating their hit areas prevents pointer interception. */
+#indoor-floor-controls {
+  left: max(12px, env(safe-area-inset-left));
+  right: auto;
+  z-index: 10030;
+}
+@media (max-width: 380px) {
+  #indoor-floor-controls {
+    left: max(6px, env(safe-area-inset-left));
+    right: auto;
+  }
+}
