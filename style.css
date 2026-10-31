@@ -1258,3 +1258,214 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
   #life-ui .ww-section-body > button,
   #life-ui .ww-section-body > .avatar-tools button { min-height: 42px; }
 }
+
+
+/* WonderWorld world-map home screen — based on the saved WA0101–WA0103 UI references. */
+#life-ui {
+  position: fixed !important; inset: 0 !important; z-index: 20 !important;
+  display: block !important; width: 100% !important; max-width: none !important;
+  padding: 0 !important; margin: 0 !important; gap: 0 !important;
+  pointer-events: none !important;
+}
+#life-ui .ww-hud-top, #life-ui #ww-menu-toggle { display: none !important; }
+#life-ui .ww-world-logo {
+  position: fixed; z-index: 25; top: max(8px, env(safe-area-inset-top)); left: 50%;
+  transform: translateX(-50%); display: grid; justify-items: center; gap: 0;
+  min-width: 170px; padding: 4px 16px 7px; border: 1px solid #ffffff70;
+  border-radius: 0 0 22px 22px; color: #fff;
+  background: linear-gradient(180deg, #182c58eF, #4a327ac9);
+  box-shadow: 0 5px 20px #101b3e55, inset 0 1px #ffffff55;
+  text-shadow: 0 2px 5px #1a1748; pointer-events: none;
+}
+#life-ui .ww-world-logo strong {
+  font-family: Georgia,serif; font-size: clamp(20px,3.4vw,31px); line-height: 1;
+  font-weight: 900; letter-spacing: -.7px;
+  background: linear-gradient(180deg,#fff7cf 8%,#ffc4ed 48%,#b6a5ff 90%);
+  color: transparent; background-clip: text; -webkit-background-clip: text;
+  filter: drop-shadow(0 2px 2px #22194c);
+}
+#life-ui .ww-world-crown { color: #ffe38a; font-size: 15px; line-height: 1; }
+#life-ui .ww-world-logo small { margin-top: 3px; font-size: 8px; color: #fff4d8; letter-spacing: .25px; }
+#life-ui .life-stats {
+  position: fixed; z-index: 25; top: max(10px, env(safe-area-inset-top));
+  left: max(10px, env(safe-area-inset-left)); display: flex; flex-wrap: nowrap;
+  align-items: center; gap: 5px; max-width: calc(50vw - 95px); pointer-events: auto;
+}
+#life-ui .life-stats span {
+  padding: 6px 9px; border: 1px solid #ffffff70; border-radius: 999px;
+  color: #fff; background: linear-gradient(135deg,#1c356bdc,#372c70d9);
+  box-shadow: 0 3px 12px #07142e55; font-size: 10px; font-weight: 800;
+}
+#life-ui .life-stats span:nth-child(n+4) { display: none; }
+#life-ui .life-stats b { color: #ffe58d; }
+#life-ui #ww-menu-categories { display: none !important; }
+#life-ui #ww-menu-content {
+  position: fixed !important; z-index: 42 !important;
+  top: max(86px, calc(env(safe-area-inset-top) + 78px)) !important;
+  bottom: max(94px, calc(env(safe-area-inset-bottom) + 86px)) !important;
+  left: 50% !important; right: auto !important; transform: translateX(-50%) !important;
+  width: min(560px, calc(100vw - 28px)) !important; max-height: none !important;
+  overflow: auto !important; padding: 14px !important;
+  border: 1px solid #ffffffa8 !important; border-radius: 22px !important;
+  background: linear-gradient(145deg,#101f45f2,#3b2b68ee) !important;
+  box-shadow: 0 18px 50px #08142e88, inset 0 1px #ffffff30 !important;
+  backdrop-filter: blur(15px); pointer-events: auto !important;
+}
+#life-ui #ww-menu-content[hidden] { display: none !important; }
+#life-ui .ww-menu-section { margin: 0 !important; padding: 0 !important; border: 0 !important; background: transparent !important; }
+#life-ui .ww-menu-section[hidden] { display: none !important; }
+#life-ui .ww-section-body {
+  display: grid !important; grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+  gap: 10px !important; max-height: none !important; overflow: visible !important; padding: 4px !important;
+}
+#life-ui .ww-section-body > button, #life-ui .ww-section-body > .avatar-tools button {
+  display: flex !important; align-items: center; justify-content: flex-start;
+  min-height: 68px !important; margin: 0 !important; padding: 12px !important;
+  border: 1px solid #ffffff52 !important; border-radius: 16px !important;
+  color: #fff !important; background: linear-gradient(145deg,#ffffff28,#ffffff0c) !important;
+  box-shadow: inset 0 1px #ffffff25, 0 5px 14px #08152e40 !important;
+  font: 800 12px/1.4 system-ui,sans-serif !important; text-align: right !important;
+}
+#life-ui .ww-section-body > .avatar-tools { display: grid !important; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; grid-column: 1/-1; }
+#life-ui .ww-section-body > .ww-menu-docked-launcher {
+  grid-column: 1/-1; min-height: 54px !important; justify-content: center !important;
+  background: linear-gradient(110deg,#7b55ba,#c15a9a) !important; border-color: #ffe6a080 !important;
+}
+#life-ui .ww-section-body #vehicle-hint, #life-ui .ww-section-body #xp-panel, #life-ui .ww-section-body #game-cloud-status { grid-column: 1/-1; }
+#life-ui .ww-section-body #vehicle-hint { color:#f1eaff; background:#ffffff12; padding:9px; border-radius:12px; }
+#life-ui .ww-section-title { color:#ffe7a1; font-size:16px; margin:0 0 12px; }
+#life-ui .ww-world-side {
+  position: fixed; z-index: 45; right: max(9px,env(safe-area-inset-right));
+  top: 43%; transform: translateY(-50%); display: grid; gap: 8px; pointer-events: auto;
+}
+#life-ui .ww-world-side-item {
+  display: grid; justify-items: center; gap: 2px; min-width: 62px; min-height: 58px;
+  padding: 6px 5px; border: 1px solid #ffffff90; border-radius: 15px;
+  color: #fff; background: linear-gradient(145deg,#1c3c70eF,#61418beF);
+  box-shadow: 0 5px 15px #07142e70; font: 800 9px/1.2 system-ui,sans-serif;
+  text-shadow: 0 1px 3px #16254a;
+}
+#life-ui .ww-world-side-item span { font-size: 21px; }
+#life-ui .ww-world-dock {
+  position: fixed; z-index: 35; left: 50%; bottom: max(9px,env(safe-area-inset-bottom));
+  transform: translateX(-50%); display: flex; align-items: stretch; justify-content: space-around;
+  width: min(900px,calc(100vw - 190px)); min-height: 66px; padding: 6px 9px;
+  border: 1px solid #ffffffb0; border-radius: 22px;
+  background: linear-gradient(180deg,#182c64ed,#111e4bea);
+  box-shadow: 0 8px 28px #06122e88, inset 0 1px #ffffff55;
+  backdrop-filter: blur(12px); pointer-events: auto;
+}
+#life-ui .ww-world-dock-item {
+  flex: 1 1 0; min-width: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 3px; padding: 4px 2px;
+  border: 0; border-inline-end: 1px solid #ffffff28; border-radius: 10px;
+  color: #f7f5ff; background: transparent; font: 750 9px/1.2 system-ui,sans-serif;
+  white-space: nowrap; touch-action: manipulation;
+}
+#life-ui .ww-world-dock-item:last-child { border-inline-end: 0; }
+#life-ui .ww-world-dock-icon { font-size: clamp(19px,3vw,25px); line-height: 1; filter: drop-shadow(0 2px 2px #0b163d); }
+#life-ui .ww-world-dock-label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+#life-ui .ww-world-dock-item:active, #life-ui .ww-world-side-item:active { transform: scale(.94); background: #ffffff24; }
+#life-ui #world-clock { position: fixed; top: max(12px,env(safe-area-inset-top)); right: max(12px,env(safe-area-inset-right)); z-index:25; pointer-events:none; padding:7px 10px; border:1px solid #ffffff60; border-radius:999px; color:#fff; background:#182b60cc; font-size:10px; }
+#life-ui #interact { position: fixed; right: 14px; bottom: 100px; z-index:28; }
+#life-ui #exit-home, #life-ui #indoor-place-action { position:fixed; right:14px; bottom:100px; z-index:29; }
+#life-ui #life-message { position:fixed; left:50%; bottom:88px; transform:translateX(-50%); z-index:26; max-width:min(420px,70vw); pointer-events:none; }
+#life-ui #life-goal { display:none !important; }
+#life-ui #life-message { font-size:11px; padding:7px 12px; background:#14234dcc; }
+@media (max-width: 600px) {
+  #life-ui .ww-world-logo { top: max(6px,env(safe-area-inset-top)); min-width:142px; padding:4px 10px 6px; }
+  #life-ui .ww-world-logo strong { font-size:20px; }
+  #life-ui .ww-world-logo small { font-size:7px; }
+  #life-ui .life-stats { top:max(8px,env(safe-area-inset-top)); left:6px; max-width:calc(50vw - 72px); gap:3px; }
+  #life-ui .life-stats span { padding:5px 6px; font-size:9px; }
+  #life-ui #world-clock { top:54px; right:8px; font-size:9px; }
+  #life-ui .ww-world-side { right:6px; top:45%; gap:5px; }
+  #life-ui .ww-world-side-item { min-width:52px; min-height:49px; padding:4px 3px; font-size:8px; }
+  #life-ui .ww-world-side-item span { font-size:18px; }
+  #life-ui .ww-world-dock { width:calc(100vw - 12px); min-height:58px; bottom:max(7px,env(safe-area-inset-bottom)); padding:4px; border-radius:17px; }
+  #life-ui .ww-world-dock-item { gap:2px; font-size:8px; }
+  #life-ui .ww-world-dock-icon { font-size:19px; }
+  #life-ui .ww-world-dock-label { font-size:8px; }
+  #life-ui #ww-menu-content { top:76px !important; bottom:150px !important; width:calc(100vw - 20px) !important; }
+  #life-ui #life-message { bottom:72px; max-width:75vw; }
+  #life-ui #interact, #life-ui #exit-home, #life-ui #indoor-place-action { bottom:76px; right:8px; }
+  #move-joystick { bottom:82px !important; width:116px !important; height:116px !important; }
+  #camera-controls { bottom:82px !important; }
+}
+@media (orientation:landscape) and (max-height:520px) {
+  #life-ui .ww-world-dock { width:calc(100vw - 190px); min-height:58px; }
+  #life-ui .ww-world-side { top:48%; }
+  #life-ui #ww-menu-content { top:62px !important; bottom:82px !important; }
+  #life-ui #life-message { bottom:72px; }
+  #move-joystick { bottom:14px !important; }
+  #camera-controls { bottom:14px !important; }
+}
+
+
+/* Keep indoor floor navigation on the opposite side from the primary place action.
+   Both controls are fixed HUD elements; separating their hit areas prevents pointer interception. */
+#indoor-floor-controls {
+  left: max(12px, env(safe-area-inset-left));
+  right: auto;
+  z-index: 10030;
+}
+@media (max-width: 380px) {
+  #indoor-floor-controls {
+    left: max(6px, env(safe-area-inset-left));
+    right: auto;
+  }
+}
+
+
+/* Final HUD separation: reserve the lower-right corner for the active place action.
+   Floor navigation lives in a compact upper-left slot, not beside the joystick/action row. */
+#indoor-floor-controls {
+  top: max(92px, calc(env(safe-area-inset-top) + 76px));
+  bottom: auto;
+  left: max(12px, env(safe-area-inset-left));
+  right: auto;
+  width: max-content;
+  max-width: min(46vw, 320px);
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+#indoor-floor-controls span {
+  min-width: 62px;
+}
+@media (max-width: 600px) {
+  #indoor-floor-controls {
+    top: max(108px, calc(env(safe-area-inset-top) + 92px));
+    max-width: calc(48vw - 16px);
+    gap: 4px;
+    padding: 6px;
+  }
+  #indoor-floor-controls button {
+    padding: 7px 8px;
+  }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  #indoor-floor-controls {
+    top: max(68px, calc(env(safe-area-inset-top) + 58px));
+    max-width: 280px;
+  }
+}
+
+
+/* Indoor HUD hit-target layout: move camera controls to a dedicated upper-right
+   lane while the shop/exit action stays in the lower-right lane. This preserves
+   camera zoom/reset access without letting the control group's padded surface
+   intercept the primary indoor action. */
+body:has(#life-ui.is-indoors) #camera-controls {
+  top: max(62px, calc(env(safe-area-inset-top) + 54px)) !important;
+  right: max(8px, env(safe-area-inset-right)) !important;
+  bottom: auto !important;
+  left: auto !important;
+  z-index: 10031 !important;
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  body:has(#life-ui.is-indoors) #camera-controls {
+    top: max(54px, calc(env(safe-area-inset-top) + 46px)) !important;
+    right: max(8px, env(safe-area-inset-right)) !important;
+    bottom: auto !important;
+  }
+}
