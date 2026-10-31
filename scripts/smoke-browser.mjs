@@ -484,6 +484,49 @@ try {
   await page.locator('#ww-arcade-panel').getByRole('button', { name: 'إغلاق' }).click();
   await page.locator('#ww-arcade-panel').waitFor({ state: 'hidden' });
 
+  // PUBG-inspired Battle Royale: validate touch actions, ammunition, reload and reset.
+  await page.locator('#ww-activities-launch').click();
+  await page.locator('#ww-activities').waitFor({ state: 'visible' });
+  await page.locator('#wwa-menu [data-game="battle"]').click();
+  await page.locator('#wwa-battle-canvas').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#wwa-hp').innerText(), '100', 'Battle Royale should start with full health');
+  assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'Battle Royale should start with a full magazine');
+  await page.locator('#wwa-content [data-act="up"]').click();
+  await page.locator('#wwa-content [data-act="left"]').click();
+  await page.locator('#wwa-content [data-act="fire"]').click();
+  assert.equal(await page.locator('#wwa-ammo').innerText(), '29', 'Battle Royale fire control should consume one round');
+  await page.locator('#wwa-content [data-act="reload"]').click();
+  assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'Battle Royale reload should restore ammunition up to magazine capacity');
+  await page.locator('#wwa-content [data-act="heal"]').click();
+  assert.ok(Number(await page.locator('#wwa-hp').innerText()) <= 100, 'Battle Royale healing must not exceed maximum health');
+  await page.locator('#wwa-reset').click();
+  assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'Battle Royale restart should restore the starting magazine');
+  await page.locator('#wwa-back').click();
+  await page.locator('#wwa-menu [data-game="ropes"]').click();
+  await page.locator('#wwa-rope-nodes').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#wwa-rope-nodes [data-node]').count(), 4, 'Tangle Master should render four draggable rope endpoints');
+  const ropeSvg = page.locator('#wwa-rope-nodes');
+  const ropeBox = await ropeSvg.boundingBox();
+  assert.ok(ropeBox, 'rope board should have a measurable touch surface');
+  const ropePoint = (x, y) => ({ x: ropeBox.x + x / 640 * ropeBox.width, y: ropeBox.y + y / 360 * ropeBox.height });
+  for (const move of [
+    { from: [525, 285], to: [525, 85] },
+    { from: [115, 285], to: [525, 285] },
+    { from: [525, 85], to: [115, 285] }
+  ]) {
+    const from = ropePoint(...move.from), to = ropePoint(...move.to);
+    await page.mouse.move(from.x, from.y);
+    await page.mouse.down();
+    await page.mouse.move(to.x, to.y, { steps: 4 });
+    await page.mouse.up();
+  }
+  assert.equal(await page.locator('#wwa-crossings').innerText(), '0', 'dragging rope endpoints into a square should remove all crossings');
+  assert.match(await page.locator('#wwa-feedback').innerText(), /الحبال بقت منفصلة/, 'Tangle Master should confirm a solved rope layout');
+  await page.locator('#wwa-reset').click();
+  assert.equal(await page.locator('#wwa-rope-moves').innerText(), '0', 'rope reset should clear the move counter');
+  await page.locator('#wwa-home').click();
+  await page.locator('#ww-activities').waitFor({ state: 'hidden' });
+
   await page.locator('#open-football').click();
   await page.locator('#football-panel').waitFor({ state: 'visible' });
   await page.locator('[data-foot-aim="40"]').click();
