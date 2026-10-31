@@ -1449,3 +1449,22 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
     max-width: 280px;
   }
 }
+
+
+/* Indoor HUD hit-target layout: move camera controls to a dedicated upper-right
+   lane while the shop/exit action stays in the lower-right lane. This preserves
+   camera zoom/reset access without letting the control group's padded surface
+   intercept the primary indoor action. */
+body:has(#life-ui.is-indoors) #camera-controls {
+  top: max(62px, calc(env(safe-area-inset-top) + 54px));
+  right: max(8px, env(safe-area-inset-right));
+  bottom: auto;
+  left: auto;
+  z-index: 10031;
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  body:has(#life-ui.is-indoors) #camera-controls {
+    top: max(54px, calc(env(safe-area-inset-top) + 46px));
+    right: max(8px, env(safe-area-inset-right));
+  }
+}
