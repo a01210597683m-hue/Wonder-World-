@@ -704,12 +704,12 @@ try {
   assert.equal(await page.evaluate(() => document.activeElement?.id), 'ww-auth-launch', 'closing the account dialog should restore keyboard focus');
 
 
-  // Exercise the twelve additional activity prototypes, including the now-visible gym mode.
+  // Exercise all fifteen additional activity prototypes, including the now-visible gym mode.
   await openMenuCategory(3);
   await page.locator('#ww-activities-launch').click();
   await page.locator('#ww-activities').waitFor({ state: 'visible' });
-  assert.equal(await page.locator('#wwa-menu [data-game]').count(), 12, 'activity hub should expose twelve additional activities including gym without duplicating cup mode');
-  for (const id of ['battle','football','ropes','fashion','gym','plane','train','arrows','stocks','space','candy','party']) {
+  assert.equal(await page.locator('#wwa-menu [data-game]').count(), 15, 'activity hub should expose all fifteen additional activities without duplicating cup mode');
+  for (const id of ['battle','football','ropes','fashion','gym','plane','train','arrows','stocks','space','candy','party','billiards','dominoes','cards']) {
     await page.locator('#wwa-menu [data-game="' + id + '"]').click();
     await page.locator('#wwa-game').waitFor({ state: 'visible' });
     assert.notEqual((await page.locator('#wwa-title').innerText()).trim(), '', id + ' should open with a title');
@@ -783,6 +783,24 @@ try {
     if (id === 'space') await page.locator('[data-s="fire"]').click();
     if (id === 'candy') { await page.locator('#wwa-candy-board button').nth(0).click(); await page.locator('#wwa-candy-board button').nth(1).click(); }
     if (id === 'party') await page.locator('#wwa-party-answers button').first().click();
+    if (id === 'billiards') {
+      const pool = page.locator('#wwa-pool-canvas');
+      const poolBox = await pool.boundingBox();
+      assert.ok(poolBox, 'billiards should render a touch-enabled table');
+      await page.mouse.click(poolBox.x + poolBox.width * 0.42, poolBox.y + poolBox.height * 0.5);
+      await page.mouse.click(poolBox.x + poolBox.width * 0.34, poolBox.y + poolBox.height * 0.5);
+      assert.equal(await page.locator('#wwa-pool-shots').innerText(), '1', 'billiards should register a two-tap shot');
+    }
+    if (id === 'dominoes') {
+      await page.locator('#wwa-domino-hand button').first().click();
+      assert.equal(Number(await page.locator('#wwa-domino-count').innerText()), 6, 'dominoes should place a selected tile and reduce the player hand');
+      await page.waitForTimeout(550);
+      assert.notEqual((await page.locator('#wwa-domino-chain').innerText()).trim(), 'ابدئي بقطعة', 'dominoes should build a matching chain');
+    }
+    if (id === 'cards') {
+      await page.locator('#wwa-card-draw').click();
+      assert.equal(await page.locator('#wwa-card-round').innerText(), 'الجولة 1 / 10', 'card game should deal a round and update its counter');
+    }
     await page.locator('#wwa-back').click();
   }
   await page.locator('#wwa-home').click();
