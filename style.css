@@ -1484,7 +1484,7 @@ body:has(#life-ui.is-indoors) #camera-controls {
   #life-ui .ww-world-dock-icon { font-size: 18px; }
   #life-ui .ww-world-dock-label { font-size: 8px; }
   #move-joystick { left: max(8px,env(safe-area-inset-left)) !important; bottom: max(66px,calc(env(safe-area-inset-bottom) + 58px)) !important; width: 104px !important; height: 104px !important; }
-  #move-joystick-thumb { width: 42px !important; height: 42px !important; }
+  #move-joystick-thumb { width: 42px !important; height: 42px !important; margin: -21px 0 0 -21px !important; }
   #camera-controls {
     right: max(7px,env(safe-area-inset-right)); bottom: max(66px,calc(env(safe-area-inset-bottom) + 58px)) !important;
     gap: 5px; padding: 5px; border-radius: 13px;
@@ -1507,7 +1507,7 @@ body:has(#life-ui.is-indoors) #camera-controls {
   #life-ui .ww-world-side { right: max(5px,env(safe-area-inset-right)); top: 44%; }
   #life-ui .ww-world-dock { width: calc(100vw - 190px); min-height: 50px; bottom: max(4px,env(safe-area-inset-bottom)); }
   #move-joystick { left: max(8px,env(safe-area-inset-left)) !important; bottom: max(6px,env(safe-area-inset-bottom)) !important; width: 96px !important; height: 96px !important; }
-  #move-joystick-thumb { width: 40px !important; height: 40px !important; }
+  #move-joystick-thumb { width: 40px !important; height: 40px !important; margin: -20px 0 0 -20px !important; }
   #camera-controls { right: max(7px,env(safe-area-inset-right)); bottom: max(6px,env(safe-area-inset-bottom)) !important; }
   #life-ui #interact, #life-ui #exit-home, #life-ui #indoor-place-action { bottom: max(62px,calc(env(safe-area-inset-bottom) + 54px)); }
   #indoor-floor-controls { top: max(58px,calc(env(safe-area-inset-top) + 48px)) !important; max-width: 230px; }
