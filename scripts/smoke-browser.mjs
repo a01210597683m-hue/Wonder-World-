@@ -306,6 +306,16 @@ try {
   assert.equal(await page.locator('#indoor-floor-label').innerText(), 'الدور 2', 'stair navigation should move the player to the upper floor');
   await page.locator('#indoor-floor-down').click();
   assert.equal(await page.locator('#indoor-floor-label').innerText(), 'الدور الأرضي', 'floor navigation should return to the ground floor');
+  const [floorBox, actionBox] = await Promise.all([
+    page.locator('#indoor-floor-controls').boundingBox(),
+    page.locator('#indoor-place-action').boundingBox()
+  ]);
+  assert.ok(floorBox && actionBox, 'floor controls and place action must both have hit areas');
+  const overlaps = floorBox.x < actionBox.x + actionBox.width &&
+    floorBox.x + floorBox.width > actionBox.x &&
+    floorBox.y < actionBox.y + actionBox.height &&
+    floorBox.y + floorBox.height > actionBox.y;
+  assert.equal(overlaps, false, 'floor navigation must not overlap the primary place action');
   await page.locator('#indoor-place-action').click();
   await page.locator('#shop-panel').waitFor({ state: 'visible' });
   await page.locator('#close-shop').click();
