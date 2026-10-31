@@ -1011,3 +1011,123 @@ button:focus-visible { outline: 3px solid #ffe28a; outline-offset: 2px; }
 #life-ui.actions-collapsed #ww-menu-content:not([hidden]) #open-pets {
   display: flex !important;
 }
+
+
+/* 2026-10-31: screen-edge category navigation inspired by the WonderWorld map reference.
+   Five persistent shortcuts stay at the right edge; only the selected category opens. */
+#life-ui #ww-menu-categories {
+  position: fixed;
+  z-index: 34;
+  top: max(94px, calc(env(safe-area-inset-top) + 82px));
+  right: max(8px, env(safe-area-inset-right));
+  width: 116px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  pointer-events: auto;
+}
+#life-ui #ww-menu-categories[hidden] { display: none !important; }
+#life-ui .ww-menu-category {
+  min-width: 0;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 5px 3px;
+  border: 1px solid #ffffffb8;
+  border-radius: 13px;
+  color: #fff;
+  background: linear-gradient(145deg, #294b73ed, #59427feF);
+  box-shadow: 0 4px 13px #0b1b3150;
+  font: 800 10px/1.25 system-ui, sans-serif;
+  text-align: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+#life-ui .ww-menu-category-icon { font-size: 21px; line-height: 1; }
+#life-ui .ww-menu-category-label { display: block; max-width: 100%; }
+#life-ui .ww-menu-category.is-active {
+  border-color: #ffe08a;
+  background: linear-gradient(145deg, #8c5cae, #b45c91);
+  box-shadow: 0 0 0 2px #ffe08a66, 0 5px 16px #0b1b3155;
+}
+#life-ui #ww-menu-content {
+  position: fixed;
+  z-index: 35;
+  top: max(94px, calc(env(safe-area-inset-top) + 82px));
+  right: max(132px, calc(env(safe-area-inset-right) + 124px));
+  width: min(320px, calc(100vw - 150px));
+  max-height: min(68dvh, 560px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 9px;
+  border: 1px solid #ffffffa8;
+  border-radius: 17px;
+  background: linear-gradient(145deg, #152c4af2, #47346deF);
+  box-shadow: 0 14px 38px #08182b70;
+  pointer-events: auto;
+  scrollbar-width: thin;
+}
+#life-ui #ww-menu-content[hidden] { display: none !important; }
+#life-ui.ww-menu-collapsed #ww-menu-content:not([hidden]) { display: block !important; }
+#life-ui .ww-menu-section { margin: 0; padding: 0; border: 0; background: transparent; }
+#life-ui .ww-menu-section[hidden] { display: none !important; }
+#life-ui .ww-section-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  max-height: min(62dvh, 510px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 3px;
+}
+#life-ui .ww-menu-section[data-category-index="3"] .ww-section-body { grid-template-columns: 1fr; }
+#life-ui .ww-section-body > button,
+#life-ui .ww-section-body > .avatar-tools button,
+#life-ui .ww-section-body > #xp-panel {
+  min-width: 0;
+  min-height: 40px;
+  margin: 0;
+  padding: 8px 9px;
+  border: 1px solid #ffffff35;
+  border-radius: 11px;
+  color: #f8fbff;
+  background: #ffffff18;
+  font: 750 11px/1.35 system-ui, sans-serif;
+  text-align: right;
+  overflow-wrap: anywhere;
+  touch-action: manipulation;
+}
+#life-ui .ww-section-body > .avatar-tools { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; }
+#life-ui .ww-section-body #vehicle-hint { grid-column: 1 / -1; }
+#life-ui .ww-section-body #xp-panel { grid-column: 1 / -1; }
+#life-ui .ww-section-body #game-cloud-status { grid-column: 1 / -1; color: #e8f1ff; font-size: 11px; line-height: 1.5; }
+#life-ui .ww-section-body > button:active,
+#life-ui .ww-menu-category:active { transform: scale(.97); }
+#life-ui .ww-menu-docked-launcher { box-sizing: border-box; min-height: 42px; border-radius: 11px; }
+@media (max-width: 520px) {
+  #life-ui #ww-menu-categories {
+    top: max(90px, calc(env(safe-area-inset-top) + 76px));
+    right: 6px;
+    width: 108px;
+    gap: 6px;
+  }
+  #life-ui .ww-menu-category { min-height: 52px; font-size: 9px; }
+  #life-ui .ww-menu-category-icon { font-size: 19px; }
+  #life-ui #ww-menu-content {
+    top: max(90px, calc(env(safe-area-inset-top) + 76px));
+    right: 122px;
+    width: calc(100vw - 134px);
+    max-height: 68dvh;
+    padding: 7px;
+  }
+  #life-ui .ww-section-body { max-height: 62dvh; gap: 6px; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  #life-ui #ww-menu-categories { top: 8px; right: 8px; width: 104px; gap: 4px; }
+  #life-ui .ww-menu-category { min-height: 46px; padding: 3px 2px; }
+  #life-ui #ww-menu-content { top: 8px; right: 120px; max-height: calc(100dvh - 16px); }
+  #life-ui .ww-section-body { max-height: calc(100dvh - 52px); }
+}
