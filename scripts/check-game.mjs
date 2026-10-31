@@ -108,12 +108,11 @@ const checks = [
   ['Procedural interiors show matching signs and pharmacy/apartment interiors have dedicated furnishing', /District interior readable sign/.test(game) && /Pharmacy medicine cabinet/.test(game) && /Apartment lobby reception/.test(game) && /Arcade game cabinet/.test(game)],
   ['Player movement is no longer clamped to the starter neighborhood', !/p\.x = Math\.max\(-42/.test(game) && !/p\.z = Math\.max\(-42/.test(game)],
   ['No service-role credential is hard-coded', !/service_role/i.test(html + game + careers)]
-];
-
   ['Five screen-edge category shortcuts are generated from the existing menu sections', /ww-menu-categories/.test(game) && /wwMenuCategoryIcons = \['✨', '🌍', '🏡', '🎮', '🎒'\]/.test(game) && /wwMenuSections\.forEach/.test(game)],
   ['Only the selected menu category opens and every original menu action ID is preserved', /wwMenuBodies\.forEach/.test(game) && /item\.section\.hidden = true/.test(game) && /ww-section-body button/.test(game) && ['open-map','open-football','open-puzzle','open-blockblast','open-watersort','open-shop','open-pets'].every(id => game.includes('id="' + id + '"'))],
   ['Additional arcade, board, challenge and space launchers are docked inside the games category', ['ww-activities-launch','ww-arcade-launch','board-games-launch','ww-challenges-launch','ww-space-launcher'].every(id => game.includes("'" + id + "'")) && /dockWonderGameLaunchers/.test(game)],
   ['Category rail and selected panel stay on the screen edge and adapt to landscape phones', /#life-ui #ww-menu-categories/.test(css) && /right: 6px/.test(css) && /orientation: landscape/.test(css) && /#life-ui #ww-menu-content\[hidden\]/.test(css)],
+];
 
 let failed = 0;
 for (const [label, passed] of checks) {
