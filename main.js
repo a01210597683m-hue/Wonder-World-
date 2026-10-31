@@ -193,11 +193,11 @@ function house(name, x, z, wallMaterial, width = 5) {
   return { walls, roof, bushes };
 }
 
-// Procedural mega-world: only the nearby 3x3 district chunks are kept active.
-// Each chunk is deterministic from its coordinates, so the world can expand without
-// loading billions of meshes into memory at once.
+// Procedural mega-world: keep a 5x5 district window active around the player.
+// At 96 world units per chunk this gives a 480x480-unit traversable streamed area;
+// chunks outside the window are released to keep mobile memory use bounded.
 const DISTRICT_CHUNK_SIZE = 96;
-const DISTRICT_STREAM_RADIUS = 1;
+const DISTRICT_STREAM_RADIUS = 2;
 const districtChunks = new Map();
 let streamedDistrictCenter = '';
 const districtWallMaterials = [mats.wall, mats.wallBrick, mats.wallGold, mats.wallYellow, mats.wallPink, mats.white];
@@ -1460,7 +1460,7 @@ const worldDestinations = [
 ];
 const worldGuideStyle = document.createElement('style');
 worldGuideStyle.textContent = `
-#ww-world-guide{position:absolute;z-index:35;right:12px;top:68px;width:min(230px,calc(100vw - 24px));direction:rtl;font-family:system-ui,sans-serif;color:#17324c}
+#ww-world-guide{position:absolute;z-index:5;right:12px;top:68px;width:min(230px,calc(100vw - 24px));direction:rtl;font-family:system-ui,sans-serif;color:#17324c}
 #ww-world-guide-toggle{width:100%;border:1px solid #ffffffc9;border-radius:13px;padding:10px 12px;background:#fff0b8;color:#17324c;font-weight:850;box-shadow:0 4px 14px #10263c33;touch-action:manipulation}
 #ww-world-guide-panel{margin-top:7px;padding:10px;border:1px solid #ffffffb8;border-radius:15px;background:#fffaf0f5;box-shadow:0 10px 28px #10263c40;max-height:55vh;overflow:auto}
 #ww-world-guide-panel[hidden]{display:none}
