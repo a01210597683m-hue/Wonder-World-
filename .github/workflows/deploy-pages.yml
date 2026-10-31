@@ -53,7 +53,7 @@ jobs:
       - name: Assemble clean Pages site
         run: |
           mkdir -p _site
-          cp index.html style.css career.css auth.js main.js careers.js board-games.js mini-games.js wonderworld-activities.js space-shooter.js wonder-challenges.js wonder-memory.js _site/
+          cp index.html style.css wonderworld-world-first.css career.css auth.js main.js careers.js board-games.js mini-games.js wonderworld-activities.js space-shooter.js wonder-challenges.js wonder-memory.js _site/
           cp -R assets game-design-references App-Branding _site/
           test -f _site/index.html
           test ! -d _site/node_modules
