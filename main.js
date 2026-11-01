@@ -1343,33 +1343,6 @@ wwLauncherObserver.observe(ui, { childList: true, subtree: true });
 wwLauncherObserver.observe(document.body, { childList: true, subtree: true });
 
 const message = document.getElementById('life-message');
-  const wwMenuToggle = document.getElementById('ww-menu-toggle');
-  ui.classList.add('ww-menu-collapsed');
-  wwMenuCategories.hidden = false;
-  wwMenuToggle.setAttribute('aria-expanded', 'true');
-  wwMenuToggle.textContent = '✕ إخفاء القوائم';
-  wwMenuToggle.addEventListener('click', () => {
-    const willHide = !wwMenuCategories.hidden;
-    wwMenuCategories.hidden = willHide;
-    wwMenuContent.hidden = true;
-    wwMenuBodies.forEach(item => {
-      item.section.hidden = true;
-      item.trigger.setAttribute('aria-expanded', 'false');
-      item.trigger.classList.remove('is-active');
-    });
-    wwMenuToggle.setAttribute('aria-expanded', String(!willHide));
-    wwMenuToggle.textContent = willHide ? '☰ القوائم' : '✕ إخفاء القوائم';
-  });
-  ui.addEventListener('click', event => {
-    const action = event.target.closest('.ww-section-body button');
-    if (!action || action.classList.contains('ww-menu-category') || action.classList.contains('ww-menu-docked-launcher')) return;
-    wwMenuContent.hidden = true;
-    wwMenuBodies.forEach(item => {
-      item.section.hidden = true;
-      item.trigger.setAttribute('aria-expanded', 'false');
-      item.trigger.classList.remove('is-active');
-    });
-  });
   document.getElementById('open-map').addEventListener('click', () => {
     const panel = document.getElementById('map-panel');
     const categoryRail = document.getElementById('ww-menu-categories');
