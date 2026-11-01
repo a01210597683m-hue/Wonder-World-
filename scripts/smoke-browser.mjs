@@ -796,6 +796,9 @@ try {
       assert.equal(await page.locator('#wwa-ammo').innerText(), '29', 'battle royale should consume one round per shot');
       await page.locator('[data-act="reload"]').click();
       assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'battle royale should refill ammunition up to the magazine cap');
+      // Start a fresh round before testing held fire; earlier movement/aim checks can consume game time.
+      await page.locator('[data-act="restart"]').click();
+      assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'fresh Battle Royale round should restore the magazine before held-fire testing');
       const holdFire = page.locator('[data-act="fire"]');
       await page.evaluate(() => {
         const button = document.querySelector('[data-act="fire"]');
