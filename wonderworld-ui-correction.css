@@ -244,3 +244,14 @@ body:has(#home-build-panel:not([hidden])) #ww-menu-content{
   align-items:center!important;justify-content:center!important;
   background:#142c45ee!important;color:#fff!important;border:1px solid #ffffff66!important;
 }
+
+/* Keep the flat launcher within the same compact width in short landscape viewports. */
+@media(orientation:landscape) and (max-height:520px){
+  #life-ui #ww-menu-content:not([hidden]){
+    width:min(430px,calc(100vw - 16px))!important;
+    max-width:430px!important;
+    right:max(8px,env(safe-area-inset-right))!important;
+    left:auto!important;
+  }
+  #life-ui #ww-menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
