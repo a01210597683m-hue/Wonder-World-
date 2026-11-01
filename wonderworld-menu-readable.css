@@ -204,3 +204,12 @@ body:has(#life-ui.is-indoors) #ww-menu-categories *,
 body:has(#life-ui.is-indoors) #ww-menu-content * {
   pointer-events: none !important;
 }
+
+/* Indoor mode must override the high-specificity visible category rail rules above. */
+#life-ui.is-indoors #ww-menu-categories,
+#life-ui.is-indoors #ww-menu-content {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
