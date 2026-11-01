@@ -187,3 +187,20 @@ body:has(#exit-home:not([hidden])) #ww-menu-content {
   visibility: hidden !important;
   pointer-events: none !important;
 }
+
+
+/* Definitive indoor hit-test fix:
+   #ww-menu-categories is mounted outside #life-ui, so descendant selectors
+   rooted at #life-ui cannot hide it. Use the actual indoor state as an
+   ancestor-independent condition and remove the rail from hit testing. */
+body:has(#life-ui.is-indoors) #ww-menu-categories,
+body:has(#life-ui.is-indoors) #ww-menu-content {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+body:has(#life-ui.is-indoors) #ww-menu-categories *,
+body:has(#life-ui.is-indoors) #ww-menu-content * {
+  pointer-events: none !important;
+}
