@@ -234,9 +234,7 @@ try {
   assert.match(await page.locator('#ludo-status').innerText(), /حركتِ القطعة/, 'Ludo should advance an already launched piece');
   await page.evaluate(() => { if (window.__wwOriginalRandom) Math.random = window.__wwOriginalRandom; });
   await page.locator('#bg-close').click();
-  // Use the visible category shortcut directly; the widened category rail intentionally occupies the old side-toggle area.
-  await page.locator('#ww-menu-categories .ww-menu-category').nth(1).click();
-  await page.locator('#ww-menu-content').waitFor({ state: 'visible' });
+  // The redesigned launcher has no category rail: open the flat list and launch map directly.
   await openMenuCategory(1);
   assert.equal(await page.locator('#ww-menu-content').isVisible(), true, 'flat launcher panel should be visible');
   await page.locator('#open-map').evaluate(el => el.click());
