@@ -171,3 +171,10 @@
   z-index: 10030 !important;
   pointer-events: auto !important;
 }
+
+/* Interior interaction mode: keep the category rail from covering world actions. */
+#life-ui:has(#exit-home:not([hidden])) #ww-menu-categories,
+#life-ui:has(#exit-home:not([hidden])) #ww-menu-content {
+  display: none !important;
+  pointer-events: none !important;
+}
