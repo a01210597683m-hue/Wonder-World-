@@ -1575,3 +1575,18 @@ body:has(#life-ui.is-indoors) #camera-controls {
     bottom: max(62px, calc(env(safe-area-inset-bottom) + 54px)) !important;
   }
 }
+
+
+/* Keep the global category rail from covering modal controls.
+   The guide panel is rendered inside the HUD stacking context, while the rail
+   has a deliberately high z-index for outdoor navigation. Hide only the rail
+   for the lifetime of this modal so its close button and choices receive taps. */
+body:has(#wonder-guide-panel:not([hidden])) #ww-menu-categories,
+body:has(#wonder-guide-panel:not([hidden])) #ww-menu-content {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+body:has(#wonder-guide-panel:not([hidden])) #ww-menu-categories *,
+body:has(#wonder-guide-panel:not([hidden])) #ww-menu-content * {
+  pointer-events: none !important;
+}
