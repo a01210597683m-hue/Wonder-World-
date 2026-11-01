@@ -270,3 +270,8 @@ body:has(#home-build-panel:not([hidden])) #ww-menu-content{
 /* The HUD wrapper must not form a full-width invisible touch shield. */
 #life-ui .ww-hud-top{pointer-events:none!important}
 #life-ui .ww-hud-top #ww-menu-toggle{pointer-events:auto!important}
+
+/* Life stats are informational HUD only; never let their overlay block menu/actions. */
+#life-ui .life-stats{
+  pointer-events:none!important;
+}
