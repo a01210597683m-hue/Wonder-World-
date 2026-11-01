@@ -178,3 +178,12 @@
   display: none !important;
   pointer-events: none !important;
 }
+
+/* Global indoor-state guard: the menu rail is outside #life-ui in the live DOM,
+   so scope from body rather than requiring #life-ui to contain the exit control. */
+body:has(#exit-home:not([hidden])) #ww-menu-categories,
+body:has(#exit-home:not([hidden])) #ww-menu-content {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
