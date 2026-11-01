@@ -255,3 +255,13 @@ body:has(#home-build-panel:not([hidden])) #ww-menu-content{
   }
   #life-ui #ww-menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
+
+
+/* Modal panels own the top-right close-button area; the global menu toggle must not intercept it. */
+#life-ui:has(#gathering-panel:not([hidden])) #ww-menu-toggle,
+#life-ui:has(#avatar-creator-panel:not([hidden])) #ww-menu-toggle,
+#life-ui:has(#home-build-panel:not([hidden])) #ww-menu-toggle,
+#life-ui:has(#exit-home:not([hidden])) #ww-menu-toggle{
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
