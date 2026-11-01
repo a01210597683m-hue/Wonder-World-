@@ -13,6 +13,7 @@ const economyMigration = read('../supabase/migrations/202610210007_secure_virtua
 const welcomeMigration = read('../supabase/migrations/202610210010_wallet_welcome_bonus.sql');
 const careerRewardMigration = read('../supabase/migrations/202610210011_secure_career_shift_rewards.sql');
 const css = read('../style.css');
+const correctionCss = read('../wonderworld-ui-correction.css');
 const careerCss = read('../career.css');
 const workflow = read('../.github/workflows/deploy-pages.yml');
 
