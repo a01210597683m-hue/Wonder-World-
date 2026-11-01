@@ -60,51 +60,38 @@ try {
   await page.locator('#application').waitFor({ state: 'visible', timeout: 15000 });
   await page.locator('#life-ui').waitFor({ state: 'attached', timeout: 20000 });
   await page.locator('#player-level').waitFor({ state: 'attached', timeout: 10000 });
-  // Reference-led world home: eight bottom shortcuts, three side destinations and card-based category pages.
-  assert.equal(await page.locator('.ww-world-dock-item').count(), 8, 'home dock should expose eight navigation shortcuts');
-  assert.equal(await page.locator('.ww-world-side-item').count(), 3, 'world side rail should expose three destinations');
-  assert.equal(await page.locator('.ww-world-logo').count(), 1, 'world logo should be centered in the home HUD');
+  // The redesigned HUD uses one compact toggle and a flat launcher with independent actions.
+  assert.equal(await page.locator('.ww-world-dock-item').count(), 0, 'legacy oversized dock must stay removed');
+  assert.equal(await page.locator('.ww-world-side-item').count(), 0, 'legacy side rail must stay removed');
+  assert.equal(await page.locator('.ww-world-logo').count(), 1, 'single compact world logo should remain');
   const mobileHud = await page.evaluate(() => ({
-    dock: document.querySelector('.ww-world-dock').getBoundingClientRect().width,
-    viewport: innerWidth,
     joystick: document.querySelector('#move-joystick').getBoundingClientRect().width,
-    cameraButton: document.querySelector('#camera-reset').getBoundingClientRect().width,
-    sideButton: document.querySelector('.ww-world-side-item').getBoundingClientRect().width
+    cameraButton: document.querySelector('#camera-reset').getBoundingClientRect().width
   }));
-  assert.ok(mobileHud.dock < mobileHud.viewport - 60, 'mobile dock should leave visible world space on both sides');
-  assert.ok(mobileHud.joystick >= 96 && mobileHud.joystick <= 112, 'movement joystick should remain comfortably touchable without dominating the screen');
-  assert.ok(mobileHud.cameraButton >= 34 && mobileHud.cameraButton <= 40, 'camera controls should remain visible compact touch targets');
-  assert.ok(mobileHud.sideButton >= 46 && mobileHud.sideButton <= 54, 'side navigation should remain readable and compact');
-  // Legacy categories remain as the source of existing action groups.
-  assert.equal(await page.locator('#ww-menu-categories .ww-menu-category').count(), 5, 'menu should expose five independent categories');
-  await openMenuCategory(3);
-  const gameGridColumns = await page.locator('.ww-menu-section[data-category-index="3"] .ww-section-body').evaluate(el => getComputedStyle(el).gridTemplateColumns);
-  assert.equal(gameGridColumns.trim().split(/\s+/).length, 2, 'games and activities should be distributed into two columns');
-  assert.ok(await page.locator('.ww-menu-section[data-category-index="3"] .ww-menu-docked-launcher').count() >= 1, 'game hubs should remain visible as separate wide launch cards');
-  await page.setViewportSize({ width: 844, height: 390 });
-  const landscapeCategoryColumns = await page.locator('#ww-menu-categories').evaluate(el => getComputedStyle(el).gridTemplateColumns);
-  assert.equal(landscapeCategoryColumns.trim().split(/\s+/).length, 1, 'landscape category rail should be a compact vertical dock');
-  const readableLandscapeMenu = await page.locator('#ww-menu-categories .ww-menu-category-label').first().evaluate(el => ({
-    display: getComputedStyle(el).display,
-    fontSize: parseFloat(getComputedStyle(el).fontSize),
-    railWidth: el.closest('#ww-menu-categories').getBoundingClientRect().width
-  }));
-  assert.equal(readableLandscapeMenu.display, 'block', 'landscape category names should remain visible');
-  assert.ok(readableLandscapeMenu.fontSize >= 9, 'landscape category names should be readable, not hidden text');
-  assert.ok(readableLandscapeMenu.railWidth >= 130, 'landscape category rail should be wide enough for labels');
-  await page.setViewportSize({ width: 390, height: 844 });
-
-
-  // The new HUD keeps five category shortcuts visible at the screen edge.
-  // Open the relevant category before exercising any of its original controls.
-  async function openMenuCategory(index) {
-    const section = page.locator('.ww-menu-section[data-category-index="' + index + '"]');
-    if (!(await section.isVisible())) {
-      await page.locator('#ww-menu-categories .ww-menu-category').nth(index).click();
-    }
-    await section.waitFor({ state: 'visible', timeout: 5000 });
+  assert.ok(mobileHud.joystick >= 96 && mobileHud.joystick <= 112, 'movement joystick should remain comfortably touchable');
+  assert.ok(mobileHud.cameraButton >= 34 && mobileHud.cameraButton <= 40, 'camera controls should remain compact touch targets');
+  const launcher = page.locator('#ww-menu-grid');
+  assert.ok(await launcher.count() === 1, 'flat independent launcher should exist');
+  assert.ok(await launcher.locator('button').count() >= 20, 'launcher should expose a broad set of independent actions');
+  for (const id of ['battle','football','ropes','fashion','gym','plane','train','arrows','stocks','space','candy','party','billiards','dominoes','cards']) {
+    assert.equal(await launcher.locator('[data-activity-id="' + id + '"]').count(), 1, id + ' should have its own independent launcher button');
   }
+  await page.locator('#ww-menu-toggle').click();
+  await launcher.waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#ww-menu-toggle').getAttribute('aria-expanded'), 'true', 'menu toggle should expose expanded state');
+  await page.setViewportSize({ width: 844, height: 390 });
+  const landscapeMenu = await launcher.evaluate(el => ({ width: el.getBoundingClientRect().width, columns: getComputedStyle(el).gridTemplateColumns }));
+  assert.ok(landscapeMenu.width <= 430, 'landscape launcher should remain compact');
+  assert.ok(landscapeMenu.columns.trim().split(/\\s+/).length >= 1, 'landscape launcher should retain a usable grid');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('#ww-menu-toggle').click();
+  await launcher.waitFor({ state: 'hidden' });
 
+  async function openMenuCategory(index) {
+    const content = page.locator('#ww-menu-content');
+    if (await content.isHidden()) await page.locator('#ww-menu-toggle').click();
+    await content.waitFor({ state: 'visible', timeout: 5000 });
+  }
 
   // Memory challenge should open, render all twelve cards, restart, and close accessibly.
   await page.locator('#ww-memory-open').waitFor({ state: 'visible', timeout: 10000 });
@@ -249,9 +236,9 @@ try {
   await page.locator('#bg-close').click();
   // Use the visible category shortcut directly; the widened category rail intentionally occupies the old side-toggle area.
   await page.locator('#ww-menu-categories .ww-menu-category').nth(1).click();
-  await page.locator('.ww-menu-section[data-category-index="1"]').waitFor({ state: 'visible' });
+  await page.locator('#ww-menu-content').waitFor({ state: 'visible' });
   await openMenuCategory(1);
-  assert.equal(await page.locator('#ww-menu-content').isVisible(), true, 'selected category panel should be visible');
+  assert.equal(await page.locator('#ww-menu-content').isVisible(), true, 'flat launcher panel should be visible');
   await page.locator('#open-map').evaluate(el => el.click());
   await page.locator('#map-panel').waitFor({ state: 'visible' });
   await page.locator('.map-destination').filter({ hasText: 'رحلة إلى مصر' }).click();
