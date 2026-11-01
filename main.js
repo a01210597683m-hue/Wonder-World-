@@ -1251,128 +1251,90 @@ ui.innerHTML = `
 `;
 document.getElementById('game').appendChild(ui);
 
-// Convert the long menu into five compact, persistent category shortcuts.
-// The original action buttons and their IDs stay intact so their existing
-// gameplay handlers continue to work.
-const wwMenuSections = Array.from(ui.querySelectorAll('.ww-menu-section'));
+// Flat, independent WonderWorld launcher: one button per activity/action.
+// Keep original action IDs and handlers; only move their buttons into one compact panel.
 const wwMenuContent = document.getElementById('ww-menu-content');
-const wwMenuCategories = document.createElement('nav');
-wwMenuCategories.id = 'ww-menu-categories';
-wwMenuCategories.setAttribute('aria-label', 'أقسام WonderWorld');
-const wwMenuCategoryIcons = ['✨', '🌍', '🏡', '🎮', '🎒'];
-const wwMenuBodies = [];
-wwMenuSections.forEach((section, index) => {
-  const oldTitle = section.querySelector('.ww-section-title');
-  const label = oldTitle ? oldTitle.textContent.trim() : 'القسم';
-  const categoryId = 'ww-menu-category-' + index;
-  const body = document.createElement('div');
-  body.className = 'ww-section-body';
-  body.id = categoryId + '-content';
-  while (oldTitle && oldTitle.nextSibling) body.appendChild(oldTitle.nextSibling);
-  const trigger = document.createElement('button');
-  trigger.id = categoryId;
-  trigger.type = 'button';
-  trigger.className = 'ww-menu-category';
-  trigger.dataset.categoryIndex = String(index);
-  trigger.setAttribute('aria-controls', body.id);
-  trigger.setAttribute('aria-expanded', 'false');
-  trigger.innerHTML = '<span class="ww-menu-category-icon" aria-hidden="true">' + wwMenuCategoryIcons[index] + '</span><span class="ww-menu-category-label"></span>';
-  trigger.querySelector('.ww-menu-category-label').textContent = label;
-  wwMenuCategories.appendChild(trigger);
-  section.dataset.categoryIndex = String(index);
-  section.replaceChildren(body);
-  section.hidden = true;
-  wwMenuBodies.push({ section, body, trigger });
-  trigger.addEventListener('click', () => {
-    const shouldOpen = section.hidden;
-    wwMenuBodies.forEach(item => {
-      item.section.hidden = true;
-      item.trigger.setAttribute('aria-expanded', 'false');
-      item.trigger.classList.remove('is-active');
-    });
-    wwMenuContent.hidden = !shouldOpen;
-    if (shouldOpen) {
-      section.hidden = false;
-      trigger.setAttribute('aria-expanded', 'true');
-      trigger.classList.add('is-active');
-    }
+const wwMenuGrid = document.createElement('nav');
+wwMenuGrid.id = 'ww-menu-grid';
+wwMenuGrid.setAttribute('aria-label', 'كل ألعاب ووظائف WonderWorld');
+const wwMenuSections = Array.from(ui.querySelectorAll('.ww-menu-section'));
+const wwActionButtons = [];
+wwMenuSections.forEach(section => {
+  section.querySelectorAll('button').forEach(button => {
+    if (button.id && !button.dataset.homeWall && !button.dataset.homeRoof) wwActionButtons.push(button);
   });
 });
-ui.insertBefore(wwMenuCategories, wwMenuContent);
+wwActionButtons.forEach(button => {
+  button.classList.add('ww-independent-action');
+  wwMenuGrid.appendChild(button);
+});
+wwMenuSections.forEach(section => section.remove());
+const wwActivityEntries = [
+  ['battle','🎯','Wonder Battle / PUBG'],
+  ['football','⚽','كرة القدم'],
+  ['ropes','🪢','فك الحبال'],
+  ['fashion','👗','الموضة وعروض الأزياء'],
+  ['arrows','🏹','لعبة الأسهم'],
+  ['space','🚀','صواريخ الفضاء'],
+  ['candy','🍬','Candy Crush'],
+  ['party','✨','Sparkle Party'],
+  ['billiards','🎱','البلياردو'],
+  ['dominoes','🁣','الدومينو'],
+  ['cards','🃏','ورق اللعب'],
+  ['gym','🏋️','Wonder Fitness'],
+  ['plane','✈️','الطيران'],
+  ['train','🚆','القطارات'],
+  ['stocks','📈','سوق الأسهم']
+];
+wwActivityEntries.forEach(([id, icon, label]) => {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'ww-independent-action ww-independent-activity';
+  button.dataset.activityId = id;
+  button.textContent = icon + ' ' + label;
+  button.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('wonderworld:open-activity', { detail: { id } }));
+    wwMenuContent.hidden = true;
+  });
+  wwMenuGrid.appendChild(button);
+});
+wwMenuContent.appendChild(wwMenuGrid);
 
-// Reference-led home screen: world-first canvas, compact top HUD and a bottom navigation dock.
+// Remove duplicate floating navigation bars. The world stays visible until
+// the player deliberately opens this compact, scrollable launcher panel.
 const wwWorldLogo = document.createElement('div');
 wwWorldLogo.className = 'ww-world-logo';
-wwWorldLogo.innerHTML = '<span class="ww-world-crown" aria-hidden="true">♛</span><strong>WonderWorld</strong><small>More Than a Game · It’s Your Whole World</small>';
+wwWorldLogo.innerHTML = '<strong>WonderWorld</strong>';
 ui.appendChild(wwWorldLogo);
 
-const wwWorldSide = document.createElement('nav');
-wwWorldSide.className = 'ww-world-side';
-wwWorldSide.setAttribute('aria-label', 'استكشاف العالم');
-const wwWorldSideItems = [
-  { icon: '🌍', label: 'العالم', category: 1 },
-  { icon: '🏡', label: 'الحياة', category: 2 },
-  { icon: '🎒', label: 'مجموعتي', category: 4 }
-];
-function openWonderCategory(index) {
-  const item = wwMenuBodies[index];
-  if (!item) return;
-  wwMenuCategories.hidden = false;
-  item.trigger.click();
-}
-wwWorldSideItems.forEach(item => {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'ww-world-side-item';
-  button.innerHTML = '<span aria-hidden="true">' + item.icon + '</span><b>' + item.label + '</b>';
-  button.addEventListener('click', () => openWonderCategory(item.category));
-  wwWorldSide.appendChild(button);
+const wwMenuToggle = document.getElementById('ww-menu-toggle');
+wwMenuToggle.setAttribute('aria-expanded', 'false');
+wwMenuToggle.textContent = '☰ القائمة';
+wwMenuToggle.addEventListener('click', () => {
+  wwMenuContent.hidden = !wwMenuContent.hidden;
+  wwMenuToggle.setAttribute('aria-expanded', String(!wwMenuContent.hidden));
+  wwMenuToggle.textContent = wwMenuContent.hidden ? '☰ القائمة' : '✕ إغلاق القائمة';
 });
-ui.appendChild(wwWorldSide);
-
-const wwWorldDock = document.createElement('nav');
-wwWorldDock.className = 'ww-world-dock';
-wwWorldDock.setAttribute('aria-label', 'القائمة الرئيسية');
-const wwWorldDockItems = [
-  { icon: '👤', label: 'الشخصيات', category: 0 },
-  { icon: '👗', label: 'الملابس', action: 'change-outfit' },
-  { icon: '🛍️', label: 'المتجر', action: 'open-shop' },
-  { icon: '🏡', label: 'بناء/منزل', action: 'open-home-build' },
-  { icon: '🚗', label: 'مركبات', action: 'toggle-vehicle' },
-  { icon: '🎮', label: 'ألعاب', category: 3 },
-  { icon: '🏆', label: 'المسابقات', action: 'open-achievements' },
-  { icon: '🗺️', label: 'الخريطة', action: 'open-map' }
-];
-wwWorldDockItems.forEach((item, index) => {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'ww-world-dock-item' + (index === 5 ? ' is-games' : '');
-  button.setAttribute('aria-label', item.label);
-  button.innerHTML = '<span class="ww-world-dock-icon" aria-hidden="true">' + item.icon + '</span><span class="ww-world-dock-label">' + item.label + '</span>';
-  button.addEventListener('click', () => {
-    if (Number.isInteger(item.category)) openWonderCategory(item.category);
-    else {
-      const action = document.getElementById(item.action);
-      if (action) action.click();
-    }
-  });
-  wwWorldDock.appendChild(button);
+wwMenuGrid.addEventListener('click', event => {
+  const action = event.target.closest('button');
+  if (!action || action.dataset.activityId) return;
+  if (action.id) {
+    wwMenuContent.hidden = true;
+    wwMenuToggle.setAttribute('aria-expanded', 'false');
+    wwMenuToggle.textContent = '☰ القائمة';
+  }
 });
-ui.appendChild(wwWorldDock);
 
-const wwGamesBody = wwMenuBodies[3]?.body;
+// Existing arcade/board-game launchers are moved into the same flat panel
+// when their modules mount, without wrapping them in another submenu.
 function dockWonderGameLaunchers(root = document) {
-  if (!wwGamesBody) return;
   const launcherIds = ['ww-activities-launch', 'ww-arcade-launch', 'board-games-launch', 'ww-challenges-launch', 'ww-space-launcher'];
   for (const id of launcherIds) {
     const launcher = root.querySelector('#' + id);
-    if (!launcher || launcher.parentElement === wwGamesBody) continue;
-    launcher.classList.add('ww-menu-docked-launcher');
-    Object.assign(launcher.style, {
-      position: 'static', inset: 'auto', top: 'auto', right: 'auto', bottom: 'auto', left: 'auto',
-      width: '100%', maxWidth: 'none', margin: '4px 0', display: 'block', transform: 'none', zIndex: 'auto'
-    });
-    wwGamesBody.appendChild(launcher);
+    if (!launcher || launcher.parentElement === wwMenuGrid) continue;
+    launcher.classList.add('ww-independent-action');
+    launcher.style.cssText = '';
+    wwMenuGrid.appendChild(launcher);
   }
 }
 dockWonderGameLaunchers();
