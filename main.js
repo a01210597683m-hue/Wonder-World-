@@ -959,21 +959,31 @@ function setIndoorMenuVisibility(hidden) {
     indoorMenuGuardObserver = null;
   }
   indoorMenuGuardObserved = new WeakSet();
+  const enforceHiddenState = element => {
+    if (!element) return;
+    if (!element.hidden) element.hidden = true;
+    if (element.style.getPropertyValue('display') !== 'none' || element.style.getPropertyPriority('display') !== 'important') {
+      element.style.setProperty('display', 'none', 'important');
+    }
+    if (element.style.getPropertyValue('visibility') !== 'hidden' || element.style.getPropertyPriority('visibility') !== 'important') {
+      element.style.setProperty('visibility', 'hidden', 'important');
+    }
+    if (element.style.getPropertyValue('pointer-events') !== 'none' || element.style.getPropertyPriority('pointer-events') !== 'important') {
+      element.style.setProperty('pointer-events', 'none', 'important');
+    }
+  };
   const applyToMenu = () => {
     for (const id of ['ww-menu-categories', 'ww-menu-content']) {
       const element = document.getElementById(id);
       if (!element) continue;
       if (hidden) {
-        element.hidden = true;
-        element.style.setProperty('display', 'none', 'important');
-        element.style.setProperty('visibility', 'hidden', 'important');
-        element.style.setProperty('pointer-events', 'none', 'important');
+        enforceHiddenState(element);
         if (!indoorMenuGuardObserved.has(element)) {
           indoorMenuGuardObserved.add(element);
           indoorMenuGuardObserver?.observe(element, { attributes: true, attributeFilter: ['hidden', 'style'] });
         }
       } else {
-        element.hidden = false;
+        if (element.hidden) element.hidden = false;
         element.style.removeProperty('display');
         element.style.removeProperty('visibility');
         element.style.removeProperty('pointer-events');
