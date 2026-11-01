@@ -8,11 +8,11 @@
 #life-ui .ww-world-dock-label{font-size:9px!important;overflow:visible!important;text-overflow:clip!important}
 #life-ui #interact{width:auto!important;min-width:116px!important;max-width:min(34vw,190px)!important;min-height:36px!important;padding:7px 11px!important;border:1px solid #ffffff9c!important;border-radius:12px!important;background:linear-gradient(135deg,#263e79f2,#78509bf2)!important;box-shadow:0 5px 16px #07142e66!important;color:#fff!important;font:800 11px/1.25 system-ui,sans-serif!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
 #life-ui #life-message{max-width:min(280px,52vw)!important;padding:6px 10px!important;border:1px solid #ffffff40!important;border-radius:12px!important;font-size:10px!important;line-height:1.35!important;box-shadow:0 4px 14px #07142e44!important}
-#life-ui #ww-world-guide{z-index:10022!important;top:max(62px,calc(env(safe-area-inset-top) + 54px))!important;right:max(8px,env(safe-area-inset-right))!important;width:min(214px,42vw)!important}
-#life-ui #ww-world-guide-toggle{padding:8px 10px!important;border-radius:12px!important;font-size:11px!important;box-shadow:0 4px 14px #10263c44!important}
-#life-ui #ww-world-guide-panel{max-height:min(40dvh,260px)!important;padding:9px!important;border-radius:13px!important;overflow:auto!important}
-#life-ui #ww-world-guide-panel p{font-size:10px!important;line-height:1.4!important}
-#life-ui .ww-world-destination{padding:7px 8px!important;margin-top:5px!important;font-size:10px!important}
+#ww-world-guide{z-index:10022!important;top:max(62px,calc(env(safe-area-inset-top) + 54px))!important;right:max(8px,env(safe-area-inset-right))!important;width:min(214px,42vw)!important}
+#ww-world-guide-toggle{padding:8px 10px!important;border-radius:12px!important;font-size:11px!important;box-shadow:0 4px 14px #10263c44!important}
+#ww-world-guide-panel{max-height:min(40dvh,260px)!important;padding:9px!important;border-radius:13px!important;overflow:auto!important}
+#ww-world-guide-panel p{font-size:10px!important;line-height:1.4!important}
+.ww-world-destination{padding:7px 8px!important;margin-top:5px!important;font-size:10px!important}
 #career-panel{width:min(540px,calc(100vw - 24px))!important;max-height:78dvh!important;padding:12px!important;border-radius:18px!important;box-shadow:0 18px 54px #06152d77!important}
 #career-panel .career-heading{font-size:16px!important;padding:2px 0 8px!important}
 #career-panel .career-note{padding:8px 10px!important;font-size:11px!important;line-height:1.45!important}
@@ -36,15 +36,15 @@
 #life-ui .ww-world-dock-label{font-size:8.5px!important}
 #life-ui #interact{right:max(7px,env(safe-area-inset-right))!important;bottom:max(110px,calc(env(safe-area-inset-bottom) + 102px))!important;min-width:108px!important;min-height:35px!important;padding:7px 9px!important;max-width:36vw!important;font-size:10px!important}
 #life-ui #life-message{bottom:62px!important;max-width:55vw!important;font-size:9px!important}
-#life-ui #ww-world-guide{top:60px!important;right:5px!important;width:min(188px,43vw)!important}
-#life-ui #ww-world-guide-toggle{font-size:10px!important;padding:7px 8px!important}
-#life-ui #ww-world-guide-panel{max-height:34dvh!important}
+#ww-world-guide{top:60px!important;right:5px!important;width:min(188px,43vw)!important}
+#ww-world-guide-toggle{font-size:10px!important;padding:7px 8px!important}
+#ww-world-guide-panel{max-height:34dvh!important}
 #career-panel{width:calc(100vw - 18px)!important;max-height:84dvh!important;padding:10px!important}
 }
 @media(orientation:landscape) and (max-height:520px){
 #life-ui .ww-world-dock{width:calc(100vw - 164px)!important;min-height:52px!important}
-#life-ui #ww-world-guide{top:7px!important;right:6px!important;width:174px!important}
-#life-ui #ww-world-guide-panel{max-height:38dvh!important}
+#ww-world-guide{top:7px!important;right:6px!important;width:174px!important}
+#ww-world-guide-panel{max-height:38dvh!important}
 #life-ui #interact{bottom:62px!important}
 #career-panel{max-height:88dvh!important}
 }
