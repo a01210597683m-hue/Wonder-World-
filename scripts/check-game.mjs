@@ -115,7 +115,7 @@ const checks = [
   ['Flat independent launcher is built from original action buttons', /ww-menu-grid/.test(game) && /ww-independent-action/.test(game) && /wwActionButtons\.forEach/.test(game)],
   ['Independent actions preserve original IDs and open games directly', /wonderworld:open-activity/.test(game) && /wwMenuGrid\.addEventListener/.test(game) && ['open-map','open-football','open-puzzle','open-blockblast','open-watersort','open-shop','open-pets'].every(id => game.includes('id="' + id + '"'))],
   ['Additional arcade, board, challenge and space launchers are docked inside the games category', ['ww-activities-launch','ww-arcade-launch','board-games-launch','ww-challenges-launch','ww-space-launcher'].every(id => game.includes("'" + id + "'")) && /dockWonderGameLaunchers/.test(game)],
-  ['Flat launcher stays compact, scrollable and responsive on landscape phones', /#life-ui #ww-menu-grid/.test(css) && /ww-independent-action/.test(css) && /orientation:landscape/.test(css) && /#life-ui #ww-menu-content\[hidden\]/.test(css)],
+  ['Flat launcher stays compact, scrollable and responsive on landscape phones', /#life-ui #ww-menu-grid/.test(correctionCss) && /ww-independent-action/.test(correctionCss) && /orientation:landscape/.test(correctionCss) && /#life-ui #ww-menu-content\\[hidden\\]/.test(correctionCss)],
 ];
 
 let failed = 0;
