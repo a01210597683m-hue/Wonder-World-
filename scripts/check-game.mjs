@@ -111,10 +111,10 @@ const checks = [
   ['Billiards activity is playable with touch aiming, ball collisions, cushions and pockets', /function renderBilliards\(\)/.test(activities) && /wwa-pool-canvas/.test(activities) && /function shoot\(e\)/.test(activities) && /const pockets=/.test(activities) && /requestAnimationFrame\(step\)/.test(activities)],
   ['Dominoes activity supports matching both chain ends and a computer opponent', /function renderDominoes\(\)/.test(activities) && /function cpuPlay\(\)/.test(activities) && /state\.chain\.unshift/.test(activities) && /wwa-domino-hand/.test(activities)],
   ['Card game supports a shuffled 52-card deck, ten rounds and score-based result', /function renderCards\(\)/.test(activities) && /suits\.flatMap/.test(activities) && /state\.round>=10/.test(activities) && /wwa-card-draw/.test(activities)],
-  ['Five screen-edge category shortcuts are generated from the existing menu sections', /ww-menu-categories/.test(game) && /wwMenuCategoryIcons = \['✨', '🌍', '🏡', '🎮', '🎒'\]/.test(game) && /wwMenuSections\.forEach/.test(game)],
-  ['Only the selected menu category opens and every original menu action ID is preserved', /wwMenuBodies\.forEach/.test(game) && /item\.section\.hidden = true/.test(game) && /ww-section-body button/.test(game) && ['open-map','open-football','open-puzzle','open-blockblast','open-watersort','open-shop','open-pets'].every(id => game.includes('id="' + id + '"'))],
+  ['Flat independent launcher is built from original action buttons', /ww-menu-grid/.test(game) && /ww-independent-action/.test(game) && /wwActionButtons\.forEach/.test(game)],
+  ['Independent actions preserve original IDs and open games directly', /wonderworld:open-activity/.test(game) && /wwMenuGrid\.addEventListener/.test(game) && ['open-map','open-football','open-puzzle','open-blockblast','open-watersort','open-shop','open-pets'].every(id => game.includes('id="' + id + '"'))],
   ['Additional arcade, board, challenge and space launchers are docked inside the games category', ['ww-activities-launch','ww-arcade-launch','board-games-launch','ww-challenges-launch','ww-space-launcher'].every(id => game.includes("'" + id + "'")) && /dockWonderGameLaunchers/.test(game)],
-  ['Category rail and selected panel stay on the screen edge and adapt to landscape phones', /#life-ui #ww-menu-categories/.test(css) && /right: 6px/.test(css) && /orientation: landscape/.test(css) && /#life-ui #ww-menu-content\[hidden\]/.test(css)],
+  ['Flat launcher stays compact, scrollable and responsive on landscape phones', /#life-ui #ww-menu-grid/.test(css) && /ww-independent-action/.test(css) && /orientation:landscape/.test(css) && /#life-ui #ww-menu-content\[hidden\]/.test(css)],
 ];
 
 let failed = 0;
