@@ -1590,3 +1590,49 @@ body:has(#wonder-guide-panel:not([hidden])) #ww-menu-categories *,
 body:has(#wonder-guide-panel:not([hidden])) #ww-menu-content * {
   pointer-events: none !important;
 }
+
+/* 2026-11-02: authoritative compact world-clock HUD override. */
+#life-ui #world-clock,
+#world-clock {
+  position: fixed !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  width: max-content !important;
+  min-width: 0 !important;
+  max-width: min(260px, calc(100vw - 20px)) !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: 32px !important;
+  margin: 0 !important;
+  padding: 5px 9px !important;
+  top: max(8px, env(safe-area-inset-top)) !important;
+  right: max(8px, env(safe-area-inset-right)) !important;
+  left: auto !important;
+  bottom: auto !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+  border: 1px solid #ffffff70 !important;
+  border-radius: 999px !important;
+  color: #fff !important;
+  background: #182b60dc !important;
+  font-size: 10px !important;
+  line-height: 1.2 !important;
+  font-weight: 750 !important;
+  text-align: center !important;
+  pointer-events: none !important;
+  z-index: 10040 !important;
+}
+@media (max-width: 600px) {
+  #life-ui #world-clock,
+  #world-clock {
+    top: max(8px, env(safe-area-inset-top)) !important;
+    right: max(8px, env(safe-area-inset-right)) !important;
+    max-width: calc(100vw - 16px) !important;
+    max-height: 30px !important;
+    padding: 4px 8px !important;
+    font-size: 9px !important;
+  }
+}
