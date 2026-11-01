@@ -249,8 +249,8 @@ try {
   assert.match(await page.locator('#ludo-status').innerText(), /حركتِ القطعة/, 'Ludo should advance an already launched piece');
   await page.evaluate(() => { if (window.__wwOriginalRandom) Math.random = window.__wwOriginalRandom; });
   await page.locator('#bg-close').click();
-  // The old toggle is intentionally hidden in the reference-led HUD; use the visible world dock instead.
-  await page.locator('.ww-world-side-item').nth(0).click();
+  // Use the visible category shortcut directly; the widened category rail intentionally occupies the old side-toggle area.
+  await page.locator('#ww-menu-categories .ww-menu-category').nth(1).click();
   await page.locator('.ww-menu-section[data-category-index="1"]').waitFor({ state: 'visible' });
   await openMenuCategory(1);
   assert.equal(await page.locator('#ww-menu-content').isVisible(), true, 'selected category panel should be visible');
