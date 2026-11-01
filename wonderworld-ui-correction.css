@@ -275,3 +275,9 @@ body:has(#home-build-panel:not([hidden])) #ww-menu-content{
 #life-ui .life-stats{
   pointer-events:none!important;
 }
+
+/* When the launcher is open, its buttons must receive taps instead of the movement stick. */
+body:has(#ww-menu-content:not([hidden])) #move-joystick,
+body:has(#ww-menu-content:not([hidden])) #move-joystick-thumb{
+  pointer-events:none!important;
+}
