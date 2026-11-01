@@ -812,15 +812,31 @@ try {
       await page.locator('[data-act="reload"]').click();
       assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'battle royale should refill ammunition up to the magazine cap');
       const holdFire = page.locator('[data-act="fire"]');
+      await page.evaluate(() => {
+        const button = document.querySelector('[data-act="fire"]');
+        window.__wwFireDiag = { events: [], samples: [] };
+        for (const type of ['pointerdown','pointerup','pointercancel','lostpointercapture','mousedown','mouseup','click']) {
+          button.addEventListener(type, event => window.__wwFireDiag.events.push({
+            type, pointerId: event.pointerId ?? null, detail: event.detail ?? null,
+            captured: event.pointerId == null ? null : button.hasPointerCapture(event.pointerId),
+            time: Math.round(performance.now())
+          }), true);
+        }
+      });
       await holdFire.scrollIntoViewIfNeeded();
       const holdFireBox = await holdFire.boundingBox();
       assert.ok(holdFireBox, 'Battle Royale fire control should have a touch target');
       await page.mouse.move(holdFireBox.x + holdFireBox.width / 2, holdFireBox.y + holdFireBox.height / 2);
       await page.mouse.down();
-      await page.waitForTimeout(650);
+      const fireSamples = [];
+      for (const delay of [0, 260, 520]) {
+        if (delay) await page.waitForTimeout(delay - (fireSamples.length ? [0,260,520][fireSamples.length-1] : 0));
+        fireSamples.push({ at: delay, ammo: Number(await page.locator('#wwa-ammo').innerText()) });
+      }
+      const fireEvents = await page.evaluate(() => window.__wwFireDiag);
       const ammoAfterHold = Number(await page.locator('#wwa-ammo').innerText());
       await page.mouse.up();
-      assert.ok(ammoAfterHold <= 28, 'holding the fire control should fire repeated shots until released');
+      assert.ok(ammoAfterHold <= 28, 'holding the fire control should fire repeated shots until released; diagnostics=' + JSON.stringify({fireSamples,fireEvents,ammoAfterHold}));
       await page.waitForTimeout(350);
       assert.equal(Number(await page.locator('#wwa-ammo').innerText()), ammoAfterHold, 'automatic fire should stop immediately when the fire control is released');
       await page.locator('[data-act="heal"]').click();
