@@ -1555,3 +1555,23 @@ body:has(#life-ui.is-indoors) #camera-controls {
 #life-ui.is-indoors #ww-menu-content * {
   pointer-events: none !important;
 }
+
+
+/* Keep the outdoor world-interaction button clear of the right-edge category rail.
+   Center it between the movement joystick and camera controls so the rail cannot
+   intercept taps when approaching a cafe, shop, restaurant, office or gym. */
+#life-ui #interact {
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: max(112px, calc(env(safe-area-inset-bottom) + 104px)) !important;
+  transform: translateX(-50%) !important;
+  z-index: 10034 !important;
+  width: auto !important;
+  max-width: min(60vw, 260px) !important;
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  #life-ui #interact {
+    bottom: max(62px, calc(env(safe-area-inset-bottom) + 54px)) !important;
+  }
+}
