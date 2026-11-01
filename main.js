@@ -975,6 +975,12 @@ function enterHome(homeName, targetInteriorRoot = interiorRoot, indoorAction = n
   indoorActionButton.hidden = !activeIndoorAction;
   if (activeIndoorAction) indoorActionButton.textContent = activeIndoorAction.label;
   indoors = true;
+  // Disable the floating category rail at the source while inside a building.
+  // Inline !important avoids stylesheet/stacking-context rules intercepting world taps.
+  const indoorCategoryRail = document.getElementById('ww-menu-categories');
+  const indoorMenuContent = document.getElementById('ww-menu-content');
+  if (indoorCategoryRail) indoorCategoryRail.style.setProperty('display', 'none', 'important');
+  if (indoorMenuContent) indoorMenuContent.style.setProperty('display', 'none', 'important');
   // Keep the essential exit/action controls reachable even when the HUD is compact.
   ui.classList.add('is-indoors');
   player.setPosition(0, 0, 2.0);
@@ -999,6 +1005,11 @@ function exitHome() {
   for (const [entity, enabled] of outdoorEnabledStates) entity.enabled = enabled;
   outdoorEnabledStates.clear();
   indoors = false;
+  // Restore navigation only after returning to the neighborhood.
+  const indoorCategoryRail = document.getElementById('ww-menu-categories');
+  const indoorMenuContent = document.getElementById('ww-menu-content');
+  if (indoorCategoryRail) indoorCategoryRail.style.removeProperty('display');
+  if (indoorMenuContent) indoorMenuContent.style.removeProperty('display');
   ui.classList.remove('is-indoors');
   if (indoorReturnPosition) player.setPosition(indoorReturnPosition);
   cameraHeight = 7;
