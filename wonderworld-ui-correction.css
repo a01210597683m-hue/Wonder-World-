@@ -225,3 +225,22 @@ body:has(#home-build-panel:not([hidden])) #ww-menu-content{
   #life-ui #ww-menu-content:not([hidden]){top:56px!important;bottom:52px!important;width:calc(100vw - 16px)!important;right:8px!important}
   #life-ui #ww-menu-grid .ww-independent-action{min-height:36px!important;font-size:10px!important}
 }
+
+
+/* Keep the single menu control visible after removing the legacy floating HUD. */
+#life-ui .ww-hud-top{
+  display:flex!important;visibility:visible!important;opacity:1!important;
+  position:fixed!important;z-index:10050!important;
+  top:max(8px,env(safe-area-inset-top))!important;
+  right:max(8px,env(safe-area-inset-right))!important;
+  left:auto!important;width:auto!important;max-width:calc(100vw - 16px)!important;
+  min-height:38px!important;align-items:center!important;justify-content:flex-end!important;
+  pointer-events:auto!important;background:transparent!important;
+}
+#life-ui .ww-hud-top .ww-brand{display:none!important}
+#life-ui #ww-menu-toggle{
+  display:inline-flex!important;visibility:visible!important;opacity:1!important;
+  pointer-events:auto!important;position:relative!important;z-index:10051!important;
+  align-items:center!important;justify-content:center!important;
+  background:#142c45ee!important;color:#fff!important;border:1px solid #ffffff66!important;
+}
