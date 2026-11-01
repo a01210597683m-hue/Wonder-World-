@@ -158,3 +158,16 @@
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
+
+/* Modal priority: customization panels must sit above the navigation rail.
+   Hide the rail while the home editor is open so it cannot intercept taps. */
+#life-ui:has(#home-build-panel:not([hidden])) #ww-menu-categories,
+#life-ui:has(#home-build-panel:not([hidden])) #ww-menu-content {
+  display: none !important;
+  pointer-events: none !important;
+}
+#life-ui #home-build-panel.wonder-overlay {
+  position: fixed !important;
+  z-index: 10030 !important;
+  pointer-events: auto !important;
+}
