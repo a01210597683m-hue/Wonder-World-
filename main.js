@@ -1334,6 +1334,13 @@ const message = document.getElementById('life-message');
   });
   document.getElementById('open-map').addEventListener('click', () => {
     const panel = document.getElementById('map-panel');
+    const categoryRail = document.getElementById('ww-menu-categories');
+    // The map is a modal navigation task: remove the floating category rail
+    // from hit-testing before showing destinations, so it cannot cover world controls.
+    if (categoryRail) {
+      categoryRail.hidden = true;
+      categoryRail.style.setProperty('pointer-events', 'none', 'important');
+    }
     document.getElementById('map-feedback').textContent = 'اختاري وجهتك من القائمة.';
     renderNeighborhoodMap();
     panel.hidden = false;
@@ -2443,7 +2450,11 @@ document.getElementById('walk-picnic').addEventListener('click',()=>doSharedWalk
 document.getElementById('walk-cafe').addEventListener('click',()=>doSharedWalkActivity('cafe'));
 document.getElementById('walk-photo').addEventListener('click',takeSharedWalkPhoto);
 document.getElementById('walk-challenge').addEventListener('click',startSharedCoopChallenge);
-document.getElementById('close-map').addEventListener('click',()=>{document.getElementById('map-panel').hidden=true});
+document.getElementById('close-map').addEventListener('click',()=>{
+  document.getElementById('map-panel').hidden=true;
+  const categoryRail=document.getElementById('ww-menu-categories');
+  if(categoryRail){categoryRail.hidden=false;categoryRail.style.removeProperty('pointer-events');}
+});
 document.getElementById('open-journal').addEventListener('click',()=>{renderJournal();document.getElementById('journal-panel').hidden=false});
 document.getElementById('close-journal').addEventListener('click',()=>{document.getElementById('journal-panel').hidden=true});
 document.getElementById('close-achievements').addEventListener('click',()=>{document.getElementById('achievement-panel').hidden=true});
