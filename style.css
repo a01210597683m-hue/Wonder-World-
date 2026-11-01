@@ -1541,3 +1541,17 @@ body:has(#life-ui.is-indoors) #camera-controls {
   #life-ui #indoor-place-action { bottom: 104px !important; }
   #life-ui #exit-home { bottom: 56px !important; }
 }
+
+/* 2026-11-01: hard state-based isolation for indoor scenes.
+   The HUD category rail must never participate in hit-testing while an
+   interior is active, regardless of stale inline styles or menu callbacks. */
+#life-ui.is-indoors #ww-menu-categories,
+#life-ui.is-indoors #ww-menu-content {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+#life-ui.is-indoors #ww-menu-categories *,
+#life-ui.is-indoors #ww-menu-content * {
+  pointer-events: none !important;
+}
