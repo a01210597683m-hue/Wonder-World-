@@ -951,6 +951,63 @@ let activeIndoorAction = null;
 let indoors = false;
 let indoorReturnPosition = null;
 let outdoorEnabledStates = new Map();
+let indoorMenuGuardObserver = null;
+let indoorMenuGuardObserved = new WeakSet();
+function setIndoorMenuVisibility(hidden) {
+  if (indoorMenuGuardObserver) {
+    indoorMenuGuardObserver.disconnect();
+    indoorMenuGuardObserver = null;
+  }
+  indoorMenuGuardObserved = new WeakSet();
+  // The menu can be remounted by UI modules. Target every matching node,
+  // not only getElementById's first result (duplicate IDs caused the hit-test bug).
+  const menuNodes = () => document.querySelectorAll('[id="ww-menu-categories"], [id="ww-menu-content"]');
+  const enforceHiddenState = element => {
+    if (!element) return;
+    if (!element.hidden) element.hidden = true;
+    if (element.style.getPropertyValue('display') !== 'none' || element.style.getPropertyPriority('display') !== 'important') {
+      element.style.setProperty('display', 'none', 'important');
+    }
+    if (element.style.getPropertyValue('visibility') !== 'hidden' || element.style.getPropertyPriority('visibility') !== 'important') {
+      element.style.setProperty('visibility', 'hidden', 'important');
+    }
+    if (element.style.getPropertyValue('pointer-events') !== 'none' || element.style.getPropertyPriority('pointer-events') !== 'important') {
+      element.style.setProperty('pointer-events', 'none', 'important');
+    }
+    element.setAttribute('inert', '');
+    element.setAttribute('aria-hidden', 'true');
+  };
+  const applyToMenu = () => {
+    for (const element of menuNodes()) {
+      if (hidden) {
+        enforceHiddenState(element);
+        if (!indoorMenuGuardObserved.has(element)) {
+          indoorMenuGuardObserved.add(element);
+          indoorMenuGuardObserver?.observe(element, { attributes: true, attributeFilter: ['hidden', 'style'] });
+        }
+      } else {
+        element.hidden = false;
+        element.style.removeProperty('display');
+        element.style.removeProperty('visibility');
+        element.style.removeProperty('pointer-events');
+        element.removeAttribute('inert');
+        element.removeAttribute('aria-hidden');
+      }
+    }
+  };
+  if (!hidden) {
+    document.body.classList.remove('ww-indoors');
+    applyToMenu();
+    return;
+  }
+  document.body.classList.add('ww-indoors');
+  indoorMenuGuardObserver = new MutationObserver(() => {
+    if (!indoors) return;
+    applyToMenu();
+  });
+  indoorMenuGuardObserver.observe(document.body, { childList: true, subtree: true });
+  applyToMenu();
+}
 function enterHome(homeName, targetInteriorRoot = interiorRoot, indoorAction = null) {
   if (indoors) return;
   if (vehicleMode) toggleVehicleMode(false);
@@ -975,6 +1032,22 @@ function enterHome(homeName, targetInteriorRoot = interiorRoot, indoorAction = n
   indoorActionButton.hidden = !activeIndoorAction;
   if (activeIndoorAction) indoorActionButton.textContent = activeIndoorAction.label;
   indoors = true;
+  // Keep navigation hidden even if another UI module remounts or toggles it.
+  setIndoorMenuVisibility(true);
+  // Disable the floating category rail at the source while inside a building.
+  // Inline !important avoids stylesheet/stacking-context rules intercepting world taps.
+  const indoorCategoryRail = document.getElementById('ww-menu-categories');
+  const indoorMenuContent = document.getElementById('ww-menu-content');
+  if (indoorCategoryRail) {
+    indoorCategoryRail.hidden = true;
+    indoorCategoryRail.style.setProperty('display', 'none', 'important');
+    indoorCategoryRail.style.setProperty('pointer-events', 'none', 'important');
+  }
+  if (indoorMenuContent) {
+    indoorMenuContent.hidden = true;
+    indoorMenuContent.style.setProperty('display', 'none', 'important');
+    indoorMenuContent.style.setProperty('pointer-events', 'none', 'important');
+  }
   // Keep the essential exit/action controls reachable even when the HUD is compact.
   ui.classList.add('is-indoors');
   player.setPosition(0, 0, 2.0);
@@ -999,6 +1072,20 @@ function exitHome() {
   for (const [entity, enabled] of outdoorEnabledStates) entity.enabled = enabled;
   outdoorEnabledStates.clear();
   indoors = false;
+  setIndoorMenuVisibility(false);
+  // Restore navigation only after returning to the neighborhood.
+  const indoorCategoryRail = document.getElementById('ww-menu-categories');
+  const indoorMenuContent = document.getElementById('ww-menu-content');
+  if (indoorCategoryRail) {
+    indoorCategoryRail.hidden = false;
+    indoorCategoryRail.style.removeProperty('display');
+    indoorCategoryRail.style.removeProperty('pointer-events');
+  }
+  if (indoorMenuContent) {
+    indoorMenuContent.hidden = false;
+    indoorMenuContent.style.removeProperty('display');
+    indoorMenuContent.style.removeProperty('pointer-events');
+  }
   ui.classList.remove('is-indoors');
   if (indoorReturnPosition) player.setPosition(indoorReturnPosition);
   cameraHeight = 7;
@@ -1323,6 +1410,13 @@ const message = document.getElementById('life-message');
   });
   document.getElementById('open-map').addEventListener('click', () => {
     const panel = document.getElementById('map-panel');
+    const categoryRail = document.getElementById('ww-menu-categories');
+    // The map is a modal navigation task: remove the floating category rail
+    // from hit-testing before showing destinations, so it cannot cover world controls.
+    if (categoryRail) {
+      categoryRail.hidden = true;
+      categoryRail.style.setProperty('pointer-events', 'none', 'important');
+    }
     document.getElementById('map-feedback').textContent = 'اختاري وجهتك من القائمة.';
     renderNeighborhoodMap();
     panel.hidden = false;
@@ -1979,7 +2073,7 @@ function endSharedWalk(reason='انتهت التمشية بناءً على طل�
 function renderNeighborhoodMap() {
  const list=document.getElementById('map-destinations');if(!list)return;list.replaceChildren();
  const destinations=[{name:'نافورة الساحة',emoji:'⛲',x:0,z:3},{name:'حديقة الأصدقاء',emoji:'🌳',x:-11,z:5.5},{name:'متجر Wonder',emoji:'🛍️',x:10,z:7.1,onArrive:()=>{if(indoors)exitHome();enterHome('متجر Wonder',shopInteriorRoot,{label:'🛍️ تصفح المنتجات',run:openShop});if(!indoors){status.textContent='🛍️ تعذّر فتح المتجر؛ حاولي مرة أخرى.';message.textContent=status.textContent;}}},{name:'كافيه Wonder',emoji:'☕',x:15,z:-3.2,onArrive:()=>{if(indoors)exitHome();enterHome('كافيه Wonder',cafeInteriorRoot,{label:'☕ طلب من الكافيه',run:orderCafe});if(!indoors){status.textContent='☕ تعذّر فتح الكافيه؛ حاولي مرة أخرى.';message.textContent=status.textContent;}}},{name:'مطعم Wonder',emoji:'🍽️',x:8,z:-25},{name:'مكتب الحي',emoji:'💼',x:0,z:-20},{name:'Wonder Fitness',emoji:'🏋️',x:15,z:-19},{name:'مطار Wonder Air',emoji:'✈️',x:34,z:-28},{name:'محطة Wonder Central',emoji:'🚆',x:-30,z:-20},{name:'منصة عروض الأزياء',emoji:'👗',x:25,z:15},{name:'البيت الأول',emoji:'🏡',x:-10,z:-6.2},{name:'البيت العائلي',emoji:'🏠',x:10,z:-6.2},{name:'فيلا Wonder الجاهزة (مجانية)',emoji:'🏡',x:-24,z:-8,homeId:'starter-villa',price:0},{name:'فيلا Wonder الفاخرة (250 عملة)',emoji:'💎',x:24,z:-8,homeId:'luxury-villa',price:250},{name:'رحلة إلى مصر — الأهرامات',emoji:'🇪🇬',x:30,z:5},{name:'رحلة إلى باريس — البرج',emoji:'🇫🇷',x:-30,z:5},{name:'رحلة إلى طوكيو — حديقة الساكورا',emoji:'🇯🇵',x:0,z:35}];
- for(const d of destinations){const b=document.createElement('button');b.type='button';b.className='map-destination';b.textContent=d.emoji+' '+d.name;b.addEventListener('click',()=>{if(indoors&&!d.onArrive){document.getElementById('map-feedback').textContent='اخرجي للحي الأول قبل التنقّل السريع.';return;}if(indoors&&d.onArrive)exitHome();if(d.homeId&&!ownedHomes.has(d.homeId)){if(coins<d.price){document.getElementById('map-feedback').textContent='تحتاجي '+d.price+' عملة افتراضية لشراء الفيلا دي. رصيدك '+coins+'.';return;}if(d.price>0){coins-=d.price;updateStats();}ownedHomes.add(d.homeId);saveProgress();document.getElementById('map-feedback').textContent=d.price===0?'الفيلا الجاهزة بقت ملكك، اضغطي عليها مرة تانية للانتقال إليها.':'مبروك! الفيلا الفاخرة بقت ملكك، اضغطي عليها مرة تانية للانتقال إليها.';renderNeighborhoodMap();return;}player.setPosition(d.x,0,d.z);document.getElementById('map-panel').hidden=true;if(d.onArrive){d.onArrive();return;}status.textContent='🗺️ وصلتي إلى '+d.name+'!';message.textContent=status.textContent;cameraX=d.x;cameraZ=d.z+cameraOffsetZ;try{camera.setPosition(cameraX,cameraHeight,cameraZ);camera.lookAt(d.x,1,d.z);}catch(cameraError){console.warn('Map travel camera update failed:',cameraError);}try{logAdventure('وصلت إلى '+d.name);}catch(journalError){console.warn('Map arrival journal save failed:',journalError);}if(activeWalkNpc){walkVisitedDestinations.add(d.name);if(walkVisitedDestinations.size>=3&&walkRewardDate!==localDateKey()){walkRewardDate=localDateKey();try{localStorage.setItem('wonderworld-shared-walk-reward-day',walkRewardDate);}catch{}happiness=Math.min(100,happiness+8);coins+=5;updateStats();awardXP(12);logAdventure('مغامرة تمشية مكتملة مع '+activeWalkNpc.name+' — زرت 3 أماكن مختلفة');say('🌟 مغامرة مشتركة رائعة! زرتوا 3 أماكن مع '+activeWalkNpc.name+'؛ +8 سعادة و+5 عملات و+12 XP. المكافأة مرة واحدة يوميًا.');}else{say('🗺️ وصلتي إلى '+d.name+' مع '+activeWalkNpc.name+'! زارتم '+walkVisitedDestinations.size+' من 3 أماكن للمغامرة المشتركة.');}}else{say('🗺️ وصلتي إلى '+d.name+'!');}});list.appendChild(b);}
+ for(const d of destinations){const b=document.createElement('button');b.type='button';b.className='map-destination';b.textContent=d.emoji+' '+d.name;b.addEventListener('click',()=>{if(indoors&&!d.onArrive){document.getElementById('map-feedback').textContent='اخرجي للحي الأول قبل التنقّل السريع.';return;}if(indoors&&d.onArrive)exitHome();if(d.homeId&&!ownedHomes.has(d.homeId)){if(coins<d.price){document.getElementById('map-feedback').textContent='تحتاجي '+d.price+' عملة افتراضية لشراء الفيلا دي. رصيدك '+coins+'.';return;}if(d.price>0){coins-=d.price;updateStats();}ownedHomes.add(d.homeId);saveProgress();document.getElementById('map-feedback').textContent=d.price===0?'الفيلا الجاهزة بقت ملكك، اضغطي عليها مرة تانية للانتقال إليها.':'مبروك! الفيلا الفاخرة بقت ملكك، اضغطي عليها مرة تانية للانتقال إليها.';renderNeighborhoodMap();return;}player.setPosition(d.x,0,d.z);document.getElementById('map-panel').hidden=true;const categoryRail=document.getElementById('ww-menu-categories');if(categoryRail){categoryRail.hidden=false;categoryRail.style.removeProperty('display');categoryRail.style.removeProperty('pointer-events');}const categoryContent=document.getElementById('ww-menu-content');if(categoryContent)categoryContent.style.removeProperty('display');if(d.onArrive){d.onArrive();if(indoors){const rail=document.getElementById('ww-menu-categories');const content=document.getElementById('ww-menu-content');if(rail){rail.hidden=true;rail.style.setProperty('display','none','important');rail.style.setProperty('pointer-events','none','important');}if(content){content.hidden=true;content.style.setProperty('display','none','important');content.style.setProperty('pointer-events','none','important');}}return;}status.textContent='🗺️ وصلتي إلى '+d.name+'!';message.textContent=status.textContent;cameraX=d.x;cameraZ=d.z+cameraOffsetZ;try{camera.setPosition(cameraX,cameraHeight,cameraZ);camera.lookAt(d.x,1,d.z);}catch(cameraError){console.warn('Map travel camera update failed:',cameraError);}try{logAdventure('وصلت إلى '+d.name);}catch(journalError){console.warn('Map arrival journal save failed:',journalError);}if(activeWalkNpc){walkVisitedDestinations.add(d.name);if(walkVisitedDestinations.size>=3&&walkRewardDate!==localDateKey()){walkRewardDate=localDateKey();try{localStorage.setItem('wonderworld-shared-walk-reward-day',walkRewardDate);}catch{}happiness=Math.min(100,happiness+8);coins+=5;updateStats();awardXP(12);logAdventure('مغامرة تمشية مكتملة مع '+activeWalkNpc.name+' — زرت 3 أماكن مختلفة');say('🌟 مغامرة مشتركة رائعة! زرتوا 3 أماكن مع '+activeWalkNpc.name+'؛ +8 سعادة و+5 عملات و+12 XP. المكافأة مرة واحدة يوميًا.');}else{say('🗺️ وصلتي إلى '+d.name+' مع '+activeWalkNpc.name+'! زارتم '+walkVisitedDestinations.size+' من 3 أماكن للمغامرة المشتركة.');}}else{say('🗺️ وصلتي إلى '+d.name+'!');}});list.appendChild(b);}
 }
 
 function renderAchievementPanel() {
@@ -2432,7 +2526,11 @@ document.getElementById('walk-picnic').addEventListener('click',()=>doSharedWalk
 document.getElementById('walk-cafe').addEventListener('click',()=>doSharedWalkActivity('cafe'));
 document.getElementById('walk-photo').addEventListener('click',takeSharedWalkPhoto);
 document.getElementById('walk-challenge').addEventListener('click',startSharedCoopChallenge);
-document.getElementById('close-map').addEventListener('click',()=>{document.getElementById('map-panel').hidden=true});
+document.getElementById('close-map').addEventListener('click',()=>{
+  document.getElementById('map-panel').hidden=true;
+  const categoryRail=document.getElementById('ww-menu-categories');
+  if(categoryRail){categoryRail.hidden=false;categoryRail.style.removeProperty('pointer-events');}
+});
 document.getElementById('open-journal').addEventListener('click',()=>{renderJournal();document.getElementById('journal-panel').hidden=false});
 document.getElementById('close-journal').addEventListener('click',()=>{document.getElementById('journal-panel').hidden=true});
 document.getElementById('close-achievements').addEventListener('click',()=>{document.getElementById('achievement-panel').hidden=true});

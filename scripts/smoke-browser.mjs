@@ -84,6 +84,14 @@ try {
   await page.setViewportSize({ width: 844, height: 390 });
   const landscapeCategoryColumns = await page.locator('#ww-menu-categories').evaluate(el => getComputedStyle(el).gridTemplateColumns);
   assert.equal(landscapeCategoryColumns.trim().split(/\s+/).length, 1, 'landscape category rail should be a compact vertical dock');
+  const readableLandscapeMenu = await page.locator('#ww-menu-categories .ww-menu-category-label').first().evaluate(el => ({
+    display: getComputedStyle(el).display,
+    fontSize: parseFloat(getComputedStyle(el).fontSize),
+    railWidth: el.closest('#ww-menu-categories').getBoundingClientRect().width
+  }));
+  assert.equal(readableLandscapeMenu.display, 'block', 'landscape category names should remain visible');
+  assert.ok(readableLandscapeMenu.fontSize >= 9, 'landscape category names should be readable, not hidden text');
+  assert.ok(readableLandscapeMenu.railWidth >= 130, 'landscape category rail should be wide enough for labels');
   await page.setViewportSize({ width: 390, height: 844 });
 
 
@@ -92,9 +100,7 @@ try {
   async function openMenuCategory(index) {
     const section = page.locator('.ww-menu-section[data-category-index="' + index + '"]');
     if (!(await section.isVisible())) {
-      const dockShortcut = page.locator('.ww-world-dock-item').nth(index === 0 ? 0 : 5);
-      if (index === 0 || index === 3) await dockShortcut.click();
-      else await page.locator('.ww-world-side-item').nth(index === 1 ? 0 : index === 2 ? 1 : 2).click();
+      await page.locator('#ww-menu-categories .ww-menu-category').nth(index).click();
     }
     await section.waitFor({ state: 'visible', timeout: 5000 });
   }
@@ -241,8 +247,8 @@ try {
   assert.match(await page.locator('#ludo-status').innerText(), /حركتِ القطعة/, 'Ludo should advance an already launched piece');
   await page.evaluate(() => { if (window.__wwOriginalRandom) Math.random = window.__wwOriginalRandom; });
   await page.locator('#bg-close').click();
-  // The old toggle is intentionally hidden in the reference-led HUD; use the visible world dock instead.
-  await page.locator('.ww-world-side-item').nth(0).click();
+  // Use the visible category shortcut directly; the widened category rail intentionally occupies the old side-toggle area.
+  await page.locator('#ww-menu-categories .ww-menu-category').nth(1).click();
   await page.locator('.ww-menu-section[data-category-index="1"]').waitFor({ state: 'visible' });
   await openMenuCategory(1);
   assert.equal(await page.locator('#ww-menu-content').isVisible(), true, 'selected category panel should be visible');
