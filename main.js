@@ -952,12 +952,13 @@ let indoors = false;
 let indoorReturnPosition = null;
 let outdoorEnabledStates = new Map();
 let indoorMenuGuardObserver = null;
-const indoorMenuGuardObserved = new WeakSet();
+let indoorMenuGuardObserved = new WeakSet();
 function setIndoorMenuVisibility(hidden) {
   if (indoorMenuGuardObserver) {
     indoorMenuGuardObserver.disconnect();
     indoorMenuGuardObserver = null;
   }
+  indoorMenuGuardObserved = new WeakSet();
   const applyToMenu = () => {
     for (const id of ['ww-menu-categories', 'ww-menu-content']) {
       const element = document.getElementById(id);
