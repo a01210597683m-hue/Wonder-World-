@@ -213,3 +213,13 @@ body:has(#life-ui.is-indoors) #ww-menu-content * {
   pointer-events: none !important;
   opacity: 0 !important;
 }
+
+/* Global indoor hit-test shield: the menu rail may be mounted outside #life-ui. */
+body.ww-indoors [id="ww-menu-categories"],
+body.ww-indoors [id="ww-menu-content"] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  z-index: -1 !important;
+}
