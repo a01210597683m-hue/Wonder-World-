@@ -84,6 +84,14 @@ try {
   await page.setViewportSize({ width: 844, height: 390 });
   const landscapeCategoryColumns = await page.locator('#ww-menu-categories').evaluate(el => getComputedStyle(el).gridTemplateColumns);
   assert.equal(landscapeCategoryColumns.trim().split(/\s+/).length, 1, 'landscape category rail should be a compact vertical dock');
+  const readableLandscapeMenu = await page.locator('#ww-menu-categories .ww-menu-category-label').first().evaluate(el => ({
+    display: getComputedStyle(el).display,
+    fontSize: parseFloat(getComputedStyle(el).fontSize),
+    railWidth: el.closest('#ww-menu-categories').getBoundingClientRect().width
+  }));
+  assert.equal(readableLandscapeMenu.display, 'block', 'landscape category names should remain visible');
+  assert.ok(readableLandscapeMenu.fontSize >= 9, 'landscape category names should be readable, not hidden text');
+  assert.ok(readableLandscapeMenu.railWidth >= 130, 'landscape category rail should be wide enough for labels');
   await page.setViewportSize({ width: 390, height: 844 });
 
 
