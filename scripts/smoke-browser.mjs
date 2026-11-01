@@ -100,9 +100,7 @@ try {
   async function openMenuCategory(index) {
     const section = page.locator('.ww-menu-section[data-category-index="' + index + '"]');
     if (!(await section.isVisible())) {
-      const dockShortcut = page.locator('.ww-world-dock-item').nth(index === 0 ? 0 : 5);
-      if (index === 0 || index === 3) await dockShortcut.click();
-      else await page.locator('.ww-world-side-item').nth(index === 1 ? 0 : index === 2 ? 1 : 2).click();
+      await page.locator('#ww-menu-categories .ww-menu-category').nth(index).click();
     }
     await section.waitFor({ state: 'visible', timeout: 5000 });
   }
