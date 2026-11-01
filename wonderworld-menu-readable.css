@@ -214,10 +214,23 @@ body:has(#life-ui.is-indoors) #ww-menu-content * {
   opacity: 0 !important;
 }
 
-/* Global indoor hit-test shield: the menu rail may be mounted outside #life-ui. */
+/* Indoor mode: #life-ui #ww-menu-categories has two ID selectors and
+   outranks the generic body selector above. Match that specificity directly. */
+body.ww-indoors #life-ui #ww-menu-categories,
+body.ww-indoors #life-ui #ww-menu-content {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+body.ww-indoors #life-ui #ww-menu-categories *,
+body.ww-indoors #life-ui #ww-menu-content * {
+  pointer-events: none !important;
+}
+
+/* Fallback if a future UI module mounts either menu outside #life-ui. */
 body.ww-indoors [id="ww-menu-categories"],
 body.ww-indoors [id="ww-menu-content"] {
-  display: none !important;
   visibility: hidden !important;
   pointer-events: none !important;
   opacity: 0 !important;
