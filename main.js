@@ -1445,6 +1445,37 @@ actionToggle.addEventListener('click', () => {
 });
 
 const interactButton = document.getElementById('interact');
+let interactionCaptionClock = 0;
+function refreshInteractionCaption(dt) {
+  interactionCaptionClock -= dt;
+  if (interactionCaptionClock > 0) return;
+  interactionCaptionClock = 0.28;
+  const target = nearestTarget();
+  let caption = 'استكشاف المكان';
+  if (indoors && activeIndoorAction?.label) caption = activeIndoorAction.label;
+  else if (target) {
+    const npc = npcs.find(person => person.name === target.name);
+    if (npc) caption = 'تحدثي مع ' + npc.name;
+    else {
+      const name = String(target.name || '');
+      const compact = {
+        'مشروعي الخاص — إدارة المحل': 'إدارة مشروعي',
+        'مسبح بيت البداية 🏊': 'السباحة',
+        'نافورة الساحة — تصوير ذكرى': 'تصوير ذكرى',
+        'متجر Wonder': 'تصفّح المتجر',
+        'كافيه Wonder': 'طلب من الكافيه',
+        'مطعم Wonder': 'طلب وجبة',
+        'مكتب الحي': 'بدء العمل',
+        'Wonder Fitness': 'بدء التمرين',
+        'حديقة الأصدقاء': 'استكشاف الحديقة'
+      };
+      caption = compact[name] || (name.length > 23 ? name.slice(0, 21) + '…' : name);
+    }
+  }
+  interactButton.textContent = '✨ ' + caption;
+  interactButton.setAttribute('aria-label', target ? 'تفاعل: ' + caption : 'اقتربي من مكان أو شخصية للتفاعل');
+  interactButton.title = target ? 'التفاعل مع ' + (target.name || caption) : 'اقتربي من مكان أو شخصية';
+}
 
 // Quick-travel guide for the growing open world. Destinations are placed at outdoor
 // approach points near existing landmarks; this does not remove or replace world content.
@@ -1545,6 +1576,7 @@ function renderWorldQuests() {
 renderWorldQuests();
 let wwQuestCheckElapsed = 0;
 app.on('update', dt => {
+  refreshInteractionCaption(dt);
   wwQuestCheckElapsed += dt;
   if (wwQuestCheckElapsed < 0.35 || indoors) return;
   wwQuestCheckElapsed = 0;
