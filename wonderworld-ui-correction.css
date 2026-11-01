@@ -173,7 +173,7 @@ body:has(#home-build-panel:not([hidden])) #ww-menu-content{
   #life-ui .ww-world-logo{padding:1px 7px 3px!important}
   #life-ui .ww-world-dock{width:calc(100vw - 150px)!important;min-height:48px!important}
   body #life-ui:has(#ww-menu-content:not([hidden])) #ww-menu-categories{
-    top:6px!important;bottom:48px!important;width:116px!important;
+    top:6px!important;bottom:48px!important;width:136px!important;
   }
   body #life-ui:has(#ww-menu-content:not([hidden])) #ww-menu-content{
     top:6px!important;bottom:48px!important;right:130px!important;
