@@ -959,6 +959,9 @@ function setIndoorMenuVisibility(hidden) {
     indoorMenuGuardObserver = null;
   }
   indoorMenuGuardObserved = new WeakSet();
+  // The menu can be remounted by UI modules. Target every matching node,
+  // not only getElementById's first result (duplicate IDs caused the hit-test bug).
+  const menuNodes = () => document.querySelectorAll('[id="ww-menu-categories"], [id="ww-menu-content"]');
   const enforceHiddenState = element => {
     if (!element) return;
     if (!element.hidden) element.hidden = true;
@@ -971,11 +974,11 @@ function setIndoorMenuVisibility(hidden) {
     if (element.style.getPropertyValue('pointer-events') !== 'none' || element.style.getPropertyPriority('pointer-events') !== 'important') {
       element.style.setProperty('pointer-events', 'none', 'important');
     }
+    element.setAttribute('inert', '');
+    element.setAttribute('aria-hidden', 'true');
   };
   const applyToMenu = () => {
-    for (const id of ['ww-menu-categories', 'ww-menu-content']) {
-      const element = document.getElementById(id);
-      if (!element) continue;
+    for (const element of menuNodes()) {
       if (hidden) {
         enforceHiddenState(element);
         if (!indoorMenuGuardObserved.has(element)) {
@@ -983,17 +986,21 @@ function setIndoorMenuVisibility(hidden) {
           indoorMenuGuardObserver?.observe(element, { attributes: true, attributeFilter: ['hidden', 'style'] });
         }
       } else {
-        if (element.hidden) element.hidden = false;
+        element.hidden = false;
         element.style.removeProperty('display');
         element.style.removeProperty('visibility');
         element.style.removeProperty('pointer-events');
+        element.removeAttribute('inert');
+        element.removeAttribute('aria-hidden');
       }
     }
   };
   if (!hidden) {
+    document.body.classList.remove('ww-indoors');
     applyToMenu();
     return;
   }
+  document.body.classList.add('ww-indoors');
   indoorMenuGuardObserver = new MutationObserver(() => {
     if (!indoors) return;
     applyToMenu();
