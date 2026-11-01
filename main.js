@@ -951,6 +951,45 @@ let activeIndoorAction = null;
 let indoors = false;
 let indoorReturnPosition = null;
 let outdoorEnabledStates = new Map();
+let indoorMenuGuardObserver = null;
+const indoorMenuGuardObserved = new WeakSet();
+function setIndoorMenuVisibility(hidden) {
+  if (indoorMenuGuardObserver) {
+    indoorMenuGuardObserver.disconnect();
+    indoorMenuGuardObserver = null;
+  }
+  const applyToMenu = () => {
+    for (const id of ['ww-menu-categories', 'ww-menu-content']) {
+      const element = document.getElementById(id);
+      if (!element) continue;
+      if (hidden) {
+        element.hidden = true;
+        element.style.setProperty('display', 'none', 'important');
+        element.style.setProperty('visibility', 'hidden', 'important');
+        element.style.setProperty('pointer-events', 'none', 'important');
+        if (!indoorMenuGuardObserved.has(element)) {
+          indoorMenuGuardObserved.add(element);
+          indoorMenuGuardObserver?.observe(element, { attributes: true, attributeFilter: ['hidden', 'style'] });
+        }
+      } else {
+        element.hidden = false;
+        element.style.removeProperty('display');
+        element.style.removeProperty('visibility');
+        element.style.removeProperty('pointer-events');
+      }
+    }
+  };
+  if (!hidden) {
+    applyToMenu();
+    return;
+  }
+  indoorMenuGuardObserver = new MutationObserver(() => {
+    if (!indoors) return;
+    applyToMenu();
+  });
+  indoorMenuGuardObserver.observe(document.body, { childList: true, subtree: true });
+  applyToMenu();
+}
 function enterHome(homeName, targetInteriorRoot = interiorRoot, indoorAction = null) {
   if (indoors) return;
   if (vehicleMode) toggleVehicleMode(false);
@@ -975,6 +1014,8 @@ function enterHome(homeName, targetInteriorRoot = interiorRoot, indoorAction = n
   indoorActionButton.hidden = !activeIndoorAction;
   if (activeIndoorAction) indoorActionButton.textContent = activeIndoorAction.label;
   indoors = true;
+  // Keep navigation hidden even if another UI module remounts or toggles it.
+  setIndoorMenuVisibility(true);
   // Disable the floating category rail at the source while inside a building.
   // Inline !important avoids stylesheet/stacking-context rules intercepting world taps.
   const indoorCategoryRail = document.getElementById('ww-menu-categories');
@@ -1013,6 +1054,7 @@ function exitHome() {
   for (const [entity, enabled] of outdoorEnabledStates) entity.enabled = enabled;
   outdoorEnabledStates.clear();
   indoors = false;
+  setIndoorMenuVisibility(false);
   // Restore navigation only after returning to the neighborhood.
   const indoorCategoryRail = document.getElementById('ww-menu-categories');
   const indoorMenuContent = document.getElementById('ww-menu-content');
