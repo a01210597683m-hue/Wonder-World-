@@ -791,6 +791,15 @@ try {
       assert.ok(aimedX > playerXForAim + 30, 'right virtual stick should independently move the aiming reticle');
 
       assert.equal(await page.locator('#wwa-bscore').innerText(), '0', 'battle royale should start with no eliminations');
+      // Aim directly at a live opponent and verify two real hits produce an elimination.
+      const targetX = Number(await battleCanvas.getAttribute('data-target-x'));
+      const targetY = Number(await battleCanvas.getAttribute('data-target-y'));
+      const battleBox = await battleCanvas.boundingBox();
+      assert.ok(Number.isFinite(targetX) && Number.isFinite(targetY) && battleBox, 'battle arena should expose a live target for aim interaction');
+      await page.mouse.click(battleBox.x + targetX / 640 * battleBox.width, battleBox.y + targetY / 400 * battleBox.height);
+      await page.locator('[data-act="fire"]').click();
+      await page.locator('[data-act="fire"]').click();
+      assert.equal(await page.locator('#wwa-bscore').innerText(), '1', 'two aimed shots should eliminate a two-health opponent');
       assert.equal(await page.locator('#wwa-zone').count(), 1, 'battle royale should show the shrinking safe-zone status');
       await page.locator('[data-act="fire"]').click();
       assert.equal(await page.locator('#wwa-ammo').innerText(), '29', 'battle royale should consume one round per shot');
