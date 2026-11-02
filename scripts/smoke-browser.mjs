@@ -791,6 +791,14 @@ try {
       assert.ok(aimedX > playerXForAim + 30, 'right virtual stick should independently move the aiming reticle');
 
       assert.equal(await page.locator('#wwa-bscore').innerText(), '0', 'battle royale should start with no eliminations');
+      assert.equal(await page.locator('#wwa-zone').count(), 1, 'battle royale should show the shrinking safe-zone status');
+      await page.locator('[data-act="fire"]').click();
+      assert.equal(await page.locator('#wwa-ammo').innerText(), '29', 'battle royale should consume one round per shot');
+      await page.locator('[data-act="reload"]').click();
+      assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'battle royale should refill ammunition up to the magazine cap');
+      // Start a fresh round before testing held fire; earlier movement/aim checks can consume game time.
+      await page.locator('[data-act="restart"]').click();
+      assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'fresh Battle Royale round should restore the magazine before held-fire testing');
       // Aim directly at a live opponent and verify two real hits produce an elimination.
       const targetX = Number(await battleCanvas.getAttribute('data-target-x'));
       const targetY = Number(await battleCanvas.getAttribute('data-target-y'));
@@ -800,14 +808,8 @@ try {
       await page.locator('[data-act="fire"]').click();
       await page.locator('[data-act="fire"]').click();
       assert.equal(await page.locator('#wwa-bscore').innerText(), '1', 'two aimed shots should eliminate a two-health opponent');
-      assert.equal(await page.locator('#wwa-zone').count(), 1, 'battle royale should show the shrinking safe-zone status');
-      await page.locator('[data-act="fire"]').click();
-      assert.equal(await page.locator('#wwa-ammo').innerText(), '29', 'battle royale should consume one round per shot');
-      await page.locator('[data-act="reload"]').click();
-      assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'battle royale should refill ammunition up to the magazine cap');
-      // Start a fresh round before testing held fire; earlier movement/aim checks can consume game time.
       await page.locator('[data-act="restart"]').click();
-      assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'fresh Battle Royale round should restore the magazine before held-fire testing');
+      assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'fresh round should reset ammo after aim-hit test');
       const holdFire = page.locator('[data-act="fire"]');
       await page.evaluate(() => {
         const button = document.querySelector('[data-act="fire"]');
