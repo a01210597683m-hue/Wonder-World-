@@ -142,6 +142,7 @@
       const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
       function draw(){
         c.dataset.playerX=String(Math.round(state.x));c.dataset.playerY=String(Math.round(state.y));c.dataset.aimX=String(Math.round(state.aimX));c.dataset.aimY=String(Math.round(state.aimY));
+        const visibleTarget=state.targets.find(t=>t.hp>0);c.dataset.targetX=visibleTarget?String(Math.round(visibleTarget.x)):'';c.dataset.targetY=visibleTarget?String(Math.round(visibleTarget.y)):'';
         ctx.clearRect(0,0,640,400);
         const ground=ctx.createLinearGradient(0,0,640,400);ground.addColorStop(0,'#9dbb8b');ground.addColorStop(.5,'#6e9a70');ground.addColorStop(1,'#496e59');
         ctx.fillStyle=ground;ctx.fillRect(0,0,640,400);
