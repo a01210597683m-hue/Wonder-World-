@@ -65,7 +65,9 @@
     const hud = $('#life-ui');
     if (!hud || $('#ww-activities-launch')) return false;
     const launch = el('button',{id:'ww-activities-launch',type:'button'},'🌟 أنشطة WonderWorld الإضافية');
-    // Mount directly into the compact launcher when it already exists; avoid a full-width HUD flash.\n    const menuGrid = document.getElementById('ww-menu-grid');\n    (menuGrid || hud).appendChild(launch);
+    // Mount directly into the compact launcher when it already exists; avoid a full-width HUD flash.
+    const menuGrid = document.getElementById('ww-menu-grid');
+    (menuGrid || hud).appendChild(launch);
     const panel = el('section',{id:'ww-activities',role:'dialog','aria-modal':'true','aria-label':'أنشطة وألعاب WonderWorld'});
     panel.hidden = true;
     panel.innerHTML =
