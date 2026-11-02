@@ -10,7 +10,7 @@
   };
   const style = el('style');
   style.textContent = [
-    '#ww-activities-launch{width:100%;padding:11px;border:0;border-radius:12px;background:#fce7f3;color:#8b285f;font:inherit;font-weight:900;pointer-events:auto}',
+    '#ww-activities-launch{box-sizing:border-box;width:auto;max-width:100%;min-width:0;padding:8px 10px;border:0;border-radius:12px;background:#fce7f3;color:#8b285f;font:inherit;font-weight:900;pointer-events:auto}',
     '#ww-activities{position:fixed;z-index:10030;inset:2dvh 8px 2dvh;margin:auto;max-width:760px;overflow:auto;padding:14px;border-radius:20px;background:#fffaf4;color:#26374b;box-shadow:0 12px 55px #071a2d77;font-family:system-ui,sans-serif}',
     '#ww-activities[hidden],#ww-activities [hidden]{display:none!important}',
     '.wwa-top{display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:-14px;z-index:2;padding:8px 0;background:#fffaf4}',
@@ -65,7 +65,7 @@
     const hud = $('#life-ui');
     if (!hud || $('#ww-activities-launch')) return false;
     const launch = el('button',{id:'ww-activities-launch',type:'button'},'🌟 أنشطة WonderWorld الإضافية');
-    hud.appendChild(launch);
+    // Mount directly into the compact launcher when it already exists; avoid a full-width HUD flash.\n    const menuGrid = document.getElementById('ww-menu-grid');\n    (menuGrid || hud).appendChild(launch);
     const panel = el('section',{id:'ww-activities',role:'dialog','aria-modal':'true','aria-label':'أنشطة وألعاب WonderWorld'});
     panel.hidden = true;
     panel.innerHTML =
