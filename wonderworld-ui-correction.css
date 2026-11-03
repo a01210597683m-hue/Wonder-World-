@@ -503,7 +503,7 @@ body:has(#ww-menu-content:not([hidden])) #move-joystick-thumb{
 #life-ui #ww-quick-rail .ww-quick-button:active{transform:scale(.96)!important}
 @media(orientation:landscape) and (max-height:520px){
   #life-ui #ww-quick-rail{
-    left:5px!important;right:5px!important;top:auto!important;bottom:48px!important;
+    left:5px!important;right:5px!important;top:46px!important;bottom:auto!important;
     transform:none!important;flex-direction:row!important;align-items:center!important;
     justify-content:flex-start!important;flex-wrap:nowrap!important;
     width:calc(100vw - 10px)!important;max-width:none!important;
@@ -519,7 +519,7 @@ body:has(#ww-menu-content:not([hidden])) #move-joystick-thumb{
 }
 @media(max-width:600px) and (orientation:portrait){
   #life-ui #ww-quick-rail{
-    top:auto!important;bottom:58px!important;left:6px!important;right:6px!important;
+    top:52px!important;bottom:auto!important;left:6px!important;right:6px!important;
     transform:none!important;flex-direction:row!important;flex-wrap:nowrap!important;
     justify-content:flex-start!important;width:calc(100vw - 12px)!important;
     max-width:none!important;max-height:none!important;overflow-x:auto!important;
