@@ -451,3 +451,15 @@ body:has(#ww-menu-content:not([hidden])) #move-joystick-thumb{
 @media(orientation:landscape) and (max-height:520px){
   #life-ui{inset:0!important;width:100%!important;height:100%!important}
 }
+
+
+/* 2026-11-03: the HUD wrapper is transparent to taps; only its menu button receives them. */
+#life-ui .ww-hud-top{
+  pointer-events:none!important;
+  width:max-content!important;
+  min-width:0!important;
+  max-width:calc(100vw - 16px)!important;
+}
+#life-ui .ww-hud-top #ww-menu-toggle{
+  pointer-events:auto!important;
+}
