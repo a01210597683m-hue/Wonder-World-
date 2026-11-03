@@ -1343,24 +1343,8 @@ wwQuickItems.forEach(([target, icon, label]) => {
   });
   wwQuickRail.appendChild(shortcut);
 });
-const wwQuickGames = [
-  ['battle','🎯','معركة'],['football','⚽','كرة'],['ropes','🪢','الحبال'],
-  ['fashion','👗','الموضة'],['arrows','🏹','الأسهم'],['space','🚀','الفضاء'],
-  ['candy','🍬','الحلوى'],['party','✨','حفلة'],['billiards','🎱','بلياردو'],
-  ['dominoes','🁣','دومينو'],['cards','🃏','ورق'],['gym','🏋️','لياقة'],
-  ['plane','✈️','طيران'],['train','🚆','قطار'],['stocks','📈','أسهم افتراضية']
-];
-wwQuickGames.forEach(([id, icon, label]) => {
-  const shortcut = document.createElement('button');
-  shortcut.type = 'button';
-  shortcut.className = 'ww-quick-button ww-quick-game';
-  shortcut.dataset.activityId = id;
-  shortcut.innerHTML = '<span aria-hidden="true">' + icon + '</span><small>' + label + '</small>';
-  shortcut.addEventListener('click', () => {
-    window.dispatchEvent(new CustomEvent('wonderworld:open-activity', { detail: { id } }));
-  });
-  wwQuickRail.appendChild(shortcut);
-});
+// Games remain in their dedicated categorized library, not duplicated in the quick rail.
+// This keeps the world view clear and gives every activity one canonical launch location.
 ui.appendChild(wwQuickRail);
 
 wwMenuGrid.addEventListener('click', event => {
