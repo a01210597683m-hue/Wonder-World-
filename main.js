@@ -1315,6 +1315,52 @@ wwMenuToggle.addEventListener('click', () => {
   wwMenuToggle.setAttribute('aria-expanded', String(!wwMenuContent.hidden));
   wwMenuToggle.textContent = wwMenuContent.hidden ? '☰ القائمة' : '✕ إغلاق القائمة';
 });
+
+// World-first quick controls: independent, always-visible touch targets.
+// Each shortcut delegates to the original wired action so existing behavior is preserved.
+const wwQuickRail = document.createElement('nav');
+wwQuickRail.id = 'ww-quick-rail';
+wwQuickRail.setAttribute('aria-label', 'اختصارات WonderWorld السريعة');
+const wwQuickItems = [
+  ['open-avatar-creator','✨','شخصيتي','وظائف'],
+  ['open-map','🗺️','الخريطة','وظائف'],
+  ['open-home-build','🏡','بيتي','وظائف'],
+  ['quick-work','💼','شغلي','وظائف'],
+  ['open-shop','🛍️','المتجر','وظائف']
+];
+wwQuickItems.forEach(([target, icon, label]) => {
+  const shortcut = document.createElement('button');
+  shortcut.type = 'button';
+  shortcut.className = 'ww-quick-button';
+  shortcut.dataset.target = target;
+  shortcut.innerHTML = '<span aria-hidden="true">' + icon + '</span><small>' + label + '</small>';
+  shortcut.addEventListener('click', () => {
+    const original = document.getElementById(target);
+    if (original) original.click();
+    wwMenuContent.hidden = true;
+    wwMenuToggle.setAttribute('aria-expanded', 'false');
+    wwMenuToggle.textContent = '☰ القائمة';
+  });
+  wwQuickRail.appendChild(shortcut);
+});
+const wwQuickGames = [
+  ['battle','🎯','معركة'],['football','⚽','كرة'],['ropes','🪢','الحبال'],
+  ['fashion','👗','الموضة'],['space','🚀','الفضاء'],['candy','🍬','الحلوى'],
+  ['billiards','🎱','بلياردو'],['dominoes','🁣','دومينو'],['cards','🃏','ورق']
+];
+wwQuickGames.forEach(([id, icon, label]) => {
+  const shortcut = document.createElement('button');
+  shortcut.type = 'button';
+  shortcut.className = 'ww-quick-button ww-quick-game';
+  shortcut.dataset.activityId = id;
+  shortcut.innerHTML = '<span aria-hidden="true">' + icon + '</span><small>' + label + '</small>';
+  shortcut.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('wonderworld:open-activity', { detail: { id } }));
+  });
+  wwQuickRail.appendChild(shortcut);
+});
+ui.appendChild(wwQuickRail);
+
 wwMenuGrid.addEventListener('click', event => {
   const action = event.target.closest('button');
   if (!action || action.dataset.activityId) return;
