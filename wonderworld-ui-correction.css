@@ -416,3 +416,38 @@ body:has(#ww-menu-content:not([hidden])) #move-joystick-thumb{
   max-width:min(190px,calc(100vw - 24px))!important;
   min-height:36px!important;
 }
+
+
+/* 2026-11-03: restore the world-first transparent HUD.
+   The life HUD must never become a large opaque card over the 3D playfield. */
+#life-ui{
+  position:fixed!important;inset:0!important;z-index:40!important;
+  display:block!important;width:100%!important;max-width:none!important;
+  height:100%!important;max-height:none!important;min-height:0!important;
+  margin:0!important;padding:0!important;gap:0!important;
+  overflow:visible!important;overscroll-behavior:auto!important;
+  border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+  pointer-events:none!important;
+}
+#life-ui .life-stats,
+#life-ui .ww-world-logo,
+#life-ui .ww-world-side,
+#life-ui .ww-world-dock,
+#life-ui #world-clock,
+#life-ui #interact,
+#life-ui #exit-home,
+#life-ui #indoor-place-action,
+#life-ui .ww-hud-top,
+#life-ui #ww-menu-content,
+#life-ui #ww-menu-categories,
+#life-ui .wonder-overlay,
+#life-ui #life-message{
+  pointer-events:auto!important;
+}
+#life-ui #ww-menu-content[hidden],
+#life-ui .wonder-overlay[hidden]{display:none!important}
+#life-ui .ww-hud-top{background:transparent!important;box-shadow:none!important}
+@media(orientation:landscape) and (max-height:520px){
+  #life-ui{inset:0!important;width:100%!important;height:100%!important}
+}
