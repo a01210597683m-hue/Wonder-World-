@@ -10,7 +10,7 @@ window.wonderWorldSupabase = supabase;
 
 const style = document.createElement('style');
 style.textContent = `
-#ww-auth-launch{position:fixed;z-index:1200;top:12px;left:12px;border:1px solid #ffffff55;border-radius:14px;background:#172b4d;color:#fff;padding:10px 14px;font:600 14px system-ui;box-shadow:0 5px 18px #0003}
+#ww-auth-launch{position:relative;z-index:1;inset:auto;box-sizing:border-box;width:100%;min-width:0;min-height:40px;margin:0;border:1px solid #ffffff55;border-radius:11px;background:#172b4d;color:#fff;padding:7px 8px;font:750 11px/1.25 system-ui;box-shadow:none;white-space:normal;overflow-wrap:anywhere;touch-action:manipulation}
 #ww-auth-overlay{position:fixed;z-index:1300;inset:0;background:#08152bd9;display:flex;align-items:center;justify-content:center;padding:16px;font-family:system-ui;direction:rtl}
 #ww-auth-overlay[hidden]{display:none}
 #ww-auth-card{width:min(100%,420px);max-height:90dvh;overflow:auto;background:#fff;color:#172b4d;border-radius:20px;padding:22px;box-shadow:0 20px 60px #0005}
@@ -37,7 +37,14 @@ launch.id = 'ww-auth-launch';
 launch.type = 'button';
 launch.textContent = '👤 حساب اللاعب';
 launch.setAttribute('aria-haspopup', 'dialog');
-document.body.appendChild(launch);
+// Mount the account action in the same launcher grid as the other game controls.
+function dockAuthLaunch() {
+  const grid = document.getElementById('ww-menu-grid');
+  if (grid && launch.parentElement !== grid) grid.appendChild(launch);
+}
+dockAuthLaunch();
+const authMenuObserver = new MutationObserver(dockAuthLaunch);
+authMenuObserver.observe(document.documentElement, { childList: true, subtree: true });
 
 const overlay = document.createElement('div');
 overlay.id = 'ww-auth-overlay';
