@@ -81,7 +81,19 @@ document.body.appendChild(overlay);
 const byId = (id) => document.getElementById(id);
 const message = (text) => { byId('ww-auth-message').textContent = text; };
 const open = () => { overlay.hidden = false; message(''); byId('ww-email').focus(); };
-const close = () => { overlay.hidden = true; launch.focus(); };
+const close = () => {
+  overlay.hidden = true;
+  // Opening the account action closes the launcher; restore it before returning
+  // keyboard focus so the invoking button is visible and focusable again.
+  const menuContent = byId('ww-menu-content');
+  const menuToggle = byId('ww-menu-toggle');
+  if (menuContent) menuContent.hidden = false;
+  if (menuToggle) {
+    menuToggle.setAttribute('aria-expanded', 'true');
+    menuToggle.textContent = '✕ إغلاق القائمة';
+  }
+  launch.focus();
+};
 launch.addEventListener('click', open);
 byId('ww-auth-close').addEventListener('click', close);
 overlay.addEventListener('click', (event) => { if (event.target === overlay) close(); });
