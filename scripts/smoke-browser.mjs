@@ -706,6 +706,8 @@ try {
   await page.locator('#close-shop').click();
   await page.locator('#shop-panel').waitFor({ state: 'hidden' });
 
+  // The account action now lives inside the compact menu; open its launcher before testing it.
+  await openMenuCategory(0);
   await page.locator('#ww-auth-launch').click();
   await page.locator('#ww-auth-overlay').waitFor({ state: 'visible' });
   await page.locator('#ww-signin').click();
