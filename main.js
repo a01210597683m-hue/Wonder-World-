@@ -1345,8 +1345,10 @@ wwQuickItems.forEach(([target, icon, label]) => {
 });
 const wwQuickGames = [
   ['battle','🎯','معركة'],['football','⚽','كرة'],['ropes','🪢','الحبال'],
-  ['fashion','👗','الموضة'],['space','🚀','الفضاء'],['candy','🍬','الحلوى'],
-  ['billiards','🎱','بلياردو'],['dominoes','🁣','دومينو'],['cards','🃏','ورق']
+  ['fashion','👗','الموضة'],['arrows','🏹','الأسهم'],['space','🚀','الفضاء'],
+  ['candy','🍬','الحلوى'],['party','✨','حفلة'],['billiards','🎱','بلياردو'],
+  ['dominoes','🁣','دومينو'],['cards','🃏','ورق'],['gym','🏋️','لياقة'],
+  ['plane','✈️','طيران'],['train','🚆','قطار'],['stocks','📈','أسهم افتراضية']
 ];
 wwQuickGames.forEach(([id, icon, label]) => {
   const shortcut = document.createElement('button');
