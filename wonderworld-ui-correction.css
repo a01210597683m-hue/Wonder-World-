@@ -463,3 +463,11 @@ body:has(#ww-menu-content:not([hidden])) #move-joystick-thumb{
 #life-ui .ww-hud-top #ww-menu-toggle{
   pointer-events:auto!important;
 }
+
+
+/* Stats are display-only: disable hit-testing on the entire subtree so they
+   cannot cover menu buttons positioned underneath on short landscape screens. */
+#life-ui .life-stats,
+#life-ui .life-stats *{
+  pointer-events:none!important;
+}
