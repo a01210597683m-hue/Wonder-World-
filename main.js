@@ -1458,20 +1458,9 @@ for (const panelId of ['shop-panel', 'pet-panel', 'achievement-panel', 'map-pane
   }
 }
 
-// Compact action dock: show only status and the two essential controls until requested.
-const actionToggle = document.createElement('button');
-actionToggle.id = 'toggle-actions';
-actionToggle.type = 'button';
-actionToggle.setAttribute('aria-expanded', 'false');
-actionToggle.textContent = '☰ الأنشطة والخيارات';
-ui.appendChild(actionToggle);
+// The legacy full-HUD action dock was removed. All actions now live in the
+// single compact WonderWorld launcher (#ww-menu-content / #ww-menu-grid).
 ui.classList.add('actions-collapsed');
-actionToggle.addEventListener('click', () => {
-  const expanded = ui.classList.toggle('actions-expanded');
-  ui.classList.toggle('actions-collapsed', !expanded);
-  actionToggle.setAttribute('aria-expanded', String(expanded));
-  actionToggle.textContent = expanded ? '✕ إخفاء الأنشطة' : '☰ الأنشطة والخيارات';
-});
 
 const interactButton = document.getElementById('interact');
 let interactionCaptionClock = 0;
