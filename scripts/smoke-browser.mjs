@@ -112,8 +112,11 @@ try {
 
   async function openMenuCategory(index) {
     const content = page.locator('#ww-menu-content');
+    const categories = page.locator('#ww-menu-categories .ww-menu-category');
     if (await content.isHidden()) await page.locator('#ww-menu-toggle').click();
     await content.waitFor({ state: 'visible', timeout: 5000 });
+    await categories.nth(index).click();
+    await page.locator('.ww-menu-section[data-category-index="' + index + '"]').waitFor({ state: 'visible', timeout: 5000 });
   }
 
   // Memory challenge should open, render all twelve cards, restart, and close accessibly.
@@ -257,7 +260,7 @@ try {
   assert.match(await page.locator('#ludo-status').innerText(), /حركتِ القطعة/, 'Ludo should advance an already launched piece');
   await page.evaluate(() => { if (window.__wwOriginalRandom) Math.random = window.__wwOriginalRandom; });
   await page.locator('#bg-close').click();
-  // The redesigned launcher has no category rail: open the flat list and launch map directly.
+  // Open the world category before using its original map action.
   await openMenuCategory(1);
   assert.equal(await page.locator('#ww-menu-content').isVisible(), true, 'flat launcher panel should be visible');
   await page.locator('#open-map').evaluate(el => el.click());
