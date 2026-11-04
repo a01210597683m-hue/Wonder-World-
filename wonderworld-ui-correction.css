@@ -666,3 +666,18 @@ body:has(#ww-menu-content:not([hidden])) #ww-menu-categories .ww-menu-category{
     box-sizing:border-box!important;
   }
 }
+
+
+/* Final landscape constraint for every live menu node, including any remounted
+   duplicate created by legacy UI code. Explicitly clear intrinsic min sizing. */
+@media screen and (orientation:landscape) and (max-height:520px){
+  body [id="ww-menu-content"]:not([hidden]){
+    display:block!important;
+    width:390px!important;
+    min-width:0!important;
+    max-width:calc(100vw - 190px)!important;
+    box-sizing:border-box!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+  }
+}
