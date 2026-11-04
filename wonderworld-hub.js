@@ -23,8 +23,8 @@
     input.placeholder = 'ابحثي عن لعبة أو نشاط أو مكان…';
     input.setAttribute('aria-label', 'ابحثي داخل قوائم اللعبة');
     label.append(glyph, input);
-    nav.parentNode.insertBefore(heading, nav);
-    nav.parentNode.insertBefore(label, nav);
+    content.insertBefore(heading, content.firstChild);
+    content.insertBefore(label, heading.nextSibling);
     const records = Array.from(nav.querySelectorAll('.ww-menu-category')).map(button => {
       const index = Number(button.dataset.categoryIndex);
       const section = content.querySelector('.ww-menu-section[data-category-index="' + index + '"]');
