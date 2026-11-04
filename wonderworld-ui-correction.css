@@ -653,3 +653,16 @@ body:has(#ww-menu-content:not([hidden])) #ww-menu-categories .ww-menu-category{
     max-width:calc(100vw - 190px)!important;
   }
 }
+
+
+/* Browser-verified landscape sizing: keep this selector independent of :has()
+   so mobile Chromium applies the width rule consistently during menu opening. */
+@media (orientation:landscape) and (max-height:520px){
+  #life-ui #ww-menu-content:not([hidden]){
+    width:min(390px,calc(100vw - 190px))!important;
+    max-width:calc(100vw - 190px)!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    box-sizing:border-box!important;
+  }
+}
