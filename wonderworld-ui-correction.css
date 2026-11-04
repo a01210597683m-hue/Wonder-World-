@@ -602,3 +602,54 @@ body:has(#ww-menu-content:not([hidden])) .ww-hub-count{display:none!important}
   body:has(#ww-menu-content:not([hidden])) #ww-menu-categories{top:6px!important;bottom:46px!important;right:5px!important;width:110px!important}
   #life-ui:has(#ww-menu-content:not([hidden])) #ww-menu-content{top:6px!important;bottom:46px!important;right:120px!important;width:min(430px,calc(100vw - 190px))!important}
 }
+
+
+/* 2026-11-04: landscape menu collision fix from real-device review.
+   Keep the world guide out of the menu's touch/visual area and give the
+   category rail and activity panel a bounded, predictable footprint. */
+body:has(#ww-menu-content:not([hidden])) #ww-world-guide{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+body:has(#ww-menu-content:not([hidden])) #ww-menu-categories{
+  width:108px!important;
+  max-width:108px!important;
+  grid-auto-rows:minmax(42px,auto)!important;
+  align-content:start!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+}
+body:has(#ww-menu-content:not([hidden])) #ww-menu-categories .ww-menu-category{
+  min-height:42px!important;
+  padding:5px 6px!important;
+  gap:5px!important;
+  white-space:normal!important;
+}
+#life-ui:has(#ww-menu-content:not([hidden])) #ww-menu-content{
+  width:min(390px,calc(100vw - 190px))!important;
+  max-width:calc(100vw - 190px)!important;
+  box-sizing:border-box!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+}
+#life-ui:has(#ww-menu-content:not([hidden])) #ww-menu-content .ww-section-body{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  min-width:0!important;
+}
+#life-ui:has(#ww-menu-content:not([hidden])) #ww-menu-content .ww-section-body>button,
+#life-ui:has(#ww-menu-content:not([hidden])) #ww-menu-content .ww-section-body>.avatar-tools button{
+  min-width:0!important;
+  overflow-wrap:anywhere!important;
+}
+@media(orientation:landscape) and (max-height:520px){
+  body:has(#ww-menu-content:not([hidden])) #ww-menu-categories{
+    top:7px!important;bottom:48px!important;right:6px!important;
+    width:108px!important;max-width:108px!important;
+  }
+  #life-ui:has(#ww-menu-content:not([hidden])) #ww-menu-content{
+    top:7px!important;bottom:48px!important;right:120px!important;
+    width:min(390px,calc(100vw - 190px))!important;
+    max-width:calc(100vw - 190px)!important;
+  }
+}
