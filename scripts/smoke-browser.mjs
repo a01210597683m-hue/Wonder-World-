@@ -58,7 +58,25 @@ try {
 
   await page.goto('http://127.0.0.1:4173/', { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.locator('#application').waitFor({ state: 'visible', timeout: 15000 });
-  await page.locator('#life-ui').waitFor({ state: 'attached', timeout: 20000 });
+  try {
+    await page.locator('#life-ui').waitFor({ state: 'attached', timeout: 20000 });
+  } catch (error) {
+    const startupDiagnostics = await page.evaluate(() => ({
+      status: document.querySelector('#status')?.textContent || 'missing',
+      gameChildren: document.querySelector('#game')?.children.length ?? -1,
+      canvasEngineReady: document.querySelector('#application')?.dataset.engineReady || 'false',
+      canvasEngineFrames: document.querySelector('#application')?.dataset.engineFrames || '0',
+      lifeUiPresent: Boolean(document.querySelector('#life-ui')),
+      scripts: Array.from(document.scripts).map(script => script.src || 'inline')
+    })).catch(() => ({}));
+    throw new Error('Gameplay HUD did not mount. Startup diagnostics: ' + JSON.stringify({
+      ...startupDiagnostics,
+      pageErrors: pageErrors.slice(-12),
+      consoleErrors: consoleErrors.slice(-12),
+      failedRequests: failedRequests.slice(-12),
+      original: error.message
+    }));
+  }
   await page.locator('#player-level').waitFor({ state: 'attached', timeout: 10000 });
   // The redesigned HUD uses one compact toggle and a flat launcher with independent actions.
   assert.equal(await page.locator('.ww-world-dock-item').count(), 0, 'legacy oversized dock must stay removed');
