@@ -81,7 +81,7 @@ try {
   // The redesigned HUD uses one compact toggle and a flat launcher with independent actions.
   assert.equal(await page.locator('.ww-world-dock-item').count(), 0, 'legacy oversized dock must stay removed');
   assert.equal(await page.locator('.ww-world-side-item').count(), 0, 'legacy side rail must stay removed');
-  assert.equal(await page.locator('.ww-world-logo').count(), 1, 'single compact world logo should remain');
+  assert.equal(await page.locator('.ww-brand').count(), 1, 'single compact world logo should remain');
   const mobileHud = await page.evaluate(() => ({
     joystick: document.querySelector('#move-joystick').getBoundingClientRect().width,
     cameraButton: document.querySelector('#camera-reset').getBoundingClientRect().width
