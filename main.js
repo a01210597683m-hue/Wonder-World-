@@ -20,6 +20,9 @@ const app = new Application(canvas, {
   graphicsDeviceOptions: { antialias: true, alpha: false }
 });
 app.setCanvasFillMode(FILLMODE_FILL_WINDOW);
+// Balanced mobile quality: retain crisp rendering without forcing a costly full 4K frame
+// on phones. The device pixel ratio is capped to protect frame time and memory.
+app.graphicsDevice.maxPixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
 app.setCanvasResolution(RESOLUTION_AUTO);
 app.start();
 // Publish a lightweight engine heartbeat before gameplay systems run. This distinguishes
@@ -29,11 +32,20 @@ app.on('update', () => {
   canvas.dataset.engineReady = 'true';
   canvas.dataset.engineFrames = String((Number(canvas.dataset.engineFrames) || 0) + 1);
 });
-app.scene.ambientLight = new Color(0.72, 0.75, 0.82);
+app.scene.ambientLight = new Color(0.66, 0.70, 0.78);
+// Distance haze adds atmospheric depth to the streamed neighborhood while keeping
+// nearby buildings and characters crisp and readable.
+app.scene.fog = 'linear';
+app.scene.fogColor = new Color(0.62, 0.77, 0.87);
+app.scene.fogStart = 105;
+app.scene.fogEnd = 285;
 
 function mat(color) {
   const m = new StandardMaterial();
   m.diffuse = color;
+  // A restrained highlight makes painted surfaces read less like flat debug blocks.
+  m.specular = new Color(0.16, 0.17, 0.19);
+  m.shininess = 22;
   m.update();
   return m;
 }
@@ -698,7 +710,7 @@ const npcs = [
 ];
 
 const camera = new Entity('Follow Camera');
-camera.addComponent('camera', { clearColor: new Color(0.53, 0.79, 0.96), fov: 60, farClip: 200 });
+camera.addComponent('camera', { clearColor: new Color(0.53, 0.79, 0.96), fov: 60, farClip: 300 });
 camera.setPosition(0, 7, 11);
 camera.lookAt(0, 1, 0);
 app.root.addChild(camera);
