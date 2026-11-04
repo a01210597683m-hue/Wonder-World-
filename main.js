@@ -1368,12 +1368,32 @@ function closeWonderMenu() {
   wwMenuToggle.textContent = '☰ القائمة';
 }
 const wwMenuToggle = document.getElementById('ww-menu-toggle');
+// Apply the compact landscape dimensions at runtime as well as in CSS.
+// The resize handler is intentional: browser smoke tests and device rotation
+// can change the viewport after the menu has already been opened.
+function applyWonderMenuViewportLayout() {
+  const compactLandscape = window.matchMedia('(orientation: landscape) and (max-height: 520px)').matches;
+  if (compactLandscape) {
+    wwMenuContent.style.setProperty('width', '390px', 'important');
+    wwMenuContent.style.setProperty('max-width', 'calc(100vw - 190px)', 'important');
+    wwMenuContent.style.setProperty('min-width', '0', 'important');
+    wwMenuContent.style.setProperty('box-sizing', 'border-box', 'important');
+    wwMenuContent.style.setProperty('overflow-x', 'hidden', 'important');
+    wwMenuContent.style.setProperty('overflow-y', 'auto', 'important');
+  } else {
+    for (const property of ['width','max-width','min-width','box-sizing','overflow-x','overflow-y']) {
+      wwMenuContent.style.removeProperty(property);
+    }
+  }
+}
+window.addEventListener('resize', applyWonderMenuViewportLayout, { passive: true });
 wwMenuToggle.setAttribute('aria-expanded', 'false');
 wwMenuToggle.textContent = '☰ القائمة';
 wwMenuToggle.addEventListener('click', () => {
   const opening = wwMenuContent.hidden;
   wwMenuContent.hidden = !opening;
   wwMenuCategories.hidden = !opening;
+  if (opening) applyWonderMenuViewportLayout();
   wwMenuToggle.setAttribute('aria-expanded', String(opening));
   wwMenuToggle.textContent = opening ? '✕ إغلاق القائمة' : '☰ القائمة';
 });
