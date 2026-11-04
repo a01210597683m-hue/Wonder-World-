@@ -88,22 +88,27 @@ try {
   }));
   assert.ok(mobileHud.joystick >= 96 && mobileHud.joystick <= 112, 'movement joystick should remain comfortably touchable');
   assert.ok(mobileHud.cameraButton >= 34 && mobileHud.cameraButton <= 40, 'camera controls should remain compact touch targets');
-  const launcher = page.locator('#ww-menu-grid');
-  assert.ok(await launcher.count() === 1, 'flat independent launcher should exist');
-  assert.ok(await launcher.locator('button').count() >= 20, 'launcher should expose a broad set of independent actions');
-  for (const id of ['battle','football','ropes','fashion','gym','plane','train','arrows','stocks','space','candy','party','billiards','dominoes','cards']) {
-    assert.equal(await launcher.locator('[data-activity-id="' + id + '"]').count(), 1, id + ' should have its own independent launcher button');
-  }
+  const menuContent = page.locator('#ww-menu-content');
+  const categoryRail = page.locator('#ww-menu-categories');
+  assert.equal(await categoryRail.locator('.ww-menu-category').count(), 5, 'menu should expose five independent navigation categories');
   await page.locator('#ww-menu-toggle').click();
-  await launcher.waitFor({ state: 'visible' });
+  await menuContent.waitFor({ state: 'visible' });
+  await categoryRail.waitFor({ state: 'visible' });
   assert.equal(await page.locator('#ww-menu-toggle').getAttribute('aria-expanded'), 'true', 'menu toggle should expose expanded state');
+  await categoryRail.locator('.ww-menu-category').nth(3).click();
+  const gamesSection = page.locator('.ww-menu-section[data-category-index="3"]');
+  assert.equal(await gamesSection.isVisible(), true, 'games category should reveal its independent activity list');
+  assert.ok(await gamesSection.locator('.ww-independent-activity').count() >= 15, 'games category should expose fifteen independent activity buttons');
+  for (const id of ['battle','football','ropes','fashion','gym','plane','train','arrows','stocks','space','candy','party','billiards','dominoes','cards']) {
+    assert.equal(await gamesSection.locator('[data-activity-id="' + id + '"]').count(), 1, id + ' should have its own independent activity button');
+  }
   await page.setViewportSize({ width: 844, height: 390 });
-  const landscapeMenu = await launcher.evaluate(el => ({ width: el.getBoundingClientRect().width, columns: getComputedStyle(el).gridTemplateColumns }));
-  assert.ok(landscapeMenu.width <= 430, 'landscape launcher should remain compact');
-  assert.ok(landscapeMenu.columns.trim().split(/\\s+/).length >= 1, 'landscape launcher should retain a usable grid');
+  const landscapeMenu = await menuContent.evaluate(el => ({ width: el.getBoundingClientRect().width, overflow: getComputedStyle(el).overflowY }));
+  assert.ok(landscapeMenu.width <= 430, 'landscape menu should remain compact');
+  assert.ok(['auto','scroll'].includes(landscapeMenu.overflow), 'landscape menu should remain vertically accessible');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator('#ww-menu-toggle').click();
-  await launcher.waitFor({ state: 'hidden' });
+  await menuContent.waitFor({ state: 'hidden' });
 
   async function openMenuCategory(index) {
     const content = page.locator('#ww-menu-content');
