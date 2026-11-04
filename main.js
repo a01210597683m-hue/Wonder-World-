@@ -35,10 +35,10 @@ app.on('update', () => {
 app.scene.ambientLight = new Color(0.66, 0.70, 0.78);
 // Distance haze adds atmospheric depth to the streamed neighborhood while keeping
 // nearby buildings and characters crisp and readable.
-app.scene.fog = 'linear';
-app.scene.fogColor = new Color(0.62, 0.77, 0.87);
-app.scene.fogStart = 105;
-app.scene.fogEnd = 285;
+app.scene.fog.type = 'linear';
+app.scene.fog.color = new Color(0.62, 0.77, 0.87);
+app.scene.fog.start = 105;
+app.scene.fog.end = 285;
 
 function mat(color) {
   const m = new StandardMaterial();
