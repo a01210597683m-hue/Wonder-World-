@@ -37,10 +37,10 @@ launch.id = 'ww-auth-launch';
 launch.type = 'button';
 launch.textContent = '👤 حساب اللاعب';
 launch.setAttribute('aria-haspopup', 'dialog');
-// Mount the account action in the same launcher grid as the other game controls.
+// Mount the account action inside the first real category of the redesigned menu.
 function dockAuthLaunch() {
-  const grid = document.getElementById('ww-menu-grid');
-  if (grid && launch.parentElement !== grid) grid.appendChild(launch);
+  const accountSection = document.querySelector('#ww-menu-content .ww-menu-section[data-category-index="0"] .ww-section-body');
+  if (accountSection && launch.parentElement !== accountSection) accountSection.appendChild(launch);
 }
 dockAuthLaunch();
 const authMenuObserver = new MutationObserver(dockAuthLaunch);
