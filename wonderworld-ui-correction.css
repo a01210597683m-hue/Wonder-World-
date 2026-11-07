@@ -787,3 +787,10 @@ body:has(#ww-menu-content:not([hidden])) #life-ui #ww-game-rail{
     bottom:max(64px,env(safe-area-inset-bottom))!important;
   }
 }
+
+
+/* Modal overlays must own their close controls; suspend the direct game rail
+   while the Wonder guide is open to prevent touch-target interception. */
+body:has(#wonder-guide-panel:not([hidden])) #life-ui #ww-game-rail{
+  display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
