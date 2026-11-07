@@ -225,7 +225,6 @@
       };
       fireButton.addEventListener('pointerdown',e=>{
         if(state.ended||firePointer!==null)return;
-        e.preventDefault();
         firePointerAction=true;
         firePointer=e.pointerId;
         try{fireButton.setPointerCapture(e.pointerId);}catch(_){}
