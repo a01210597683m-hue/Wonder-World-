@@ -231,7 +231,7 @@
         battleFireTimer=window.setInterval(()=>{
           if(firePointer===null||state.ended){stopHeldFire();return;}
           fire();
-        },180);
+        },350);
       });
       fireButton.addEventListener('pointerup',endHeldFire);
       fireButton.addEventListener('pointercancel',endHeldFire);
