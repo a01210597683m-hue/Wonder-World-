@@ -775,3 +775,15 @@ body:has(#ww-menu-content:not([hidden])) #life-ui #ww-game-rail{
   visibility:hidden!important;
   pointer-events:none!important;
 }
+
+
+/* Reserve the lower-right camera-control lane on portrait phones. The game
+   rail remains scrollable above it so zoom/reset buttons never lose hit access. */
+#life-ui #ww-game-rail{
+  bottom:max(132px,calc(env(safe-area-inset-bottom) + 122px))!important;
+}
+@media screen and (orientation:landscape) and (max-height:520px){
+  #life-ui #ww-game-rail{
+    bottom:max(64px,env(safe-area-inset-bottom))!important;
+  }
+}
