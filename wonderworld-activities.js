@@ -212,16 +212,16 @@
       };
       bindBattleStick('wwa-battle-move-stick','wwa-battle-move-thumb',(x,y)=>{state.moveX=x;state.moveY=y;});
       bindBattleStick('wwa-battle-aim-stick','wwa-battle-aim-thumb',(x,y)=>{if(Math.hypot(x,y)>.12){state.aimX=clamp(state.x+x*150,0,640);state.aimY=clamp(state.y+y*150,0,400);draw();}});
-      let firePointerAction=false;
       const activityContent=$('#wwa-content',panel);
-      activityContent.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||!activityContent.contains(b))return;const a=b.dataset.act;if(a==='up')move(0,-22);if(a==='down')move(0,22);if(a==='left')move(-22,0);if(a==='right')move(22,0);if(a==='reload'&&!state.ended){state.ammo=30;msg('تم إعادة تعبئة المخزن بالكامل.');update();}if(a==='heal'&&!state.ended&&state.hp>0){state.hp=Math.min(100,state.hp+25);msg('استخدمتي حقيبة علاج.');update();}if(a==='fire'&&!firePointerAction)fire();firePointerAction=false;if(a==='restart')restart();});
-      const fireButton=$('#wwa-content [data-act="fire"]',panel);let firePointer=null;
+      const actionButtons=activityContent.querySelectorAll('[data-act]');
+      actionButtons.forEach(b=>b.addEventListener('click',()=>{const a=b.dataset.act;if(a==='up')move(0,-22);if(a==='down')move(0,22);if(a==='left')move(-22,0);if(a==='right')move(22,0);if(a==='reload'&&!state.ended){state.ammo=30;msg('تم إعادة تعبئة المخزن بالكامل.');update();}if(a==='heal'&&!state.ended&&state.hp>0){state.hp=Math.min(100,state.hp+25);msg('استخدمتي حقيبة علاج.');update();}if(a==='fire')fire();if(a==='restart')restart();}));
+      const fireButton=$('#wwa-content [data-act="fire"]',panel);let firePointer=null;let firePointerAction=false;
       const stopHeldFire=()=>{
         firePointer=null;
         if(battleFireTimer){window.clearInterval(battleFireTimer);battleFireTimer=0;}
       };
       const endHeldFire=e=>{
-        if(firePointer!==null&&(!e||e.pointerId===undefined||e.pointerId===firePointer))stopHeldFire();
+        if(firePointer!==null&&(!e||e.pointerId===undefined||e.pointerId===firePointer)){stopHeldFire();firePointerAction=false;}
       };
       fireButton.addEventListener('pointerdown',e=>{
         if(state.ended||firePointer!==null)return;
@@ -229,7 +229,6 @@
         firePointerAction=true;
         firePointer=e.pointerId;
         try{fireButton.setPointerCapture(e.pointerId);}catch(_){}
-        fire();
         if(battleFireTimer)window.clearInterval(battleFireTimer);
         battleFireTimer=window.setInterval(()=>{
           if(firePointer===null||state.ended){stopHeldFire();return;}
