@@ -1417,6 +1417,33 @@ wwQuickItems.forEach(([target, icon, label]) => {
 });
 ui.appendChild(wwQuickRail);
 
+// Always-visible game rail: each activity has its own direct launch button.
+// It stays separate from the life shortcuts and never requires opening the main menu.
+const wwGameRail = document.createElement('nav');
+wwGameRail.id = 'ww-game-rail';
+wwGameRail.setAttribute('aria-label', 'ألعاب WonderWorld المباشرة');
+wwActivityEntries.forEach(([id, icon, label]) => {
+  const gameButton = document.createElement('button');
+  gameButton.type = 'button';
+  gameButton.className = 'ww-game-button';
+  gameButton.dataset.activityId = id;
+  gameButton.setAttribute('aria-label', label);
+  const iconNode = document.createElement('span');
+  iconNode.className = 'ww-game-icon';
+  iconNode.setAttribute('aria-hidden', 'true');
+  iconNode.textContent = icon;
+  const labelNode = document.createElement('small');
+  labelNode.className = 'ww-game-label';
+  labelNode.textContent = label;
+  gameButton.append(iconNode, labelNode);
+  gameButton.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('wonderworld:open-activity', { detail: { id } }));
+    closeWonderMenu();
+  });
+  wwGameRail.appendChild(gameButton);
+});
+ui.appendChild(wwGameRail);
+
 wwMenuContent.addEventListener('click', event => {
   const action = event.target.closest('button');
   if (action && action.id && !action.dataset.activityId) closeWonderMenu();
