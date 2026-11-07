@@ -794,3 +794,87 @@ body:has(#ww-menu-content:not([hidden])) #life-ui #ww-game-rail{
 body:has(#wonder-guide-panel:not([hidden])) #life-ui #ww-game-rail{
   display:none!important;visibility:hidden!important;pointer-events:none!important;
 }
+
+
+/* 2026-11-07: real-phone landscape HUD spacing pass.
+   Separate the world guide, direct game rail and life shortcuts into clear lanes;
+   keep the center playfield open and reserve the lower-right camera controls. */
+@media screen and (orientation:landscape) and (max-height:520px){
+  #ww-world-guide{
+    top:max(7px,env(safe-area-inset-top))!important;
+    right:max(8px,env(safe-area-inset-right))!important;
+    width:min(168px,24vw)!important;
+    max-width:168px!important;
+  }
+  #ww-world-guide-toggle{
+    min-height:34px!important;
+    padding:6px 8px!important;
+    font-size:10px!important;
+    border-radius:10px!important;
+  }
+  #life-ui #ww-quick-rail{
+    top:max(58px,calc(env(safe-area-inset-top) + 48px))!important;
+    bottom:auto!important;
+    left:max(7px,env(safe-area-inset-left))!important;
+    right:auto!important;
+    transform:none!important;
+    width:64px!important;
+    max-width:64px!important;
+    max-height:calc(100dvh - 128px)!important;
+    gap:5px!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    padding:2px!important;
+  }
+  #life-ui #ww-quick-rail .ww-quick-button{
+    width:60px!important;
+    min-width:60px!important;
+    min-height:34px!important;
+    padding:4px 3px!important;
+    border-radius:9px!important;
+  }
+  #life-ui #ww-quick-rail .ww-quick-button small{
+    font-size:8px!important;
+    line-height:1.1!important;
+  }
+  #life-ui #ww-game-rail{
+    top:max(86px,calc(env(safe-area-inset-top) + 78px))!important;
+    right:max(7px,env(safe-area-inset-right))!important;
+    bottom:max(66px,calc(env(safe-area-inset-bottom) + 58px))!important;
+    width:64px!important;
+    max-width:64px!important;
+    max-height:none!important;
+    padding:3px!important;
+    gap:3px!important;
+    border-radius:11px!important;
+  }
+  #life-ui #ww-game-rail .ww-game-button{
+    min-height:34px!important;
+    padding:3px 2px!important;
+    border-radius:8px!important;
+  }
+  #life-ui #ww-game-rail .ww-game-icon{font-size:14px!important}
+  #life-ui #ww-game-rail .ww-game-label{font-size:7px!important}
+  #life-ui #life-message{
+    left:50%!important;
+    bottom:max(34px,calc(env(safe-area-inset-bottom) + 26px))!important;
+    max-width:min(360px,42vw)!important;
+    padding:5px 8px!important;
+    font-size:9px!important;
+    line-height:1.25!important;
+  }
+  #life-ui #interact{
+    right:max(82px,calc(env(safe-area-inset-right) + 74px))!important;
+    bottom:max(72px,calc(env(safe-area-inset-bottom) + 64px))!important;
+    max-width:min(160px,22vw)!important;
+    min-height:32px!important;
+    padding:5px 8px!important;
+    font-size:9px!important;
+  }
+  #camera-controls{
+    right:max(7px,env(safe-area-inset-right))!important;
+    bottom:max(7px,env(safe-area-inset-bottom))!important;
+    transform:scale(.88)!important;
+    transform-origin:bottom right!important;
+  }
+}
