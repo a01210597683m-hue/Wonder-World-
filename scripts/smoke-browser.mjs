@@ -116,7 +116,7 @@ try {
   }
   await page.setViewportSize({ width: 844, height: 390 });
   const landscapeMenu = await menuContent.evaluate(el => ({ width: el.getBoundingClientRect().width, overflow: getComputedStyle(el).overflowY }));
-  assert.ok(landscapeMenu.width <= 430, 'landscape menu should remain compact');
+  assert.ok(landscapeMenu.width <= 430, 'landscape menu should remain compact: ' + JSON.stringify(landscapeMenu));
   assert.ok(['auto','scroll'].includes(landscapeMenu.overflow), 'landscape menu should remain vertically accessible');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator('#ww-menu-toggle').click();
