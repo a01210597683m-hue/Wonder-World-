@@ -88,6 +88,18 @@ try {
   }));
   assert.ok(mobileHud.joystick >= 96 && mobileHud.joystick <= 112, 'movement joystick should remain comfortably touchable');
   assert.ok(mobileHud.cameraButton >= 34 && mobileHud.cameraButton <= 40, 'camera controls should remain compact touch targets');
+  const directGameRail = page.locator('#ww-game-rail');
+  assert.equal(await directGameRail.locator('.ww-game-button').count(), 15, 'all fifteen activity games should be directly visible outside the main menu');
+  for (const id of ['battle','football','ropes','fashion','gym','plane','train','arrows','stocks','space','candy','party','billiards','dominoes','cards']) {
+    assert.equal(await directGameRail.locator('[data-activity-id="' + id + '"]').count(), 1, id + ' should have exactly one direct game launcher');
+  }
+  await directGameRail.locator('[data-activity-id="football"]').click();
+  await page.locator('#ww-activities').waitFor({ state: 'visible' });
+  await page.locator('#wwa-game').waitFor({ state: 'visible' });
+  assert.match(await page.locator('#wwa-title').innerText(), /كرة القدم|Football/i, 'a direct game-rail tap should launch the selected activity immediately');
+  await page.locator('#wwa-home').click();
+  await page.locator('#ww-activities').waitFor({ state: 'hidden' });
+
   const menuContent = page.locator('#ww-menu-content');
   const categoryRail = page.locator('#ww-menu-categories');
   assert.equal(await categoryRail.locator('.ww-menu-category').count(), 5, 'menu should expose five independent navigation categories');
