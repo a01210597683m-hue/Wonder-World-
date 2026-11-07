@@ -757,3 +757,21 @@ body.ww-indoors #life-ui #ww-game-rail{display:none!important;visibility:hidden!
   #life-ui #ww-game-rail .ww-game-icon{font-size:15px!important}
   #life-ui #ww-game-rail .ww-game-label{font-size:7px!important}
 }
+
+
+/* The compact landscape menu must stay narrower than the world controls.
+   Hide the persistent game rail while the categorized menu is open so the
+   category rail can use the right edge without competing touch targets. */
+@media screen and (orientation:landscape) and (max-height:520px){
+  body #life-ui:has(#ww-menu-content:not([hidden])) #ww-menu-content{
+    width:390px!important;
+    min-width:0!important;
+    max-width:calc(100vw - 190px)!important;
+    box-sizing:border-box!important;
+  }
+}
+body:has(#ww-menu-content:not([hidden])) #life-ui #ww-game-rail{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
