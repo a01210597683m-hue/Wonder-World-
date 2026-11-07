@@ -681,3 +681,79 @@ body:has(#ww-menu-content:not([hidden])) #ww-menu-categories .ww-menu-category{
     overflow-y:auto!important;
   }
 }
+
+
+/* 2026-11-07: persistent direct game rail.
+   The 3D world remains the primary surface; individual game launchers stay
+   reachable on the right edge without opening the menu or covering the joystick. */
+#life-ui #ww-game-rail{
+  position:fixed!important;
+  z-index:10018!important;
+  top:max(54px,env(safe-area-inset-top))!important;
+  right:max(6px,env(safe-area-inset-right))!important;
+  left:auto!important;
+  bottom:max(74px,env(safe-area-inset-bottom))!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  gap:5px!important;
+  box-sizing:border-box!important;
+  width:74px!important;
+  max-width:74px!important;
+  min-height:0!important;
+  padding:5px 4px!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  scrollbar-width:thin!important;
+  border:1px solid #ffffff65!important;
+  border-radius:14px!important;
+  background:linear-gradient(160deg,#132e4be8,#342958e8)!important;
+  box-shadow:0 7px 20px #07162955!important;
+  pointer-events:auto!important;
+  touch-action:pan-y!important;
+}
+#life-ui #ww-game-rail .ww-game-button{
+  display:flex!important;
+  flex:0 0 auto!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:2px!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:43px!important;
+  margin:0!important;
+  padding:4px 2px!important;
+  border:1px solid #ffffff45!important;
+  border-radius:10px!important;
+  background:linear-gradient(145deg,#ffffff24,#ffffff0c)!important;
+  color:#fff!important;
+  font:800 8px/1.15 system-ui,sans-serif!important;
+  text-align:center!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  touch-action:manipulation!important;
+}
+#life-ui #ww-game-rail .ww-game-icon{font-size:18px!important;line-height:1!important}
+#life-ui #ww-game-rail .ww-game-label{display:block!important;color:#fff!important;font-size:8px!important;line-height:1.15!important}
+#life-ui #ww-game-rail .ww-game-button:active{transform:scale(.96)!important}
+body.ww-indoors #life-ui #ww-game-rail{display:none!important;visibility:hidden!important;pointer-events:none!important}
+@media(max-width:600px){
+  #life-ui #ww-game-rail{right:4px!important;width:68px!important;max-width:68px!important;padding:4px 3px!important;gap:4px!important}
+  #life-ui #ww-game-rail .ww-game-button{min-height:41px!important}
+  #life-ui #ww-game-rail .ww-game-icon{font-size:17px!important}
+  #life-ui #ww-game-rail .ww-game-label{font-size:7.5px!important}
+}
+@media(orientation:landscape) and (max-height:520px){
+  #life-ui #ww-game-rail{
+    top:max(44px,env(safe-area-inset-top))!important;
+    bottom:max(64px,env(safe-area-inset-bottom))!important;
+    width:68px!important;max-width:68px!important;
+    padding:3px!important;gap:3px!important;
+  }
+  #life-ui #ww-game-rail .ww-game-button{min-height:36px!important;padding:3px 1px!important}
+  #life-ui #ww-game-rail .ww-game-icon{font-size:15px!important}
+  #life-ui #ww-game-rail .ww-game-label{font-size:7px!important}
+}
