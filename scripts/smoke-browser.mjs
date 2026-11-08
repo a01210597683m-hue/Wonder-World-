@@ -832,6 +832,10 @@ try {
 
       assert.equal(await page.locator('#wwa-bscore').innerText(), '0', 'battle royale should start with no eliminations');
       assert.equal(await page.locator('#wwa-zone').count(), 1, 'battle royale should show the shrinking safe-zone status');
+      // Reset after movement/aim interaction so enemy pressure cannot end the round
+      // before the isolated magazine-consumption and reload assertions run.
+      await page.locator('[data-act="restart"]').click();
+      assert.equal(await page.locator('#wwa-ammo').innerText(), '30', 'fresh Battle Royale round should start with a full magazine');
       await page.locator('[data-act="fire"]').click();
       assert.equal(await page.locator('#wwa-ammo').innerText(), '29', 'battle royale should consume one round per shot');
       await page.locator('[data-act="reload"]').click();
