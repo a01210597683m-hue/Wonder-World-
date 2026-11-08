@@ -216,32 +216,27 @@
       if(panel.__wwaBattleClickHandler)panel.removeEventListener('click',panel.__wwaBattleClickHandler);
       panel.__wwaBattleClickHandler=e=>{const b=e.target.closest('#wwa-content [data-act]');if(!b||!panel.contains(b))return;const a=b.dataset.act;if(a==='up')move(0,-22);if(a==='down')move(0,22);if(a==='left')move(-22,0);if(a==='right')move(22,0);if(a==='reload'&&!state.ended){state.ammo=30;msg('تم إعادة تعبئة المخزن بالكامل.');update();}if(a==='heal'&&!state.ended&&state.hp>0){state.hp=Math.min(100,state.hp+25);msg('استخدمتي حقيبة علاج.');update();}if(a==='fire')fire();if(a==='restart')restart();};
       panel.addEventListener('click',panel.__wwaBattleClickHandler);
-      const fireButton=$('#wwa-content [data-act="fire"]',panel);let firePointer=null;let firePointerAction=false;
+      let firePointer=null;
       const stopHeldFire=()=>{
         firePointer=null;
         if(battleFireTimer){window.clearInterval(battleFireTimer);battleFireTimer=0;}
       };
       const endHeldFire=e=>{
-        if(firePointer!==null&&(!e||e.pointerId===undefined||e.pointerId===firePointer)){stopHeldFire();firePointerAction=false;}
+        if(firePointer!==null&&(!e||e.pointerId===undefined||e.pointerId===firePointer))stopHeldFire();
       };
-      fireButton.addEventListener('pointerdown',e=>{
-        if(state.ended||firePointer!==null)return;
-        firePointerAction=true;
+      // Listen on the persistent panel, not the fire button: firing refreshes the HUD
+      // and replaces that button, which would otherwise lose pointer capture mid-burst.
+      panel.addEventListener('pointerdown',e=>{
+        const button=e.target.closest('#wwa-content [data-act="fire"]');
+        if(!button||!panel.contains(button)||state.ended||firePointer!==null)return;
         firePointer=e.pointerId;
-        try{fireButton.setPointerCapture(e.pointerId);}catch(_){}
         if(battleFireTimer)window.clearInterval(battleFireTimer);
         battleFireTimer=window.setInterval(()=>{
           if(firePointer===null||state.ended){stopHeldFire();return;}
           fire();
         },350);
       });
-      fireButton.addEventListener('pointerup',endHeldFire);
-      fireButton.addEventListener('pointercancel',endHeldFire);
-      fireButton.addEventListener('lostpointercapture',endHeldFire);
-      fireButton.addEventListener('pointerleave',e=>{
-        if(firePointer!==null&&!fireButton.hasPointerCapture?.(firePointer))endHeldFire(e);
-      });
-      // Capture release globally so touch/mouse release outside the control always stops auto-fire.
+      // Release anywhere, including outside the panel, always stops automatic fire.
       document.addEventListener('pointerup',endHeldFire,true);
       document.addEventListener('pointercancel',endHeldFire,true);
       window.addEventListener('blur',stopHeldFire);
